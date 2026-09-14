@@ -9331,6 +9331,50 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
         }
       }
 
+      function sessionStillValid(current){
+        if(!current?.access_token) return false;
+        if(!current.expires_at) return true;
+        // Eine Minute Puffer verhindert, dass ein Token mitten in einer Abfrage abläuft.
+        return Number(current.expires_at) > Math.floor(Date.now()/1000)+60;
+      }
+
+      async function refreshStoredSession(){
+        const current=getStoredSession();
+        if(!current?.refresh_token){
+          saveSession(null);
+          return {session:null,error:new Error('Sitzung abgelaufen. Bitte erneut anmelden.')};
+        }
+
+        const {data,error}=await authRequest('/token?grant_type=refresh_token',{
+          method:'POST',
+          headers:authHeaders(null,{'Content-Type':'application/json'}),
+          body:JSON.stringify({refresh_token:current.refresh_token})
+        });
+
+        if(error){
+          saveSession(null);
+          return {session:null,error};
+        }
+
+        const refreshed={
+          access_token:data.access_token,
+          refresh_token:data.refresh_token||current.refresh_token,
+          expires_in:data.expires_in,
+          expires_at:data.expires_at||Math.floor(Date.now()/1000)+(data.expires_in||3600),
+          token_type:data.token_type||'bearer',
+          user:data.user||current.user
+        };
+        saveSession(refreshed);
+        return {session:refreshed,error:null};
+      }
+
+      async function getValidSession(){
+        const current=getStoredSession();
+        if(!current) return {session:null,error:null};
+        if(sessionStillValid(current)) return {session:current,error:null};
+        return refreshStoredSession();
+      }
+
       class QueryBuilder{
         constructor(table){
           this.table=table;this.columns='*';this.filters=[];this.orders=[];this.singleMode=false;
@@ -9349,7 +9393,8 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
           params.set('select',this.columns);
           this.filters.forEach(([k,v])=>params.append(k,v));
           if(this.orders.length) params.set('order',this.orders.join(','));
-          const current=getStoredSession();
+          const {session:current,error:sessionError}=await getValidSession();
+          if(sessionError) return {data:null,error:sessionError};
           try{
             const res=await fetch(baseUrl+'/rest/v1/'+encodeURIComponent(this.table)+'?'+params.toString(),{
               headers:authHeaders(current?.access_token,{
@@ -9369,7 +9414,12 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
       return {
         auth:{
           async getSession(){
-            return {data:{session:getStoredSession()},error:null};
+            const {session,error}=await getValidSession();
+            return {data:{session},error};
+          },
+          async refreshSession(){
+            const {session,error}=await refreshStoredSession();
+            return {data:{session},error};
           },
           async signInWithPassword({email,password}){
             const {data,error}=await authRequest('/token?grant_type=password',{
@@ -9427,7 +9477,8 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
         },
         from(table){return new QueryBuilder(table)},
         async rpc(name,args={}){
-          const current=getStoredSession();
+          const {session:current,error:sessionError}=await getValidSession();
+          if(sessionError) return {data:null,error:sessionError};
           try{
             const res=await fetch(baseUrl+'/rest/v1/rpc/'+encodeURIComponent(name),{
               method:'POST',
