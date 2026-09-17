@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>SKIELSEN V15.0.36</title>
+<link rel="stylesheet" href="assets/css/app.css"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+<header class="sk-header">
+<div class="sk-header__main">
+<!-- SKIELSEN logo served as a static asset -->
+<img alt="SKIELSEN" class="sk-header__logo" id="skielsenAccountHomeLogo" data-skielsen-account-home role="button" tabindex="0" title="Zu Mein SKIELSEN" aria-label="Zu Mein SKIELSEN" src="assets/images/skielsen-logo.png"/>
+<span class="sk-header__version">V15.0.36</span>
+<nav aria-label="Hauptnavigation" class="sk-header__nav">
+<a class="active" data-page="home" href="#homePage">HOME</a>
+<a data-page="profile" href="#profilePage">PLAYER</a>
+<a data-page="matches" href="#matchesPage">MATCHES</a>
+<a data-page="games" href="#gamesPage">GAMES</a>
+<a data-page="ranking" href="#rankingPage">RANKING</a>
+<a data-page="bets" href="#betsPage">WETTEN</a>
+<a data-page="joker" href="#jokerPage">JOKER</a>
+<a data-page="news" href="#newsPage">NEWS</a>
+<a data-page="admin" href="#adminPage" data-admin-only="true">ADMIN TOOLS</a>
+</nav>
+</div>
+<div aria-hidden="true" class="sk-header__strip">
+<span class="sk-header__strip-blue"></span>
+<span class="sk-header__strip-red"></span>
+<span class="sk-header__strip-yellow"></span>
+<span class="sk-header__strip-green"></span>
+</div>
+</header>
+
+<div class="page app-page active" id="homePage">
+  <section class="home-dashboard-hero main-page-hero">
+    <div><span class="main-hero-pre">TOURNAMENT CENTER</span><h1>—</h1><p>TURNIER WIRD GELADEN</p></div>
+    <button class="home-player-entry" data-page="profile" type="button" aria-label="Player Profil öffnen">
+      <span class="home-player-avatar">—</span><span><small>DEIN PLAYER</small><strong>—</strong></span><b>→</b>
+    </button>
+  </section>
+  <div class="home-dashboard-grid">
+    <main>
+      <section class="home-module home-next-match">
+        <div class="home-module-head"><div><span>01</span><h2>NÄCHSTES MATCH</h2></div><small>—</small></div>
+        <article class="home-match-card v20-home-match" role="button" tabindex="0" hidden></article>
+      </section>
+      <section class="home-module action-center">
+        <div class="home-module-head"><div><span>02</span><h2>ACTION CENTER</h2></div><div class="open-actions-indicator" id="homeOpenActionsIndicator"><span id="homeOpenActionsLabel">ALLES ERLEDIGT</span><b id="homeOpenActionsCount">0</b></div></div>
+        <div class="action-grid">
+          <button class="action-card prototype-bet-action mandatory-action-card" id="homeBetAction" type="button" hidden><span class="action-type">BETTING</span><strong>JETZT WETTEN ODER ÜBERSPRINGEN</strong><p>Deine Entscheidung muss vor dem Matchstart erfolgen.</p><b>ZU WETTEN →</b></button>
+          <button class="action-card action-joker optional-action-card" id="homeJokerAction" data-page="joker" type="button" hidden><span class="action-type">OPTIONAL · JOKER</span><strong>JOKER VERWALTEN</strong><p>Geplante Games prüfen.</p><b>JOKER CENTER →</b></button>
+          <button class="action-card action-mvp mandatory-action-card" id="homeMvpAction" data-page="mvpVote" type="button" hidden><span class="action-type">VOTING</span><strong>MVP WÄHLEN</strong><p>Stimme ab.</p><b>JETZT ABSTIMMEN →</b></button>
+        </div>
+      </section>
+      <section class="home-module home-news-teaser">
+        <div class="home-module-head"><div><span>03</span><h2>TOP STORY</h2></div><button data-page="news" type="button">NEWS →</button></div>
+        <button class="home-story" data-page="news" type="button"><small>SKIELSENSPORT</small><strong>Noch kein Ergebnis im Turnier.</strong></button>
+      </section>
+    </main>
+    <aside><section class="home-module home-standings"><div class="home-module-head"><div><span>04</span><h2>STANDINGS</h2></div><button data-page="ranking" type="button">ALLE →</button></div></section></aside>
+  </div>
+</div>
+
+<div class="page app-page" id="profilePage" data-player-section-open="overview">
+  <section class="profile main-page-hero home-hero">
+    <div class="main-hero-pre">PLAYER PROFILE</div><div class="avatar">—</div>
+    <div class="profile-info"><div class="player-name">—</div><div class="player-meta">0 MATCHES · 0 WINS · 0 MVP</div><div class="player-team"><span class="team-dot"></span>—</div></div>
+    <div class="profile-ranking"><div class="rank-label">TEAM RANK</div><div class="rank">—</div></div>
+  </section>
+  <section class="player-profile-switchbar" aria-label="Player auswählen"><div class="player-profile-switch-copy"><span>PLAYER ANSEHEN</span><strong id="playerSwitchContext">—</strong></div><label class="player-profile-select-wrap" for="playerProfileSelect"><span>PROFIL</span><select id="playerProfileSelect" aria-label="Player Profil auswählen"></select></label></section>
+  <nav class="profile-nav"><a data-player-section="overview">OVERVIEW</a><a data-player-section="matches">MATCHES</a><a data-player-section="achievements">ACHIEVEMENTS</a><a data-player-section="history">HISTORY</a></nav>
+  <section aria-label="Player Matches" class="profile-matches-view" id="profileMatchesView">
+    <div class="pm-section-bar"><span>PLAYER MATCHES</span><b>—</b></div>
+    <section class="pm-block"><header class="pm-head"><div><span>01</span><h2>UPCOMING</h2></div><small>BESTÄTIGTE PAIRINGS</small></header><div class="pm-table" id="v20ProfileUpcoming"></div></section>
+    <section class="pm-block"><header class="pm-head"><div><span>02</span><h2>RECENT MATCHES</h2></div><small>AKTUELLES TURNIER</small></header><div class="pm-table" id="v20ProfileRecent"></div></section>
+  </section>
+  <div class="achievements-view" id="achievementsView"><section class="achievement-section"><div class="achievement-section-head"><div><span>01</span><h2>TURNIER-AWARDS</h2></div><small>AKTUELLER STAND</small></div><div class="achievement-grid" id="v20AchievementGrid"></div></section></div>
+  <section class="player-history-view" id="playerHistoryView"><div class="pm-section-bar"><span>PLAYER HISTORY</span><b>READ ONLY</b></div><section class="history-block"><header class="pm-head"><div><span>01</span><h2>TOURNAMENT HISTORY</h2></div><small>DATENQUELLE</small></header><div id="v20PlayerHistory"></div></section><p class="history-note">Historische Turniere werden in der aktuellen V15-Runtime nicht geladen. Es werden deshalb keine Demo-Historien angezeigt.</p></section>
+  <div class="section-bar" id="playerOverviewBar"><div class="section-id">PLAYER OVERVIEW</div></div>
+  <div class="dashboard" id="playerOverviewDashboard"><main>
+    <section class="panel"><div class="panel-header"><div class="panel-title">PERFORMANCE</div><div class="panel-subtitle">CURRENT TOURNAMENT</div></div><div class="kpis"><div class="kpi"><div class="kpi-label">WINS</div><div class="kpi-value">0</div></div><div class="kpi"><div class="kpi-label">MVP TITEL</div><div class="kpi-value">0</div></div><div class="kpi"><div class="kpi-label">PUNKTE</div><div class="kpi-value">0</div></div><div class="kpi"><div class="kpi-label">FORM</div><div class="form" id="v20ProfileForm"></div></div></div></section>
+    <section class="skills-panel"><div class="skills-header"><div class="skills-title">SKILLS</div><div class="skills-legend"><div class="legend-item"><span class="legend-dot legend-community"></span>COMMUNITY</div><div class="legend-item"><span class="legend-dot legend-skielsen"></span>SKIELSEN</div></div></div><div class="skills-columns"><div>SKILL</div><div>RATING</div><div class="community-column">COM</div><div class="skielsen-column">SKL</div><div class="delta-column">Δ</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div><div class="skill-row"><div class="skill-name">—</div><div class="skill-bars"><div class="skill-track"><div class="skill-fill-community" style="width:0%"></div></div><div class="skill-track"><div class="skill-fill-skielsen" style="width:0%"></div></div></div><div class="skill-value skill-community-value">0 / 100</div><div class="skill-value">0 / 100</div><div class="skill-delta">0</div><div></div></div></section>
+  </main></div>
+</div>
+
+<div class="page app-page" id="matchesPage">
+  <section class="matches-hero main-page-hero"><div class="matches-kicker main-hero-pre">TOURNAMENT CENTER</div><h1>MATCHES</h1><p>Turnierstand wird geladen.</p></section>
+  <section class="match-section current-game-section"><div class="match-section-head"><div><span class="section-no">01</span><h2>UPCOMING MATCHES</h2></div><span class="swipe-hint">NÄCHSTE OFFENE MATCHES · SWIPE →</span></div><div class="match-carousel"></div></section>
+  <section class="match-section"><div class="match-section-head"><div><span class="section-no">02</span><h2>RECENT RESULTS</h2></div><span class="swipe-hint">AKTUELLES TURNIER · SWIPE →</span></div><div class="match-carousel"></div></section>
+</div>
+
+<div class="page app-page" id="matchDetailPage">
+  <div class="match-detail-page"><button class="detail-back" data-context-back type="button">← ZURÜCK</button>
+    <header class="detail-hero"><div class="detail-status" id="detailStatus"><i></i><span>—</span></div><div class="detail-event"><b id="v20DetailGame">—</b><span id="v20DetailStage">—</span></div><div id="v20MatchDetailPairing"></div></header>
+
+    <section class="detail-section betting-block" id="v1536MatchBetting">
+      <div class="detail-section-head"><h3>BETTING</h3><small id="v1536BettingHeaderState">—</small></div>
+      <div class="v1536-bet-top"><strong>WER GEWINNT?</strong><button id="matchBetButton" type="button">WETTDETAILS</button></div>
+      <div id="v1515MatchQuickBet" class="v1515-match-quickbet"></div>
+    </section>
+
+    <section class="detail-section match-joker-block" id="matchJokerBlock"><div class="detail-section-head"><h3>JOKER</h3></div><div class="betting-content"><div><strong id="matchJokerState">JOKER CENTER</strong><span>Gegnerische Secret-Joker bleiben bis zum Abschluss des Games geheim.</span></div><button data-page="joker" type="button">JOKER ÖFFNEN</button></div></section>
+
+    <section class="detail-section v1536-match-control" id="v1536MatchControl">
+      <div class="detail-section-head"><h3>GAME CONTROL</h3><small id="v1536MatchControlPhase">—</small></div>
+      <div class="v1536-control-row">
+        <div class="v1536-control-info" id="v1536ControlInfo">
+          <strong id="v1536MatchControlTitle">—</strong>
+          <div class="v1536-control-gate" id="v1536MatchControlGate"></div>
+        </div>
+        <button class="v1536-control-action" id="v1536MatchControlStart" type="button">—</button>
+      </div>
+      <section class="v1536-result-shell" id="v1536MatchResult" hidden>
+        <div class="v1536-result-head"><h4>ERGEBNIS</h4></div>
+        <div id="v1536MatchResultHost"></div>
+        <div id="v1536EmbeddedInAppHost"></div>
+      </section>
+    </section>
+
+    <details class="detail-disclosure" id="h2hDisclosure"><summary><div><small>HEAD TO HEAD</small><strong id="v20H2HSummary">—</strong></div><span>DETAILS +</span></summary><section class="detail-section detail-history-section"><div class="v20-history-list" id="v20H2HRows"></div></section></details>
+    <details class="detail-disclosure past-disclosure" id="pastMatchesDisclosure"><summary><div><small>FORM</small><strong>LETZTE PARTIEN</strong></div><span>ANZEIGEN +</span></summary><section class="detail-section detail-history-section"><div class="v20-form-columns" id="v20FormRows"></div></section></details>
+  </div>
+</div>
+
+<div class="page app-page" id="rankingPage">
+  <section class="ranking-hero main-page-hero"><div class="ranking-kicker main-hero-pre">TOURNAMENT RANKING</div><h1>RANKING</h1><p>Aktueller Stand.</p></section>
+  <section class="ranking-section"><div class="ranking-section-head"><div><span>01</span><h2>STANDINGS</h2></div><small>AKTUELLER STAND</small></div><div class="team-ranking-table"><div class="ranking-row ranking-labels"><span>#</span><span>TEILNEHMER</span><span>PUNKTE</span><span class="medal gold">1ST</span><span class="medal silver">2ND</span><span class="medal bronze">3RD</span><span>LAST</span><span>MVP</span></div></div></section>
+  <details class="ranking-breakdown"><summary><strong>DETAILS ANZEIGEN</strong><span>PLACEMENTS · MVP</span></summary><section class="ranking-section category-section ranking-breakdown-inner"><div class="category-grid" id="v20RankingLeaders"></div><p class="ranking-rule-note"></p></section></details>
+</div>
+
+<div class="page app-page" id="betsPage">
+  <section class="bet-hero main-page-hero"><div><span class="bet-kicker main-hero-pre">SKIELSEN BETTING</span><h1>WETTEN</h1><p>Deine Einschätzung. Deine Coins. Die Quote wird beim Öffnen des Marktes eingefroren.</p></div><div class="coin-wallet"><small>DEIN GUTHABEN</small><strong id="walletBalance">0</strong><span>SKIELSEN COINS</span></div></section>
+  <section class="prototype-bet-deadline" id="prototypeBetDeadline"><div><small>DEINE ENTSCHEIDUNG</small><strong id="prototypeBetDeadlineTitle">—</strong><span id="prototypeBetDeadlineCopy">—</span></div></section>
+  <section class="bet-match-card"><div class="bet-match-top"><div><span class="live-dot"></span><b>—</b></div><span id="v20BetMatchMeta">—</span></div><div class="bet-game">—</div><div class="bet-teams"></div></section>
+  <details class="bet-disclosure odds-disclosure"><summary>WIE WIRD DIE QUOTE BERECHNET? <span>ⓘ</span></summary><section class="bet-context"><div class="bet-section-head"><span>MARKT-SNAPSHOT</span><small>PRE-MATCH</small></div><div class="bet-context-grid" id="v20BetContextGrid"></div></section></details>
+  <section class="bet-slip"><div class="bet-section-head"><span>DEIN WETTSCHEIN</span><small>VIRTUELLE COINS</small></div><div class="slip-selection" id="slipSelection"><div><small>DEIN TIPP</small><strong id="betSelectedTeam">NOCH KEINE AUSWAHL</strong></div><div class="slip-quote"><small>QUOTE</small><strong id="betSelectedOdds">—</strong></div></div><div class="stake-label"><span>EINSATZ</span><strong><span id="stakeValue">100</span><small>COINS</small></strong></div><input class="stake-range" id="stakeRange" max="1000" min="0" step="25" type="range" value="100"/><div class="stake-presets"><button data-stake="50" type="button">50</button><button class="active" data-stake="100" type="button">100</button><button data-stake="250" type="button">250</button><button data-stake="500" type="button">500</button></div><div class="custom-stake"><label for="customStake">CUSTOM EINSATZ</label><div class="custom-stake-field"><input id="customStake" inputmode="numeric" min="0" placeholder="Betrag" step="1" type="number"/><span>COINS</span></div></div><div class="potential-win"><span>MÖGLICHE AUSZAHLUNG</span><strong><span id="potentialPayout">0</span> COINS</strong></div><button class="place-bet-btn" id="placeBetBtn" type="button">WETTE PLATZIEREN<span>—</span></button><button class="prototype-skip-bet" id="prototypeSkipBet" type="button">DIESES MATCH NICHT WETTEN</button></section>
+  <details class="bet-disclosure bet-history-disclosure"><summary>WETTEN & WALLET VERLAUF <span>+</span></summary><section class="my-bets" id="myBetsSection"><div class="bet-section-head"><span>MEINE WETTEN</span><small>TOURNAMENT</small></div><div id="myBetsList"></div></section><section class="community-bets"><div class="bet-section-head"><span>COMMUNITY BETS</span><small>AKTUELLER MARKT</small></div><div id="v20CommunityBets"></div></section><section class="wallet-ledger"><div class="bet-section-head"><span>TRANSAKTIONEN</span><small>WALLET LEDGER</small></div><div id="walletLedgerRows"></div></section></details>
+</div>
+
+<div class="page app-page" id="newsPage">
+  <section class="news-hero main-page-hero"><div><div class="news-kicker main-hero-pre">SKIELSENSPORT</div><h1>NEWSFEED</h1><p>Faktenbasierte Meldungen aus dem aktuellen Turnier.</p></div><div class="news-live"><i></i> TOURNAMENT LIVE</div></section>
+  <section id="v15NewsFeed" class="v15-news-feed"></section>
+</div>
+
+<div class="page app-page utility-page" id="mvpVotePage">
+  <button class="context-back" data-context-back type="button">← ZURÜCK</button>
+  <section class="utility-hero utility-hero-min"><h1>VOTING</h1><p>AKTUELL KEINE WAHL OFFEN</p></section>
+  <section class="utility-panel">
+    <div class="candidate-grid" id="mvpCandidateGrid"></div>
+    <button class="primary-action" id="submitMvpVote" type="button" disabled>STIMME ABGEBEN</button>
+    <button class="prototype-mvp-continue" id="prototypeMvpContinue" type="button" hidden>WEITER →</button>
+    <p class="action-feedback" id="mvpFeedback"></p>
+  </section>
+</div>
+
+<div class="page app-page utility-page" id="jokerPage">
+  <button class="context-back" data-context-back type="button">← ZURÜCK</button>
+  <section class="utility-hero utility-hero-min"><h1>JOKER</h1><p>STRATEGISCH FÜR EIN GEPLANTES SPIEL EINSETZEN</p></section>
+  <section class="utility-panel v1508-joker-panel">
+    <div class="v1508-joker-section-head"><div><span>01</span><h2>DEINE JOKER</h2></div><p>Nur ein akzeptierter Joker wird verbraucht.</p></div>
+    <div class="joker-grid v1508-joker-assets" id="v1508JokerAssets">
+      <button class="joker-card" data-joker-type="double_points" type="button"><span class="v1508-joker-state" data-joker-state="DOUBLE_POINTS">VERFÜGBAR</span><strong>DOPPELTE PUNKTE</strong><p>Deine Platzierungspunkte im ausgewählten Game ×2.</p></button>
+      <button class="joker-card" data-joker-type="pick_opponent" type="button"><span class="v1508-joker-state" data-joker-state="PICK_OPPONENT">VERFÜGBAR</span><strong>GEGNER WÄHLEN</strong><p>Wenn akzeptiert, bestimmst du anschließend deinen Halbfinal-Gegner.</p></button>
+    </div>
+
+    <section class="v1525-joker-game-selection">
+      <header class="v1525-joker-section-head">
+        <div class="v1525-joker-section-head-line">
+          <small>02</small>
+          <h2>SPIEL AUSWÄHLEN</h2>
+        </div>
+        <p>Wähle ein offenes Spiel für deinen Joker oder ändere eine bereits gesetzte Auswahl.</p>
+      </header>
+
+      <div class="v1521-joker-list-head">
+        <strong>OFFENE SPIELE</strong>
+        <span>JOKER NOCH RELEVANT</span>
+      </div>
+
+      <section class="v1508-joker-game-list v1525-joker-open-list" id="v1508JokerGameList"></section>
+
+      <div class="v1525-joker-game-section-spacer" aria-hidden="true"></div>
+
+      <div class="v1521-joker-list-head concluded">
+        <strong>ABGESCHLOSSENE SPIELE</strong>
+        <span>NICHT MEHR VERFÜGBAR</span>
+      </div>
+
+      <section class="v1508-joker-game-list v1521-joker-concluded-list v1525-joker-concluded-list" id="v1521JokerConcludedGameList"></section>
+    </section>
+
+    <div class="v1508-joker-selection" id="v1508JokerSelection" hidden>
+      <small>AUSWAHL</small>
+      <strong id="v1508JokerSelectionTitle">—</strong>
+      <p id="v1508JokerSelectionCopy">—</p>
+    </div>
+
+    <div class="v1508-joker-actions">
+      <button class="primary-action" id="lockJokerBtn" type="button" disabled>JOKER EINSETZEN</button>
+      <button class="v1508-joker-secondary" id="withdrawJokerBtn" type="button" hidden>JOKER ZURÜCKZIEHEN</button>
+    </div>
+    <p class="action-feedback" id="jokerFeedback"></p>
+
+    <div class="joker-targets v1508-accepted-pick" id="jokerTargets" hidden>
+      <div class="v1508-joker-section-head"><div><span>03</span><h2>DEIN JOKER WURDE AKZEPTIERT</h2></div><p>Wähle jetzt deinen Halbfinal-Gegner. Erst danach werden Bracket und Betting freigegeben.</p></div>
+      <div class="joker-opponents" id="v1508JokerOpponents"></div>
+      <button class="primary-action" id="confirmJokerOpponentBtn" type="button" disabled>GEGNER FESTLEGEN</button>
+    </div>
+  </section>
+</div>
+
+<div class="v1510-joker-dialog" id="v1510JokerDialog" hidden aria-modal="true" role="dialog" aria-labelledby="v1510JokerDialogTitle">
+  <div class="v1510-joker-dialog-backdrop" data-v1510-joker-close></div>
+  <section class="v1510-joker-dialog-card">
+    <small id="v1510JokerDialogKicker">JOKER BESTÄTIGEN</small>
+    <h2 id="v1510JokerDialogTitle">JOKER EINSETZEN?</h2>
+    <p id="v1510JokerDialogCopy">—</p>
+    <div class="v1510-joker-dialog-summary" id="v1510JokerDialogSummary"></div>
+    <div class="v1510-joker-dialog-actions">
+      <button class="secondary" id="v1510JokerDialogCancel" type="button">ABBRECHEN</button>
+      <button id="v1510JokerDialogConfirm" type="button">JOKER EINSETZEN</button>
+    </div>
+  </section>
+</div>
+
+
+<div class="v1511-joker-resolution-dialog" id="v1511JokerResolutionDialog" hidden aria-modal="true" role="dialog" aria-labelledby="v1511JokerResolutionTitle">
+  <div class="v1511-joker-resolution-backdrop"></div>
+  <section class="v1511-joker-resolution-card">
+    <small id="v1511JokerResolutionKicker">JOKER AUFLÖSUNG</small>
+    <h2 id="v1511JokerResolutionTitle">JOKER AUSGEWERTET</h2>
+    <p id="v1511JokerResolutionCopy">—</p>
+    <div class="v1511-joker-resolution-summary" id="v1511JokerResolutionSummary"></div>
+    <div class="v1511-opponent-choices" id="v1511OpponentChoices" hidden></div>
+    <div class="v1511-joker-resolution-actions">
+      <button class="secondary" id="v1511JokerResolutionClose" type="button">SCHLIESSEN</button>
+      <button id="v1511JokerResolutionConfirm" type="button" hidden>GEGNER FESTLEGEN</button>
+    </div>
+  </section>
+</div>
+
+
+<div id="v1530JokerRevealDialog" hidden aria-modal="true" role="dialog" aria-labelledby="v1530JokerRevealTitle">
+  <section class="v1530-reveal-shell">
+    <div class="v1530-reveal-meta">
+      <small>JOKER REVEAL</small>
+      <strong id="v1530JokerRevealGame">—</strong>
+    </div>
+
+    <div class="v1530-stage">
+      <div class="v1530-card-wrap" id="v1530JokerCardWrap">
+        <div class="v1530-card-core" id="v1530JokerCardCore">
+          <div class="v1530-card-frame" id="v1530JokerCardFrame"></div>
+
+          <div class="v1530-card3d" id="v1530JokerCard3d">
+            <div class="v1530-face v1530-back">
+              <img src="assets/joker/skielsen-joker-back.png" alt="SKIELSEN Joker Rückseite Logo">
+            </div>
+            <div class="v1530-face v1530-front">
+              <img src="assets/joker/skielsen-joker-front.png" alt="SKIELSEN Joker Vorderseite Blanc">
+              <div class="v1530-overlay">
+                <div class="v1530-flow-zone">
+                  <div class="v1530-reveal-line v1530-category" id="v1530JokerCategory"></div>
+                  <div class="v1530-reveal-line v1530-title" id="v1530JokerTitle"></div>
+                  <div class="v1530-rule" id="v1530JokerRule"></div>
+                  <div class="v1530-reveal-line v1530-description" id="v1530JokerDescription"></div>
+                </div>
+                <div class="v1530-team-reveal" id="v1530JokerTeamReveal">
+                  <span class="v1530-team-chip" id="v1530JokerTeam"></span>
+                  <span class="v1530-team-caption" id="v1530JokerTeamCaption">JOKER GESETZT VON</span>
+                </div>
+                <div class="v1530-result" id="v1530JokerResult">
+                  <span class="v1530-result-label" id="v1530JokerResultLabel">ERGEBNIS</span>
+                  <div class="v1530-result-value-wrap" id="v1530JokerResultMorph">
+                    <div class="v1530-result-value base" id="v1530JokerResultInitial"></div>
+                    <div class="v1530-result-value final" id="v1530JokerResultFinal"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="v1530-crack-layer" id="v1530JokerCrackLayer" aria-hidden="true">
+            <svg viewBox="0 0 1060 1484" preserveAspectRatio="none">
+              <path d="M531 55 L510 190 L550 275 L522 390 L570 510 L528 650"/>
+              <path d="M528 650 L445 735 L470 835 L390 910 L420 1045"/>
+              <path d="M530 650 L620 742 L590 850 L680 928 L646 1060"/>
+              <path d="M390 910 L290 962 L250 1080 L150 1130"/>
+              <path d="M680 928 L784 985 L816 1104 L924 1160"/>
+              <path d="M512 190 L390 155 L330 82"/>
+              <path d="M550 275 L690 222 L755 118"/>
+              <path d="M420 1045 L472 1150 L438 1266 L510 1410"/>
+              <path d="M646 1060 L592 1175 L626 1294 L552 1422"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="v1530-shatter-stage" id="v1530JokerShatterStage"></div>
+
+        <div class="v1530-tap-overlay" id="v1530JokerTapOverlay">
+          <div class="v1530-tap-panel">
+            <button class="v1530-tap-cta" id="v1530JokerRevealStart" type="button">REVEAL STARTEN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v1530-caption" id="v1530JokerCaption">
+      <b>JOKER REVEAL</b>
+      <strong id="v1530JokerCaptionTitle"></strong>
+      <span id="v1530JokerCaptionText"></span>
+      <div class="v1530-loser-label" id="v1530JokerLoserLabel">JOKER OHNE EFFEKT</div>
+    </div>
+
+    <button class="v1530-continue" id="v1530JokerRevealContinue" type="button" hidden>WEITER</button>
+  </section>
+</div>
+
+<div id="v1530JokerMultiDialog" hidden aria-modal="true" role="dialog" aria-labelledby="v1530JokerMultiTitle">
+  <section class="v1530-multi-card">
+    <small>JOKER AUSWAHL</small>
+    <h2 id="v1530JokerMultiTitle">MEHRERE JOKER</h2>
+    <p>Für dieses Spiel wurden mehrere Joker eingereicht. Es wird genau ein Joker ausgewählt.</p>
+    <!-- Future V15 pick-animation slot -->
+    <div id="v1530JokerPickAnimationHost" data-pick-animation="pending">
+      <div class="v1530-pick-card">?</div>
+      <div class="v1530-pick-card">?</div>
+      <div class="v1530-pick-card">?</div>
+    </div>
+    <strong class="v1530-multi-count" id="v1530JokerMultiCount">AUSWAHL WIRD ERMITTELT …</strong>
+  </section>
+</div>
+
+<div class="page app-page utility-page admin-page admin-guided" id="adminPage">
+  <button class="context-back" data-context-back type="button">← ZURÜCK</button>
+  <section class="utility-hero admin-hero admin-hero-clean">
+    <span class="main-hero-pre">TOURNAMENT ADMIN · TOOLS</span>
+    <h1>ADMIN TOOLS</h1>
+    <p>RECOVERY, AUDIT UND SONDERFUNKTIONEN · DER OPERATIVE SPIELWORKFLOW LÄUFT ÜBER MATCHES.</p>
+  </section>
+  <section class="prototype-sim-panel" aria-label="Test und Recovery">
+    <div><small>TEST & RECOVERY</small><strong id="prototypeStateLabel">TURNIERSTATUS WIRD GELADEN</strong><span>Nur Diagnose/Reset. Matchstart und Ergebnisse werden auf der Match Page bedient.</span></div>
+    <div class="prototype-sim-actions"><button id="prototypeOtherBets" type="button" hidden>ANDERE WETTEN ABSCHLIESSEN</button><button id="prototypeOtherMvp" type="button" hidden>ANDERE VOTES ABSCHLIESSEN</button><button id="prototypeAutofill" type="button" hidden>SCORE AUTOFILL</button><button id="prototypeReset" type="button">TESTLAUF RESET</button></div>
+  </section>
+  <section class="prototype-admin-bet-gate" id="prototypeAdminBetGate" hidden><div><small>BETTING STATUS</small><strong id="prototypeAdminBetCount">—</strong><span id="prototypeAdminBetPending">—</span></div><b id="prototypeAdminBetGateState">INFO</b></section>
+  <details class="admin-management" id="adminManagement" open>
+    <summary><span>ADMIN TOOLS & KORREKTUREN</span><small>Aktuelle Turnierdaten</small><b>+</b></summary>
+    <div class="admin-management-grid">
+      <section class="utility-panel" id="adminPeople"><div class="utility-head"><span>A</span><h2>PLAYER & TEAMS</h2><small>READ ONLY</small></div><div class="admin-roster admin-roster-full" id="v20AdminRoster"></div></section>
+      <section class="utility-panel" id="adminPlan"><div class="utility-head"><span>B</span><h2>TOURNAMENT PLAN</h2><small>AKTUELLER STAND</small></div><div class="admin-game-list" id="adminGameList"></div></section>
+      <section class="utility-panel" id="adminWallet"><div class="utility-head"><span>C</span><h2>SKIELSEN COINS</h2><small>KORREKTUR</small></div><div class="coin-adjust-dialog"><label for="coinAdjustPlayer">PLAYER</label><select id="coinAdjustPlayer"></select><label for="coinAdjustAmount">ANPASSUNG</label><input id="coinAdjustAmount" type="number" step="1" placeholder="+ / - Coins"><label for="coinAdjustReason">GRUND</label><input id="coinAdjustReason" placeholder="Pflichtfeld für Audit Log"><button id="applyCoinAdjustment" type="button">COINS ANPASSEN</button><p class="admin-inline-feedback" id="coinAdjustFeedback"></p></div></section>
+      <section class="utility-panel" id="adminContent"><div class="utility-head"><span>D</span><h2>NEWS & CONTENT</h2><small>OPTIONAL</small></div><div class="admin-news-editor"><label>FAKTEN / ROHTEXT</label><textarea id="adminNewsInput" placeholder="Fakten / Rohtext für SkielsenSport."></textarea><button id="publishAdminNews" type="button">PUBLISH</button></div></section>
+      <section class="utility-panel compact-panel" id="adminAudit"><div class="utility-head"><span>E</span><h2>AUDIT LOG</h2><small>TEST-RUNTIME</small></div><div id="auditLogRows"></div></section>
+    </div>
+  </details>
+</div>
+
+<div class="page app-page utility-page game-control-page" id="gameControlPage">
+  <button class="context-back" data-context-back type="button">← ZURÜCK ZUM MATCH</button>
+  <section class="utility-hero game-control-hero">
+    <span class="v1535-control-kicker">GAME CONTROL</span>
+    <h1>—</h1>
+    <p>—</p>
+    <span class="v1534-control-context">AKTUELLER TURNIERKONTEXT</span>
+  </section>
+  <div class="game-control-layout"><main>
+    <section class="utility-panel v1535-control-match">
+      <div class="utility-head"><span>01</span><h2>MATCH</h2><small id="v1535GameControlStatus">—</small></div>
+      <div id="v20GameControlPairing"></div>
+    </section>
+    <section class="utility-panel v1535-control-state" id="v1535GameControlStatePanel">
+      <div class="utility-head"><span>02</span><h2>SPIELSTEUERUNG</h2><small id="v1535GameControlPhase">—</small></div>
+      <div class="v1535-control-state-body">
+        <div class="v1535-control-state-copy"><strong id="v1535GameControlTitle">—</strong><span id="v1535GameControlCopy">—</span></div>
+        <button id="gameControlStart" type="button">MATCH STARTEN</button>
+      </div>
+      <div class="prototype-control-bet-gate" id="prototypeControlBetGate"><strong id="prototypeControlBetTitle">—</strong><span id="prototypeControlBetCopy">—</span></div>
+    </section>
+    <section class="utility-panel" id="v1534GameControlResult" hidden>
+      <div class="utility-head"><span>03</span><h2>ERGEBNIS</h2><small>GAME CONTROL</small></div>
+      <div id="v1534GameControlResultHost"></div>
+    </section>
+  </main></div>
+</div>
+
+<div class="page app-page utility-page jl-page" id="joinPage">
+  <button class="context-back" data-context-back type="button">← ZURÜCK</button>
+  <section class="jl-hero" data-word="JOIN"><span>TURNIER BEITRETEN</span><h1>DEIN CODE.<br>DEIN TURNIER.</h1><p>Du bist bereits mit deinem SKIELSEN Account angemeldet. Gib nur den Einladungscode des Turnier-Admins ein.</p></section>
+  <section class="jl-panel jl-join-panel">
+    <div class="jl-panel-head"><strong>BEITRITT</strong><span>1 SCHRITT</span></div>
+    <div class="jl-panel-body">
+      <div class="jl-user"><div class="jl-avatar">LM</div><div><small>ANGEMELDET ALS</small><strong>LUIS MEIER</strong></div><b>PLAYER</b></div>
+      <label class="jl-label" for="joinCode">EINLADUNGSCODE</label>
+      <input class="jl-code-input" id="joinCode" maxlength="12" value="" placeholder="SKL-XXXXXXXX" autocomplete="off" inputmode="text">
+      <p class="jl-help">Format: SKL-XXXXXXXX · Groß-/Kleinschreibung spielt keine Rolle.</p>
+      <button class="jl-primary" id="joinTournamentBtn" type="button">TURNIER BEITRETEN →</button>
+      <p class="action-feedback" id="joinFeedback"></p>
+    </div>
+  </section>
+</div>
+
+<div class="page app-page utility-page jl-page" id="lobbyPage">
+  <button class="context-back" data-context-back type="button">← ZURÜCK</button>
+  <section class="jl-hero" data-word="LOBBY"><span>SKIELSEN CUP · TURNIER-LOBBY</span><h1>TEAM FINDEN.<br>LOSLEGEN.</h1><p id="jlLobbyLead">Alle beigetretenen Spieler werden hier verteilt. Erst wenn jeder Spieler einem Team zugeordnet ist, kann das Turnier starten.</p></section>
+
+  <div class="jl-lobby-top">
+    <div class="jl-invite"><div><small>EINLADUNGSCODE</small><strong id="jlInviteCode">SKL-7K2M</strong></div><div><button id="jlCopyCode" type="button">CODE KOPIEREN</button><button id="jlShareCode" type="button">TEILEN</button></div></div>
+    <div class="jl-status"><div><small>MODUS</small><strong id="jlModeStatus">TEAM</strong></div><div><small>BEIGETRETEN</small><strong id="jlJoinedStatus">4 / 6</strong></div><div><small>ZUGEORDNET</small><strong id="jlAssignedStatus">2 / 4</strong></div><div><small>STATUS</small><strong id="jlReadyStatus">WARTET</strong></div></div>
+  </div>
+
+  <div class="jl-layout">
+    <main>
+      <section class="jl-panel" id="jlTeamLobby"><div class="jl-panel-head"><div><strong>TEAMS</strong><span>MAXIMAL 4 · NAMEN BIS TURNIERSTART ÄNDERBAR</span></div><div class="jl-mode-preview"><button class="active" data-jl-mode="team">TEAM</button><button data-jl-mode="single">SINGLE</button></div></div><div class="jl-panel-body"><div class="jl-team-grid" id="jlTeamGrid"></div></div></section>
+      <section class="jl-panel" id="jlSingleLobby" hidden><div class="jl-panel-head"><div><strong>SPIELERFARBEN</strong><span>AUTOMATISCH NACH BEITRITTSZEITPUNKT</span></div><div class="jl-mode-preview"><button data-jl-mode="team">TEAM</button><button class="active" data-jl-mode="single">SINGLE</button></div></div><div class="jl-panel-body"><div class="jl-single-grid" id="jlSingleGrid"></div></div></section>
+      <section class="jl-panel" id="jlWaitingSection"><div class="jl-panel-head"><div><strong>SPIELER VERTEILEN</strong><span>ANTIPPEN → TEAM WÄHLEN</span></div><b id="jlWaitingCount">4 PLAYER</b></div><div class="jl-panel-body"><div class="jl-waiting" id="jlWaitingList"></div></div></section>
+    </main>
+
+    <aside class="jl-panel jl-rules"><div class="jl-panel-head"><strong>LOBBY-REGELN</strong><span>VOR DEM START</span></div><div class="jl-panel-body">
+      <div class="jl-rule"><b>01</b><div><strong>FARBEN SIND FEST</strong><p>Teamfarben bleiben Rot, Blau, Gelb und Grün. Nur der Teamname ist frei.</p></div></div>
+      <div class="jl-rule"><b>02</b><div><strong>SINGLE = BEITRITTSREIHENFOLGE</strong><p>1. Rot · 2. Blau · 3. Gelb · 4. Grün. Keine manuelle Farbauswahl.</p></div></div>
+      <div class="jl-rule"><b>03</b><div><strong>TEAM = FREIE ZUORDNUNG</strong><p>Spieler können bis zum Turnierstart zwischen den vier Teams verschoben werden.</p></div></div>
+      <div class="jl-ready"><strong id="jlReadyTitle">NOCH NICHT STARTKLAR</strong><p id="jlReadyCopy">2 Spieler sind noch keinem Team zugeordnet.</p></div>
+      <button class="jl-start" id="jlStartBtn" disabled type="button">TURNIER STARTEN</button>
+    </div></aside>
+  </div>
+  <div class="jl-mobile-start"><div><small>LOBBY STATUS</small><strong id="jlBottomStatus">2 OFFEN</strong></div><button class="jl-start" id="jlMobileStartBtn" disabled type="button">TURNIER STARTEN</button></div>
+</div>
+
+<div class="jl-sheet" id="jlAssignSheet" aria-hidden="true"><div class="jl-sheet-card"><i></i><h3 id="jlSheetTitle">TEAM ZUWEISEN</h3><p>Wähle das Team für diesen Spieler.</p><div class="jl-team-options" id="jlTeamOptions"></div><button class="jl-sheet-cancel" id="jlSheetCancel" type="button">ABBRECHEN</button></div></div>
+<div class="jl-name-modal" id="jlNameModal" aria-hidden="true"><div class="jl-name-card" id="jlNameCard"><small>TEAMNAME ÄNDERN</small><h3 id="jlNameTitle">TEAM ROT</h3><input id="jlNameInput" maxlength="22" autocomplete="off"><div><button id="jlNameCancel" type="button">ABBRECHEN</button><button id="jlNameSave" type="button">SPEICHERN</button></div></div></div>
+
+
+
+<!-- Secondary profile navigation: directly above the main app navigation -->
+<nav aria-label="Profilbereiche" class="mobile-profile-nav">
+<a class="" data-player-section="overview">OVERVIEW</a>
+<a class="" data-player-section="matches">MATCHES</a>
+<a class="" data-player-section="achievements">ACHIEVEMENTS</a>
+<a class="" data-player-section="history">HISTORY</a>
+</nav>
+<!-- Primary app navigation · mobile: 4 high-frequency destinations + MORE drawer -->
+<nav aria-label="Hauptnavigation" class="mobile-nav">
+<a class="active" data-page="home">◆<span>HOME</span></a>
+<a data-page="matches">⚔<span>MATCHES</span></a>
+<a data-page="ranking">≡<span>RANKING</span></a>
+<a data-page="profile">●<span>PLAYER</span></a>
+<button id="mobileMoreBtn" class="mobile-more-trigger" type="button" aria-expanded="false" aria-controls="mobileMoreMenu">☰<span>MEHR</span></button>
+</nav>
+<div id="mobileMoreBackdrop" class="mobile-more-backdrop" hidden></div>
+<aside id="mobileMoreMenu" class="mobile-more-menu" aria-label="Weitere Bereiche" aria-hidden="true">
+  <div class="mobile-more-head"><strong>MEHR</strong><button id="mobileMoreClose" type="button" aria-label="Menü schließen">×</button></div>
+  <div class="mobile-more-grid">
+    <a data-page="bets"><b>WETTEN</b></a>
+    <a data-page="games"><b>GAMES</b></a>
+    <a data-page="joker"><b>JOKER</b></a>
+    <a data-page="news"><b>NEWS</b></a>
+    <a data-page="admin" data-admin-only="true"><b>ADMIN TOOLS</b></a>
+  </div>
+</aside>
+
+
+
+<section class="app-page games-page" id="gamesPage">
+  <div class="games-shell">
+    <div class="games-intro"><div><span>TOURNAMENT GAME LIBRARY</span><h1>GAMES</h1><p>TURNIERGAMES WERDEN GELADEN</p></div><b>0</b></div>
+    <div id="gamesIndex">
+      <div class="games-section-head"><div><span class="section-no">01</span><h2>TOURNAMENT GAMES</h2></div><small>NAME · KATEGORIE · STATUS</small></div>
+      <button class="games-filter-toggle" id="gamesFilterToggle" type="button" aria-expanded="false">FILTER ≡</button>
+      <div class="games-filterbar" id="gamesFilterbar" aria-label="Games filtern">
+        <div class="games-filter-group"><button class="games-filter active" data-game-filter="all">ALLE</button><button class="games-filter" data-game-filter="indoor">INDOOR</button><button class="games-filter" data-game-filter="outdoor">OUTDOOR</button></div>
+        <div class="games-filter-group games-status-filter"><button class="games-filter active" data-status-filter="all">ALLE</button><button class="games-filter" data-status-filter="open">OPEN</button><button class="games-filter" data-status-filter="concluded">CONCLUDED</button></div>
+      </div>
+      <div class="games-grid"></div>
+    </div>
+  </div>
+</section>
+
+<script id="games-library-js" src="assets/js/01-games-library.js"></script>
+
+
+
+
+<script id="player-subtabs-final-js" src="assets/js/02-player-profile-tabs.js"></script>
+
+
+
+
+
+<script id="games-filter-controller" src="assets/js/03-games-filter.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script id="mobile-more-navigation-v1-js" src="assets/js/04-mobile-navigation.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script id="admin-mandatory-hold-to-confirm-behavior-v1" src="assets/js/05-admin-hold-confirm.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="v1536-modal" id="v1536BetSavedModal" hidden aria-modal="true" role="dialog" aria-labelledby="v1536BetSavedTitle">
+  <section class="v1536-dialog">
+    <header><small>BETTING</small><h2 id="v1536BetSavedTitle">WETTE GESPEICHERT</h2></header>
+    <div class="v1536-dialog-body">
+      <p class="v1536-question">WER GEWINNT?</p>
+      <div class="v1536-tip-row"><strong>DEIN TIPP:</strong><i id="v1536BetTipBar"></i><b id="v1536BetTipTeam">—</b></div>
+      <div class="v1536-dialog-summary"><div><span>EINSATZ</span><strong id="v1536BetSavedStake">0</strong></div><i></i><div><span>MÖGLICHE AUSZAHLUNG</span><strong id="v1536BetSavedPayout">0</strong></div></div>
+    </div>
+    <footer><button id="v1536BetSavedContinue" type="button">WEITER</button></footer>
+  </section>
+</div>
+
+<div class="v1536-modal" id="v1536ResultConfirmModal" hidden aria-modal="true" role="dialog" aria-labelledby="v1536ResultConfirmTitle">
+  <section class="v1536-dialog v1536-result-confirm-dialog">
+    <header><small>MATCH UPDATE</small><h2 id="v1536ResultConfirmTitle">ERGEBNIS BESTÄTIGEN</h2></header>
+    <div class="v1536-dialog-body">
+      <div class="v1536-confirm-team"><i id="v1536ResultConfirmBar"></i><div><span>SIEGER</span><strong id="v1536ResultConfirmTeam">—</strong></div></div>
+      <div class="v1536-confirm-score" id="v1536ResultConfirmScore" hidden><span>ENDERGEBNIS</span><strong>—</strong></div>
+    </div>
+    <footer><button id="v1536ResultConfirmContinue" type="button">WEITER</button></footer>
+  </section>
+</div>
+
+<div class="v1536-pick-overlay" id="v1536PickOpponentOverlay" hidden aria-modal="true" role="dialog" aria-label="Choose Opponent Joker">
+  <div class="v1536-pick-stage">
+    <div class="v1536-pick-card" id="v1536PickCard">
+      <div class="v1536-pick-face v1536-pick-back"><img src="assets/joker/skielsen-joker-back.png" alt="SKIELSEN Joker Karte"></div>
+      <div class="v1536-pick-face v1536-pick-front"><img src="assets/joker/skielsen-joker-front.png" alt="SKIELSEN Joker Vorderseite"><div class="v1536-pick-front-copy"><small>JOKER AKTIV</small><strong>GEGNER WÄHLEN</strong><span id="v1536PickOwner">— WÄHLT</span></div></div>
+    </div>
+    <div class="v1536-pick-choices" id="v1536PickChoices" hidden>
+      <small>PICK OPPONENT</small><h2>GEGNER WÄHLEN</h2><div id="v1536PickChoiceGrid"></div>
+      <button id="v1536PickConfirm" type="button" disabled>AUSWAHL BESTÄTIGEN</button>
+    </div>
+  </div>
+</div>
+
+<div class="match-result-pop" id="matchResultPop" hidden>
+  <section class="match-result-pop__card" role="dialog" aria-modal="true" aria-labelledby="resultPopGame">
+    <header class="match-result-pop__head">
+      <div>
+        <small id="resultPopStage">MATCH ABGESCHLOSSEN</small>
+        <strong id="resultPopGame">GAME · MATCH</strong>
+      </div>
+      <b>FINAL</b>
+    </header>
+
+    <div class="match-result-pop__score">
+      <div class="match-result-pop__team">
+        <i id="resultPopMarkA" class="team-neutral"></i>
+        <strong id="resultPopTeamA">TEAM A</strong>
+      </div>
+      <b id="resultPopScore">0 : 0</b>
+      <div class="match-result-pop__team right">
+        <strong id="resultPopTeamB">TEAM B</strong>
+        <i id="resultPopMarkB" class="team-neutral"></i>
+      </div>
+    </div>
+
+    <div class="match-result-pop__settlement">
+      <div>
+        <small>BETTING SETTLEMENT</small>
+        <strong id="resultPopBetLabel">KEINE WETTE</strong>
+        <span id="resultPopBetDetail">KEINE CREDIT-VERÄNDERUNG</span>
+      </div>
+      <strong class="match-result-pop__credits" id="resultPopCredits">±0</strong>
+    </div>
+
+    <div class="match-result-pop__wallet">
+      <span>DEIN GUTHABEN</span>
+      <b id="resultPopWallet">0 CREDITS</b>
+    </div>
+
+    <div class="match-result-pop__actions">
+      <button class="match-result-pop__mvp" id="resultPopMvp" type="button" hidden>MVP WÄHLEN →</button>
+      <button class="match-result-pop__close" id="resultPopClose" type="button">WEITER</button>
+    </div>
+  </section>
+</div>
+
+
+
+
+
+
+
+<div class="mvp-complete-popup" id="mvpCompletePopup" hidden>
+  <section class="mvp-complete-card" role="dialog" aria-modal="true" aria-labelledby="mvpCompleteTitle">
+    <div class="mvp-complete-intro" id="mvpCompleteIntro">
+      <small id="mvpWinnerVoteCount">— / — STIMMEN</small>
+      <h2 id="mvpCompleteTitle">MVP WAHL IST ABGESCHLOSSEN.</h2>
+      <p>Alle Player haben ihre Stimme abgegeben. Das Ergebnis kann jetzt aufgedeckt werden.</p>
+    </div>
+
+    <div class="mvp-winner-reveal" id="mvpWinnerReveal" hidden>
+      <div class="mvp-winner-rays" aria-hidden="true"></div>
+      <small id="mvpWinnerGame">MVP · GAME</small>
+      <div class="mvp-winner-badge team-blue" id="mvpWinnerBadge">HA</div>
+      <h2 id="mvpWinnerName">—</h2>
+      <p id="mvpWinnerTeam">—</p>
+    </div>
+
+    <button class="mvp-show-result" id="mvpShowResult" type="button">ERGEBNIS ANZEIGEN</button>
+
+    <div class="mvp-result-actions">
+      <button class="mvp-result-continue" id="mvpResultContinue" type="button" hidden>WEITER ZUM NÄCHSTEN GAME →</button>
+    </div>
+  </section>
+</div>
+
+
+
+
+<!-- ============================================================
+     V14E · SUPABASE-PROTOTYP · DEUTSCHER SPIELEKATALOG + FILTER
+     Existing v13 UI stays untouched. Shop visual is the approved shop artifact.
+     ============================================================ -->
+
+
+<div id="dbBootstrapOverlay" aria-live="polite">
+  <div class="dbb-shell" id="dbbShell">
+    <header class="dbb-top" id="dbbTop">
+      <div class="dbb-top-inner">
+        <div class="dbb-brand"><img alt="SKIELSEN" src="assets/images/skielsen-logo.png"><small>V15.0.35 · WEB-PROTOTYP</small></div>
+        <div class="dbb-top-actions">
+          <button class="dbb-global-nav" id="dbbGlobalHome" type="button" hidden>MEIN SKIELSEN</button>
+          <div class="dbb-dbstate"><i></i><span id="dbbConnectionState">SUPABASE VERBUNDEN</span></div>
+        </div>
+      </div>
+      <div class="dbb-top-strip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </header>
+    <main class="dbb-main" id="dbbMain">
+      <section id="dbbAuthStep">
+        <div class="dbb-kicker">SKIELSEN ACCOUNT</div>
+        <h1 class="dbb-title">DEIN ACCOUNT. DEINE TURNIERE.</h1>
+        <p class="dbb-lead">Du meldest dich bei SKIELSEN an – nicht als Admin. Tournament Admin wirst du ausschließlich in einem Turnier, das du selbst erstellst.</p>
+        <div class="dbb-panel" style="max-width:760px">
+          <div class="dbb-panel-head"><strong id="dbbAuthPanelTitle">ANMELDEN</strong><span>SUPABASE AUTH</span></div>
+          <div class="dbb-panel-body">
+            <div class="dbb-auth-tabs"><button class="dbb-auth-tab active" id="dbbAuthTabSignIn" type="button">ANMELDEN</button><button class="dbb-auth-tab" id="dbbAuthTabSignUp" type="button">REGISTRIEREN</button></div>
+            <div class="dbb-grid-2">
+              <div class="dbb-field dbb-auth-signup-only" id="dbbDisplayNameField" hidden><label>ANZEIGENAME</label><input id="dbbDisplayName" autocomplete="name" placeholder="z. B. Luis"></div>
+              <div class="dbb-field"><label>E-MAIL</label><input id="dbbEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
+              <div class="dbb-field"><label>PASSWORT</label><input id="dbbPassword" type="password" autocomplete="current-password" placeholder="mind. 6 Zeichen"></div>
+            </div>
+            <div class="dbb-auth-actions"><button class="dbb-btn primary" id="dbbSignIn" type="button">ANMELDEN →</button><button class="dbb-btn primary dbb-hidden" id="dbbSignUp" type="button">KONTO ERSTELLEN →</button></div>
+            <div class="dbb-feedback" id="dbbAuthFeedback"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dbbHomeStep" class="dbb-hidden">
+        <div class="dbb-kicker">MEIN SKIELSEN</div>
+        <h1 class="dbb-title">WAS GEHT ALS NÄCHSTES?</h1>
+        <p class="dbb-lead">Dein Account ist die Basis. Admin-Rechte entstehen erst innerhalb eines von dir erstellten Turniers.</p>
+        <div class="dbb-home-head">
+          <div class="dbb-profile-card"><div class="dbb-profile-avatar" id="dbbHomeAvatar">SK</div><div><small>ANGEMELDETER USER</small><strong id="dbbHomeName">PLAYER</strong><span id="dbbHomeEmail">—</span></div></div>
+          <button class="dbb-home-signout" id="dbbHomeSignOut" type="button">ABMELDEN</button>
+        </div>
+        <div class="dbb-action-grid">
+          <button class="dbb-action-card" style="--dbb-accent:#ff1717" id="dbbHomeCreate" type="button"><b>01</b><strong>TURNIER ERSTELLEN</strong><span>Neu starten, Revanche aus einem früheren Turnier oder für eine feste Gruppe.</span><em>→</em></button>
+          <button class="dbb-action-card" style="--dbb-accent:#1515ff" id="dbbHomeJoin" type="button"><b>02</b><strong>TURNIER BEITRETEN</strong><span>Invite-Code eingeben und als Player direkt in die Turnier-Lobby.</span><em>→</em></button>
+        </div>
+        <div class="dbb-section-title"><div><small>DEIN VERLAUF</small><h2>MEINE TURNIERE</h2></div></div>
+        <div class="dbb-list" id="dbbMyTournaments"><div class="dbb-list-empty">NOCH KEINE TURNIERE GELADEN.</div></div>
+        <div class="dbb-section-title"><div><small>DAUERHAFTE COMMUNITIES</small><h2>MEINE GRUPPEN</h2></div><button id="dbbCreateGroupShortcut" type="button">＋ GRUPPE</button></div>
+        <div class="dbb-list" id="dbbMyGroups"></div>
+      </section>
+
+      <section id="dbbCreateStartStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbCreateBackHome" type="button">← MEIN SKIELSEN</button>
+        <div class="dbb-kicker">TURNIER ERSTELLEN</div>
+        <h1 class="dbb-title">NEU ODER REVANCHE?</h1>
+        <p class="dbb-lead">Eine Gruppe ist kein eigener Turniertyp. Du startest ein neues Turnier oder eine Revanche. Eine Revanche erzeugt bzw. verlängert automatisch eine Turnierserie; eine feste Gruppe kann dieser Serie auch später zugeordnet werden.</p>
+        <div class="dbb-create-grid">
+          <button class="dbb-create-option primary" data-create-source="NEW" type="button"><b>＋</b><span class="dbb-create-copy"><strong>NEUES TURNIER</strong><p>Von Grund auf starten.</p></span></button>
+          <button class="dbb-create-option rematch" data-create-source="REMATCH" type="button"><b>↻</b><span class="dbb-create-copy"><strong>REVANCHE</strong><p>Auf einem früheren Turnier aufbauen.</p></span></button>
+        </div>
+        <div class="dbb-series-note"><b>SERIE ≠ GRUPPE.</b> Die Serie verbindet Revanchen miteinander. Eine Gruppe ist die dauerhafte Community darüber und kann jederzeit nachträglich mit einer bestehenden Serie verbunden werden. Historische Ergebnisse bleiben am User und am Turnier – niemand verliert Statistiken.</div>
+        <div class="dbb-source-info" id="dbbCreateSourceInfo">Wenn du bereits eine feste Gruppe hast, startest du das Turnier direkt aus der Gruppenkarte auf „MEIN SKIELSEN“. Dort wird der Gruppenkontext zusätzlich gesetzt.</div>
+      </section>
+
+      <section id="dbbJoinAccountStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbJoinBackHome" type="button">← MEIN SKIELSEN</button>
+        <div class="dbb-kicker">TURNIER BEITRETEN</div>
+        <h1 class="dbb-title">CODE REIN. LOBBY AUF.</h1>
+        <p class="dbb-lead">Der Account bleibt USER. Durch den Beitritt entsteht nur eine PLAYER-Mitgliedschaft in diesem Turnier.</p>
+        <div class="dbb-panel dbb-join-box"><div class="dbb-panel-head"><strong>INVITE CODE</strong><span>SKL-XXXXXXXX</span></div><div class="dbb-panel-body">
+          <div class="dbb-join-user"><b id="dbbJoinAvatar">SK</b><div><small>BEITRITT ALS</small><strong id="dbbJoinName">PLAYER</strong></div></div>
+          <div class="dbb-field" style="margin-top:16px"><label>EINLADUNGSCODE</label><input class="dbb-invite-input" id="dbbAccountJoinCode" maxlength="12" autocomplete="off" placeholder="SKL-XXXXXXXX"></div>
+          <div class="dbb-auth-actions"><button class="dbb-btn primary" id="dbbAccountJoinContinue" type="button">TURNIER SUCHEN →</button></div><div class="dbb-feedback" id="dbbAccountJoinFeedback"></div>
+        </div></div>
+      </section>
+
+      <section id="dbbGroupCreateStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbGroupCreateBack" type="button">← MEIN SKIELSEN</button>
+        <div class="dbb-kicker">NEUE GRUPPE</div>
+        <h1 class="dbb-title">EURE RUNDE. EURE EWIGE TABELLE.</h1>
+        <p class="dbb-lead">Eine Gruppe darf größer sein als ein einzelnes Turnier. Sie kann neu entstehen oder nachträglich mit einer bereits gespielten Turnierserie verbunden werden. Historische Ergebnisse werden dann rückwirkend in die ewige Tabelle einbezogen.</p>
+        <div class="dbb-panel"><div class="dbb-panel-head"><strong>GRUPPENBASIS</strong><span>LOKALER UI-PROTOTYP</span></div><div class="dbb-panel-body">
+          <div class="dbb-field"><label>GRUPPENNAME</label><input id="dbbGroupNameInput" maxlength="40" placeholder="z. B. DIE ACHT PLUS"></div>
+          <div class="dbb-group-facts"><div class="dbb-group-fact"><small>MITGLIEDER</small><strong>UNBEGRENZT</strong></div><div class="dbb-group-fact"><small>TEAM-TURNIER</small><strong>MAX. 8 AKTIV</strong></div><div class="dbb-group-fact"><small>WERTUNG</small><strong>ALLE MEMBER</strong></div></div>
+          <div class="dbb-group-note"><b>ROSTER ≠ TURNIERKADER.</b> Vor jedem Turnier wird aus der Gruppe der aktive Kader gewählt. Ab Turnierstart ist der Kader fix. Eine Gruppe kann außerdem später an eine vorhandene Turnierserie gehängt werden – die bisherigen Turniere bleiben vollständig erhalten.</div>
+          <div class="dbb-auth-actions"><button class="dbb-btn primary" id="dbbCreateGroupLocal" type="button">GRUPPE ANLEGEN →</button></div><div class="dbb-feedback" id="dbbGroupFeedback"></div>
+        </div></div>
+      </section>
+
+      <section id="dbbGroupDetailStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbGroupDetailBack" type="button">← MEIN SKIELSEN</button>
+        <div class="dbb-kicker">GRUPPE</div>
+        <h1 class="dbb-title" id="dbbGroupDetailTitle">GRUPPE</h1>
+        <p class="dbb-lead">Die ewige Tabelle aggregiert nur tatsächlich gespielte Turniere. Mitglieder, die ein Turnier aussetzen, bleiben in der Tabelle und können beim nächsten wieder in den aktiven Kader rücken.</p>
+        <div class="dbb-group-facts"><div class="dbb-group-fact"><small>MITGLIEDER</small><strong id="dbbGroupMemberCount">1</strong></div><div class="dbb-group-fact"><small>TURNIERE</small><strong>0</strong></div><div class="dbb-group-fact"><small>AKTIVER KADER</small><strong>BIS 8</strong></div></div>
+        <div class="dbb-section-title"><div><small>TURNIERÜBERGREIFEND</small><h2>EWIGE TABELLE</h2></div></div>
+        <div class="dbb-table"><div class="dbb-table-row head"><span>RANG</span><span>PLAYER</span><span>TURNIERE</span><span>PUNKTE</span></div><div class="dbb-table-row"><b>01</b><strong id="dbbGroupTableUser">PLAYER</strong><span>0</span><span>0</span></div></div>
+        <div class="dbb-auth-actions"><button class="dbb-btn primary" id="dbbCreateGroupTournament" type="button">NEUES TURNIER FÜR GRUPPE →</button><button class="dbb-btn secondary" id="dbbAttachSeries" type="button">BESTEHENDE SERIE ZUORDNEN</button><button class="dbb-btn secondary" id="dbbInviteGroupMembers" type="button">MITGLIEDER EINLADEN</button></div><div class="dbb-feedback" id="dbbGroupDetailFeedback"></div>
+      </section>
+
+      <section id="dbbSetupStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbSetupBack" type="button">← STARTOPTIONEN</button>
+        <div class="dbb-kicker">01 · TURNIER ERSTELLEN</div>
+        <h1 class="dbb-title">TURNIER ANLEGEN.</h1>
+        <p class="dbb-lead">Hier wird nur die Basis festgelegt. Spiele, Design und Zusatzfunktionen kommen im Turnier-Shop. Die Spielreihenfolge wird erst nach dem Bezahlvorgang festgelegt.</p>
+        <div class="dbb-context" id="dbbCreationContext" hidden></div>
+        <div class="dbb-session"><div><strong id="dbbSignedInAs">ANGEMELDET</strong><span>SUPABASE-ANMELDUNG SESSION</span></div><button class="dbb-btn secondary" id="dbbSignOut" type="button">ABMELDEN</button></div>
+        <div class="dbb-panel">
+          <div class="dbb-panel-head"><strong>BASIS</strong><span>P01</span></div>
+          <div class="dbb-panel-body">
+            <div class="dbb-field"><label>TURNIERNAME</label><input id="dbbTournamentName" maxlength="80" value="SKIELSEN PROBETURNIER" placeholder="Turniername"></div>
+            <div class="dbb-field" style="margin-top:16px"><label>MODUS</label></div>
+            <div class="dbb-mode" id="dbbModePicker"><button class="active" data-mode="TEAM" type="button">TEAM</button><button data-mode="SOLO" type="button">SOLO</button></div>
+            <div class="dbb-field" id="dbbTeamCountField" style="margin-top:16px"><label>ANZAHL TEAMS · 2 SPIELER PRO TEAM</label><div class="dbb-mode" id="dbbTeamCountPicker"><button data-team-count="2" type="button">2 TEAMS · 4 PLAYER</button><button data-team-count="3" type="button">3 TEAMS · 6 PLAYER</button><button class="active" data-team-count="4" type="button">4 TEAMS · 8 PLAYER</button></div></div>
+            <div class="dbb-field" id="dbbSoloCountField" style="margin-top:16px" hidden><label>ANZAHL PLAYER</label><div class="dbb-mode" id="dbbSoloCountPicker"><button data-solo-count="2" type="button">2 PLAYER</button><button data-solo-count="3" type="button">3 PLAYER</button><button class="active" data-solo-count="4" type="button">4 PLAYER</button></div></div>
+            <div class="dbb-setup-actions" style="justify-content:flex-end"><button class="dbb-btn primary" id="dbbOpenShop" type="button">WEITER ZUM SHOP →</button></div>
+            <div class="dbb-feedback" id="dbbSetupFeedback"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dbbMaterialStep" class="dbb-hidden">
+        <div class="dbb-kicker">03 · MATERIAL-CHECK</div>
+        <h1 class="dbb-title">MATERIAL & ZUBEHÖR.</h1>
+        <p class="dbb-lead">Aus deinen ausgewählten Spielen ermittelt SKIELSEN automatisch, welches externe Material benötigt wird. Der Material-Check ist der letzte Point of no Return zu den Shop-Funktionen. Bis du ihn bestätigst, kannst du zurück in den Shop – der Warenkorb bleibt vollständig erhalten. Kaufbare Artikel sind standardmäßig zum Mitbestellen ausgewählt.</p>
+
+        <div class="dbb-panel">
+          <div class="dbb-panel-head"><strong>MATERIALSTATUS</strong><span>OPT-OUT PRINZIP</span></div>
+          <div class="dbb-panel-body">
+            <div class="dbb-material-summary">
+              <div class="dbb-material-stat"><small>BENÖTIGT</small><strong id="dbbMaterialNeeded">0</strong></div>
+              <div class="dbb-material-stat"><small>MITBESTELLEN</small><strong id="dbbMaterialPurchase">0</strong></div>
+              <div class="dbb-material-stat"><small>ABBESTELLEN</small><strong id="dbbMaterialOwned">0</strong></div>
+              <div class="dbb-material-stat"><small>MATERIALPREIS</small><strong id="dbbMaterialTotal">0,00 €</strong></div>
+            </div>
+
+            <div class="dbb-material-list" id="dbbMaterialList"></div>
+            <div class="dbb-material-warning" id="dbbMaterialPriceWarning" hidden></div>
+            <section class="dbb-procure-box" id="dbbProcureBox" hidden>
+              <div class="dbb-procure-head"><div><small>SELBST BESORGEN</small><strong>DEINE BESORGUNGSLISTE</strong></div><button id="dbbPrintProcure" type="button">DRUCKEN</button></div>
+              <div class="dbb-procure-list" id="dbbProcureList"></div>
+            </section>
+
+            <div class="dbb-setup-actions">
+              <button class="dbb-btn secondary" id="dbbMaterialBack" type="button">← ZURÜCK</button>
+              <button class="dbb-btn primary" id="dbbCreateFromMaterial" type="button">MATERIAL-CHECK BESTÄTIGEN →</button>
+            </div>
+            <div class="dbb-feedback" id="dbbMaterialFeedback"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dbbCheckoutStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbCheckoutBack" type="button">← MATERIAL-CHECK</button>
+        <div class="dbb-kicker">04 · BESTELLÜBERSICHT</div>
+        <h1 class="dbb-title">TURNIER ABSCHLIESSEN.</h1>
+        <p class="dbb-lead">Jetzt stehen digitale Turnierinhalte und Materialauswahl gemeinsam fest. Erst hier siehst du die vollständige Bestellsumme.</p>
+        <div class="dbb-checkout-grid">
+          <div class="dbb-checkout-lines">
+            <div class="dbb-checkout-line"><div><small>DIGITALE TURNIERINHALTE</small><span>Spielepaket, Theme und Premium-Optionen</span></div><strong id="dbbCheckoutDigital">0,00 €</strong></div>
+            <div class="dbb-checkout-line"><div><small>MATERIAL &amp; ZUBEHÖR</small><span>Nur Artikel mit „Mitbestellen“</span></div><strong id="dbbCheckoutMaterial">0,00 €</strong></div>
+            <div class="dbb-checkout-total"><div><small>GESAMT</small></div><strong id="dbbCheckoutTotal">0,00 €</strong></div>
+          </div>
+          <aside>
+            <div class="dbb-checkout-per-player"><small>UMGERECHNET PRO AKTIVEM SPIELER</small><strong id="dbbCheckoutPerPlayer">0,00 €</strong><span id="dbbCheckoutPerPlayerSub">BEI 8 SPIELERN</span></div>
+            <div class="dbb-checkout-info">Der Material-Check ist abgeschlossen. Der digitale Shop bleibt ab jetzt geschlossen. Du kannst zur Materialauswahl zurück, ohne die digitalen Turnierinhalte erneut zu öffnen.</div>
+            <div class="dbb-setup-actions" style="margin-top:12px"><button class="dbb-btn primary" id="dbbFinalizeCheckout" type="button">BESTELLUNG ABSCHLIESSEN →</button></div>
+            <div class="dbb-checkout-test">TESTPHASE: Die Bestellung kann trotz angezeigter Beträge ohne echte Zahlung abgeschlossen werden.</div>
+            <div class="dbb-feedback" id="dbbCheckoutFeedback"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="dbbOrderStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbOrderBack" type="button">← MATERIAL-CHECK</button>
+        <div class="dbb-kicker">05 · NACH DEM ABSCHLUSS</div>
+        <h1 class="dbb-title">SPIELREIHENFOLGE FESTLEGEN.</h1>
+        <p class="dbb-lead">Die Shop-Auswahl ist abgeschlossen. Jetzt legst du fest, in welcher Reihenfolge die Spiele im Turnier stattfinden.</p>
+        <div class="dbb-panel">
+          <div class="dbb-panel-head"><strong>TURNIERABLAUF</strong><span>NACH SHOP / ZAHLUNG</span></div>
+          <div class="dbb-panel-body">
+            <div class="dbb-order-note"><strong>NUR AM GRIFF VERSCHIEBEN.</strong> Halte die Punkt-Box rechts gedrückt und ziehe das Spiel an die gewünschte Position. Außerhalb der Box scrollt die Seite ganz normal.</div>
+            <div class="dbb-order-list" id="dbbOrderGames"></div>
+            <div class="dbb-setup-actions">
+              <button class="dbb-btn suggest" id="dbbSuggestOrder" type="button">✦ REIHENFOLGE VORSCHLAGEN</button>
+              <button class="dbb-btn primary" id="dbbFinalizeOrder" type="button">REIHENFOLGE BESTÄTIGEN →</button>
+            </div>
+            <div class="dbb-feedback" id="dbbOrderFeedback"></div>
+          </div>
+        </div>
+      </section>
+
+
+      <section id="dbbSettingsStep" class="dbb-hidden">
+        <button class="dbb-back" id="dbbSettingsBack" type="button">← ZUR LOBBY</button>
+        <div class="dbb-kicker">TURNIER SETTINGS</div>
+        <h1 class="dbb-title">FUNKTIONEN FESTLEGEN.</h1>
+        <p class="dbb-lead">Alle freigeschalteten Turnierfunktionen sind standardmäßig aktiv. Als Tournament Admin entscheidest du vor dem Start per Opt-out, welche davon im Turnier tatsächlich verwendet werden.</p>
+        <div class="dbb-settings-grid" id="dbbSettingsList"></div>
+        <section class="dbb-procure-box dbb-settings-procure" id="dbbSettingsProcureBox" hidden>
+          <div class="dbb-procure-head"><div><small>MATERIAL</small><strong>SELBST ZU BESORGEN</strong></div><button id="dbbSettingsPrintProcure" type="button">DRUCKEN</button></div>
+          <div class="dbb-procure-list" id="dbbSettingsProcureList"></div>
+        </section>
+        <div class="dbb-settings-note"><b>POINT OF NO RETURN:</b> Nach „SETTINGS BESTÄTIGEN“ ist der Start-Check erfüllt. Änderst du danach noch eine Funktion, musst du die Settings erneut bestätigen.</div>
+        <div class="dbb-setup-actions" style="justify-content:flex-end"><button class="dbb-btn primary" id="dbbConfirmSettings" type="button">SETTINGS BESTÄTIGEN →</button></div>
+        <div class="dbb-feedback" id="dbbSettingsFeedback"></div>
+      </section>
+
+      <section id="dbbLobbyStep" class="dbb-hidden dbb-lobby-page">
+        <button class="dbb-back" id="dbbLobbyBack" type="button">← MEIN SKIELSEN</button>
+        <section class="dbb-lobby-hero">
+          <div class="dbb-xmas-decor" aria-hidden="true">
+            <div class="dbb-xmas-garland"><i class="dbb-xmas-light"></i><i class="dbb-xmas-light"></i><i class="dbb-xmas-light"></i><i class="dbb-xmas-light"></i><i class="dbb-xmas-light"></i><i class="dbb-xmas-light"></i><i class="dbb-xmas-light"></i></div>
+            <div class="dbb-xmas-snow" id="dbbXmasSnowBack"></div><div class="dbb-xmas-snow" id="dbbXmasSnowFront"></div>
+          </div>
+          <div class="dbb-summer-decor" aria-hidden="true"><span class="dbb-summer-sun"></span><span class="dbb-summer-wave one"></span><span class="dbb-summer-wave two"></span></div>
+          <div class="dbb-pink-decor" aria-hidden="true"><span class="dbb-pink-sweep"></span><span class="dbb-pink-sparkles"></span></div>
+          <span class="dbb-lobby-version">V15.0.35</span>
+          <small>05 · EIGENSTÄNDIGE TURNIER-LOBBY</small>
+          <h1 id="dbbLobbyHeroTitle">TURNIER<br>VORBEREITEN.</h1>
+          <p id="dbbLobbyHeroLead">Bis der Admin „JETZT STARTEN“ bestätigt, bleibt das Turnier vollständig in dieser Lobby. Danach wird die V13-Turnieransicht mit dem V15-Runtime-State geöffnet.</p>
+        </section>
+
+        <div class="dbb-lobby-overview">
+          <div class="dbb-lobby-codebox"><small>EINLADUNGSCODE</small><strong id="dbbJoinCode">—</strong><p id="dbbLobbyCodeHelp">Teile diesen Code mit den Spielern. Der Code wird beim Turnierstart serverseitig gesperrt.</p><div class="dbb-lobby-code-actions"><button id="dbbCopyCode" type="button">CODE KOPIEREN</button><button id="dbbLobbyRefresh" type="button">↻ AKTUALISIEREN</button></div></div>
+          <div class="dbb-lobby-stats">
+            <div class="dbb-lobby-stat"><small>MODUS</small><strong id="dbbLobbyMode">—</strong><span id="dbbLobbyName">TURNIER</span></div>
+            <div class="dbb-lobby-stat"><small>BEIGETRETEN</small><strong id="dbbLobbyJoined">0 / —</strong><span>AKTIVE SPIELER</span></div>
+            <div class="dbb-lobby-stat"><small>ZUGEORDNET</small><strong id="dbbLobbyAssigned">0 / 0</strong><span id="dbbLobbyAssignedHint">TEAMS / FARBEN</span></div>
+            <div class="dbb-lobby-stat"><small>STATUS</small><strong id="dbbLobbyStatus">LOBBY</strong><span id="dbbLobbyRole">PLAYER</span></div>
+          </div>
+        </div>
+
+        <div class="dbb-lobby-grid">
+          <main>
+            <section class="dbb-lobby-panel" id="dbbTeamLobbyPanel">
+              <div class="dbb-lobby-panel-head"><strong>TEAMS</strong><span>BLAU · ROT · GELB · GRÜN · MAX. 2 PLAYER JE TEAM</span></div>
+              <div class="dbb-lobby-panel-body"><div class="dbb-lobby-team-grid" id="dbbLobbyTeams"></div></div>
+            </section>
+            <section class="dbb-lobby-panel" id="dbbSoloLobbyPanel" hidden>
+              <div class="dbb-lobby-panel-head"><strong>SPIELERFARBEN</strong><span>AUTOMATISCH NACH BEITRITTSZEITPUNKT</span></div>
+              <div class="dbb-lobby-panel-body"><div class="dbb-lobby-single-grid" id="dbbLobbySingles"></div></div>
+            </section>
+            <section class="dbb-lobby-panel" style="margin-top:10px">
+              <div class="dbb-lobby-panel-head"><strong>SPIELER</strong><button id="dbbLobbyRefresh2" type="button">↻ LIVE-STATUS</button></div>
+              <div class="dbb-lobby-panel-body"><div class="dbb-lobby-players" id="dbbLobbyPlayers"></div></div>
+            </section>
+          </main>
+
+          <aside>
+            <section class="dbb-lobby-panel">
+              <div class="dbb-lobby-panel-head"><strong>START-CHECK</strong><span>POINT OF NO RETURN</span></div>
+              <div class="dbb-lobby-panel-body">
+                <div class="dbb-lobby-ready" id="dbbLobbyReadyBox"><strong id="dbbLobbyReadyTitle">NOCH NICHT STARTKLAR</strong><p id="dbbLobbyReadyCopy">Warte auf Spieler oder vervollständige die Zuordnung.</p></div>
+                <button class="dbb-lobby-start" id="dbbStartTournament" disabled type="button">JETZT STARTEN</button>
+                <p class="dbb-lobby-adminnote" id="dbbLobbyAdminNote">Nur der Tournament Admin kann starten. Nach der Bestätigung werden Invite-Code, Kader, Teams/Farben und Lobby unwiderruflich geschlossen.</p>
+                <button class="dbb-btn secondary" id="dbbOpenSettings" type="button" style="width:100%;margin-top:9px">TURNIER SETTINGS</button>
+                <div class="dbb-lobby-testtools" id="dbbLobbyTestTools" hidden>
+                  <button id="dbbFillBots" type="button">FREIE PLÄTZE MIT BOTS FÜLLEN</button>
+                  <button id="dbbClearBots" type="button">TEST-BOTS ENTFERNEN</button>
+                </div>
+                <div class="dbb-lobby-games-mini" id="dbbLobbyGames"></div>
+                <div class="dbb-feedback" id="dbbLobbyFeedback"></div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="dbbStartedStep" class="dbb-hidden">
+        <div class="dbb-started-card">
+          <small>TURNIERSTATUS · LIVE</small>
+          <h1>V15 WIRD GELADEN.</h1>
+          <p>Die V13-Turnieransicht wird mit Teilnehmern, Games, Features, Themes und dem V15 Runtime-State initialisiert.</p>
+          <div class="dbb-started-lock"><b>FALLBACK:</b><br>Falls die Runtime nicht geladen werden kann, bleibt dieser Screen sichtbar und zeigt den Fehler in der Lobby-Feedback-Zeile.</div>
+          <button id="dbbStartedHome" type="button">← ZU MEIN SKIELSEN</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="dbb-lobby-sheet" id="dbbLobbyAssignSheet" aria-hidden="true"><div class="dbb-lobby-sheet-card"><h3 id="dbbLobbyAssignTitle">TEAM ZUWEISEN</h3><p>Freie Slots können von Playern selbst belegt werden. Der Admin darf nur noch nicht zugewiesene Player einsortieren.</p><div class="dbb-lobby-team-choices" id="dbbLobbyTeamChoices"></div><button class="dbb-lobby-sheet-close" id="dbbLobbyAssignClose" type="button">ABBRECHEN</button></div></div>
+    <div class="dbb-start-confirm" id="dbbStartConfirm" aria-hidden="true"><div class="dbb-start-confirm-card"><h3>TURNIER UNWIDERRUFLICH STARTEN?</h3><p>Nach diesem Schritt gibt es keinen Rückweg in die Lobby. Der Invite-Code wird gesperrt, der aktive Kader und die Team-/Farbzuordnung gelten als final. V15.0.35 öffnet danach die aktive Turnieransicht.</p><div class="dbb-start-confirm-actions"><button id="dbbStartCancel" type="button">ABBRECHEN</button><button class="danger" id="dbbStartConfirmButton" type="button">UNWIDERRUFLICH STARTEN</button></div></div></div>
+    <div class="dbb-exit-confirm" id="dbbExitConfirm" aria-hidden="true"><div class="dbb-exit-confirm-card"><h3 id="dbbExitConfirmTitle">TURNIERERSTELLUNG ABBRECHEN?</h3><p id="dbbExitConfirmText">Der noch nicht abgeschlossene Warenkorb verfällt. Die aktuelle Turniererstellung wird verworfen.</p><div class="dbb-exit-confirm-actions"><button id="dbbExitConfirmCancel" type="button">WEITERMACHEN</button><button class="danger" id="dbbExitConfirmProceed" type="button">ENTWURF VERWERFEN</button></div></div></div>
+
+    <section id="dbbShopStep" class="dbb-shop-step dbb-hidden" aria-label="Turnier-Shop">
+      <iframe id="dbbShopFrame" title="SKIELSEN Turnier-Shop"></iframe>
+    </section>
+  </div>
+</div>
+
+<script type="module" id="db-bootstrap-v14f-js" src="assets/js/06-db-bootstrap.js"></script>
+
+
+<script id="v15-tournament-engine-js" src="assets/js/07-tournament-engine.js"></script>
+
+
+
+<script id="v1507-inapp-runtime" src="assets/js/08-inapp-runtime.js"></script>
+
+
+
+<div id="v1517FlowToast" class="v1517-flow-toast" hidden aria-live="polite"></div>
+
+</body>
+</html>
