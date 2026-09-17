@@ -38,6 +38,19 @@ if f"const VERSION='{v}';" not in version_js: fail('00-version.js stimmt nicht m
 if 'V15.0.35' in h: fail('Veraltete sichtbare V15.0.35-Version in index.html')
 shop=(PUBLIC/'assets/js/06-db-bootstrap.js').read_text(encoding='utf-8')
 if 'V15.0.19 · TOURNAMENT BUILDER' in shop: fail('Veraltete Shop-Version')
+shop_css=PUBLIC/'assets/css/shop.css'
+print_css=PUBLIC/'assets/css/procurement-print.css'
+if not shop_css.exists(): fail('assets/css/shop.css fehlt')
+if not print_css.exists(): fail('assets/css/procurement-print.css fehlt')
+if not shop_css.read_text(encoding='utf-8').strip(): fail('shop.css ist leer')
+if not print_css.read_text(encoding='utf-8').strip(): fail('procurement-print.css ist leer')
+main_css=(PUBLIC/'assets/css/app.css').read_text(encoding='utf-8')
+if '/* ===== INLINE STYLE 82 ===== */' in main_css or '/* ===== INLINE STYLE 83 ===== */' in main_css: fail('Eingebettetes Shop-/Print-CSS liegt noch in app.css')
+if '.shop-layout{' in main_css: fail('Shop-CSS darf nicht im Hauptdokument liegen')
+if 'padding:32px;color:#111' in main_css: fail('Print-CSS darf nicht global im Hauptdokument liegen')
+if 'assets/css/shop.css?v=__SKIELSEN_VERSION__' not in shop: fail('Shop-Dokument bindet shop.css nicht ein')
+if 'assets/css/procurement-print.css?v=${APP_VERSION}' not in shop: fail('Besorgungsliste bindet Print-CSS nicht ein')
+if f"window.SKIELSEN_VERSION||'{v}'" not in shop: fail('06-db-bootstrap.js Versions-Fallback stimmt nicht')
 for name in ['07-tournament-engine.js','08-inapp-runtime.js','10-buzzer-tournament-bridge.js']:
  s=(PUBLIC/'assets/js'/name).read_text(encoding='utf-8')
  if 'window.SKIELSEN_VERSION' not in s: fail(f'{name} nutzt nicht die zentrale Version')
