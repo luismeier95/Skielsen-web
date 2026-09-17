@@ -1,114 +1,328 @@
 (()=>{
-  'use strict';
-  const POLL_MS=2500,HEARTBEAT_MS=12000;
-  let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0,playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null;
-  const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
-  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
-  function ensureLayer(){
-    let layer=document.getElementById('v15InAppLayer');
-    if(layer)return layer;
-    layer=document.createElement('section');layer.id='v15InAppLayer';layer.hidden=true;layer.setAttribute('aria-live','polite');
-    layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
-    document.body.appendChild(layer);return layer;
+'use strict';
+
+const VERSION='15.0.37';
+const POLL_MS=2500,HEARTBEAT_MS=12000;
+const BUZZER_MODULE='buzzer-time-stoppen';
+const BUZZER_GAME_KEY='buzzer_time_stoppen';
+const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
+
+let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null;
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
+
+function syncVisibleVersion(){
+  document.title=`SKIELSEN V${VERSION}`;
+  document.querySelectorAll('.sk-header__version').forEach(x=>x.textContent=`V${VERSION}`);
+}
+function ensureLayer(){
+  let layer=document.getElementById('v15InAppLayer');
+  if(layer)return layer;
+  layer=document.createElement('section');
+  layer.id='v15InAppLayer';
+  layer.hidden=true;
+  layer.setAttribute('aria-live','polite');
+  layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
+  document.body.appendChild(layer);
+  return layer;
+}
+function ensureBuzzerAssets(){
+  if(window.skielsenBuzzerTime)return Promise.resolve();
+  if(buzzerAssetsPromise)return buzzerAssetsPromise;
+  buzzerAssetsPromise=new Promise((resolve,reject)=>{
+    if(!document.querySelector('link[data-buzzer-css]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';link.href='assets/css/buzzer-time.css';link.dataset.buzzerCss='1';
+      document.head.appendChild(link);
+    }
+    const existing=document.querySelector('script[data-buzzer-js]');
+    if(existing){
+      if(window.skielsenBuzzerTime){resolve();return}
+      existing.addEventListener('load',()=>resolve(),{once:true});
+      existing.addEventListener('error',reject,{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src='assets/js/09-buzzer-time.js';
+    script.defer=true;
+    script.dataset.buzzerJs='1';
+    script.onload=()=>resolve();
+    script.onerror=reject;
+    document.head.appendChild(script);
+  });
+  return buzzerAssetsPromise;
+}
+function rosterHtml(s){
+  const me=s?.me?.tournament_member_id;
+  return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'#aaa'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
+}
+function renderBuzzerSession(s){
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  layer.hidden=false;
+  layer.classList.add('buzzer-mode');
+  let gameRoot=document.getElementById('v15BuzzerRoot');
+  if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
+    window.skielsenBuzzerTime?.unmount?.();
+    host.innerHTML=`<div id="v15BuzzerRoot" data-session="${esc(s.session_id)}"><div class="v15-inapp-message">BUZZER WIRD GELADEN …</div></div>`;
+    gameRoot=document.getElementById('v15BuzzerRoot');
   }
-  function rosterHtml(s){
-    const me=s?.me?.tournament_member_id;
-    return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'#aaa'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
+  ensureBuzzerAssets().then(()=>{
+    const rootNow=document.getElementById('v15BuzzerRoot');
+    if(rootNow&&playerSession?.session_id===s.session_id){
+      window.skielsenBuzzerTime?.mount?.(rootNow,s,db);
+      window.skielsenBuzzerTime?.updateSession?.(s);
+    }
+  }).catch(err=>{
+    console.warn('Buzzer assets',err);
+    if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">BUZZER-MODUL KONNTE NICHT GELADEN WERDEN.</div>';
+  });
+}
+function renderPlayerSession(s){
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  if(!s){
+    window.skielsenBuzzerTime?.unmount?.();
+    layer.classList.remove('buzzer-mode');
+    layer.hidden=true;
+    host.innerHTML='';
+    return;
   }
-  function renderPlayerSession(s){
-    const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
-    if(!s){layer.hidden=true;host.innerHTML='';return}
-    layer.hidden=false;
-    const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
-    host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div><section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Session-/Berechtigungsgerüst läuft. Das eigentliche Game-Modul <b>${esc(s.game?.module_key||'—')}</b> wird hier eingehängt.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${s.status==='READY'?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.':'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.'}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
-    document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
-    document.getElementById('v15InAppTestAction')?.addEventListener('click',async()=>{const fb=document.getElementById('v15InAppFeedback');if(fb)fb.textContent='WIRD GESENDET …';const r=await db.rpc('submit_in_app_game_action',{p_session_id:s.session_id,p_action_type:'TEST_TAP',p_payload:{client_ts:new Date().toISOString()}});if(fb)fb.textContent=r.error?'FEHLER: '+(r.error.message||'AKTION NICHT GESPEICHERT'):'AKTION SERVERSEITIG ANGENOMMEN · '+String(r.data?.action_id||'').slice(0,8).toUpperCase();});
+  const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
+  if(active&&s.game?.module_key===BUZZER_MODULE){
+    renderBuzzerSession(s);
+    return;
   }
-  async function setReady(v){if(!playerSession||!db)return;const r=await db.rpc('set_in_app_game_ready',{p_session_id:playerSession.session_id,p_ready:!!v});if(r.error){console.warn('In-App ready',r.error);return}await pollPlayer();}
-  async function pollPlayer(){
-    if(pollBusy||!db||!rt?.tournament_id)return;pollBusy=true;
-    try{
-      const r=await db.rpc('get_my_active_in_app_game',{p_tournament_id:rt.tournament_id});
-      if(r.error){console.warn('In-App session poll',r.error);return}
-      playerSession=r.data||null;renderPlayerSession(playerSession);
-      if(playerSession&&Date.now()-lastHeartbeat>HEARTBEAT_MS){lastHeartbeat=Date.now();db.rpc('heartbeat_in_app_game_session',{p_session_id:playerSession.session_id}).catch?.(()=>{});}
-      if(rt?.is_admin&&rt?.test_mode)await refreshAdmin(false);
-    }finally{pollBusy=false}
-  }
-  function currentGame(){const active=document.getElementById('gameControlPage')?.classList.contains('active'),control=window.skielsenV15?.gameControl;if(active&&control?.g)return control.g;const s=window.skielsenV15?.state;return s?.games?.[s.currentGameIndex||0]||null}
-  function inAppAdminRelevant(){const g=currentGame(),tracker=String(g?.tracker_type||'').toUpperCase(),play=String(g?.play_mode||g?.default_play_mode||'').toUpperCase();return tracker==='IN_APP_NATIVE'||play==='IN_APP'}
-  function ensureAdminPanel(){
-    if(!rt?.is_admin||!rt?.test_mode)return null;
-    const page=document.getElementById('v1536EmbeddedInAppHost')||document.getElementById('gameControlPage');if(!page)return null;
-    let panel=document.getElementById('v15InAppAdminPanel');if(panel){if(panel.parentElement!==page)page.appendChild(panel);return panel}
-    panel=document.createElement('section');panel.id='v15InAppAdminPanel';panel.innerHTML=`<div class="head"><div><small>V15.0.36 · MATCH DETAIL ADAPTER</small><h2>IN-APP GAME SESSION</h2></div><b id="v15InAppAdminStatus">KEINE SESSION</b></div><div class="v15-inapp-admin-body"><div class="v15-inapp-admin-toolbar"><button class="v15-inapp-admin-btn" id="v15InAppCreate" type="button">SESSION FÜR AKTUELLES GAME ERSTELLEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppReload" type="button">AKTUALISIEREN</button><button class="v15-inapp-admin-btn alt" id="v15InAppStart" type="button" disabled>SESSION STARTEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppComplete" type="button" disabled>DEV ABSCHLIESSEN</button><button class="v15-inapp-admin-btn danger" id="v15InAppCancel" type="button" disabled>ABBRECHEN</button></div><div class="v15-inapp-admin-info" id="v15InAppAdminInfo">SERVERSEITIGE SESSION · PLAYER-AUSWAHL ÜBER AUTH-ACCOUNT · KEINE AUSWAHL = KEINE ANZEIGE AUF DEM GERÄT.</div><div id="v15InAppCandidateWrap" hidden><div class="v15-inapp-candidates" id="v15InAppCandidates"></div><div class="v15-inapp-admin-toolbar" style="margin-top:10px"><button class="v15-inapp-admin-btn" id="v15InAppAssign" type="button">AUSWAHL ZUWEISEN</button></div></div><div class="v15-inapp-admin-session" id="v15InAppAdminRoster" hidden></div></div>`;
-    page.appendChild(panel);
-    document.getElementById('v15InAppCreate').addEventListener('click',createAdminSession);
-    document.getElementById('v15InAppReload').addEventListener('click',()=>refreshAdmin(true));
-    document.getElementById('v15InAppAssign').addEventListener('click',assignSelected);
-    document.getElementById('v15InAppStart').addEventListener('click',startAdminSession);
-    document.getElementById('v15InAppCancel').addEventListener('click',cancelAdminSession);
-    document.getElementById('v15InAppComplete').addEventListener('click',completeAdminSession);
+
+  window.skielsenBuzzerTime?.unmount?.();
+  layer.classList.remove('buzzer-mode');
+  layer.hidden=false;
+  host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div><section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${s.status==='READY'?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.':'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.'}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
+
+  document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
+  document.getElementById('v15InAppTestAction')?.addEventListener('click',async()=>{
+    const fb=document.getElementById('v15InAppFeedback');
+    if(fb)fb.textContent='WIRD GESENDET …';
+    const r=await db.rpc('submit_in_app_game_action',{p_session_id:s.session_id,p_action_type:'TEST_TAP',p_payload:{client_ts:new Date().toISOString()}});
+    if(fb)fb.textContent=r.error?'FEHLER: '+(r.error.message||'AKTION NICHT GESPEICHERT'):'AKTION SERVERSEITIG ANGENOMMEN · '+String(r.data?.action_id||'').slice(0,8).toUpperCase();
+  });
+}
+async function setReady(v){
+  if(!playerSession||!db)return;
+  const r=await db.rpc('set_in_app_game_ready',{p_session_id:playerSession.session_id,p_ready:!!v});
+  if(r.error){console.warn('In-App ready',r.error);return}
+  await pollPlayer();
+}
+async function pollPlayer(){
+  if(pollBusy||!db||!rt?.tournament_id)return;
+  pollBusy=true;
+  try{
+    const r=await db.rpc('get_my_active_in_app_game',{p_tournament_id:rt.tournament_id});
+    if(r.error){console.warn('In-App session poll',r.error);return}
+    playerSession=r.data||null;
+    renderPlayerSession(playerSession);
+    if(playerSession&&Date.now()-lastHeartbeat>HEARTBEAT_MS){
+      lastHeartbeat=Date.now();
+      db.rpc('heartbeat_in_app_game_session',{p_session_id:playerSession.session_id}).catch?.(()=>{});
+    }
+    if(rt?.is_admin)await refreshAdmin(false);
+  }finally{pollBusy=false}
+}
+
+function currentGame(){
+  const active=document.getElementById('gameControlPage')?.classList.contains('active');
+  const control=window.skielsenV15?.gameControl;
+  if(active&&control?.g)return control.g;
+  const s=window.skielsenV15?.state;
+  return s?.games?.[s.currentGameIndex||0]||null;
+}
+function isBuzzerGame(g){
+  return g?.game_id==='game.buzzer_time_stop'||/BUZZER\s+ZEIT\s+STOPPEN/i.test(String(g?.name||''));
+}
+function inAppAdminRelevant(){
+  const g=currentGame(),tracker=String(g?.tracker_type||'').toUpperCase(),play=String(g?.play_mode||g?.default_play_mode||'').toUpperCase();
+  return tracker==='IN_APP_NATIVE'||play==='IN_APP';
+}
+function ensureAdminPanel(){
+  if(!rt?.is_admin)return null;
+  const page=document.getElementById('v1536EmbeddedInAppHost')||document.getElementById('gameControlPage');
+  if(!page)return null;
+  let panel=document.getElementById('v15InAppAdminPanel');
+  if(panel){
+    if(panel.parentElement!==page)page.appendChild(panel);
     return panel;
   }
-  async function createAdminSession(){
-    const g=currentGame(),info=document.getElementById('v15InAppAdminInfo');
-    if(!g?.tournament_game_id){if(info)info.textContent='AKTUELLES GAME HAT KEINE TOURNAMENT_GAME_ID.';return}
-    const r=await db.rpc('create_in_app_game_session',{p_tournament_game_id:g.tournament_game_id,p_game_key:'in_app_shell_test',p_match_id:null,p_public_state:{source:'V15_TEST',game_name:g.name||null}});
-    if(r.error){if(info)info.textContent='SESSION-FEHLER: '+(r.error.message||'UNBEKANNT');return}
-    adminGameId=g.tournament_game_id;await refreshAdmin(true);
+  panel=document.createElement('section');
+  panel.id='v15InAppAdminPanel';
+  panel.innerHTML=`<div class="head"><div><small>V${VERSION} · MATCH DETAIL ADAPTER</small><h2>IN-APP GAME SESSION</h2></div><b id="v15InAppAdminStatus">KEINE SESSION</b></div><div class="v15-inapp-admin-body"><div class="v15-inapp-admin-toolbar"><button class="v15-inapp-admin-btn" id="v15InAppCreate" type="button">SESSION FÜR AKTUELLES GAME ERSTELLEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppReload" type="button">AKTUALISIEREN</button><button class="v15-inapp-admin-btn alt" id="v15InAppStart" type="button" disabled>SESSION STARTEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppComplete" type="button" disabled>ABSCHLIESSEN</button><button class="v15-inapp-admin-btn danger" id="v15InAppCancel" type="button" disabled>ABBRECHEN</button></div><div class="v15-inapp-admin-info" id="v15InAppAdminInfo">SERVERSEITIGE SESSION · JEDER PLAYER SPIELT AUF DEM EIGENEN GERÄT.</div><div id="v15InAppCandidateWrap" hidden><div class="v15-inapp-candidates" id="v15InAppCandidates"></div><div class="v15-inapp-admin-toolbar" style="margin-top:10px"><button class="v15-inapp-admin-btn" id="v15InAppAssign" type="button">AUSWAHL ZUWEISEN</button></div></div><div class="v15-inapp-admin-session" id="v15InAppAdminRoster" hidden></div></div>`;
+  page.appendChild(panel);
+  document.getElementById('v15InAppCreate').addEventListener('click',createAdminSession);
+  document.getElementById('v15InAppReload').addEventListener('click',()=>refreshAdmin(true));
+  document.getElementById('v15InAppAssign').addEventListener('click',assignSelected);
+  document.getElementById('v15InAppStart').addEventListener('click',startAdminSession);
+  document.getElementById('v15InAppCancel').addEventListener('click',cancelAdminSession);
+  document.getElementById('v15InAppComplete').addEventListener('click',completeAdminSession);
+  return panel;
+}
+async function createAdminSession(){
+  const g=currentGame(),info=document.getElementById('v15InAppAdminInfo');
+  if(!g?.tournament_game_id){if(info)info.textContent='AKTUELLES GAME HAT KEINE TOURNAMENT_GAME_ID.';return}
+  const buzzer=isBuzzerGame(g);
+  const r=await db.rpc('create_in_app_game_session',{
+    p_tournament_game_id:g.tournament_game_id,
+    p_game_key:buzzer?BUZZER_GAME_KEY:'in_app_shell_test',
+    p_match_id:null,
+    p_public_state:{source:`V${VERSION}`,game_name:g.name||null,game_id:g.game_id||null}
+  });
+  if(r.error){if(info)info.textContent='SESSION-FEHLER: '+(r.error.message||'UNBEKANNT');return}
+  adminGameId=g.tournament_game_id;
+  await refreshAdmin(true);
+  if(buzzer&&adminSession){
+    await autoAssignBuzzerPlayers();
   }
-  async function loadCandidates(){
-    const g=currentGame();if(!g?.tournament_game_id)return;
-    const r=await db.rpc('list_in_app_game_candidates',{p_tournament_game_id:g.tournament_game_id,p_match_id:null});
-    if(r.error){console.warn('In-App candidates',r.error);return}
-    adminCandidates=Array.isArray(r.data)?r.data:[];renderCandidates();
+}
+async function loadCandidates(){
+  const g=currentGame();
+  if(!g?.tournament_game_id)return;
+  const r=await db.rpc('list_in_app_game_candidates',{p_tournament_game_id:g.tournament_game_id,p_match_id:null});
+  if(r.error){console.warn('In-App candidates',r.error);return}
+  adminCandidates=Array.isArray(r.data)?r.data:[];
+  renderCandidates();
+}
+function renderCandidates(){
+  const wrap=document.getElementById('v15InAppCandidateWrap'),host=document.getElementById('v15InAppCandidates');
+  if(!wrap||!host)return;
+  wrap.hidden=!adminSession;
+  host.innerHTML=adminCandidates.map(c=>`<label class="v15-inapp-candidate"><input type="checkbox" data-inapp-member="${esc(c.tournament_member_id)}" data-inapp-participant="${esc(c.participant_id)}"><i style="background:${colorHex[c.identity_color]||'#aaa'}"></i><span><strong>${esc(c.display_name||'PLAYER')}</strong><small>${esc(c.identity_color||'')} · ${esc(c.participant_type||'PLAYER')}</small></span></label>`).join('')||'<div class="v15-inapp-message">KEINE WÄHLBAREN PLAYER.</div>';
+  const assigned=new Set((adminSession?.players||[]).map(p=>p.tournament_member_id));
+  host.querySelectorAll('[data-inapp-member]').forEach(x=>x.checked=assigned.has(x.dataset.inappMember));
+}
+function renderAdmin(){
+  const panel=ensureAdminPanel();
+  if(panel)panel.hidden=!inAppAdminRelevant();
+  if(!panel||panel.hidden)return;
+  const st=document.getElementById('v15InAppAdminStatus'),info=document.getElementById('v15InAppAdminInfo'),roster=document.getElementById('v15InAppAdminRoster');
+  if(!st)return;
+  st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
+  document.getElementById('v15InAppStart').disabled=!adminSession||adminSession.status!=='READY';
+  document.getElementById('v15InAppCancel').disabled=!adminSession;
+  document.getElementById('v15InAppComplete').disabled=!adminSession||adminSession.status!=='ACTIVE';
+  document.getElementById('v15InAppCreate').disabled=!!adminSession;
+  if(info&&adminSession){
+    const extra=adminSession.game?.module_key===BUZZER_MODULE?' · BUZZER AUTO-FLOW':'';
+    info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}${extra}`;
   }
-  function renderCandidates(){
-    const wrap=document.getElementById('v15InAppCandidateWrap'),host=document.getElementById('v15InAppCandidates');if(!wrap||!host)return;
-    wrap.hidden=!adminSession;host.innerHTML=adminCandidates.map(c=>`<label class="v15-inapp-candidate"><input type="checkbox" data-inapp-member="${esc(c.tournament_member_id)}" data-inapp-participant="${esc(c.participant_id)}"><i style="background:${colorHex[c.identity_color]||'#aaa'}"></i><span><strong>${esc(c.display_name||'PLAYER')}</strong><small>${esc(c.identity_color||'')} · ${esc(c.participant_type||'PLAYER')}</small></span></label>`).join('')||'<div class="v15-inapp-message">KEINE WÄHLBAREN PLAYER.</div>';
-    const assigned=new Set((adminSession?.players||[]).map(p=>p.tournament_member_id));host.querySelectorAll('[data-inapp-member]').forEach(x=>x.checked=assigned.has(x.dataset.inappMember));
+  if(roster){
+    roster.hidden=!adminSession;
+    roster.innerHTML=(adminSession?.players||[]).map(p=>`<div class="v15-inapp-admin-session-row"><b>${esc(p.seat)}</b><span>${esc(p.display_name)} · ${esc(p.identity_color||'')}</span><b>${esc(statusDE(p.status))}</b></div>`).join('')||'<div class="v15-inapp-message">NOCH KEINE PLAYER ZUGEWIESEN.</div>';
   }
-  function renderAdmin(){
-    const panel=ensureAdminPanel();if(panel)panel.hidden=!inAppAdminRelevant();if(!panel||panel.hidden)return;const st=document.getElementById('v15InAppAdminStatus'),info=document.getElementById('v15InAppAdminInfo'),roster=document.getElementById('v15InAppAdminRoster');if(!st)return;
-    st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
-    document.getElementById('v15InAppStart').disabled=!adminSession||adminSession.status!=='READY';
-    document.getElementById('v15InAppCancel').disabled=!adminSession;
-    document.getElementById('v15InAppComplete').disabled=!adminSession||adminSession.status!=='ACTIVE';
-    document.getElementById('v15InAppCreate').disabled=!!adminSession;
-    if(info&&adminSession)info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}`;
-    if(roster){roster.hidden=!adminSession;roster.innerHTML=(adminSession?.players||[]).map(p=>`<div class="v15-inapp-admin-session-row"><b>${esc(p.seat)}</b><span>${esc(p.display_name)} · ${esc(p.identity_color||'')}</span><b>${esc(statusDE(p.status))}</b></div>`).join('')||'<div class="v15-inapp-message">NOCH KEINE PLAYER ZUGEWIESEN.</div>'}
-    renderCandidates();
+  renderCandidates();
+}
+async function refreshAdmin(force){
+  ensureAdminPanel();
+  const g=currentGame();
+  if(!g?.tournament_game_id)return;
+  if(force||adminGameId!==g.tournament_game_id||!adminSession){
+    adminGameId=g.tournament_game_id;
+    const r=await db.rpc('get_admin_active_in_app_game',{p_tournament_game_id:g.tournament_game_id});
+    if(!r.error)adminSession=r.data||null;
+    if(adminSession)await loadCandidates();else adminCandidates=[];
+  }else if(adminSession){
+    const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
+    if(!r.error)adminSession=r.data||adminSession;
   }
-  async function refreshAdmin(force){
-    ensureAdminPanel();const g=currentGame();if(!g?.tournament_game_id)return;
-    if(force||adminGameId!==g.tournament_game_id||!adminSession){
-      adminGameId=g.tournament_game_id;
-      const r=await db.rpc('get_admin_active_in_app_game',{p_tournament_game_id:g.tournament_game_id});
-      if(!r.error)adminSession=r.data||null;
-      if(adminSession)await loadCandidates();else adminCandidates=[];
-    }else if(adminSession){
-      const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});if(!r.error)adminSession=r.data||adminSession;
+  renderAdmin();
+}
+async function assignRows(rows){
+  if(!adminSession)return false;
+  const info=document.getElementById('v15InAppAdminInfo');
+  const min=Number(adminSession.game?.min_players||2),max=Number(adminSession.game?.max_players||4);
+  if(rows.length<min||rows.length>max){
+    if(info)info.textContent=`BITTE ${min} BIS ${max} PLAYER AUSWÄHLEN.`;
+    return false;
+  }
+  const selected=new Set(rows.map(x=>x.member));
+  for(const p of adminSession.players||[]){
+    if(!selected.has(p.tournament_member_id)){
+      await db.rpc('remove_in_app_game_player',{p_session_id:adminSession.session_id,p_tournament_member_id:p.tournament_member_id});
     }
-    renderAdmin();
   }
-  async function assignSelected(){
-    if(!adminSession)return;const checked=[...document.querySelectorAll('#v15InAppCandidates [data-inapp-member]:checked')];const min=Number(adminSession.game?.min_players||2),max=Number(adminSession.game?.max_players||4),info=document.getElementById('v15InAppAdminInfo');
-    if(checked.length<min||checked.length>max){if(info)info.textContent=`BITTE ${min} BIS ${max} PLAYER AUSWÄHLEN.`;return}
-    const selected=new Set(checked.map(x=>x.dataset.inappMember));
-    for(const p of adminSession.players||[]){if(!selected.has(p.tournament_member_id))await db.rpc('remove_in_app_game_player',{p_session_id:adminSession.session_id,p_tournament_member_id:p.tournament_member_id});}
-    let seat=1;for(const x of checked){const r=await db.rpc('assign_in_app_game_player',{p_session_id:adminSession.session_id,p_tournament_member_id:x.dataset.inappMember,p_participant_id:x.dataset.inappParticipant,p_seat:seat++});if(r.error){if(info)info.textContent='ZUWEISUNGSFEHLER: '+(r.error.message||'UNBEKANNT');break}}
-    await refreshAdmin(true);
+  let seat=1;
+  for(const x of rows){
+    const r=await db.rpc('assign_in_app_game_player',{
+      p_session_id:adminSession.session_id,
+      p_tournament_member_id:x.member,
+      p_participant_id:x.participant,
+      p_seat:seat++
+    });
+    if(r.error){
+      if(info)info.textContent='ZUWEISUNGSFEHLER: '+(r.error.message||'UNBEKANNT');
+      return false;
+    }
   }
-  async function startAdminSession(){if(!adminSession)return;const r=await db.rpc('start_in_app_game_session',{p_session_id:adminSession.session_id});if(r.error){document.getElementById('v15InAppAdminInfo').textContent='STARTFEHLER: '+(r.error.message||'UNBEKANNT');return}await refreshAdmin(true);}
-  async function cancelAdminSession(){if(!adminSession)return;if(!confirm('IN-APP DEV SESSION ABBRECHEN?'))return;await db.rpc('cancel_in_app_game_session',{p_session_id:adminSession.session_id});adminSession=null;adminCandidates=[];renderAdmin();}
-  async function completeAdminSession(){if(!adminSession)return;await db.rpc('complete_in_app_game_session',{p_session_id:adminSession.session_id});adminSession=null;adminCandidates=[];renderAdmin();}
-  function start(runtime){
-    rt=runtime||window.skielsenV15?.runtime||null;db=window.skielsenDb?.client||null;if(!rt||!db)return false;
-    ensureLayer();ensureAdminPanel();clearInterval(pollTimer);pollPlayer();pollTimer=setInterval(pollPlayer,POLL_MS);return true;
+  await refreshAdmin(true);
+  return true;
+}
+async function autoAssignBuzzerPlayers(){
+  if(!adminSession||adminSession.game?.module_key!==BUZZER_MODULE)return;
+  if(!adminCandidates.length)await loadCandidates();
+  const rows=adminCandidates.slice(0,Number(adminSession.game?.max_players||8)).map(c=>({member:c.tournament_member_id,participant:c.participant_id}));
+  const ok=await assignRows(rows);
+  const info=document.getElementById('v15InAppAdminInfo');
+  if(ok&&info)info.textContent=`BUZZER · ${rows.length} PLAYER AUTOMATISCH ZUGEWIESEN · JEDER AUF EIGENEM GERÄT`;
+}
+async function assignSelected(){
+  if(!adminSession)return;
+  const checked=[...document.querySelectorAll('#v15InAppCandidates [data-inapp-member]:checked')];
+  await assignRows(checked.map(x=>({member:x.dataset.inappMember,participant:x.dataset.inappParticipant})));
+}
+async function startAdminSession(){
+  if(!adminSession)return;
+  const r=await db.rpc('start_in_app_game_session',{p_session_id:adminSession.session_id});
+  if(r.error){
+    const info=document.getElementById('v15InAppAdminInfo');
+    if(info)info.textContent='STARTFEHLER: '+(r.error.message||'UNBEKANNT');
+    return;
   }
-  let tries=0;const boot=setInterval(()=>{tries++;if(start(window.skielsenV15?.runtime)||tries>80)clearInterval(boot)},250);
-  window.addEventListener('beforeunload',()=>{clearInterval(pollTimer);clearInterval(boot)});
-  window.skielsenInApp={start,poll:pollPlayer,get session(){return playerSession},submitAction:async(type,payload={})=>playerSession?db.rpc('submit_in_app_game_action',{p_session_id:playerSession.session_id,p_action_type:type,p_payload:payload}):{data:null,error:new Error('NO_ACTIVE_IN_APP_SESSION')}};
+  await refreshAdmin(true);
+  await pollPlayer();
+}
+async function cancelAdminSession(){
+  if(!adminSession)return;
+  if(!confirm('IN-APP SESSION ABBRECHEN?'))return;
+  await db.rpc('cancel_in_app_game_session',{p_session_id:adminSession.session_id});
+  adminSession=null;adminCandidates=[];renderAdmin();await pollPlayer();
+}
+async function completeAdminSession(){
+  if(!adminSession)return;
+  await db.rpc('complete_in_app_game_session',{p_session_id:adminSession.session_id});
+  adminSession=null;adminCandidates=[];renderAdmin();await pollPlayer();
+}
+function start(runtime){
+  rt=runtime||window.skielsenV15?.runtime||null;
+  db=window.skielsenDb?.client||null;
+  if(!rt||!db)return false;
+  syncVisibleVersion();
+  ensureLayer();
+  ensureAdminPanel();
+  clearInterval(pollTimer);
+  pollPlayer();
+  pollTimer=setInterval(pollPlayer,POLL_MS);
+  return true;
+}
+let tries=0;
+const boot=setInterval(()=>{
+  tries++;
+  if(start(window.skielsenV15?.runtime)||tries>80)clearInterval(boot);
+},250);
+
+window.addEventListener('beforeunload',()=>{
+  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();
+});
+window.skielsenInApp={
+  start,
+  poll:pollPlayer,
+  get session(){return playerSession},
+  submitAction:async(type,payload={})=>playerSession?db.rpc('submit_in_app_game_action',{p_session_id:playerSession.session_id,p_action_type:type,p_payload:payload}):{data:null,error:new Error('NO_ACTIVE_IN_APP_SESSION')}
+};
 })();
