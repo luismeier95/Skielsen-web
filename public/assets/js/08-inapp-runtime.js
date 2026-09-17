@@ -1,14 +1,14 @@
 (()=>{
 'use strict';
 
-const VERSION='15.0.38';
+const VERSION='15.0.39';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
 const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,autoLifecycleBusy=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
@@ -152,6 +152,9 @@ function currentGame(){
 function isBuzzerGame(g){
   return g?.game_id==='game.buzzer_time_stop'||/BUZZER\s+ZEIT\s+STOPPEN/i.test(String(g?.name||''));
 }
+function buzzerGameIsLive(g){
+  return !!g&&g.phase==='ACTIVE'&&(g.matches||[]).some(m=>m?.status==='LIVE');
+}
 function inAppAdminRelevant(){
   const g=currentGame(),tracker=String(g?.tracker_type||'').toUpperCase(),play=String(g?.play_mode||g?.default_play_mode||'').toUpperCase();
   return tracker==='IN_APP_NATIVE'||play==='IN_APP';
@@ -218,14 +221,18 @@ function renderAdmin(){
   if(!st)return;
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
   const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
-  document.getElementById('v15InAppStart').disabled=!adminSession||adminSession.status!=='READY';
+  const startBtn=document.getElementById('v15InAppStart');
+  const createBtn=document.getElementById('v15InAppCreate');
+  if(startBtn){startBtn.hidden=!!isBuzzer;startBtn.disabled=!adminSession||adminSession.status!=='READY'}
+  if(createBtn){createBtn.hidden=!!isBuzzer;createBtn.disabled=!!adminSession}
   document.getElementById('v15InAppCancel').disabled=!adminSession;
   const completeBtn=document.getElementById('v15InAppComplete');
   if(completeBtn){completeBtn.hidden=!!isBuzzer;completeBtn.disabled=!!isBuzzer||!adminSession||adminSession.status!=='ACTIVE'}
-  document.getElementById('v15InAppCreate').disabled=!!adminSession;
   if(info&&adminSession){
     const extra=isBuzzer?' · BUZZER AUTO-FLOW · ABSCHLUSS AUTOMATISCH':'';
     info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}${extra}`;
+  }else if(info&&isBuzzerGame(currentGame())&&buzzerGameIsLive(currentGame())){
+    info.textContent='BUZZER SESSION WIRD AUTOMATISCH VORBEREITET …';
   }
   if(roster){
     roster.hidden=!adminSession;
@@ -246,6 +253,7 @@ async function refreshAdmin(force){
     const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
     if(!r.error)adminSession=r.data||adminSession;
   }
+  if(isBuzzerGame(g)&&buzzerGameIsLive(g))await ensureBuzzerLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
@@ -279,12 +287,76 @@ async function assignRows(rows){
   return true;
 }
 async function autoAssignBuzzerPlayers(){
-  if(!adminSession||adminSession.game?.module_key!==BUZZER_MODULE)return;
-  if(!adminCandidates.length)await loadCandidates();
-  const rows=adminCandidates.slice(0,Number(adminSession.game?.max_players||8)).map(c=>({member:c.tournament_member_id,participant:c.participant_id}));
-  const ok=await assignRows(rows);
+  if(!adminSession||adminSession.game?.module_key!==BUZZER_MODULE)return false;
+  await loadCandidates();
+  const max=Number(adminSession.game?.max_players||8);
+  const candidates=adminCandidates.slice(0,max);
+  const assigned=new Set((adminSession.players||[]).map(p=>p.tournament_member_id));
+  let nextSeat=Math.max(0,...(adminSession.players||[]).map(p=>Number(p.seat)||0))+1;
+  let changed=false;
+  for(const c of candidates){
+    if(assigned.has(c.tournament_member_id))continue;
+    const r=await db.rpc('assign_in_app_game_player',{
+      p_session_id:adminSession.session_id,
+      p_tournament_member_id:c.tournament_member_id,
+      p_participant_id:c.participant_id,
+      p_seat:nextSeat++
+    });
+    if(r.error){
+      console.warn('Buzzer auto assign',r.error);
+      continue;
+    }
+    changed=true;
+  }
+  if(changed){
+    const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
+    if(!r.error)adminSession=r.data||adminSession;
+  }
   const info=document.getElementById('v15InAppAdminInfo');
-  if(ok&&info)info.textContent=`BUZZER · ${rows.length} PLAYER AUTOMATISCH ZUGEWIESEN · JEDER AUF EIGENEM GERÄT`;
+  if(info){
+    const min=Number(adminSession.game?.min_players||2);
+    const n=adminSession.players?.length||0;
+    info.textContent=n>=min
+      ?`BUZZER · ${n} PLAYER AUTOMATISCH ZUGEWIESEN · WARTET AUF BEREITSCHAFT`
+      :`BUZZER · ${n} PLAYER ZUGEWIESEN · MINDESTENS ${min} PLAYER-ACCOUNTS BENÖTIGT`;
+  }
+  return true;
+}
+async function ensureBuzzerLifecycle(g){
+  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!isBuzzerGame(g)||!buzzerGameIsLive(g))return;
+  autoLifecycleBusy=true;
+  try{
+    if(!adminSession){
+      const created=await db.rpc('create_in_app_game_session',{
+        p_tournament_game_id:g.tournament_game_id,
+        p_game_key:BUZZER_GAME_KEY,
+        p_match_id:null,
+        p_public_state:{source:`V${VERSION}`,game_name:g.name||null,game_id:g.game_id||null,auto_created:true}
+      });
+      if(created.error){
+        console.warn('Buzzer auto create',created.error);
+        return;
+      }
+      adminGameId=g.tournament_game_id;
+      const fetched=await db.rpc('get_admin_active_in_app_game',{p_tournament_game_id:g.tournament_game_id});
+      if(!fetched.error)adminSession=fetched.data||null;
+    }
+    if(!adminSession||adminSession.game?.module_key!==BUZZER_MODULE)return;
+    await autoAssignBuzzerPlayers();
+    const min=Number(adminSession.game?.min_players||2);
+    const players=adminSession.players?.length||0;
+    if(adminSession.status==='READY'&&players>=min){
+      const started=await db.rpc('start_in_app_game_session',{p_session_id:adminSession.session_id});
+      if(started.error){
+        console.warn('Buzzer auto start',started.error);
+      }else{
+        const fetched=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
+        if(!fetched.error)adminSession=fetched.data||adminSession;
+      }
+    }
+  }finally{
+    autoLifecycleBusy=false;
+  }
 }
 async function assignSelected(){
   if(!adminSession)return;
