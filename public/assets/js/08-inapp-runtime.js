@@ -1,14 +1,14 @@
 (()=>{
 'use strict';
 
-const VERSION='15.0.37';
+const VERSION='15.0.38';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
 const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
@@ -27,6 +27,19 @@ function ensureLayer(){
   layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
   document.body.appendChild(layer);
   return layer;
+}
+function ensureBuzzerBridgeAssets(){
+  if(window.skielsenBuzzerBridge)return Promise.resolve();
+  if(buzzerBridgePromise)return buzzerBridgePromise;
+  buzzerBridgePromise=new Promise((resolve,reject)=>{
+    if(!document.querySelector('link[data-buzzer-results-css]')){
+      const link=document.createElement('link');link.rel='stylesheet';link.href='assets/css/buzzer-results.css';link.dataset.buzzerResultsCss='1';document.head.appendChild(link);
+    }
+    const existing=document.querySelector('script[data-buzzer-bridge-js]');
+    if(existing){if(window.skielsenBuzzerBridge){resolve();return}existing.addEventListener('load',()=>resolve(),{once:true});existing.addEventListener('error',reject,{once:true});return}
+    const script=document.createElement('script');script.src='assets/js/10-buzzer-tournament-bridge.js';script.defer=true;script.dataset.buzzerBridgeJs='1';script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
+  });
+  return buzzerBridgePromise;
 }
 function ensureBuzzerAssets(){
   if(window.skielsenBuzzerTime)return Promise.resolve();
@@ -204,12 +217,14 @@ function renderAdmin(){
   const st=document.getElementById('v15InAppAdminStatus'),info=document.getElementById('v15InAppAdminInfo'),roster=document.getElementById('v15InAppAdminRoster');
   if(!st)return;
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
+  const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
   document.getElementById('v15InAppStart').disabled=!adminSession||adminSession.status!=='READY';
   document.getElementById('v15InAppCancel').disabled=!adminSession;
-  document.getElementById('v15InAppComplete').disabled=!adminSession||adminSession.status!=='ACTIVE';
+  const completeBtn=document.getElementById('v15InAppComplete');
+  if(completeBtn){completeBtn.hidden=!!isBuzzer;completeBtn.disabled=!!isBuzzer||!adminSession||adminSession.status!=='ACTIVE'}
   document.getElementById('v15InAppCreate').disabled=!!adminSession;
   if(info&&adminSession){
-    const extra=adminSession.game?.module_key===BUZZER_MODULE?' · BUZZER AUTO-FLOW':'';
+    const extra=isBuzzer?' · BUZZER AUTO-FLOW · ABSCHLUSS AUTOMATISCH':'';
     info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}${extra}`;
   }
   if(roster){
@@ -305,6 +320,7 @@ function start(runtime){
   syncVisibleVersion();
   ensureLayer();
   ensureAdminPanel();
+  ensureBuzzerBridgeAssets().catch(err=>console.warn('Buzzer bridge assets',err));
   clearInterval(pollTimer);
   pollPlayer();
   pollTimer=setInterval(pollPlayer,POLL_MS);
