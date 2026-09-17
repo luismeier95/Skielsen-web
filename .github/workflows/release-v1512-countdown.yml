@@ -1,0 +1,131 @@
+name: One-time V15.1.2 Buzzer countdown fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release-v1512-countdown.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Patch V15.1.2
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          OLD='15.1.1'
+          NEW='15.1.2'
+          public=Path('public')
+
+          # Central version + manifest.
+          p=public/'assets/js/00-version.js'
+          s=p.read_text(encoding='utf-8')
+          if f"const VERSION='{OLD}';" not in s:
+              raise SystemExit('00-version anchor missing')
+          p.write_text(s.replace(f"const VERSION='{OLD}';",f"const VERSION='{NEW}';",1),encoding='utf-8')
+
+          vp=public/'version.json'
+          data=json.loads(vp.read_text(encoding='utf-8'))
+          if data.get('version') != OLD:
+              raise SystemExit(f"unexpected version.json: {data.get('version')}")
+          data['version']=NEW
+          vp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          # Visible version labels and cache keys.
+          idx=public/'index.html'
+          h=idx.read_text(encoding='utf-8')
+          if OLD not in h:
+              raise SystemExit('index version anchor missing')
+          h=h.replace(OLD,NEW)
+          idx.write_text(h,encoding='utf-8')
+
+          # Runtime fallbacks use the same centralized release version.
+          for name in ['06-db-bootstrap.js','07-tournament-engine.js','08-inapp-runtime.js','10-buzzer-tournament-bridge.js']:
+              p=public/'assets/js'/name
+              s=p.read_text(encoding='utf-8')
+              if OLD not in s:
+                  raise SystemExit(f'{name}: old version anchor missing')
+              p.write_text(s.replace(OLD,NEW),encoding='utf-8')
+
+          # Buzzer reveal countdown: set one absolute local deadline per reveal.
+          # Re-renders must not restart the same 10-second reveal.
+          p9=public/'assets/js/09-buzzer-time.js'
+          s9=p9.read_text(encoding='utf-8')
+
+          old="let testMode=false,testCtx=null,testEngine=null,testRevealAdvanced=false;"
+          new="let testMode=false,testCtx=null,testEngine=null,testRevealAdvanced=false,revealToken=null;"
+          if old not in s9:
+              raise SystemExit('09 variable anchor missing')
+          s9=s9.replace(old,new,1)
+
+          old="""  if(state.phase==='REVEAL'){
+    revealEndPerf=performance.now()+Math.max(0,Number(state.reveal_remaining_ms||0));
+  }"""
+          new="""  if(state.phase==='REVEAL'){
+    const nextRevealToken=`${Number(state.reveal?.round??state.round??0)}|${Number(state.reveal?.target_seconds??state.target_seconds??0)}`;
+    if(revealToken!==nextRevealToken){
+      revealToken=nextRevealToken;
+      revealEndPerf=performance.now()+Math.max(0,Number(state.reveal_remaining_ms||0));
+    }
+  }else{
+    revealToken=null;
+    revealEndPerf=0;
+  }"""
+          if old not in s9:
+              raise SystemExit('09 reveal render anchor missing')
+          s9=s9.replace(old,new,1)
+
+          old="  state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;testRevealAdvanced=false;\n  testPrepareRound();"
+          new="  state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;\n  testPrepareRound();"
+          if old not in s9:
+              raise SystemExit('09 test reset anchor missing')
+          s9=s9.replace(old,new,1)
+
+          old="    state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;\n    root.innerHTML='<div class=\"bzt-loading\">BUZZER WIRD GELADEN …</div>';"
+          new="    state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;revealToken=null;revealEndPerf=0;\n    root.innerHTML='<div class=\"bzt-loading\">BUZZER WIRD GELADEN …</div>';"
+          if old not in s9:
+              raise SystemExit('09 production reset anchor missing')
+          s9=s9.replace(old,new,1)
+
+          old="  testMode=false;testCtx=null;testEngine=null;testRevealAdvanced=false;\n  root?.closest('#v15InAppLayer')?.classList.remove('buzzer-mode');"
+          new="  testMode=false;testCtx=null;testEngine=null;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;\n  root?.closest('#v15InAppLayer')?.classList.remove('buzzer-mode');"
+          if old not in s9:
+              raise SystemExit('09 unmount anchor missing')
+          s9=s9.replace(old,new,1)
+
+          p9.write_text(s9,encoding='utf-8')
+          PY
+
+      - name: Validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/validate_static.py
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find public/assets/js -type f -name '*.js' -print0)
+          grep -q '"version": "15.1.2"' public/version.json
+          grep -q "const VERSION='15.1.2';" public/assets/js/00-version.js
+          grep -q 'revealToken!==nextRevealToken' public/assets/js/09-buzzer-time.js
+          ! grep -q '?v=15.1.1' public/index.html
+
+      - name: Commit release
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/index.html public/version.json public/assets/js/00-version.js public/assets/js/06-db-bootstrap.js public/assets/js/07-tournament-engine.js public/assets/js/08-inapp-runtime.js public/assets/js/09-buzzer-time.js public/assets/js/10-buzzer-tournament-bridge.js
+          git commit -m 'Fix Buzzer reveal countdown in SKIELSEN V15.1.2'
+          git push origin HEAD:main
