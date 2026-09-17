@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.1';
+const VERSION=window.SKIELSEN_VERSION||'15.1.2';
 const GAME_ID='game.buzzer_time_stop';
 const RESULT_RPC='get_buzzer_time_game_result';
 const COLORS={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
