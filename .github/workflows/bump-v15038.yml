@@ -1,0 +1,49 @@
+name: One-time V15.0.38 version bump
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bump-v15038.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Bump static app version
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('public/index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('<title>SKIELSEN V15.0.37</title>','<title>SKIELSEN V15.0.38</title>')
+          s=s.replace('<span class="sk-header__version">V15.0.37</span>','<span class="sk-header__version">V15.0.38</span>')
+          p.write_text(s,encoding='utf-8')
+          v=Path('public/version.json')
+          data=json.loads(v.read_text(encoding='utf-8'))
+          data['version']='15.0.38'
+          v.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+          python3 tools/validate_static.py
+          find public/assets/js -maxdepth 1 -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Commit V15.0.38
+        shell: bash
+        run: |
+          if git diff --quiet -- public/index.html public/version.json; then
+            echo 'Version already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/index.html public/version.json
+          git commit -m 'Bump SKIELSEN to V15.0.38'
+          git push origin HEAD:main
