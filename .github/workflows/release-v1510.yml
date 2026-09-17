@@ -1,0 +1,119 @@
+name: One-time V15.1.0 release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release-v1510.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Release V15.1.0
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, re
+
+          VERSION='15.1.0'
+          root=Path('.')
+          public=root/'public'
+
+          # Central browser version source. All runtime modules read this value.
+          version_js=public/'assets/js/00-version.js'
+          version_js.write_text("""(()=>{\n'use strict';\nconst VERSION='15.1.0';\nwindow.SKIELSEN_VERSION=VERSION;\nfunction syncVersion(root=document){\n  document.title=`SKIELSEN V${VERSION}`;\n  root.querySelectorAll('[data-skielsen-version]').forEach(el=>el.textContent=`V${VERSION}`);\n}\nwindow.skielsenSyncVersion=syncVersion;\nif(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>syncVersion(),{once:true});\nelse syncVersion();\n})();\n""",encoding='utf-8')
+
+          # Main HTML: current version, all visible version labels, central version script and cache-busting.
+          idx=public/'index.html'
+          h=idx.read_text(encoding='utf-8')
+          h=h.replace('<title>SKIELSEN V15.0.39</title>',f'<title>SKIELSEN V{VERSION}</title>')
+          h=h.replace('<span class="sk-header__version">V15.0.39</span>',f'<span class="sk-header__version" data-skielsen-version>V{VERSION}</span>')
+          h=h.replace('<div class="dbb-brand"><img alt="SKIELSEN" src="assets/images/skielsen-logo.png"><small>V15.0.35 · WEB-PROTOTYP</small></div>',f'<div class="dbb-brand"><img alt="SKIELSEN" src="assets/images/skielsen-logo.png"><small><span data-skielsen-version>V{VERSION}</span> · WEB-PROTOTYP</small></div>')
+          h=h.replace('<span class="dbb-lobby-version">V15.0.35</span>',f'<span class="dbb-lobby-version" data-skielsen-version>V{VERSION}</span>')
+          h=h.replace('V15.0.35 öffnet danach die aktive Turnieransicht.',f'<span data-skielsen-version>V{VERSION}</span> öffnet danach die aktive Turnieransicht.')
+
+          # Load the central version source before any app runtime.
+          if 'assets/js/00-version.js' not in h:
+            anchor='<link rel="stylesheet" href="assets/css/app.css"/>'
+            if anchor not in h:
+              raise SystemExit('app.css anchor missing')
+            h=h.replace(anchor,anchor+'\n<script src="assets/js/00-version.js"></script>',1)
+
+          # Every directly referenced local CSS/JS asset receives the release version as cache key.
+          h=re.sub(r'((?:src|href)="assets/(?:js|css)/[^"?]+\.(?:js|css))(?:\?v=[^" ]+)?("[^>]*>)',lambda m:f'{m.group(1)}?v={VERSION}{m.group(2)}',h)
+          idx.write_text(h,encoding='utf-8')
+
+          # version.json remains the machine-readable release manifest.
+          vp=public/'version.json'
+          data=json.loads(vp.read_text(encoding='utf-8'))
+          data['version']=VERSION
+          vp.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          # Shop/bootstrap uses the same central version instead of its old embedded V15.0.19 label.
+          p6=public/'assets/js/06-db-bootstrap.js'
+          s6=p6.read_text(encoding='utf-8')
+          if "const APP_VERSION=window.SKIELSEN_VERSION||'15.1.0';" not in s6:
+            s6=s6.replace('(async()=>{\n',"(async()=>{\n  const APP_VERSION=window.SKIELSEN_VERSION||'15.1.0';\n",1)
+          s6=s6.replace('V15.0.19 · TOURNAMENT BUILDER','V__SKIELSEN_VERSION__ · TOURNAMENT BUILDER')
+          s6=s6.replace('shopFrame.srcdoc=SHOP_DOC;','shopFrame.srcdoc=SHOP_DOC.replaceAll(\'__SKIELSEN_VERSION__\',APP_VERSION);')
+          p6.write_text(s6,encoding='utf-8')
+
+          # Runtime modules use the central version source with a release fallback.
+          replacements={
+            '07-tournament-engine.js':("const VERSION='15.0.36';",f"const VERSION=window.SKIELSEN_VERSION||'{VERSION}';"),
+            '08-inapp-runtime.js':("const VERSION='15.0.39';",f"const VERSION=window.SKIELSEN_VERSION||'{VERSION}';"),
+            '10-buzzer-tournament-bridge.js':("const VERSION='15.0.38';",f"const VERSION=window.SKIELSEN_VERSION||'{VERSION}';")
+          }
+          for name,(old,new) in replacements.items():
+            p=public/'assets/js'/name
+            s=p.read_text(encoding='utf-8')
+            if old in s:
+              s=s.replace(old,new,1)
+            elif 'window.SKIELSEN_VERSION' not in s:
+              raise SystemExit(f'version anchor missing: {name}')
+            p.write_text(s,encoding='utf-8')
+
+          # Dynamic Buzzer assets also receive the current cache key.
+          p8=public/'assets/js/08-inapp-runtime.js'
+          s8=p8.read_text(encoding='utf-8')
+          s8=s8.replace("link.href='assets/css/buzzer-results.css';","link.href=`assets/css/buzzer-results.css?v=${VERSION}`;")
+          s8=s8.replace("script.src='assets/js/10-buzzer-tournament-bridge.js';","script.src=`assets/js/10-buzzer-tournament-bridge.js?v=${VERSION}`;")
+          s8=s8.replace("link.rel='stylesheet';link.href='assets/css/buzzer-time.css';link.dataset.buzzerCss='1';","link.rel='stylesheet';link.href=`assets/css/buzzer-time.css?v=${VERSION}`;link.dataset.buzzerCss='1';")
+          s8=s8.replace("script.src='assets/js/09-buzzer-time.js';","script.src=`assets/js/09-buzzer-time.js?v=${VERSION}`;")
+          p8.write_text(s8,encoding='utf-8')
+
+          # Harden static validation against future version drift and stale cached JS/CSS refs.
+          validator=root/'tools/validate_static.py'
+          validator.write_text("""from pathlib import Path\nfrom html.parser import HTMLParser\nfrom urllib.parse import urlsplit, parse_qs\nimport json, sys\nROOT=Path(__file__).resolve().parents[1]; PUBLIC=ROOT/'public'; INDEX=PUBLIC/'index.html'\nclass P(HTMLParser):\n def __init__(self): super().__init__(); self.refs=[]; self.inline_scripts=0; self.inline_styles=0\n def handle_starttag(self,tag,attrs):\n  a=dict(attrs)\n  if tag=='script':\n   if a.get('src'): self.refs.append(('script',a['src']))\n   else: self.inline_scripts+=1\n  elif tag=='link' and a.get('href'): self.refs.append(('link',a['href']))\n  elif tag in {'img','source','video','audio','iframe'} and a.get('src'): self.refs.append((tag,a['src']))\n  if tag=='style': self.inline_styles+=1\ndef fail(msg): print('ERROR:',msg,file=sys.stderr); raise SystemExit(1)\nif not INDEX.exists(): fail('public/index.html fehlt')\nh=INDEX.read_text(encoding='utf-8')\nif 'data:image/' in h: fail('Base64-Bilder in index.html')\np=P(); p.feed(h)\nif p.inline_scripts: fail(f'{p.inline_scripts} Inline-Scripts gefunden')\nif p.inline_styles: fail(f'{p.inline_styles} Inline-Styles gefunden')\nv=json.loads((PUBLIC/'version.json').read_text())['version']\nmissing=[]\nfor kind,ref in p.refs:\n if not ref or ref.startswith(('#','data:','mailto:','tel:','javascript:')): continue\n u=urlsplit(ref)\n if u.scheme or u.netloc: continue\n if ref.startswith('/'): missing.append((kind,ref,'absolute path')); continue\n target=(PUBLIC/u.path).resolve()\n if not target.exists(): missing.append((kind,ref,'missing')); continue\n if kind in {'script','link'} and u.path.startswith(('assets/js/','assets/css/')):\n  if parse_qs(u.query).get('v')!=[v]: fail(f'Cache-Version fehlt/abweichend: {ref}')\nif missing: fail(repr(missing[:20]))\nif f'SKIELSEN V{v}' not in h: fail('Versionskonflikt index/title')\nversion_js=(PUBLIC/'assets/js/00-version.js').read_text(encoding='utf-8')\nif f\"const VERSION='{v}';\" not in version_js: fail('00-version.js stimmt nicht mit version.json überein')\nif 'V15.0.35' in h: fail('Veraltete sichtbare V15.0.35-Version in index.html')\nshop=(PUBLIC/'assets/js/06-db-bootstrap.js').read_text(encoding='utf-8')\nif 'V15.0.19 · TOURNAMENT BUILDER' in shop: fail('Veraltete Shop-Version')\nfor name in ['07-tournament-engine.js','08-inapp-runtime.js','10-buzzer-tournament-bridge.js']:\n s=(PUBLIC/'assets/js'/name).read_text(encoding='utf-8')\n if 'window.SKIELSEN_VERSION' not in s: fail(f'{name} nutzt nicht die zentrale Version')\nprint(f'OK: SKIELSEN V{v} · {len(p.refs)} Referenzen geprüft · Version zentralisiert')\n""",encoding='utf-8')
+          PY
+
+      - name: Validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/validate_static.py
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find public/assets/js -type f -name '*.js' -print0)
+          grep -q 'SKIELSEN V15.1.0' public/index.html
+          grep -q '"version": "15.1.0"' public/version.json
+          ! grep -q 'V15.0.35' public/index.html
+
+      - name: Commit V15.1.0
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/index.html public/version.json public/assets/js/00-version.js public/assets/js/06-db-bootstrap.js public/assets/js/07-tournament-engine.js public/assets/js/08-inapp-runtime.js public/assets/js/10-buzzer-tournament-bridge.js tools/validate_static.py
+          git commit -m 'Release SKIELSEN V15.1.0 and centralize versioning'
+          git push origin HEAD:main
