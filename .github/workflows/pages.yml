@@ -1,4 +1,4 @@
-name: SKIELSEN auf GitHub Pages bereitstellen
+name: SKIELSEN deploy
 
 on:
   push:
@@ -11,25 +11,38 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Repository laden
         uses: actions/checkout@v6
 
+      - name: Static build prüfen
+        run: python3 tools/validate_static.py
+
+      - name: JavaScript Syntax prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find public/assets/js -type f -name '*.js' -print0)
+
       - name: GitHub Pages vorbereiten
         uses: actions/configure-pages@v5
 
-      - name: Dateien hochladen
+      - name: Public-Verzeichnis hochladen
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: './public'
 
       - name: Website veröffentlichen
         id: deployment
