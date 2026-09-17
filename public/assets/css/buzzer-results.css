@@ -1,0 +1,21 @@
+/* SKIELSEN · Buzzer persistent result details · V15.0.38 */
+.v15-buzzer-history{margin-top:28px;border-top:4px solid #050505;padding-top:18px;color:#050505}
+.v15-buzzer-history-head{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:14px}
+.v15-buzzer-history-head small{display:block!important;margin:0 0 5px!important;font:900 9px/1 var(--ui,Arial);letter-spacing:1.2px;color:#777}
+.v15-buzzer-history-head h3{margin:0;font:900 22px/1 var(--display,Arial);text-transform:uppercase}
+.v15-buzzer-history-head>span{font:900 9px/1.25 var(--ui,Arial);letter-spacing:.7px;text-align:right;color:#666}
+.v15-buzzer-final,.v15-buzzer-round{margin-top:12px;border:1px solid #d6d6d6;background:#fff}
+.v15-buzzer-final>header,.v15-buzzer-round>header{display:flex;justify-content:space-between;gap:12px;align-items:end;padding:11px 12px;border-bottom:2px solid #050505;background:#fafafa}
+.v15-buzzer-final>header strong,.v15-buzzer-round>header strong{font:900 12px/1 var(--display,Arial);text-transform:uppercase}
+.v15-buzzer-final>header small,.v15-buzzer-round>header small{display:block!important;margin:0 0 5px!important;font:900 8px/1 var(--ui,Arial);letter-spacing:.8px;color:#777}
+.v15-buzzer-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.v15-buzzer-history table{width:100%;min-width:520px;border-collapse:collapse;table-layout:auto}
+.v15-buzzer-history th,.v15-buzzer-history td{padding:11px 10px;border-bottom:1px solid #e7e7e7;text-align:right;white-space:nowrap}
+.v15-buzzer-history th{font:900 8px/1.2 var(--ui,Arial);letter-spacing:.7px;color:#777;text-transform:uppercase;background:#fff}
+.v15-buzzer-history td{font:800 11px/1 var(--ui,Arial)}
+.v15-buzzer-history th:first-child,.v15-buzzer-history td:first-child{text-align:left}
+.v15-buzzer-history tbody tr:last-child td{border-bottom:0}
+.v15-buzzer-history td i{display:inline-block;width:6px;height:19px;margin-right:8px;vertical-align:middle;background:var(--team-color,#888)}
+.v15-buzzer-final td:first-child{font-weight:900}.v15-buzzer-final td:first-child b{font-family:var(--display,Arial);margin-right:5px}
+.v15-buzzer-empty{margin-top:20px;padding:16px;border:1px solid #ddd;background:#fafafa;font:900 10px/1.4 var(--ui,Arial);letter-spacing:.5px;color:#777;text-align:center}
+@media(max-width:640px){.v15-buzzer-history{margin-top:22px;padding-top:14px}.v15-buzzer-history-head{display:block}.v15-buzzer-history-head>span{display:block;margin-top:8px;text-align:left}.v15-buzzer-history-head h3{font-size:18px}.v15-buzzer-final>header,.v15-buzzer-round>header{padding:10px}.v15-buzzer-history th,.v15-buzzer-history td{padding:10px 8px}}
