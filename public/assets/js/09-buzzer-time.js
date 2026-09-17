@@ -3,10 +3,10 @@
 
 const COLORS={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 const COLOR_DE={BLUE:'BLAU',RED:'ROT',YELLOW:'GELB',GREEN:'GRÜN'};
-const POLL_MS=500;
+const POLL_MS=500,REVEAL_MS=10000;
 
 let root=null,session=null,db=null,state=null,pollTimer=0,raf=0,busy=false;
-let localStartPerf=null,lastStartToken=null,serverOffsetMs=0,revealEndPerf=0;
+let localStartPerf=null,lastStartToken=null,serverOffsetMs=0,revealEndPerf=0,engineResultIngested=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad2=n=>String(Math.max(0,Math.floor(Number(n)||0))).padStart(2,'0');
@@ -110,7 +110,7 @@ function revealMarkup(){
     </header>
     <main class="bzt-reveal-content">
       <section class="bzt-reveal-head"><span>RUNDE ${Number(rv.round||state?.round||1)} · AUSWERTUNG</span><h2>ZWISCHENSTAND</h2></section>
-      <section class="bzt-countdown"><span>NÄCHSTE RUNDE IN</span><strong id="bztCountdown">7s</strong></section>
+      <section class="bzt-countdown"><span>NÄCHSTE RUNDE IN</span><strong id="bztCountdown">10s</strong></section>
       <div class="bzt-countbar"><i id="bztCountbar"></i></div>
       <section class="bzt-table-wrap">
         <div class="bzt-table-title">ZIELZEIT · ${Number(rv.target_seconds||state?.target_seconds||0)} SEKUNDEN</div>
@@ -138,11 +138,11 @@ function completeMarkup(){
         <table><thead><tr><th>TEAM</th><th colspan="3"></th><th>ABW.</th></tr></thead>
         <tbody>${standings.map((r,i)=>`<tr class="${i===0?'best':''}">
           <td><i style="background:${teamColor(r.identity_color)}"></i>${esc(String(r.team_name||teamFallback(r.identity_color)).replace(/^TEAM\s+/i,''))}</td>
-          <td colspan="3">${i+1}. PLATZ</td>
+          <td colspan="3">${Number(r.placement||i+1)}. PLATZ</td>
           <td>${fmtSec(r.total_deviation_ms)}</td>
         </tr>`).join('')}</tbody></table>
       </section>
-      <p class="bzt-auto-note">Das Ergebnis ist gespeichert.</p>
+      <p class="bzt-auto-note">Ergebnis ans Turnier übergeben · Rundentabellen gespeichert.</p>
     </main>
   </section>`;
 }
@@ -179,7 +179,7 @@ function frame(){
     const left=Math.max(0,revealEndPerf-performance.now());
     const sec=document.getElementById('bztCountdown'),bar=document.getElementById('bztCountbar');
     if(sec)sec.textContent=`${Math.ceil(left/1000)}s`;
-    if(bar)bar.style.width=`${Math.max(0,Math.min(100,left/7000*100))}%`;
+    if(bar)bar.style.width=`${Math.max(0,Math.min(100,left/REVEAL_MS*100))}%`;
   }
   raf=requestAnimationFrame(frame);
 }
@@ -219,6 +219,11 @@ async function poll(){
       if(next.phase!=='RUNNING')localStartPerf=null;
     }
     state=next;
+    if(next.phase==='COMPLETE'&&next.result&&!engineResultIngested){
+      try{
+        engineResultIngested=!!window.skielsenV15?.ingestInAppGameResult?.(session.tournament_game_id,next.result);
+      }catch(err){console.warn('Buzzer tournament sync',err)}
+    }
     render();
   }finally{busy=false}
 }
@@ -228,7 +233,7 @@ function mount(host,s,client){
   root=host;session=s;db=client;
   if(changed){
     clearInterval(pollTimer);cancelAnimationFrame(raf);
-    state=null;localStartPerf=null;lastStartToken=null;
+    state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;
     root.innerHTML='<div class="bzt-loading">BUZZER WIRD GELADEN …</div>';
     poll();
     pollTimer=setInterval(poll,POLL_MS);
@@ -238,7 +243,7 @@ function updateSession(s){session=s||session}
 function unmount(){
   clearInterval(pollTimer);cancelAnimationFrame(raf);
   root?.closest('#v15InAppLayer')?.classList.remove('buzzer-mode');
-  root=null;session=null;db=null;state=null;localStartPerf=null;lastStartToken=null;
+  root=null;session=null;db=null;state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;
 }
 window.skielsenBuzzerTime={mount,updateSession,unmount,poll};
 })();
