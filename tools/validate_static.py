@@ -1,6 +1,6 @@
 from pathlib import Path
 from html.parser import HTMLParser
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 import json, sys
 ROOT=Path(__file__).resolve().parents[1]; PUBLIC=ROOT/'public'; INDEX=PUBLIC/'index.html'
 class P(HTMLParser):
@@ -20,6 +20,7 @@ if 'data:image/' in h: fail('Base64-Bilder in index.html')
 p=P(); p.feed(h)
 if p.inline_scripts: fail(f'{p.inline_scripts} Inline-Scripts gefunden')
 if p.inline_styles: fail(f'{p.inline_styles} Inline-Styles gefunden')
+v=json.loads((PUBLIC/'version.json').read_text())['version']
 missing=[]
 for kind,ref in p.refs:
  if not ref or ref.startswith(('#','data:','mailto:','tel:','javascript:')): continue
@@ -27,8 +28,17 @@ for kind,ref in p.refs:
  if u.scheme or u.netloc: continue
  if ref.startswith('/'): missing.append((kind,ref,'absolute path')); continue
  target=(PUBLIC/u.path).resolve()
- if not target.exists(): missing.append((kind,ref,'missing'))
+ if not target.exists(): missing.append((kind,ref,'missing')); continue
+ if kind in {'script','link'} and u.path.startswith(('assets/js/','assets/css/')):
+  if parse_qs(u.query).get('v')!=[v]: fail(f'Cache-Version fehlt/abweichend: {ref}')
 if missing: fail(repr(missing[:20]))
-v=json.loads((PUBLIC/'version.json').read_text())['version']
-if f'SKIELSEN V{v}' not in h: fail('Versionskonflikt')
-print(f'OK: SKIELSEN V{v} · {len(p.refs)} Referenzen geprüft')
+if f'SKIELSEN V{v}' not in h: fail('Versionskonflikt index/title')
+version_js=(PUBLIC/'assets/js/00-version.js').read_text(encoding='utf-8')
+if f"const VERSION='{v}';" not in version_js: fail('00-version.js stimmt nicht mit version.json überein')
+if 'V15.0.35' in h: fail('Veraltete sichtbare V15.0.35-Version in index.html')
+shop=(PUBLIC/'assets/js/06-db-bootstrap.js').read_text(encoding='utf-8')
+if 'V15.0.19 · TOURNAMENT BUILDER' in shop: fail('Veraltete Shop-Version')
+for name in ['07-tournament-engine.js','08-inapp-runtime.js','10-buzzer-tournament-bridge.js']:
+ s=(PUBLIC/'assets/js'/name).read_text(encoding='utf-8')
+ if 'window.SKIELSEN_VERSION' not in s: fail(f'{name} nutzt nicht die zentrale Version')
+print(f'OK: SKIELSEN V{v} · {len(p.refs)} Referenzen geprüft · Version zentralisiert')

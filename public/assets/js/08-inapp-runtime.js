@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='15.0.39';
+const VERSION=window.SKIELSEN_VERSION||'15.1.0';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -33,11 +33,11 @@ function ensureBuzzerBridgeAssets(){
   if(buzzerBridgePromise)return buzzerBridgePromise;
   buzzerBridgePromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-buzzer-results-css]')){
-      const link=document.createElement('link');link.rel='stylesheet';link.href='assets/css/buzzer-results.css';link.dataset.buzzerResultsCss='1';document.head.appendChild(link);
+      const link=document.createElement('link');link.rel='stylesheet';link.href=`assets/css/buzzer-results.css?v=${VERSION}`;link.dataset.buzzerResultsCss='1';document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-buzzer-bridge-js]');
     if(existing){if(window.skielsenBuzzerBridge){resolve();return}existing.addEventListener('load',()=>resolve(),{once:true});existing.addEventListener('error',reject,{once:true});return}
-    const script=document.createElement('script');script.src='assets/js/10-buzzer-tournament-bridge.js';script.defer=true;script.dataset.buzzerBridgeJs='1';script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
+    const script=document.createElement('script');script.src=`assets/js/10-buzzer-tournament-bridge.js?v=${VERSION}`;script.defer=true;script.dataset.buzzerBridgeJs='1';script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
   });
   return buzzerBridgePromise;
 }
@@ -47,7 +47,7 @@ function ensureBuzzerAssets(){
   buzzerAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-buzzer-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href='assets/css/buzzer-time.css';link.dataset.buzzerCss='1';
+      link.rel='stylesheet';link.href=`assets/css/buzzer-time.css?v=${VERSION}`;link.dataset.buzzerCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-buzzer-js]');
@@ -58,7 +58,7 @@ function ensureBuzzerAssets(){
       return;
     }
     const script=document.createElement('script');
-    script.src='assets/js/09-buzzer-time.js';
+    script.src=`assets/js/09-buzzer-time.js?v=${VERSION}`;
     script.defer=true;
     script.dataset.buzzerJs='1';
     script.onload=()=>resolve();
