@@ -56,7 +56,7 @@ jobs:
           rm -f migration/v15_0_35_to_36.patch
           rmdir migration 2>/dev/null || true
           rm -f tools/migrate_v15_0_36.py
-          rm -f .github/workflows/restructure.yml
+          git checkout HEAD -- .github/workflows/pages.yml .github/workflows/restructure.yml
 
       - name: Static build prüfen
         run: python3 tools/validate_static.py
