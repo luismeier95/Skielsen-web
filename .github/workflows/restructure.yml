@@ -38,7 +38,12 @@ jobs:
           test "$(git hash-object index.html)" = "0b0492145e8323c725d068b84a141cd0a8159b0e"
 
       - name: V15.0.36 Patch anwenden
-        run: git apply --binary migration/v15_0_35_to_36.patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '\n' >> migration/v15_0_35_to_36.patch
+          git apply --binary migration/v15_0_35_to_36.patch
+          test "$(git hash-object index.html)" = "53fb921f2a8d541d3ef192917fbb2c6b689e3219"
 
       - name: Monolith in modulare Static-App migrieren
         run: python3 tools/migrate_v15_0_36.py
