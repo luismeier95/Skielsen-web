@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.0';
+const VERSION=window.SKIELSEN_VERSION||'15.1.1';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -92,6 +92,23 @@ function renderBuzzerSession(s){
     if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">BUZZER-MODUL KONNTE NICHT GELADEN WERDEN.</div>';
   });
 }
+function renderBuzzerTest(g){
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  layer.hidden=false;layer.classList.add('buzzer-mode');
+  const sessionKey=`test-${g.tournament_game_id||g.game_id||'buzzer'}`;
+  let gameRoot=document.getElementById('v15BuzzerRoot');
+  if(!gameRoot||gameRoot.dataset.session!==sessionKey){
+    window.skielsenBuzzerTime?.unmount?.();
+    host.innerHTML=`<div id="v15BuzzerRoot" data-session="${esc(sessionKey)}"><div class="v15-inapp-message">BUZZER TESTMODUS WIRD GELADEN …</div></div>`;
+    gameRoot=document.getElementById('v15BuzzerRoot');
+  }
+  ensureBuzzerAssets().then(()=>{
+    const rootNow=document.getElementById('v15BuzzerRoot');
+    const current=currentGame();
+    if(rootNow&&rt?.test_mode&&isBuzzerGame(current)&&buzzerGameIsLive(current))window.skielsenBuzzerTime?.mountTest?.(rootNow,rt,current,window.skielsenV15);
+  }).catch(err=>{console.warn('Buzzer test assets',err);if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">BUZZER-TESTMODUL KONNTE NICHT GELADEN WERDEN.</div>'});
+}
+
 function renderPlayerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
   if(!s){
@@ -130,6 +147,8 @@ async function pollPlayer(){
   if(pollBusy||!db||!rt?.tournament_id)return;
   pollBusy=true;
   try{
+    const testGame=currentGame();
+    if(rt?.test_mode&&isBuzzerGame(testGame)&&buzzerGameIsLive(testGame)){playerSession=null;renderBuzzerTest(testGame);return}
     const r=await db.rpc('get_my_active_in_app_game',{p_tournament_id:rt.tournament_id});
     if(r.error){console.warn('In-App session poll',r.error);return}
     playerSession=r.data||null;
@@ -253,7 +272,7 @@ async function refreshAdmin(force){
     const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
     if(!r.error)adminSession=r.data||adminSession;
   }
-  if(isBuzzerGame(g)&&buzzerGameIsLive(g))await ensureBuzzerLifecycle(g);
+  if(isBuzzerGame(g)&&buzzerGameIsLive(g)&&!rt?.test_mode)await ensureBuzzerLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
