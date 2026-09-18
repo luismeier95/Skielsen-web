@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.15';
+const VERSION=window.SKIELSEN_VERSION||'15.1.16';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1052,15 +1052,21 @@ function showJokerSuccess(){
  const sum=q('#v1510JokerDialogSummary');if(sum)sum.innerHTML=`<b>${esc(jokerTypeLabel(meta.type))}</b><br>${String(meta.gameIndex+1).padStart(2,'0')} · ${esc(meta.gameName)}<br><small>STATUS · EINGEREICHT</small>`;
  const cancel=q('#v1510JokerDialogCancel');if(cancel)cancel.textContent='VERSTANDEN';const confirm=q('#v1510JokerDialogConfirm');if(confirm)confirm.hidden=true;d.hidden=false
 }
-async function startMatch(){const g=gameNow(),m=matchNow();if(!g||!m)return false;if(feature('feature.betting')&&serverBettingApplies())await refreshServerBettingState(g,m);if(!feature('feature.betting')&&m.status==='BETTING_OPEN')m.status='READY';syncBettingGateStatus(m);if(m.status!=='BETTING_OPEN'&&m.status!=='READY')return false;if(!gateComplete(m)){setText('#quickResultFeedback','BETTING GATE NOCH OFFEN · ALLE PLAYER MÜSSEN WETTEN ODER ÜBERSPRINGEN.');return false}
- const nativeInApp=String(g?.tracker_type||'').toUpperCase()==='IN_APP_NATIVE'||String(g?.play_mode||g?.default_play_mode||'').toUpperCase()==='IN_APP';
- if(nativeInApp&&client&&g?.tournament_game_id&&isAdmin()){
+async function startMatch(){
+ const g=gameNow(),m=matchNow();if(!g||!m)return false;
+ if(feature('feature.betting')&&serverBettingApplies())await refreshServerBettingState(g,m);
+ if(!feature('feature.betting')&&m.status==='BETTING_OPEN')m.status='READY';
+ syncBettingGateStatus(m);
+ if(m.status!=='BETTING_OPEN'&&m.status!=='READY'){showFlowToast('MATCH','START NICHT MÖGLICH','MATCHSTATUS · '+String(m.status||'UNBEKANNT'),2600);return false}
+ if(!gateComplete(m)){showFlowToast('MATCH','BETTING NOCH OFFEN','ALLE PLAYER MÜSSEN WETTEN ODER ÜBERSPRINGEN.',2600);return false}
+ if(!isAdmin()){showFlowToast('MATCH','ADMIN ERFORDERLICH','NUR DER TURNIER-ADMIN KANN DEN MATCH STARTEN.',2600);return false}
+ if(client&&g.tournament_game_id){
    const {data,error}=await client.rpc('activate_tournament_game',{p_tournament_game_id:g.tournament_game_id});
-   if(error){console.warn('Server game activation failed',error);setText('#quickResultFeedback','MATCH KONNTE SERVERSEITIG NICHT GESTARTET WERDEN · '+String(error.message||error));return false}
-   if(data?.status!=='ACTIVE'){setText('#quickResultFeedback','SERVER HAT DEN MATCHSTART NICHT BESTÄTIGT.');return false}
-   g.phase='ACTIVE';
+   if(error){console.warn('Server game activation failed',error);showFlowToast('MATCH','START FEHLGESCHLAGEN',String(error.message||error),3600);return false}
+   if(data?.status!=='ACTIVE'){showFlowToast('MATCH','START NICHT BESTÄTIGT','SERVERSTATUS · '+String(data?.status||'UNBEKANNT'),3200);return false}
  }
- m.status='LIVE';g.phase='ACTIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon();setTimeout(()=>window.skielsenInApp?.poll?.(),0);return true}
+ m.status='LIVE';g.phase='ACTIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon();showFlowToast('MATCH','MATCH GESTARTET',String(g.name||'GAME').toUpperCase(),2200);setTimeout(()=>window.skielsenInApp?.poll?.(),0);return true
+}
 function autofillScore(){const m=matchNow();if(!m)return;const a=3+(hash(m.id+'A')%8),b=2+(hash(m.id+'B')%8);let aa=a,bb=b;if(aa===bb)aa++;const ia=q('#quickResultA'),ib=q('#quickResultB');if(ia)ia.value=aa;if(ib)ib.value=bb;syncQuickResultButton()}
 function syncQuickResultButton(){const sel=gameControlSelection(),m=sel.m,a=Number(q('#quickResultA')?.value),b=Number(q('#quickResultB')?.value);const ok=sel.isCurrent&&m?.status==='LIVE'&&Number.isFinite(a)&&Number.isFinite(b)&&a>=0&&b>=0&&a!==b;setHoldLabel(q('#quickResultConfirm'),'ERGEBNIS BESTÄTIGEN',!ok)}
 
@@ -1256,17 +1262,17 @@ function v1536RenderEmbeddedResult(m,g,current){
 }
 function renderMatchDetailControlEntry(m,g){
  const block=q('#v1536MatchControl'),title=q('#v1536MatchControlTitle'),phase=q('#v1536MatchControlPhase'),gate=q('#v1536MatchControlGate'),btn=q('#v1536MatchControlStart');if(!block||!title||!gate||!btn||!m||!g)return;
- block.hidden=false;block.classList.remove('is-waiting','is-live');gate.innerHTML='';btn.hidden=false;btn.disabled=true;btn.className='v1536-control-action';btn.onclick=null;
+ block.hidden=false;block.classList.remove('is-waiting','is-live');gate.innerHTML='';btn.hidden=false;btn.disabled=true;btn.className='v1536-control-action';
  const found=matchContextById(m.id),current=!!found&&found.g===gameNow()&&found.m?.id===matchNow()?.id;if(phase)phase.textContent=g.phase==='PLANNED'?'PLANNED':g.phase==='PREPARING'?'PREPARING':m.status;
  if(!current){title.textContent=m.status==='CONCLUDED'?'MATCH ABGESCHLOSSEN':'MATCHKONTEXT · READ ONLY';btn.hidden=true;block.classList.add('is-waiting');v1536RenderEmbeddedResult(m,g,false);return}
  if(g.phase==='PLANNED'){
-   title.innerHTML='<span class="v1536-loader">JOKERRUNDE...</span>';block.classList.add('is-waiting');btn.textContent=isAdmin()?'JOKER SCHLIESSEN → BETTING':'WARTET AUF ADMIN';btn.disabled=!isAdmin();btn.classList.toggle('waiting',!isAdmin());if(isAdmin())btn.onclick=async()=>{btn.disabled=true;await prepareCurrentGame();renderAll();saveSoon()}
+   title.innerHTML='<span class="v1536-loader">JOKERRUNDE...</span>';block.classList.add('is-waiting');btn.textContent=isAdmin()?'JOKER SCHLIESSEN → BETTING':'WARTET AUF ADMIN';btn.disabled=!isAdmin();btn.classList.toggle('waiting',!isAdmin())
  }else if(g.phase==='PREPARING'){
-   const waits=!!g.joker?.awaitingPick;title.innerHTML=waits?'<span class="v1536-loader">JOKER-AKTION...</span>':'<span class="v1536-loader">VORBEREITUNG...</span>';block.classList.add('is-waiting');const own=waits&&g.joker?.accepted?.participantId===state.userParticipantId&&serverJokerBoard?.pending_pick;if(own){btn.textContent='GEGNER WÄHLEN';btn.disabled=false;btn.onclick=()=>openPendingPickDialog(serverJokerBoard.pending_pick)}else{btn.textContent=waits?'WARTET AUF GEGNERWAHL':'WIRD VORBEREITET';btn.disabled=true;btn.classList.add('waiting')}
+   const waits=!!g.joker?.awaitingPick;title.innerHTML=waits?'<span class="v1536-loader">JOKER-AKTION...</span>':'<span class="v1536-loader">VORBEREITUNG...</span>';block.classList.add('is-waiting');const own=waits&&g.joker?.accepted?.participantId===state.userParticipantId&&serverJokerBoard?.pending_pick;if(own){btn.textContent='GEGNER WÄHLEN';btn.disabled=false}else{btn.textContent=waits?'WARTET AUF GEGNERWAHL':'WIRD VORBEREITET';btn.disabled=true;btn.classList.add('waiting')}
  }else if(m.status==='BETTING_OPEN'&&!gateComplete(m)){
    const pending=bettingPendingCount(m);title.innerHTML='<span class="v1536-loader">BETTING LÄUFT...</span>';gate.innerHTML=`<span>BETTING · ${pending} OFFEN</span>`;btn.textContent='WARTET AUF BETTING';btn.disabled=true;btn.classList.add('waiting');block.classList.add('is-waiting')
  }else if(m.status==='READY'||(m.status==='BETTING_OPEN'&&gateComplete(m))){
-   title.textContent=feature('feature.betting')?'BETTING ABGESCHLOSSEN':'MATCH BEREIT';if(feature('feature.betting'))gate.innerHTML='<span class="ok">BETTING · 0 OFFEN</span>';btn.textContent=isAdmin()?'MATCH STARTEN':'WARTET AUF ADMIN';btn.disabled=!isAdmin();if(isAdmin())btn.onclick=()=>startMatch()
+   title.textContent=feature('feature.betting')?'BETTING ABGESCHLOSSEN':'MATCH BEREIT';if(feature('feature.betting'))gate.innerHTML='<span class="ok">BETTING · 0 OFFEN</span>';btn.textContent=isAdmin()?'MATCH STARTEN':'WARTET AUF ADMIN';btn.disabled=!isAdmin()
  }else if(m.status==='LIVE'){
    title.textContent='MATCH LÄUFT';btn.hidden=true;block.classList.add('is-live')
  }else{
@@ -1444,8 +1450,29 @@ async function leaveTournamentToAccountHome(){
  return false;
 }
 
+async function handleMatchDetailControlAction(btn){
+ if(!btn||btn.disabled||!state)return false;
+ const g=gameNow(),m=matchNow();if(!g||!m)return false;
+ const original=btn.textContent;
+ if(g.phase==='PLANNED'){
+   if(!isAdmin())return false;
+   btn.disabled=true;btn.textContent='WIRD VORBEREITET…';
+   try{await prepareCurrentGame();renderAll();saveSoon();return true}
+   finally{if(btn.isConnected&&btn.textContent==='WIRD VORBEREITET…'){btn.disabled=false;btn.textContent=original}}
+ }
+ if(g.phase==='PREPARING'&&g.joker?.awaitingPick){
+   const own=g.joker?.accepted?.participantId===state.userParticipantId&&serverJokerBoard?.pending_pick;
+   if(own){openPendingPickDialog(serverJokerBoard.pending_pick);return true}
+   return false
+ }
+ btn.disabled=true;btn.textContent='MATCH STARTET…';
+ const ok=await startMatch();
+ if(!ok&&btn.isConnected){btn.disabled=false;refreshOpenMatchDetail()}
+ return ok
+}
+
 function bind(){if(bound)return;bound=true;
- document.addEventListener('click',e=>{if(!state)return;const accountHome=e.target.closest('[data-skielsen-account-home]');if(accountHome){e.preventDefault();e.stopImmediatePropagation();void leaveTournamentToAccountHome();return}const mc=e.target.closest('[data-v15-match]');if(mc){e.preventDefault();e.stopImmediatePropagation();const m=state.games.flatMap(g=>g.matches||[]).find(x=>x.id===mc.dataset.v15Match);if(m)openMatchDetail(m);return}const nav=e.target.closest('[data-page]');if(nav){const page=nav.dataset.page;if(PAGE_IDS[page]){e.preventDefault();e.stopImmediatePropagation();if(page==='bets')betReturnPage=null;show(page);return}}const back=e.target.closest('[data-context-back]');if(back){e.preventDefault();e.stopImmediatePropagation();const nav=window.skielsenHistory?.current();if(nav?.area==='tournament'&&currentPage!=='home'){window.skielsenHistory.back();return}if(currentPage==='gameControl')returnFromGameControl();else show('home');return}},true);
+ document.addEventListener('click',e=>{if(!state)return;const matchStart=e.target.closest?.('#v1536MatchControlStart');if(matchStart){e.preventDefault();e.stopImmediatePropagation();void handleMatchDetailControlAction(matchStart);return}const accountHome=e.target.closest('[data-skielsen-account-home]');if(accountHome){e.preventDefault();e.stopImmediatePropagation();void leaveTournamentToAccountHome();return}const mc=e.target.closest('[data-v15-match]');if(mc){e.preventDefault();e.stopImmediatePropagation();const m=state.games.flatMap(g=>g.matches||[]).find(x=>x.id===mc.dataset.v15Match);if(m)openMatchDetail(m);return}const nav=e.target.closest('[data-page]');if(nav){const page=nav.dataset.page;if(PAGE_IDS[page]){e.preventDefault();e.stopImmediatePropagation();if(page==='bets')betReturnPage=null;show(page);return}}const back=e.target.closest('[data-context-back]');if(back){e.preventDefault();e.stopImmediatePropagation();const nav=window.skielsenHistory?.current();if(nav?.area==='tournament'&&currentPage!=='home'){window.skielsenHistory.back();return}if(currentPage==='gameControl')returnFromGameControl();else show('home');return}},true);
  document.addEventListener('keydown',e=>{if(!state||!['Enter',' '].includes(e.key)||!e.target.closest?.('[data-skielsen-account-home]'))return;e.preventDefault();e.stopImmediatePropagation();void leaveTournamentToAccountHome()},true);
  q('#betsPage')?.addEventListener('click',e=>{const pick=e.target.closest('[data-v15-bet-pick]');if(pick){selectedBetParticipant=pick.dataset.v15BetPick;renderBets();return}const preset=e.target.closest('[data-stake]');if(preset){const r=q('#stakeRange');if(r){r.value=Math.min(Number(preset.dataset.stake),Number(r.max));renderBets()}}});
  q('#matchBetButton')?.addEventListener('click',()=>{betReturnPage='matchDetail';show('bets')});
@@ -1475,7 +1502,7 @@ function bind(){if(bound)return;bound=true;
    alert('TURNIER-RESET FEHLGESCHLAGEN. SERVERZUSTAND WURDE NICHT VOLLSTÄNDIG ZURÜCKGESETZT.\n\n'+String(err?.message||err));
  }finally{if(btn){btn.disabled=false;btn.textContent=oldLabel}}
 });
- q('#gameControlStart')?.addEventListener('click',async()=>{const sel=gameControlSelection(),g=sel.g;if(!sel.isCurrent)return;if(g?.phase==='PLANNED'){if(!isAdmin())return;await prepareCurrentGame();renderAll();saveSoon();return}startMatch()});
+ q('#gameControlStart')?.addEventListener('click',async e=>{const sel=gameControlSelection(),g=sel.g;if(!sel.isCurrent||e.currentTarget.disabled)return;if(g?.phase==='PLANNED'){if(!isAdmin())return;e.currentTarget.disabled=true;await prepareCurrentGame();renderAll();saveSoon();return}e.currentTarget.disabled=true;await startMatch();renderGameControl()});
  q('#mvpCandidateGrid')?.addEventListener('click',e=>{const b=e.target.closest('[data-v15-vote-candidate]');if(!b)return;selectedMvpCandidate=b.dataset.v15VoteCandidate;renderVote()});q('#submitMvpVote')?.addEventListener('click',async()=>{const g=gameNow();if(!g?.vote||!selectedMvpCandidate)return;if(await submitVote(state.userActorId,selectedMvpCandidate)){selectedMvpCandidate=null;renderAll();saveSoon()}});
  q('#jokerPage')?.addEventListener('click',e=>{const game=e.target.closest('[data-v15-joker-game]');if(game){selectedJokerGameIndex=Number(game.dataset.v15JokerGame);if(game.dataset.v15JokerChange==='true'){const pending=userPendingSubmissionForGame(state.games?.[selectedJokerGameIndex]);if(pending)selectedJokerType=pending.type}renderJoker();return}const type=e.target.closest('[data-joker-type]');if(type){selectedJokerType=type.dataset.jokerType==='double_points'?'DOUBLE_POINTS':'PICK_OPPONENT';selectedJokerTarget=null;renderJoker();return}const tar=e.target.closest('[data-v15-joker-target]');if(tar){selectedJokerTarget=tar.dataset.v15JokerTarget;renderJoker()}});q('#lockJokerBtn')?.addEventListener('click',openJokerConfirmation);q('#withdrawJokerBtn')?.addEventListener('click',async e=>{const gi=Number(e.currentTarget.dataset.gameIndex);if(Number.isInteger(gi))await withdrawUserJoker(gi)});q('#confirmJokerOpponentBtn')?.addEventListener('click',confirmJokerOpponent);
  q('#v1510JokerDialogCancel')?.addEventListener('click',closeJokerDialog);
