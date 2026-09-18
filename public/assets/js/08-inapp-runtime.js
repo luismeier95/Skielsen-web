@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.8';
+const VERSION=window.SKIELSEN_VERSION||'15.1.9';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -493,6 +493,14 @@ async function completeAdminSession(){
   await db.rpc('complete_in_app_game_session',{p_session_id:adminSession.session_id});
   adminSession=null;adminCandidates=[];renderAdmin();await pollPlayer();
 }
+function finishInAppSurface(){
+  const layer=ensureLayer();
+  layer.hidden=true;
+  window.skielsenBuzzerTime?.unmount?.();
+  const host=document.getElementById('v15InAppPlayerContent');if(host)host.innerHTML='';
+  clearInAppSurface();
+  return true;
+}
 function start(runtime){
   rt=runtime||window.skielsenV15?.runtime||null;
   db=window.skielsenDb?.client||null;
@@ -530,6 +538,7 @@ window.skielsenInApp={
   poll:pollPlayer,
   minimize:()=>minimizeInApp(true),
   openFullscreen:()=>openInAppFullscreen('push'),
+  finishAndExit:finishInAppSurface,
   get minimized(){return inAppMinimized},
   get live(){return inAppSurfaceLive},
   get session(){return playerSession},
