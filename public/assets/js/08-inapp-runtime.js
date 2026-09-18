@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.14';
+const VERSION=window.SKIELSEN_VERSION||'15.1.15';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
