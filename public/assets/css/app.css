@@ -4518,3 +4518,10 @@ body.v15-inapp-minimized-live .v15-test-ribbon{bottom:78px}
 /* ===== INLINE STYLE 87 · id="v14114-remark-007-mobile" ===== */
 @media(max-width:700px){.dbb-lobby-hero{min-height:118px!important;padding:12px 14px!important}.dbb-lobby-hero h1{font-size:26px!important}.dbb-lobby-version{top:11px!important;right:12px!important}}
 
+
+
+/* V15.1.14 · mobile player subnav is strictly scoped to the active Player page */
+@media(max-width:800px){
+  body:not(.profile-page-active) .mobile-profile-nav{display:none!important}
+  body.profile-page-active .mobile-profile-nav{display:grid!important}
+}
