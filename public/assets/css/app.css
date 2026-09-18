@@ -4430,7 +4430,7 @@ button.dbb-lobby-team-slot:active{transform:scale(.985)}
   @media(max-width:700px){.dbb-checkout-grid{grid-template-columns:1fr}}
 
 /* ===== INLINE STYLE 84 · id="v15-full-test-css" ===== */
-/* V15.0.19 FULL TEST ALPHA · V13 layout preserved; only runtime/theme adapters. */
+/* Tournament runtime/theme adapters. */
 body.v15-tournament-active{--v15-bg:#e9e9e9;--v15-surface:#fff;--v15-ink:#050505;--v15-muted:#707070;--v15-accent:#7c5cff;--v15-header:#050505;background:var(--v15-bg)!important}
 body.v15-tournament-active[data-theme-pack="theme.jga.night"]{--v15-bg:#0a0a0d;--v15-surface:#15151b;--v15-ink:#f8f8fb;--v15-muted:#aaa7b4;--v15-accent:#ff3d9a;--v15-header:#050505}
 body.v15-tournament-active[data-theme-pack="theme.christmas.winter_clash"]{--v15-bg:#09150f;--v15-surface:#10241a;--v15-ink:#fff9e9;--v15-muted:#b9c6bd;--v15-accent:#d5ad4f;--v15-header:#123521}
@@ -4520,7 +4520,7 @@ body.v15-inapp-minimized-live .v15-test-ribbon{bottom:78px}
 
 
 
-/* V15.1.14 · mobile player subnav is strictly scoped to the active Player page */
+/* Mobile player subnav is strictly scoped to the active Player page. */
 @media(max-width:800px){
   body:not(.profile-page-active) .mobile-profile-nav{display:none!important}
   body.profile-page-active .mobile-profile-nav{display:grid!important}
