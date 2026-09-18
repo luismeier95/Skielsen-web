@@ -100,7 +100,7 @@ print(f'OK: SKIELSEN V{v} · {len(p.refs)} Referenzen geprüft · Version zentra
 if 'profile-page-active' not in (PUBLIC/'assets/css/app.css').read_text(encoding='utf-8'): fail('Player-Subnav ist nicht auf Player-Page begrenzt')
 if "m.status==='BETTING_OPEN'&&!gateComplete(m)" not in engine_text: fail('Server-Betting-Gate wird in Match UI nicht verwendet')
 
-if "g.phase='ACTIVE';" not in engine_text or "setTimeout(()=>window.skielsenInApp?.poll?.(),0)" not in engine_text: fail('In-App Matchstart synchronisiert lokalen Game-Lifecycle nicht')
+if "g.phase='ACTIVE';" not in engine_text or "window.skielsenInApp?.start?.(runtime)" not in engine_text or "window.skielsenInApp?.poll?.()" not in engine_text: fail('In-App Matchstart synchronisiert lokalen Game-Lifecycle nicht')
 
 if "#v1536MatchControlStart" not in engine_text or "handleMatchDetailControlAction" not in engine_text: fail('Delegierter Match-Start-Handler fehlt')
 
