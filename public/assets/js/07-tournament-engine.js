@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.12';
+const VERSION=window.SKIELSEN_VERSION||'15.1.13';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1443,7 +1443,28 @@ function bind(){if(bound)return;bound=true;
  q('#placeBetBtn')?.addEventListener('click',async()=>{const m=matchNow(),snap=m?state.oddsSnapshots[m.id]:null;if(!m||!selectedBetParticipant||userBetDecision())return;const stake=Number(q('#stakeRange')?.value||0),sel=selectionSnapshot(snap,selectedBetParticipant),odds=sel?.odds;if(!odds)return;if(await placeBetFor(state.userActorId,selectedBetParticipant,stake,odds)){addAudit('BET PLACED · '+userActor().name+' · '+teamName(participant(selectedBetParticipant))+' · '+stake);renderAll();saveSoon();returnFromBetting()}});
  q('#prototypeSkipBet')?.addEventListener('click',async()=>{if(await skipBetFor(state.userActorId)){addAudit('BET SKIPPED · '+userActor().name);renderAll();saveSoon();returnFromBetting()}});
  q('#prototypeOtherBets')?.addEventListener('click',simulateOtherBets);q('#prototypeOtherMvp')?.addEventListener('click',simulateOtherVotes);q('#prototypeAutofill')?.addEventListener('click',autofillScore);
- q('#prototypeReset')?.addEventListener('click',async()=>{if(!confirm('V15 TESTLAUF ZURÜCKSETZEN?'))return;const btn=q('#prototypeReset'),oldLabel=btn?.textContent||'TESTLAUF RESET';if(btn){btn.disabled=true;btn.textContent='RESET LÄUFT…'}try{const {data,error}=await client.rpc('reset_tournament_test_runtime_state',{p_tournament_id:runtime.tournament_id});if(error)throw error;if(!data?.reset)throw new Error('RESET_NOT_CONFIRMED');state=defaultState(runtime);selectedBetParticipant=null;selectedMvpCandidate=null;selectedJokerType=null;selectedJokerGameIndex=null;selectedJokerTarget=null;selectedMatchDetailId=null;gameControlContext=null;serverJokerBoard=null;await refreshServerJokerBoard(false);enforceGameLifecycleInvariant(state);if(feature('feature.betting')&&isAdmin()){const prepared=await prepareCurrentGame();if(prepared===false&&gameNow()?.phase!=='ACTIVE'&&!gameNow()?.joker?.awaitingPick)throw new Error('RESET_FIRST_GAME_PREPARE_FAILED');if(gameNow()?.phase==='ACTIVE'&&matchNow()?.status!=='BETTING_OPEN')openCurrentMarket(gameNow());addAudit('TEST RESET · GAME 1 AUTO-PREPARED · BETTING OPEN')}renderAll();show('home');saveSoon()}catch(err){console.error('V15 test runtime reset failed',err);alert('TESTLAUF RESET FEHLGESCHLAGEN. DER SERVERZUSTAND WURDE NICHT VOLLSTÄNDIG INITIALISIERT.')}finally{if(btn){btn.disabled=false;btn.textContent=oldLabel}}});
+ q('#prototypeReset')?.addEventListener('click',async()=>{
+ if(!isAdmin()||!client||!runtime?.tournament_id)return;
+ if(!confirm('TURNIER KOMPLETT ZURÜCKSETZEN?\n\nGelöscht werden laufende Matches, Ergebnisse, Betting, Wallets, Votes/Awards, Joker-Submissions, In-App-Sessions, News und Runtime-Daten.\n\nGames, Reihenfolge, Teilnehmer, Teams und Feature-Settings bleiben erhalten.'))return;
+ const btn=q('#prototypeReset'),oldLabel=btn?.textContent||'TURNIER KOMPLETT RESETTEN';
+ if(btn){btn.disabled=true;btn.textContent='TURNIER WIRD RESETTET…'}
+ try{
+   stopBettingPolling();stopVotePolling();
+   if(jokerBoardPollTimer){clearInterval(jokerBoardPollTimer);jokerBoardPollTimer=0}
+   if(jokerPollTimer){clearInterval(jokerPollTimer);jokerPollTimer=0}
+   const {data,error}=await client.rpc('reset_tournament_runtime_state',{p_tournament_id:runtime.tournament_id});
+   if(error)throw error;if(!data?.reset)throw new Error('RESET_NOT_CONFIRMED');
+   state=defaultState(runtime);
+   selectedBetParticipant=null;selectedMvpCandidate=null;selectedJokerType=null;selectedJokerGameIndex=null;selectedJokerTarget=null;selectedMatchDetailId=null;gameControlContext=null;serverJokerBoard=null;serverBettingState=null;serverVoteState=null;inlineResultMatchId=null;pendingUnifiedResult=null;matchResultContinuation=null;
+   await refreshServerJokerBoard(false);enforceGameLifecycleInvariant(state);startJokerBoardPolling();
+   addAudit('ADMIN RESET · TURNIERLAUF VOLLSTÄNDIG ZURÜCKGESETZT');
+   renderAll();show('home');saveSoon();
+   showFlowToast('ADMIN','TURNIER ZURÜCKGESETZT',`${Number(data.games_reset||0)} GAMES · ${Number(data.matches_deleted||0)} MATCHES · NEUER LAUF BEREIT`,2600);
+ }catch(err){
+   console.error('Tournament runtime reset failed',err);
+   alert('TURNIER-RESET FEHLGESCHLAGEN. SERVERZUSTAND WURDE NICHT VOLLSTÄNDIG ZURÜCKGESETZT.\n\n'+String(err?.message||err));
+ }finally{if(btn){btn.disabled=false;btn.textContent=oldLabel}}
+});
  q('#gameControlStart')?.addEventListener('click',async()=>{const sel=gameControlSelection(),g=sel.g;if(!sel.isCurrent)return;if(g?.phase==='PLANNED'){if(!isAdmin())return;await prepareCurrentGame();renderAll();saveSoon();return}startMatch()});
  q('#mvpCandidateGrid')?.addEventListener('click',e=>{const b=e.target.closest('[data-v15-vote-candidate]');if(!b)return;selectedMvpCandidate=b.dataset.v15VoteCandidate;renderVote()});q('#submitMvpVote')?.addEventListener('click',async()=>{const g=gameNow();if(!g?.vote||!selectedMvpCandidate)return;if(await submitVote(state.userActorId,selectedMvpCandidate)){selectedMvpCandidate=null;renderAll();saveSoon()}});
  q('#jokerPage')?.addEventListener('click',e=>{const game=e.target.closest('[data-v15-joker-game]');if(game){selectedJokerGameIndex=Number(game.dataset.v15JokerGame);if(game.dataset.v15JokerChange==='true'){const pending=userPendingSubmissionForGame(state.games?.[selectedJokerGameIndex]);if(pending)selectedJokerType=pending.type}renderJoker();return}const type=e.target.closest('[data-joker-type]');if(type){selectedJokerType=type.dataset.jokerType==='double_points'?'DOUBLE_POINTS':'PICK_OPPONENT';selectedJokerTarget=null;renderJoker();return}const tar=e.target.closest('[data-v15-joker-target]');if(tar){selectedJokerTarget=tar.dataset.v15JokerTarget;renderJoker()}});q('#lockJokerBtn')?.addEventListener('click',openJokerConfirmation);q('#withdrawJokerBtn')?.addEventListener('click',async e=>{const gi=Number(e.currentTarget.dataset.gameIndex);if(Number.isInteger(gi))await withdrawUserJoker(gi)});q('#confirmJokerOpponentBtn')?.addEventListener('click',confirmJokerOpponent);
