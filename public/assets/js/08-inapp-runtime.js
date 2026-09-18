@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.7';
+const VERSION=window.SKIELSEN_VERSION||'15.1.8';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -42,6 +42,7 @@ function updateInAppChrome(){
   if(title)title.textContent=(inAppSurfaceLabel||'IN-APP GAME').toUpperCase()+' · LIVE';
   if(meta)meta.textContent='ANTIPPEN · SOFORT ZURÜCK INS VOLLBILD';
   if(layer&&inAppSurfaceLive)layer.hidden=inAppMinimized;
+  document.body.classList.toggle('v15-inapp-fullscreen-open',!!(layer&&!layer.hidden&&!inAppMinimized));
 }
 function ensureInAppHistory(){
   if(!inAppSurfaceLive||inAppMinimized)return;
@@ -93,7 +94,7 @@ function clearInAppSurface(){
   inAppMinimized=false;
   const strip=document.getElementById('v15InAppLiveStrip');
   if(strip)strip.hidden=true;
-  document.body.classList.remove('v15-inapp-minimized-live');
+  document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open');
   if(wasLive&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
 }
 function ensureLayer(){
@@ -212,8 +213,8 @@ function renderPlayerSession(s){
   else{
     inAppSurfaceLive=false;
     inAppMinimized=false;
-    updateInAppChrome();
     layer.hidden=false;
+    updateInAppChrome();
   }
   host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div><section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${s.status==='READY'?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.':'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.'}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
 
