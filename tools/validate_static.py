@@ -111,3 +111,14 @@ if "window.skielsenInApp?.start?.(runtime)" not in engine_text: fail('In-App Run
 if "serverPhaseForGame" not in engine_text or "phase:serverPhaseForGame" not in engine_text: fail('Server-Game-Status wird nicht in lokalen Lifecycle übernommen')
 
 if "const serverActive=String(g.status||'').toUpperCase()==='ACTIVE'" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('Native In-App Lifecycle hängt noch am lokalen Matchstatus')
+
+required_pages=['homePage','profilePage','matchesPage','matchDetailPage','rankingPage','betsPage','newsPage','mvpVotePage','jokerPage','adminPage','gameControlPage','gamesPage']
+
+for _pid in required_pages:
+ if f'id="{_pid}"' not in (PUBLIC/'index.html').read_text(encoding='utf-8'): fail(f'Turnierseite fehlt: {_pid}')
+
+if 'FULL TEST ALPHA' in engine_text or 'TESTREGEL:' in engine_text: fail('Sichtbare Test-/Alpha-Texte im Turnierflow gefunden')
+
+if "recoverCompletedNativeGame" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('Multi-Device In-App Result Recovery fehlt')
+
+if "deriveCurrentGameIndexFromRuntime" not in engine_text: fail('Current Game wird nicht aus Serverstatus abgeleitet')
