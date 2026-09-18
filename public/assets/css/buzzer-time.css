@@ -26,12 +26,9 @@
   background:#050505;color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;
   border-bottom:4px solid var(--bzt-team)
 }
-.bzt-header-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.bzt-header-row strong{font:900 16px/1 var(--display)}
-.bzt-header-row>span{font:900 10px/1 var(--ui);letter-spacing:.8px;color:#aaa}
-.bzt-header-row.sub{margin-top:10px}
-.bzt-header-row.sub span{font-size:10px;color:#fff}
-.bzt-header-row.sub b{font:900 9px/1 var(--ui);letter-spacing:.8px;color:var(--bzt-team)}
+.bzt-header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
+.bzt-logo{display:block;width:min(148px,42vw);height:auto;object-fit:contain}
+.bzt-header-row>span{font:900 10px/1 var(--ui);letter-spacing:.8px;color:#aaa;white-space:nowrap}
 .bzt-content{padding:12px 12px calc(12px + env(safe-area-inset-bottom));display:grid;gap:10px;flex:1}
 .bzt-now{
   background:#050505;color:#fff;border-left:6px solid var(--bzt-team);padding:14px 15px
