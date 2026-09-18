@@ -105,3 +105,5 @@ if "g.phase='ACTIVE';" not in engine_text or "setTimeout(()=>window.skielsenInAp
 if "#v1536MatchControlStart" not in engine_text or "handleMatchDetailControlAction" not in engine_text: fail('Delegierter Match-Start-Handler fehlt')
 
 if "e.stopImmediatePropagation();void handleMatchDetailControlAction(matchStart)" not in engine_text: fail('Match-Start wird nicht im Capture-Listener abgefangen')
+
+if "window.skielsenInApp?.start?.(runtime)" not in engine_text: fail('In-App Runtime wird beim Turnierstart nicht explizit initialisiert')
