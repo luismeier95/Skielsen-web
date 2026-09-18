@@ -61,6 +61,7 @@ for rpc in ['get_tournament_vote_state','open_tournament_vote_session','submit_t
  if rpc not in engine_text: fail(f'Serverseitiger MVP/LVP-Workflow fehlt: {rpc}')
 if "type==='LVP'||c.participantId!==vp?.id" not in engine_text: fail('LVP-Kandidatenregel erlaubt Teampartner nicht')
 if 'submission_count' not in engine_text or 'openMultiJokerDialog(g,reportedCount)' not in engine_text: fail('Joker-Randomizer submission_count-Flow fehlt')
+if "client.rpc('reset_tournament_runtime_state'" not in engine_text or 'TURNIER KOMPLETT RESETTEN' not in (PUBLIC/'index.html').read_text(encoding='utf-8'): fail('Admin Full-Tournament-Reset fehlt')
 if "sg.status==='ACTIVE'" not in engine_text or "liveMatch.status='LIVE'" not in engine_text: fail('Server ACTIVE wird nicht auf Player-Clients gespiegelt')
 if 'Server lifecycle is authoritative' not in engine_text or 'finishJokerPreparation(g);' not in engine_text: fail('Cross-device PREPARING→ACTIVE Sync fehlt')
 if "addEventListener('click',revealVoteWinner)" not in engine_text or "addEventListener('click',continueVoteReveal)" not in engine_text: fail('MVP/LVP Reveal Controls fehlen')
