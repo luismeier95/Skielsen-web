@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.17';
+const VERSION=window.SKIELSEN_VERSION||'15.1.18';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -319,7 +319,10 @@ function isMoreLessGame(g){
   return g?.game_id==='game.higher_lower'||/MEHR\s+ODER\s+WENIGER/i.test(String(g?.name||''));
 }
 function nativeGameIsLive(g){
-  return !!g&&g.phase==='ACTIVE'&&(g.matches||[]).some(m=>m?.status==='LIVE');
+  if(!g)return false;
+  const serverActive=String(g.status||'').toUpperCase()==='ACTIVE';
+  const localActive=g.phase==='ACTIVE';
+  return serverActive||localActive;
 }
 function buzzerGameIsLive(g){return isBuzzerGame(g)&&nativeGameIsLive(g)}
 function supportedNativeGame(g){return isBuzzerGame(g)||isMoreLessGame(g)}
