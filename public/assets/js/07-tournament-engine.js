@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.9';
+const VERSION=window.SKIELSEN_VERSION||'15.1.10';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -856,7 +856,12 @@ async function refreshServerJokerBoard(notify=false){
        // Future TournamentGames remain PLANNED and joker-eligible until their own preparation starts.
        if(isCurrent&&sg.status==='PREPARING'&&g.phase!=='ACTIVE'&&!(g.matches?.length&&g.joker?.resolved&&!g.joker?.awaitingPick))g.phase='PREPARING';
        if(isCurrent&&sg.joker_resolution_state==='WAITING_FOR_PICK'){g.joker.locked=true;g.joker.awaitingPick=true;g.joker.resolved=false}
-       if(isCurrent&&sg.joker_resolution_state==='RESOLVED'&&g.phase==='PREPARING'&&!g.joker.awaitingPick)g.joker.resolved=true;
+       if(isCurrent&&sg.joker_resolution_state==='RESOLVED'&&g.phase==='PREPARING'&&!g.joker.awaitingPick){
+         g.joker.resolved=true;
+         // Server lifecycle is authoritative. Every device must advance the current game,
+         // not only the admin browser that called prepare_tournament_game().
+         finishJokerPreparation(g);
+       }
      }
      const pp=serverJokerBoard.pending_pick;
      if(pp){
