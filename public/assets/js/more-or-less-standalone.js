@@ -4,7 +4,7 @@ const SUPABASE_URL='https://rlppuqjolkrwumrrjajq.supabase.co';
 const SUPABASE_KEY='sb_publishable_6Cuc1rH2WGua2UT__Ta18w_BJVG4O1b';
 const screens=[...document.querySelectorAll('.mol-screen')];
 
-let categories=[],facts=[],playerCount=4,players=[];
+let categories=[],facts=[],playerCount=4,players=[],familiarityTier='NORMAL';
 let selectedCategory=null,lastCategoryKey=null,sequence=[],index=0,currentPlayer=0,turnNo=1;
 let categoryNo=0,categoryStarter=0,categoryWinner=null,pendingChoice=null;
 const usedFactIds=new Map();
@@ -24,12 +24,11 @@ function rest(path){
 async function loadCatalog(){
   const [cats,rows]=await Promise.all([
     rest('comparison_fact_categories?select=category_key,display_name,unit,min_facts_required,sort_order&is_active=eq.true&order=sort_order.asc'),
-    rest('available_comparison_facts?select=fact_id,category_key,label,value,display_value,description,difficulty&is_active=eq.true')
+    rest('available_comparison_facts?select=fact_id,category_key,label,value,display_value,description,difficulty,familiarity_tier&is_active=eq.true')
   ]);
-  const counts={};rows.forEach(f=>counts[f.category_key]=(counts[f.category_key]||0)+1);
-  categories=cats.filter(c=>(counts[c.category_key]||0)>=Number(c.min_facts_required||2));
+  categories=cats;
   facts=rows;
-  if(!categories.length)throw new Error('Noch keine Kategorie hat genügend Fakten.');
+  if(!categories.length||!facts.length)throw new Error('Der Faktenkatalog ist leer.');
 }
 function renderPlayerInputs(){
   const host=q('#playerNames');host.innerHTML='';
@@ -52,13 +51,27 @@ function renderScoreboard(){
     '</div>'
   ).join('');
 }
+function tierLabel(){return familiarityTier==='EASY'?'EASY':familiarityTier==='HARDCORE'?'HARDCORE':'NORMAL'}
+function playableCategories(){
+  const counts={};
+  facts.filter(f=>f.familiarity_tier===familiarityTier).forEach(f=>counts[f.category_key]=(counts[f.category_key]||0)+1);
+  return categories.filter(c=>(counts[c.category_key]||0)>=Number(c.min_facts_required||2));
+}
+function refreshCatalogStatus(){
+  const playable=playableCategories(),tierFacts=facts.filter(f=>f.familiarity_tier===familiarityTier);
+  q('#difficultyHint').textContent=tierLabel()+' · nur Fakten dieser Einstufung werden gezogen.';
+  q('#loadStatus').textContent=playable.length+' KATEGORIEN · '+tierFacts.length+' '+tierLabel()+'-FAKTEN · '+playable.map(c=>c.display_name).join(' · ');
+  q('#startBtn').disabled=!playable.length;
+}
 function pickCategory(){
-  let pool=categories;
-  if(categories.length>1&&lastCategoryKey)pool=categories.filter(c=>c.category_key!==lastCategoryKey);
+  let pool=playableCategories();
+  if(pool.length>1&&lastCategoryKey)pool=pool.filter(c=>c.category_key!==lastCategoryKey);
   return pool[Math.floor(Math.random()*pool.length)];
 }
 async function spinCategory(){
+  const roulettePool=playableCategories();
   selectedCategory=pickCategory();
+  if(!selectedCategory){alert('Für '+tierLabel()+' gibt es noch keine spielbare Kategorie.');return}
   categoryNo++;
   categoryStarter=(categoryNo-1)%players.length;
   players.forEach(p=>p.active=true);
@@ -69,7 +82,7 @@ async function spinCategory(){
   let last=null;
   for(let i=0;i<delays.length;i++){
     let c;
-    do{c=categories[Math.floor(Math.random()*categories.length)]}while(categories.length>1&&c===last&&i<delays.length-1);
+    do{c=roulettePool[Math.floor(Math.random()*roulettePool.length)]}while(roulettePool.length>1&&c===last&&i<delays.length-1);
     if(i===delays.length-1)c=selectedCategory;
     last=c;label.textContent=c.display_name;unit.textContent=c.unit||'';
     label.classList.remove('flash');void label.offsetWidth;label.classList.add('flash');
@@ -81,20 +94,22 @@ async function spinCategory(){
   prepareSequence();
 }
 function categoryFacts(){
-  return facts.filter(f=>f.category_key===selectedCategory.category_key);
+  return facts.filter(f=>f.category_key===selectedCategory.category_key&&f.familiarity_tier===familiarityTier);
 }
 function availableFacts(){
   const all=categoryFacts();
-  let used=usedFactIds.get(selectedCategory.category_key);
-  if(!used){used=new Set();usedFactIds.set(selectedCategory.category_key,used)}
+  const usedKey=familiarityTier+'::'+selectedCategory.category_key;
+  let used=usedFactIds.get(usedKey);
+  if(!used){used=new Set();usedFactIds.set(usedKey,used)}
   let open=all.filter(f=>!used.has(f.fact_id));
   if(open.length<2){used.clear();open=[...all]}
   return open;
 }
 function markUsed(fact){
   if(!fact?.fact_id)return;
-  let used=usedFactIds.get(selectedCategory.category_key);
-  if(!used){used=new Set();usedFactIds.set(selectedCategory.category_key,used)}
+  const usedKey=familiarityTier+'::'+selectedCategory.category_key;
+  let used=usedFactIds.get(usedKey);
+  if(!used){used=new Set();usedFactIds.set(usedKey,used)}
   used.add(fact.fact_id);
 }
 function prepareSequence(){
@@ -200,6 +215,12 @@ q('#playerCount').addEventListener('click',e=>{
   [...q('#playerCount').children].forEach(x=>x.classList.toggle('active',x===b));
   renderPlayerInputs();
 });
+q('#difficultyPicker').addEventListener('click',e=>{
+  const b=e.target.closest('[data-tier]');if(!b)return;
+  familiarityTier=b.dataset.tier;
+  [...q('#difficultyPicker').children].forEach(x=>x.classList.toggle('active',x===b));
+  refreshCatalogStatus();
+});
 q('#startBtn').addEventListener('click',()=>{
   readPlayers();categoryNo=0;lastCategoryKey=null;usedFactIds.clear();spinCategory();
 });
@@ -211,9 +232,7 @@ q('#restartBtn').addEventListener('click',newCategory);
 renderPlayerInputs();
 q('#startBtn').disabled=true;
 loadCatalog().then(()=>{
-  const playable=categories.map(c=>c.display_name).join(' · ');
-  q('#loadStatus').textContent=categories.length+' KATEGORIEN · '+facts.length+' FAKTEN BEREIT · '+playable;
-  q('#startBtn').disabled=false;
+  refreshCatalogStatus();
 }).catch(err=>{
   q('#loadStatus').textContent='FEHLER: '+err.message;
 });
