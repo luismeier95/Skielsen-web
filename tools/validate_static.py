@@ -126,3 +126,7 @@ if "deriveCurrentGameIndexFromRuntime" not in engine_text: fail('Current Game wi
 if "Promise.race([" not in engine_text or "SERVER_TIMEOUT" not in engine_text: fail('Joker Submit hat keinen Timeout-Schutz')
 
 if "The submit RPC is the authoritative confirmation" not in engine_text: fail('Joker Submit blockiert noch auf Board-Refresh')
+
+if "forceOpenActiveInApp" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('In-App Force-Open-Recovery fehlt')
+
+if "playerSessionMisses<3" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('In-App Poll löscht Session bei Einzel-Miss zu aggressiv')
