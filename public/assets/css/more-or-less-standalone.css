@@ -26,3 +26,6 @@ main{width:min(760px,100%);margin:0 auto;padding:24px 16px 90px}.mol-screen{disp
 .difficulty-picker button[data-tier="HARDCORE"].active{border-bottom:4px solid var(--red)}
 .difficulty-hint{margin:9px 0 0;color:#777;font:800 7px/1.4 var(--ui);letter-spacing:.35px}
 @media(max-width:520px){.difficulty-picker{grid-template-columns:1fr}.difficulty-picker button{min-height:48px;grid-template-columns:90px 1fr;align-items:center}}
+
+.build-note{display:grid;gap:5px;margin:-12px 0 10px;padding:10px 12px;background:#fff;border:1px solid #ddd;border-left:5px solid var(--yellow)}
+.build-note b{font:900 8px/1 var(--ui);letter-spacing:.8px}.build-note span{font-size:8px;line-height:1.45;color:#666;font-weight:800}
