@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.19';
+const VERSION=window.SKIELSEN_VERSION||'15.1.20';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1022,22 +1022,70 @@ function startJokerBoardPolling(){
  if(jokerBoardPollTimer||!feature('feature.joker')||!client)return;
  jokerBoardPollTimer=setInterval(async()=>{const before=JSON.stringify(serverJokerBoard?.pending_pick||null);await refreshServerJokerBoard(true);renderJoker();renderHome();if(JSON.stringify(serverJokerBoard?.pending_pick||null)!==before)saveSoon()},1800)
 }
-async function submitUserJoker(){if(!feature('feature.joker'))return false;const p=userParticipant(),g=state.games?.[selectedJokerGameIndex],submittedType=selectedJokerType,submittedGameIndex=selectedJokerGameIndex;if(!p||!g||g.phase!=='PLANNED'||!selectedJokerType)return false;if(state.jokers[p.id]?.[selectedJokerType]!=='AVAILABLE')return false;if(selectedJokerType==='PICK_OPPONENT'&&!pickOpponentAllowedForGame(g))return false;const otherOnGame=userPendingSubmissionForGame(g);if(otherOnGame&&otherOnGame.type!==selectedJokerType){setText('#jokerFeedback','FÜR DIESES GAME HAST DU BEREITS EINEN ANDEREN JOKER EINGEREICHT.');return false}
+async function submitUserJoker(){
+ if(!feature('feature.joker'))return false;
+ const p=userParticipant(),g=state.games?.[selectedJokerGameIndex],submittedType=selectedJokerType,submittedGameIndex=selectedJokerGameIndex;
+ if(!p||!g||g.phase!=='PLANNED'||!selectedJokerType)return false;
+ if(state.jokers[p.id]?.[selectedJokerType]!=='AVAILABLE')return false;
+ if(selectedJokerType==='PICK_OPPONENT'&&!pickOpponentAllowedForGame(g))return false;
+ const otherOnGame=userPendingSubmissionForGame(g);
+ if(otherOnGame&&otherOnGame.type!==selectedJokerType){
+   setText('#jokerFeedback','FÜR DIESES GAME HAST DU BEREITS EINEN ANDEREN JOKER EINGEREICHT.');
+   return false
+ }
  if(client&&g.tournament_game_id){
    try{
-     const {data,error}=await client.rpc('submit_tournament_joker',{p_tournament_game_id:g.tournament_game_id,p_joker_type:selectedJokerType});if(error)throw error;
+     const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('SERVER_TIMEOUT')),8000));
+     const response=await Promise.race([
+       client.rpc('submit_tournament_joker',{p_tournament_game_id:g.tournament_game_id,p_joker_type:selectedJokerType}),
+       timeout
+     ]);
+     const {data,error}=response||{};
+     if(error)throw error;
      if(data?.tournament_game_id&&data.tournament_game_id!==g.tournament_game_id)throw new Error('JOKER_GAME_MISMATCH');
      if(data?.joker_type&&String(data.joker_type).toUpperCase()!==String(selectedJokerType).toUpperCase())throw new Error('JOKER_TYPE_MISMATCH');
-     await refreshServerJokerBoard(false);
-     const confirmed=latestServerJokerSubmissions(serverJokerBoard).find(ss=>ss.tournament_game_id===g.tournament_game_id&&ss.joker_type===selectedJokerType&&ss.status==='PENDING');
-     if(!confirmed)throw new Error('JOKER_SERVER_CONFIRMATION_MISSING');
-   }catch(e){console.warn(e);setText('#jokerFeedback','SERVER HAT DEN JOKER NICHT FÜR DAS GEWÄHLTE GAME BESTÄTIGT · '+String(e?.message||e));return false}
+     if(!data?.joker_submission_id||String(data?.status||'').toUpperCase()!=='PENDING')throw new Error('JOKER_SERVER_CONFIRMATION_MISSING');
+
+     // The submit RPC is the authoritative confirmation. Do not block the modal on a second board request.
+     for(const gx of state.games||[]){
+       gx.joker=gx.joker||{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false};
+       gx.joker.submissions=(gx.joker.submissions||[]).filter(ss=>!(ss.participantId===p.id&&ss.type===selectedJokerType&&ss.status==='PENDING'));
+     }
+     g.joker.submissions.push({
+       participantId:p.id,
+       type:selectedJokerType,
+       targetParticipantId:null,
+       status:'PENDING',
+       isBot:false,
+       serverId:data.joker_submission_id,
+       submittedAt:new Date().toISOString()
+     });
+
+     void Promise.race([
+       refreshServerJokerBoard(false),
+       new Promise(resolve=>setTimeout(()=>resolve(null),4000))
+     ]).then(()=>{renderJoker();renderHome()}).catch(err=>console.warn('Joker board post-submit refresh',err));
+   }catch(e){
+     console.warn(e);
+     const msg=String(e?.message||e);
+     setText('#jokerFeedback','JOKER KONNTE NICHT GESPEICHERT WERDEN · '+msg);
+     setText('#v1510JokerDialogKicker','SPEICHERN FEHLGESCHLAGEN');
+     setText('#v1510JokerDialogTitle','JOKER NICHT GESPEICHERT');
+     setText('#v1510JokerDialogCopy',msg==='SERVER_TIMEOUT'?'Der Server hat nicht rechtzeitig geantwortet. Du kannst den Vorgang erneut versuchen.':'Der Server hat die Submission nicht bestätigt. Du kannst den Vorgang erneut versuchen.');
+     return false
+   }
  }else{
    const old=userPendingSubmissionForType(selectedJokerType);if(old&&old.g!==g)old.g.joker.submissions=old.g.joker.submissions.filter(s=>s!==old.s);
-   g.joker=g.joker||{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false};g.joker.submissions=(g.joker.submissions||[]).filter(s=>!(s.participantId===p.id&&s.status==='PENDING'));
+   g.joker=g.joker||{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false};
+   g.joker.submissions=(g.joker.submissions||[]).filter(s=>!(s.participantId===p.id&&s.status==='PENDING'));
    g.joker.submissions.push({participantId:p.id,type:selectedJokerType,targetParticipantId:null,status:'PENDING',isBot:false,submittedAt:new Date().toISOString()});
  }
- addAudit('JOKER SUBMITTED · '+p.name+' · '+selectedJokerType+' → GAME '+(submittedGameIndex+1)+' '+g.name);setText('#jokerFeedback','JOKER GESETZT · '+jokerTypeLabel(submittedType)+' → '+String(submittedGameIndex+1).padStart(2,'0')+' · '+g.name.toUpperCase()+' · SERVER BESTÄTIGT.');jokerDialogMeta={type:submittedType,gameIndex:submittedGameIndex,gameName:g.name};selectedJokerType=null;selectedJokerGameIndex=null;renderAll();saveSoon();return true}
+ addAudit('JOKER SUBMITTED · '+p.name+' · '+selectedJokerType+' → GAME '+(submittedGameIndex+1)+' '+g.name);
+ setText('#jokerFeedback','JOKER GESETZT · '+jokerTypeLabel(submittedType)+' → '+String(submittedGameIndex+1).padStart(2,'0')+' · '+g.name.toUpperCase()+' · SERVER BESTÄTIGT.');
+ jokerDialogMeta={type:submittedType,gameIndex:submittedGameIndex,gameName:g.name};
+ selectedJokerType=null;selectedJokerGameIndex=null;
+ renderAll();saveSoon();return true
+}
 async function withdrawUserJoker(gameIndex){if(!feature('feature.joker'))return false;const p=userParticipant(),g=state.games?.[gameIndex],sub=userPendingSubmissionForGame(g);if(!p||!g||!sub||g.phase!=='PLANNED')return false;const srv=(serverJokerBoard?.submissions||[]).find(s=>s.tournament_game_id===g.tournament_game_id&&s.status==='PENDING'&&s.joker_type===sub.type);if(client&&srv?.joker_submission_id){try{const {error}=await client.rpc('withdraw_tournament_joker',{p_joker_submission_id:srv.joker_submission_id});if(error)throw error}catch(e){console.warn(e);setText('#jokerFeedback','JOKER KONNTE NICHT ZURÜCKGEZOGEN WERDEN · '+String(e?.message||e));return false}}
  g.joker.submissions=g.joker.submissions.filter(s=>s!==sub);addAudit('JOKER WITHDRAWN · '+p.name+' · '+sub.type+' · '+g.name);await refreshServerJokerBoard();renderAll();saveSoon();return true}
 function applyPreparedJokerResult(g,data){g.joker=g.joker||{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false};g.joker.locked=true;const reportedCount=Number(data?.submission_count||data?.resolution_submission_count||0);if(reportedCount>0)g.joker.resolutionSubmissionCount=reportedCount;if(reportedCount>1)openMultiJokerDialog(g,reportedCount);const jokerEnabled=feature('feature.joker'),type=jokerEnabled?(data?.accepted_joker_type||null):null,pid=jokerEnabled?(data?.accepted_participant_id||null):null,target=jokerEnabled?(data?.target_participant_id||null):null;if(type&&pid){const accepted=(g.joker.submissions||[]).find(s=>s.participantId===pid&&s.type===type)||{participantId:pid,type,targetParticipantId:target,status:'ACCEPTED',isBot:false};accepted.status='ACCEPTED';accepted.targetParticipantId=target||accepted.targetParticipantId||null;g.joker.accepted=accepted;g.joker.revealed=jokerRevealPolicy(type)==='ACTION';g.joker.revealAcknowledged=g.joker.revealed;(g.joker.submissions||[]).forEach(s=>{if(s!==accepted&&s.status==='PENDING')s.status='REJECTED'});if(state.jokers[pid]?.[type])state.jokers[pid][type]='CONSUMED';addAudit(g.joker.revealed?('JOKER ACCEPTED · '+teamName(participant(pid))+' · '+type):('SECRET JOKER ACCEPTED · '+g.name))}else{(g.joker.submissions||[]).forEach(s=>{if(s.status==='PENDING')s.status='REJECTED'});g.joker.accepted=null;g.joker.revealed=false;g.joker.revealAcknowledged=true}

@@ -122,3 +122,7 @@ if 'FULL TEST ALPHA' in engine_text or 'TESTREGEL:' in engine_text: fail('Sichtb
 if "recoverCompletedNativeGame" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('Multi-Device In-App Result Recovery fehlt')
 
 if "deriveCurrentGameIndexFromRuntime" not in engine_text: fail('Current Game wird nicht aus Serverstatus abgeleitet')
+
+if "Promise.race([" not in engine_text or "SERVER_TIMEOUT" not in engine_text: fail('Joker Submit hat keinen Timeout-Schutz')
+
+if "The submit RPC is the authoritative confirmation" not in engine_text: fail('Joker Submit blockiert noch auf Board-Refresh')
