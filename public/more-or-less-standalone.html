@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SKIELSEN · Mehr oder Weniger · Playtest</title>
-<link rel="stylesheet" href="assets/css/more-or-less-standalone.css">
+<link rel="stylesheet" href="assets/css/more-or-less-standalone.css?v=3">
 </head>
 <body>
 <div class="mol-app">
@@ -29,6 +29,14 @@
           <button data-count="4" class="active">4</button>
         </div>
         <div class="player-names" id="playerNames"></div>
+
+        <small class="setup-subtitle">BEKANNTHEITSGRAD</small>
+        <div class="difficulty-picker" id="difficultyPicker">
+          <button data-tier="EASY"><b>EASY</b><span>bekannte Fakten</span></button>
+          <button data-tier="NORMAL" class="active"><b>NORMAL</b><span>gemischtes Wissen</span></button>
+          <button data-tier="HARDCORE"><b>HARDCORE</b><span>Nischenwissen</span></button>
+        </div>
+        <p class="difficulty-hint" id="difficultyHint">NORMAL · nur Fakten dieser Einstufung werden gezogen.</p>
       </div>
 
       <button class="primary huge" id="startBtn">KATEGORIE ZIEHEN →</button>
@@ -107,6 +115,6 @@
     </section>
   </main>
 </div>
-<script src="assets/js/more-or-less-standalone.js"></script>
+<script src="assets/js/more-or-less-standalone.js?v=3"></script>
 </body>
 </html>
