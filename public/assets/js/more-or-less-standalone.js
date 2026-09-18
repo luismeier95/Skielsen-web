@@ -7,8 +7,6 @@ const screens=[...document.querySelectorAll('.mol-screen')];
 let categories=[],facts=[],playerCount=4,players=[],familiarityTier='NORMAL';
 let selectedCategory=null,lastCategoryKey=null,sequence=[],index=0,currentPlayer=0,turnNo=1;
 let categoryNo=0,categoryStarter=0,categoryWinner=null,pendingChoice=null;
-let comparisonGroup=null,heightBlockQuestion=0;
-const HEIGHT_BLOCK_SIZE=5;
 const usedFactIds=new Map();
 
 const q=s=>document.querySelector(s);
@@ -54,32 +52,20 @@ function renderScoreboard(){
   ).join('');
 }
 function tierLabel(){return familiarityTier==='EASY'?'EASY':familiarityTier==='HARDCORE'?'HARDCORE':'NORMAL'}
-function heightGroupedMode(){return selectedCategory?.category_key==='HEIGHT'&&familiarityTier!=='HARDCORE'}
-function heightGroups(){
-  const grouped={};
-  facts.filter(f=>f.category_key==='HEIGHT'&&f.familiarity_tier===familiarityTier&&f.comparison_group).forEach(f=>{
-    (grouped[f.comparison_group]??=[]).push(f);
-  });
-  return Object.entries(grouped).filter(([,rows])=>rows.length>=HEIGHT_BLOCK_SIZE+1).map(([key])=>key);
-}
-function groupLabel(group){return group==='MOUNTAIN'?'BERGE':group==='BUILDING'?'GEBÄUDE':String(group||'').replaceAll('_',' ')}
 function playableCategories(){
   const tierFacts=facts.filter(f=>f.familiarity_tier===familiarityTier);
   const counts={};tierFacts.forEach(f=>counts[f.category_key]=(counts[f.category_key]||0)+1);
   return categories.filter(c=>{
     if(c.category_key==='LENGTH'&&familiarityTier!=='HARDCORE')return false;
-    if(c.category_key==='HEIGHT'&&familiarityTier!=='HARDCORE'){
-      const groups={};
-      tierFacts.filter(f=>f.category_key==='HEIGHT'&&f.comparison_group).forEach(f=>groups[f.comparison_group]=(groups[f.comparison_group]||0)+1);
-      return Object.values(groups).filter(n=>n>=HEIGHT_BLOCK_SIZE+1).length>=2;
-    }
     return (counts[c.category_key]||0)>=Number(c.min_facts_required||2);
   });
 }
 function refreshCatalogStatus(){
   const playable=playableCategories(),tierFacts=facts.filter(f=>f.familiarity_tier===familiarityTier);
-  const special=familiarityTier==='HARDCORE'?' · LÄNGE FREIGESCHALTET':' · LÄNGE NUR HARDCORE';
-  q('#difficultyHint').textContent=tierLabel()+' · nur Fakten dieser Einstufung werden gezogen'+special+'.';
+  const special=familiarityTier==='HARDCORE'
+    ?' · LÄNGE + BERGE FREIGESCHALTET'
+    :' · HÖHE NUR BAUWERKE/STATUEN · LÄNGE & BERGE NUR HARDCORE';
+  q('#difficultyHint').textContent=tierLabel()+special+'.';
   q('#loadStatus').textContent=playable.length+' KATEGORIEN · '+tierFacts.length+' '+tierLabel()+'-FAKTEN · '+playable.map(c=>c.display_name).join(' · ');
   q('#startBtn').disabled=!playable.length;
 }
@@ -95,7 +81,7 @@ async function spinCategory(){
   categoryNo++;
   categoryStarter=(categoryNo-1)%players.length;
   players.forEach(p=>p.active=true);
-  categoryWinner=null;pendingChoice=null;comparisonGroup=null;heightBlockQuestion=0;
+  categoryWinner=null;pendingChoice=null;
   show('categoryScreen');
   const label=q('#rouletteLabel'),unit=q('#rouletteUnit');
   const delays=[75,75,80,80,90,100,115,130,150,180,220,270,330,410,520];
@@ -113,35 +99,24 @@ async function spinCategory(){
   await wait(900);
   prepareSequence();
 }
-function pickHeightGroup(exclude=null){
-  let groups=heightGroups();
-  if(exclude&&groups.length>1)groups=groups.filter(g=>g!==exclude);
-  return groups[Math.floor(Math.random()*groups.length)]||null;
+function categoryFacts(){
+  return facts.filter(f=>f.category_key===selectedCategory.category_key&&f.familiarity_tier===familiarityTier);
 }
-function categoryFacts(group=comparisonGroup){
-  return facts.filter(f=>{
-    if(f.category_key!==selectedCategory.category_key||f.familiarity_tier!==familiarityTier)return false;
-    if(heightGroupedMode())return f.comparison_group===group;
-    return true;
-  });
+function usedKeyFor(){
+  return familiarityTier+'::'+selectedCategory.category_key;
 }
-function usedKeyFor(group=comparisonGroup){
-  return familiarityTier+'::'+selectedCategory.category_key+'::'+(heightGroupedMode()?(group||'NONE'):'ALL');
-}
-function availableFacts(group=comparisonGroup){
-  const all=categoryFacts(group);
-  const usedKey=usedKeyFor(group);
+function availableFacts(){
+  const all=categoryFacts();
+  const usedKey=usedKeyFor();
   let used=usedFactIds.get(usedKey);
   if(!used){used=new Set();usedFactIds.set(usedKey,used)}
   let open=all.filter(f=>!used.has(f.fact_id));
-  const needed=heightGroupedMode()?HEIGHT_BLOCK_SIZE+1:2;
-  if(open.length<needed){used.clear();open=[...all]}
+  if(open.length<2){used.clear();open=[...all]}
   return open;
 }
 function markUsed(fact){
   if(!fact?.fact_id)return;
-  const group=heightGroupedMode()?fact.comparison_group:comparisonGroup;
-  const usedKey=usedKeyFor(group);
+  const usedKey=usedKeyFor();
   let used=usedFactIds.get(usedKey);
   if(!used){used=new Set();usedFactIds.set(usedKey,used)}
   used.add(fact.fact_id);
@@ -153,7 +128,7 @@ function periodLabel(period){
 }
 function categoryHeading(){
   if(!selectedCategory)return '—';
-  if(selectedCategory.category_key==='HEIGHT'&&heightGroupedMode())return 'HÖHE · '+groupLabel(comparisonGroup);
+  if(selectedCategory.category_key==='HEIGHT'&&familiarityTier!=='HARDCORE')return 'HÖHE · BAUWERKE & STATUEN';
   if(selectedCategory.category_key==='DISTANCE')return 'ENTFERNUNG · HAUPTSTÄDTE';
   if(selectedCategory.category_key==='WIKIPEDIA_VIEWS'){
     const p=periodLabel(categoryFacts()?.[0]?.reference_period);
@@ -161,21 +136,15 @@ function categoryHeading(){
   }
   return selectedCategory.display_name;
 }
-function playCategoryHeading(){
-  const base=categoryHeading();
-  if(heightGroupedMode())return base+' · FRAGE '+Math.min(HEIGHT_BLOCK_SIZE,heightBlockQuestion+1)+'/'+HEIGHT_BLOCK_SIZE;
-  return base;
-}
-function prepareSequence({initial=true,blockTransition=false}={}){
-  if(heightGroupedMode()&&!comparisonGroup)comparisonGroup=pickHeightGroup();
+function playCategoryHeading(){return categoryHeading()}
+function prepareSequence(){
   sequence=shuffle(availableFacts());
-  index=0;
-  if(initial){turnNo=1;currentPlayer=categoryStarter}
+  index=0;turnNo=1;currentPlayer=categoryStarter;
   markUsed(sequence[0]);
   q('#categoryTitle').textContent=categoryHeading();
   q('#referenceLabel').textContent=sequence[0].label;
   q('#referenceValue').textContent=sequence[0].display_value||formatValue(sequence[0].value);
-  q('#starterLabel').textContent=blockTransition?(players[currentPlayer].name+' IST DRAN · NEUER 5ER-BLOCK'):(players[currentPlayer].name+' BEGINNT');
+  q('#starterLabel').textContent=players[categoryStarter].name+' BEGINNT';
   show('referenceScreen');
 }
 function formatValue(v){
@@ -241,19 +210,11 @@ function choose(choice){
 function next(){
   if(!pendingChoice)return;
   index++;turnNo++;
-  if(heightGroupedMode())heightBlockQuestion++;
   const from=pendingChoice.playerSeat;
   pendingChoice=null;
   const survivors=activePlayers();
   if(survivors.length===1){finishCategory(survivors[0]);return}
   currentPlayer=nextActiveSeat(from);
-  if(heightGroupedMode()&&heightBlockQuestion>=HEIGHT_BLOCK_SIZE){
-    const previousGroup=comparisonGroup;
-    comparisonGroup=pickHeightGroup(previousGroup)||previousGroup;
-    heightBlockQuestion=0;
-    prepareSequence({initial:false,blockTransition:true});
-    return;
-  }
   renderPlay();
 }
 function finishCategory(winner){
