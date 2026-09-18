@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.4';
+const VERSION=window.SKIELSEN_VERSION||'15.1.5';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -9,6 +9,7 @@ const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
 let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,autoLifecycleBusy=false;
+let inAppMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
@@ -17,6 +18,86 @@ function syncVisibleVersion(){
   document.title=`SKIELSEN V${VERSION}`;
   document.querySelectorAll('.sk-header__version').forEach(x=>x.textContent=`V${VERSION}`);
 }
+function ensureLiveStrip(){
+  let strip=document.getElementById('v15InAppLiveStrip');
+  if(strip)return strip;
+  strip=document.createElement('button');
+  strip.id='v15InAppLiveStrip';
+  strip.type='button';
+  strip.hidden=true;
+  strip.setAttribute('aria-label','Live In-App-Spiel wieder im Vollbild öffnen');
+  strip.innerHTML='<span class="v15-inapp-live-main"><i aria-hidden="true"></i><span><b id="v15InAppLiveTitle">IN-APP GAME LIVE</b><small id="v15InAppLiveMeta">ZURÜCK INS VOLLBILD</small></span></span><strong>ÖFFNEN →</strong>';
+  strip.addEventListener('click',()=>openInAppFullscreen('push'));
+  document.body.appendChild(strip);
+  return strip;
+}
+function updateInAppChrome(){
+  const layer=document.getElementById('v15InAppLayer');
+  const minimize=document.getElementById('v15InAppMinimize');
+  const strip=ensureLiveStrip();
+  if(minimize)minimize.hidden=!inAppSurfaceLive;
+  const showStrip=!!(inAppSurfaceLive&&inAppMinimized);
+  strip.hidden=!showStrip;
+  document.body.classList.toggle('v15-inapp-minimized-live',showStrip);
+  const title=document.getElementById('v15InAppLiveTitle');
+  const meta=document.getElementById('v15InAppLiveMeta');
+  if(title)title.textContent=(inAppSurfaceLabel||'IN-APP GAME').toUpperCase()+' · LIVE';
+  if(meta)meta.textContent='ANTIPPEN · SOFORT ZURÜCK INS VOLLBILD';
+  if(layer&&inAppSurfaceLive)layer.hidden=inAppMinimized;
+}
+function ensureInAppHistory(){
+  if(!inAppSurfaceLive||inAppMinimized)return;
+  const nav=window.skielsenHistory?.current();
+  if(nav?.area==='inapp')return;
+  window.skielsenHistory?.push('inapp','game',{tournamentId:rt?.tournament_id||null,surfaceKey:inAppSurfaceKey||null});
+}
+function openInAppFullscreen(historyMode='push'){
+  if(!inAppSurfaceLive)return false;
+  inAppMinimized=false;
+  const layer=ensureLayer();
+  layer.hidden=false;
+  updateInAppChrome();
+  if(historyMode!=='none'&&!window.skielsenHistory?.isRestoring()){
+    const nav=window.skielsenHistory?.current();
+    const data={tournamentId:rt?.tournament_id||null,surfaceKey:inAppSurfaceKey||null};
+    if(nav?.area!=='inapp'){
+      if(historyMode==='replace')window.skielsenHistory?.replace('inapp','game',data);
+      else window.skielsenHistory?.push('inapp','game',data);
+    }
+  }
+  return true;
+}
+function minimizeInApp(useHistory=true){
+  if(!inAppSurfaceLive)return false;
+  inAppMinimized=true;
+  const layer=ensureLayer();
+  layer.hidden=true;
+  updateInAppChrome();
+  if(useHistory&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
+  return true;
+}
+function prepareInAppSurface(key,label,live){
+  const nextKey=String(key||'inapp');
+  if(inAppSurfaceKey!==nextKey){
+    inAppSurfaceKey=nextKey;
+    inAppMinimized=false;
+  }
+  inAppSurfaceLive=!!live;
+  inAppSurfaceLabel=String(label||'IN-APP GAME');
+  updateInAppChrome();
+  if(inAppSurfaceLive&&!inAppMinimized)ensureInAppHistory();
+}
+function clearInAppSurface(){
+  const wasLive=inAppSurfaceLive;
+  inAppSurfaceLive=false;
+  inAppSurfaceKey=null;
+  inAppSurfaceLabel='IN-APP GAME';
+  inAppMinimized=false;
+  const strip=document.getElementById('v15InAppLiveStrip');
+  if(strip)strip.hidden=true;
+  document.body.classList.remove('v15-inapp-minimized-live');
+  if(wasLive&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
+}
 function ensureLayer(){
   let layer=document.getElementById('v15InAppLayer');
   if(layer)return layer;
@@ -24,8 +105,10 @@ function ensureLayer(){
   layer.id='v15InAppLayer';
   layer.hidden=true;
   layer.setAttribute('aria-live','polite');
-  layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
+  layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><button class="v15-inapp-minimize" id="v15InAppMinimize" type="button" hidden aria-label="In-App-Spiel minimieren"><span aria-hidden="true">—</span> MINIMIEREN</button><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
   document.body.appendChild(layer);
+  ensureLiveStrip();
+  document.getElementById('v15InAppMinimize')?.addEventListener('click',()=>minimizeInApp(true));
   return layer;
 }
 function ensureBuzzerBridgeAssets(){
@@ -73,7 +156,7 @@ function rosterHtml(s){
 }
 function renderBuzzerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
-  layer.hidden=false;
+  prepareInAppSurface(String(s.session_id||'buzzer'),s.game?.name||'BUZZER ZEIT STOPPEN',true);
   layer.classList.add('buzzer-mode');
   let gameRoot=document.getElementById('v15BuzzerRoot');
   if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
@@ -94,8 +177,9 @@ function renderBuzzerSession(s){
 }
 function renderBuzzerTest(g){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
-  layer.hidden=false;layer.classList.add('buzzer-mode');
   const sessionKey=`test-${g.tournament_game_id||g.game_id||'buzzer'}`;
+  prepareInAppSurface(sessionKey,g.name||'BUZZER ZEIT STOPPEN',true);
+  layer.classList.add('buzzer-mode');
   let gameRoot=document.getElementById('v15BuzzerRoot');
   if(!gameRoot||gameRoot.dataset.session!==sessionKey){
     window.skielsenBuzzerTime?.unmount?.();
@@ -116,6 +200,7 @@ function renderPlayerSession(s){
     layer.classList.remove('buzzer-mode');
     layer.hidden=true;
     host.innerHTML='';
+    clearInAppSurface();
     return;
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
@@ -126,7 +211,13 @@ function renderPlayerSession(s){
 
   window.skielsenBuzzerTime?.unmount?.();
   layer.classList.remove('buzzer-mode');
-  layer.hidden=false;
+  if(active)prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',true);
+  else{
+    inAppSurfaceLive=false;
+    inAppMinimized=false;
+    updateInAppChrome();
+    layer.hidden=false;
+  }
   host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div><section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${s.status==='READY'?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.':'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.'}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
 
   document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
@@ -423,12 +514,26 @@ const boot=setInterval(()=>{
   if(start(window.skielsenV15?.runtime)||tries>80)clearInterval(boot);
 },250);
 
+window.skielsenHistory?.register('inapp',()=>{
+  if(inAppSurfaceLive)return openInAppFullscreen('none');
+  if(window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
+  return false;
+});
+window.addEventListener('popstate',()=>{
+  const nav=window.skielsenHistory?.current();
+  if(nav?.area!=='inapp'&&inAppSurfaceLive&&!inAppMinimized)minimizeInApp(false);
+});
+
 window.addEventListener('beforeunload',()=>{
   clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();
 });
 window.skielsenInApp={
   start,
   poll:pollPlayer,
+  minimize:()=>minimizeInApp(true),
+  openFullscreen:()=>openInAppFullscreen('push'),
+  get minimized(){return inAppMinimized},
+  get live(){return inAppSurfaceLive},
   get session(){return playerSession},
   submitAction:async(type,payload={})=>playerSession?db.rpc('submit_in_app_game_action',{p_session_id:playerSession.session_id,p_action_type:type,p_payload:payload}):{data:null,error:new Error('NO_ACTIVE_IN_APP_SESSION')}
 };
