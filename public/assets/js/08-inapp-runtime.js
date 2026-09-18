@@ -1,14 +1,16 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.9';
+const VERSION=window.SKIELSEN_VERSION||'15.1.10';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
+const MORE_LESS_MODULE='more-or-less';
+const MORE_LESS_GAME_KEY='higher_lower';
 const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,autoLifecycleBusy=false;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false;
 let inAppMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -148,6 +150,29 @@ function ensureBuzzerAssets(){
   });
   return buzzerAssetsPromise;
 }
+function ensureMoreLessAssets(){
+  if(window.skielsenMoreLess)return Promise.resolve();
+  if(moreLessAssetsPromise)return moreLessAssetsPromise;
+  moreLessAssetsPromise=new Promise((resolve,reject)=>{
+    if(!document.querySelector('link[data-more-less-css]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}`;link.dataset.moreLessCss='1';
+      document.head.appendChild(link);
+    }
+    const existing=document.querySelector('script[data-more-less-js]');
+    if(existing){
+      if(window.skielsenMoreLess){resolve();return}
+      existing.addEventListener('load',()=>resolve(),{once:true});
+      existing.addEventListener('error',reject,{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src=`assets/js/11-more-or-less-game.js?v=${VERSION}`;
+    script.defer=true;script.dataset.moreLessJs='1';
+    script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
+  });
+  return moreLessAssetsPromise;
+}
 function rosterHtml(s){
   const me=s?.me?.tournament_member_id;
   return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'#aaa'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
@@ -191,10 +216,34 @@ function renderBuzzerTest(g){
   }).catch(err=>{console.warn('Buzzer test assets',err);if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">BUZZER-TESTMODUL KONNTE NICHT GELADEN WERDEN.</div>'});
 }
 
+function renderMoreLessSession(s){
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  prepareInAppSurface(String(s.session_id||'more-less'),s.game?.name||'MEHR ODER WENIGER',true);
+  layer.classList.remove('buzzer-mode');
+  window.skielsenBuzzerTime?.unmount?.();
+  let gameRoot=document.getElementById('v15MoreLessRoot');
+  if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
+    window.skielsenMoreLess?.unmount?.();
+    host.innerHTML=`<div id="v15MoreLessRoot" data-session="${esc(s.session_id)}"><div class="v15-inapp-message">MEHR ODER WENIGER WIRD GELADEN …</div></div>`;
+    gameRoot=document.getElementById('v15MoreLessRoot');
+  }
+  ensureMoreLessAssets().then(()=>{
+    const rootNow=document.getElementById('v15MoreLessRoot');
+    if(rootNow&&playerSession?.session_id===s.session_id){
+      window.skielsenMoreLess?.mount?.(rootNow,s,db);
+      window.skielsenMoreLess?.updateSession?.(s);
+    }
+  }).catch(err=>{
+    console.warn('More or Less assets',err);
+    if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">MEHR-ODER-WENIGER-MODUL KONNTE NICHT GELADEN WERDEN.</div>';
+  });
+}
+
 function renderPlayerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
   if(!s){
     window.skielsenBuzzerTime?.unmount?.();
+    window.skielsenMoreLess?.unmount?.();
     layer.classList.remove('buzzer-mode');
     layer.hidden=true;
     host.innerHTML='';
@@ -203,11 +252,17 @@ function renderPlayerSession(s){
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
   if(active&&s.game?.module_key===BUZZER_MODULE){
+    window.skielsenMoreLess?.unmount?.();
     renderBuzzerSession(s);
+    return;
+  }
+  if(active&&s.game?.module_key===MORE_LESS_MODULE){
+    renderMoreLessSession(s);
     return;
   }
 
   window.skielsenBuzzerTime?.unmount?.();
+  window.skielsenMoreLess?.unmount?.();
   layer.classList.remove('buzzer-mode');
   if(active)prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',true);
   else{
@@ -260,9 +315,16 @@ function currentGame(){
 function isBuzzerGame(g){
   return g?.game_id==='game.buzzer_time_stop'||/BUZZER\s+ZEIT\s+STOPPEN/i.test(String(g?.name||''));
 }
-function buzzerGameIsLive(g){
+function isMoreLessGame(g){
+  return g?.game_id==='game.higher_lower'||/MEHR\s+ODER\s+WENIGER/i.test(String(g?.name||''));
+}
+function nativeGameIsLive(g){
   return !!g&&g.phase==='ACTIVE'&&(g.matches||[]).some(m=>m?.status==='LIVE');
 }
+function buzzerGameIsLive(g){return isBuzzerGame(g)&&nativeGameIsLive(g)}
+function supportedNativeGame(g){return isBuzzerGame(g)||isMoreLessGame(g)}
+function gameKeyFor(g){return isBuzzerGame(g)?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:null)}
+function moduleKeyFor(g){return isBuzzerGame(g)?BUZZER_MODULE:(isMoreLessGame(g)?MORE_LESS_MODULE:null)}
 function inAppAdminRelevant(){
   const g=currentGame(),tracker=String(g?.tracker_type||'').toUpperCase(),play=String(g?.play_mode||g?.default_play_mode||'').toUpperCase();
   return tracker==='IN_APP_NATIVE'||play==='IN_APP';
@@ -294,15 +356,15 @@ async function createAdminSession(){
   const buzzer=isBuzzerGame(g);
   const r=await db.rpc('create_in_app_game_session',{
     p_tournament_game_id:g.tournament_game_id,
-    p_game_key:buzzer?BUZZER_GAME_KEY:'in_app_shell_test',
+    p_game_key:buzzer?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:'in_app_shell_test'),
     p_match_id:null,
     p_public_state:{source:`V${VERSION}`,game_name:g.name||null,game_id:g.game_id||null}
   });
   if(r.error){if(info)info.textContent='SESSION-FEHLER: '+(r.error.message||'UNBEKANNT');return}
   adminGameId=g.tournament_game_id;
   await refreshAdmin(true);
-  if(buzzer&&adminSession){
-    await autoAssignBuzzerPlayers();
+  if((buzzer||isMoreLessGame(g))&&adminSession){
+    await autoAssignNativePlayers();
   }
 }
 async function loadCandidates(){
@@ -329,15 +391,16 @@ function renderAdmin(){
   if(!st)return;
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
   const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
+  const isAutoNative=isBuzzer||adminSession?.game?.module_key===MORE_LESS_MODULE;
   const startBtn=document.getElementById('v15InAppStart');
   const createBtn=document.getElementById('v15InAppCreate');
-  if(startBtn){startBtn.hidden=!!isBuzzer;startBtn.disabled=!adminSession||adminSession.status!=='READY'}
-  if(createBtn){createBtn.hidden=!!isBuzzer;createBtn.disabled=!!adminSession}
+  if(startBtn){startBtn.hidden=!!isAutoNative;startBtn.disabled=!adminSession||adminSession.status!=='READY'}
+  if(createBtn){createBtn.hidden=!!isAutoNative;createBtn.disabled=!!adminSession}
   document.getElementById('v15InAppCancel').disabled=!adminSession;
   const completeBtn=document.getElementById('v15InAppComplete');
-  if(completeBtn){completeBtn.hidden=!!isBuzzer;completeBtn.disabled=!!isBuzzer||!adminSession||adminSession.status!=='ACTIVE'}
+  if(completeBtn){completeBtn.hidden=!!isAutoNative;completeBtn.disabled=!!isAutoNative||!adminSession||adminSession.status!=='ACTIVE'}
   if(info&&adminSession){
-    const extra=isBuzzer?' · BUZZER AUTO-FLOW · ABSCHLUSS AUTOMATISCH':'';
+    const extra=isAutoNative?' · AUTO-FLOW · ABSCHLUSS AUTOMATISCH':'';
     info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}${extra}`;
   }else if(info&&isBuzzerGame(currentGame())&&buzzerGameIsLive(currentGame())){
     info.textContent='BUZZER SESSION WIRD AUTOMATISCH VORBEREITET …';
@@ -361,7 +424,7 @@ async function refreshAdmin(force){
     const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
     if(!r.error)adminSession=r.data||adminSession;
   }
-  if(isBuzzerGame(g)&&buzzerGameIsLive(g)&&!rt?.test_mode)await ensureBuzzerLifecycle(g);
+  if(supportedNativeGame(g)&&nativeGameIsLive(g)&&!rt?.test_mode)await ensureNativeLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
@@ -394,8 +457,9 @@ async function assignRows(rows){
   await refreshAdmin(true);
   return true;
 }
-async function autoAssignBuzzerPlayers(){
-  if(!adminSession||adminSession.game?.module_key!==BUZZER_MODULE)return false;
+async function autoAssignNativePlayers(){
+  const g=currentGame(),expectedModule=moduleKeyFor(g);
+  if(!adminSession||!expectedModule||adminSession.game?.module_key!==expectedModule)return false;
   await loadCandidates();
   const max=Number(adminSession.game?.max_players||8);
   const candidates=adminCandidates.slice(0,max);
@@ -410,10 +474,7 @@ async function autoAssignBuzzerPlayers(){
       p_participant_id:c.participant_id,
       p_seat:nextSeat++
     });
-    if(r.error){
-      console.warn('Buzzer auto assign',r.error);
-      continue;
-    }
+    if(r.error){console.warn('Native In-App auto assign',r.error);continue}
     changed=true;
   }
   if(changed){
@@ -422,49 +483,49 @@ async function autoAssignBuzzerPlayers(){
   }
   const info=document.getElementById('v15InAppAdminInfo');
   if(info){
-    const min=Number(adminSession.game?.min_players||2);
-    const n=adminSession.players?.length||0;
+    const min=Number(adminSession.game?.min_players||2),n=adminSession.players?.length||0;
     info.textContent=n>=min
-      ?`BUZZER · ${n} PLAYER AUTOMATISCH ZUGEWIESEN · WARTET AUF BEREITSCHAFT`
-      :`BUZZER · ${n} PLAYER ZUGEWIESEN · MINDESTENS ${min} PLAYER-ACCOUNTS BENÖTIGT`;
+      ?`${String(g?.name||'IN-APP GAME').toUpperCase()} · ${n} PLAYER AUTOMATISCH ZUGEWIESEN · WARTET AUF BEREITSCHAFT`
+      :`${String(g?.name||'IN-APP GAME').toUpperCase()} · ${n} PLAYER ZUGEWIESEN · MINDESTENS ${min} PLAYER-ACCOUNTS BENÖTIGT`;
   }
   return true;
 }
-async function ensureBuzzerLifecycle(g){
-  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!isBuzzerGame(g)||!buzzerGameIsLive(g))return;
+async function ensureNativeLifecycle(g){
+  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g)||!nativeGameIsLive(g))return;
   autoLifecycleBusy=true;
   try{
+    const expectedKey=gameKeyFor(g),expectedModule=moduleKeyFor(g);
+    if(adminSession&&adminGameId!==g.tournament_game_id){adminSession=null;adminCandidates=[]}
     if(!adminSession){
       const created=await db.rpc('create_in_app_game_session',{
         p_tournament_game_id:g.tournament_game_id,
-        p_game_key:BUZZER_GAME_KEY,
+        p_game_key:expectedKey,
         p_match_id:null,
-        p_public_state:{source:`V${VERSION}`,game_name:g.name||null,game_id:g.game_id||null,auto_created:true}
+        p_public_state:{
+          source:`V${VERSION}`,
+          game_name:g.name||null,
+          game_id:g.game_id||null,
+          familiarity_tier:String(g?.rules_json?.familiarityTier||g?.game_rules_snapshot?.familiarityTier||'NORMAL').toUpperCase(),
+          auto_created:true
+        }
       });
-      if(created.error){
-        console.warn('Buzzer auto create',created.error);
-        return;
-      }
+      if(created.error){console.warn('Native In-App auto create',created.error);return}
       adminGameId=g.tournament_game_id;
       const fetched=await db.rpc('get_admin_active_in_app_game',{p_tournament_game_id:g.tournament_game_id});
       if(!fetched.error)adminSession=fetched.data||null;
     }
-    if(!adminSession||adminSession.game?.module_key!==BUZZER_MODULE)return;
-    await autoAssignBuzzerPlayers();
-    const min=Number(adminSession.game?.min_players||2);
-    const players=adminSession.players?.length||0;
+    if(!adminSession||adminSession.game?.module_key!==expectedModule)return;
+    await autoAssignNativePlayers();
+    const min=Number(adminSession.game?.min_players||2),players=adminSession.players?.length||0;
     if(adminSession.status==='READY'&&players>=min){
       const started=await db.rpc('start_in_app_game_session',{p_session_id:adminSession.session_id});
-      if(started.error){
-        console.warn('Buzzer auto start',started.error);
-      }else{
+      if(started.error){console.warn('Native In-App auto start',started.error)}
+      else{
         const fetched=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
         if(!fetched.error)adminSession=fetched.data||adminSession;
       }
     }
-  }finally{
-    autoLifecycleBusy=false;
-  }
+  }finally{autoLifecycleBusy=false}
 }
 async function assignSelected(){
   if(!adminSession)return;
@@ -497,6 +558,7 @@ function finishInAppSurface(){
   const layer=ensureLayer();
   layer.hidden=true;
   window.skielsenBuzzerTime?.unmount?.();
+  window.skielsenMoreLess?.unmount?.();
   const host=document.getElementById('v15InAppPlayerContent');if(host)host.innerHTML='';
   clearInAppSurface();
   return true;
@@ -531,7 +593,7 @@ window.addEventListener('popstate',()=>{
 });
 
 window.addEventListener('beforeunload',()=>{
-  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();
+  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();window.skielsenMoreLess?.unmount?.();
 });
 window.skielsenInApp={
   start,
