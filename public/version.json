@@ -1,6 +1,6 @@
 {
   "app": "SKIELSEN",
-  "version": "15.1.4",
+  "version": "15.1.5",
   "layout": "modular-static",
   "entry": "index.html"
 }
