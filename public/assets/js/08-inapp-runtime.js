@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.10';
+const VERSION=window.SKIELSEN_VERSION||'15.1.11';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -495,6 +495,9 @@ async function ensureNativeLifecycle(g){
   autoLifecycleBusy=true;
   try{
     const expectedKey=gameKeyFor(g),expectedModule=moduleKeyFor(g);
+    const activation=await db.rpc('activate_tournament_game',{p_tournament_game_id:g.tournament_game_id});
+    if(activation.error){console.warn('Native In-App server activation',activation.error);return}
+    if(activation.data?.status!=='ACTIVE')return;
     if(adminSession&&adminGameId!==g.tournament_game_id){adminSession=null;adminCandidates=[]}
     if(!adminSession){
       const created=await db.rpc('create_in_app_game_session',{
