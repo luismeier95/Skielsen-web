@@ -85,8 +85,7 @@ function playMarkup(){
   const current=state?.current||{};
   return `<section class="bzt-app">
     <header class="bzt-header">
-      <div class="bzt-header-row"><strong>SKIELSEN</strong><span>RUNDE ${round} / ${roundCount}</span></div>
-      <div class="bzt-header-row sub"><span>${esc(viewerLabel())}</span><b>${esc(state?.phase==='RUNNING'?'LÄUFT':'BEREIT')}</b></div>
+      <div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>RUNDE ${round} / ${roundCount}</span></div>
     </header>
     <main class="bzt-content">
       <section class="bzt-now">
@@ -107,8 +106,7 @@ function revealMarkup(){
   const rv=state?.reveal||{},rows=Array.isArray(rv.rows)?rv.rows:[];
   return `<section class="bzt-app bzt-reveal">
     <header class="bzt-header">
-      <div class="bzt-header-row"><strong>SKIELSEN</strong><span>RUNDE ${Number(rv.round||state?.round||1)} / ${Number(state?.round_count||5)}</span></div>
-      <div class="bzt-header-row sub"><span>${esc(viewerLabel())}</span><b>AUSWERTUNG</b></div>
+      <div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>RUNDE ${Number(rv.round||state?.round||1)} / ${Number(state?.round_count||5)}</span></div>
     </header>
     <main class="bzt-reveal-content">
       <section class="bzt-reveal-head"><span>RUNDE ${Number(rv.round||state?.round||1)} · AUSWERTUNG</span><h2>ZWISCHENSTAND</h2></section>
@@ -132,7 +130,7 @@ function revealMarkup(){
 function completeMarkup(){
   const standings=Array.isArray(state?.result?.standings)?state.result.standings:[];
   return `<section class="bzt-app bzt-complete">
-    <header class="bzt-header"><div class="bzt-header-row"><strong>SKIELSEN</strong><span>5 / 5</span></div><div class="bzt-header-row sub"><span>${esc(viewerLabel())}</span><b>FERTIG</b></div></header>
+    <header class="bzt-header"><div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>5 / 5</span></div></header>
     <main class="bzt-reveal-content">
       <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>SPIEL BEENDET</h2></section>
       <section class="bzt-table-wrap final">
