@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SKIELSEN · Mehr oder Weniger · Standalone</title>
+<title>SKIELSEN · Mehr oder Weniger · Playtest</title>
 <link rel="stylesheet" href="assets/css/more-or-less-standalone.css">
 </head>
 <body>
 <div class="mol-app">
   <header class="mol-header">
     <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
-    <div><strong>MEHR ODER WENIGER</strong><small>STANDALONE PROTOTYP</small></div>
+    <div><strong>MEHR ODER WENIGER</strong><small>PUBLIC PLAYTEST</small></div>
   </header>
   <div class="mol-strip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
@@ -18,10 +18,11 @@
     <section class="mol-screen active" id="setupScreen">
       <span class="eyebrow">IN-APP GAME · TEST</span>
       <h1>MEHR<br>ODER<br>WENIGER?</h1>
-      <p class="lead">Eine Kategorie wird zufällig gezogen. Danach vergleichst du immer den nächsten Fakt mit dem vorherigen.</p>
+      <p class="lead">Eine Kategorie wird zufällig gezogen. Gespielt wird reihum. Wer falsch liegt, scheidet für diese Kategorie aus. Last Man Standing gewinnt die Kategorie.</p>
+      <div class="rule-note"><b>2 PLAYER / TEAMS</b><span>Die erste falsche Antwort entscheidet die Kategorie. Danach wird neu gezogen und der Startplatz wechselt.</span></div>
 
       <div class="setup-card">
-        <small>ANZAHL PLAYER</small>
+        <small>ANZAHL PLAYER / TEAMS</small>
         <div class="player-count" id="playerCount">
           <button data-count="2">2</button>
           <button data-count="3">3</button>
@@ -50,6 +51,7 @@
         <small>ERSTE REFERENZ</small>
         <strong id="referenceLabel">—</strong>
         <b id="referenceValue">—</b>
+        <p class="starter-note" id="starterLabel">— BEGINNT</p>
       </div>
       <button class="primary" id="beginRoundBtn">LOS GEHT'S →</button>
     </section>
@@ -57,7 +59,7 @@
     <section class="mol-screen" id="playScreen">
       <div class="play-top">
         <div><small>KATEGORIE</small><strong id="playCategory">—</strong></div>
-        <div><small>RUNDE</small><strong id="roundNo">01</strong></div>
+        <div><small>ZUG</small><strong id="roundNo">01</strong></div>
       </div>
 
       <div class="scoreboard" id="scoreboard"></div>
@@ -97,10 +99,11 @@
     </section>
 
     <section class="mol-screen" id="finishScreen">
-      <span class="eyebrow">KATEGORIE ABGESCHLOSSEN</span>
-      <h2>ENDE.</h2>
+      <span class="eyebrow">KATEGORIE ENTSCHIEDEN</span>
+      <h2 id="winnerTitle">— GEWINNT.</h2>
+      <p class="winner-copy" id="winnerCopy">LAST MAN STANDING</p>
       <div class="final-board" id="finalBoard"></div>
-      <button class="primary" id="restartBtn">NEUE KATEGORIE →</button>
+      <button class="primary" id="restartBtn">NEUE KATEGORIE ZIEHEN →</button>
     </section>
   </main>
 </div>
