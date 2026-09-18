@@ -4,10 +4,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>SKIELSEN V15.1.18</title>
-<link rel="stylesheet" href="assets/css/app.css?v=15.1.18"/>
-<script src="assets/js/00-version.js?v=15.1.18"></script>
-<script src="assets/js/00-app-history.js?v=15.1.18"></script>
+<title>SKIELSEN V15.1.19</title>
+<link rel="stylesheet" href="assets/css/app.css?v=15.1.19"/>
+<script src="assets/js/00-version.js?v=15.1.19"></script>
+<script src="assets/js/00-app-history.js?v=15.1.19"></script>
 
 
 
@@ -83,7 +83,7 @@
 <div class="sk-header__main">
 <!-- SKIELSEN logo served as a static asset -->
 <img alt="SKIELSEN" class="sk-header__logo" id="skielsenAccountHomeLogo" data-skielsen-account-home role="button" tabindex="0" title="Zu Mein SKIELSEN" aria-label="Zu Mein SKIELSEN" src="assets/images/skielsen-logo.png"/>
-<span class="sk-header__version" data-skielsen-version>V15.1.18</span>
+<span class="sk-header__version" data-skielsen-version>V15.1.19</span>
 <nav aria-label="Hauptnavigation" class="sk-header__nav">
 <a class="active" data-page="home" href="#homePage">HOME</a>
 <a data-page="profile" href="#profilePage">PLAYER</a>
@@ -411,8 +411,8 @@
     <h1>ADMIN TOOLS</h1>
     <p>RECOVERY, AUDIT UND SONDERFUNKTIONEN · DER OPERATIVE SPIELWORKFLOW LÄUFT ÜBER MATCHES.</p>
   </section>
-  <section class="prototype-sim-panel" aria-label="Test und Recovery">
-    <div><small>TEST & RECOVERY</small><strong id="prototypeStateLabel">TURNIERSTATUS WIRD GELADEN</strong><span>Nur Diagnose/Reset. Matchstart und Ergebnisse werden auf der Match Page bedient.</span></div>
+  <section class="prototype-sim-panel" aria-label="Recovery und Diagnose">
+    <div><small>RECOVERY & DIAGNOSE</small><strong id="prototypeStateLabel">TURNIERSTATUS WIRD GELADEN</strong><span>Diagnose und Reset. Matchstart und Ergebnisse werden auf der Match Page bedient.</span></div>
     <div class="prototype-sim-actions"><button id="prototypeOtherBets" type="button" hidden>ANDERE WETTEN ABSCHLIESSEN</button><button id="prototypeOtherMvp" type="button" hidden>ANDERE VOTES ABSCHLIESSEN</button><button id="prototypeAutofill" type="button" hidden>SCORE AUTOFILL</button><button id="prototypeReset" type="button">TURNIER KOMPLETT RESETTEN</button></div>
   </section>
   <section class="prototype-admin-bet-gate" id="prototypeAdminBetGate" hidden><div><small>BETTING STATUS</small><strong id="prototypeAdminBetCount">—</strong><span id="prototypeAdminBetPending">—</span></div><b id="prototypeAdminBetGateState">INFO</b></section>
@@ -423,7 +423,7 @@
       <section class="utility-panel" id="adminPlan"><div class="utility-head"><span>B</span><h2>TOURNAMENT PLAN</h2><small>AKTUELLER STAND</small></div><div class="admin-game-list" id="adminGameList"></div></section>
       <section class="utility-panel" id="adminWallet"><div class="utility-head"><span>C</span><h2>SKIELSEN COINS</h2><small>KORREKTUR</small></div><div class="coin-adjust-dialog"><label for="coinAdjustPlayer">PLAYER</label><select id="coinAdjustPlayer"></select><label for="coinAdjustAmount">ANPASSUNG</label><input id="coinAdjustAmount" type="number" step="1" placeholder="+ / - Coins"><label for="coinAdjustReason">GRUND</label><input id="coinAdjustReason" placeholder="Pflichtfeld für Audit Log"><button id="applyCoinAdjustment" type="button">COINS ANPASSEN</button><p class="admin-inline-feedback" id="coinAdjustFeedback"></p></div></section>
       <section class="utility-panel" id="adminContent"><div class="utility-head"><span>D</span><h2>NEWS & CONTENT</h2><small>OPTIONAL</small></div><div class="admin-news-editor"><label>FAKTEN / ROHTEXT</label><textarea id="adminNewsInput" placeholder="Fakten / Rohtext für SkielsenSport."></textarea><button id="publishAdminNews" type="button">PUBLISH</button></div></section>
-      <section class="utility-panel compact-panel" id="adminAudit"><div class="utility-head"><span>E</span><h2>AUDIT LOG</h2><small>TEST-RUNTIME</small></div><div id="auditLogRows"></div></section>
+      <section class="utility-panel compact-panel" id="adminAudit"><div class="utility-head"><span>E</span><h2>AUDIT LOG</h2><small>AKTUELLES TURNIER</small></div><div id="auditLogRows"></div></section>
     </div>
   </details>
 </div>
@@ -548,23 +548,18 @@
   </div>
 </section>
 
-<script id="games-library-js" src="assets/js/01-games-library.js?v=15.1.18"></script>
+<script id="games-library-js" src="assets/js/01-games-library.js?v=15.1.19"></script>
 
 
 
 
-<script id="player-subtabs-final-js" src="assets/js/02-player-profile-tabs.js?v=15.1.18"></script>
-
-
-
-
-
-<script id="games-filter-controller" src="assets/js/03-games-filter.js?v=15.1.18"></script>
+<script id="player-subtabs-final-js" src="assets/js/02-player-profile-tabs.js?v=15.1.19"></script>
 
 
 
 
 
+<script id="games-filter-controller" src="assets/js/03-games-filter.js?v=15.1.19"></script>
 
 
 
@@ -574,12 +569,12 @@
 
 
 
-<script id="mobile-more-navigation-v1-js" src="assets/js/04-mobile-navigation.js?v=15.1.18"></script>
 
 
 
 
 
+<script id="mobile-more-navigation-v1-js" src="assets/js/04-mobile-navigation.js?v=15.1.19"></script>
 
 
 
@@ -604,7 +599,12 @@
 
 
 
-<script id="admin-mandatory-hold-to-confirm-behavior-v1" src="assets/js/05-admin-hold-confirm.js?v=15.1.18"></script>
+
+
+
+
+
+<script id="admin-mandatory-hold-to-confirm-behavior-v1" src="assets/js/05-admin-hold-confirm.js?v=15.1.19"></script>
 
 
 
@@ -725,7 +725,7 @@
 
 <!-- ============================================================
      V14E · SUPABASE-PROTOTYP · DEUTSCHER SPIELEKATALOG + FILTER
-     Existing v13 UI stays untouched. Shop visual is the approved shop artifact.
+     Tournament UI and approved shop visual.
      ============================================================ -->
 
 
@@ -733,7 +733,7 @@
   <div class="dbb-shell" id="dbbShell">
     <header class="dbb-top" id="dbbTop">
       <div class="dbb-top-inner">
-        <div class="dbb-brand"><img alt="SKIELSEN" src="assets/images/skielsen-logo.png"><small><span data-skielsen-version>V15.1.18</span> · WEB-PROTOTYP</small></div>
+        <div class="dbb-brand"><img alt="SKIELSEN" src="assets/images/skielsen-logo.png"><small><span data-skielsen-version>V15.1.19</span> · WEB-PROTOTYP</small></div>
         <div class="dbb-top-actions">
           <button class="dbb-global-nav" id="dbbGlobalHome" type="button" hidden>MEIN SKIELSEN</button>
           <div class="dbb-dbstate"><i></i><span id="dbbConnectionState">SUPABASE VERBUNDEN</span></div>
@@ -895,7 +895,7 @@
             <div class="dbb-checkout-per-player"><small>UMGERECHNET PRO AKTIVEM SPIELER</small><strong id="dbbCheckoutPerPlayer">0,00 €</strong><span id="dbbCheckoutPerPlayerSub">BEI 8 SPIELERN</span></div>
             <div class="dbb-checkout-info">Der Material-Check ist abgeschlossen. Der digitale Shop bleibt ab jetzt geschlossen. Du kannst zur Materialauswahl zurück, ohne die digitalen Turnierinhalte erneut zu öffnen.</div>
             <div class="dbb-setup-actions" style="margin-top:12px"><button class="dbb-btn primary" id="dbbFinalizeCheckout" type="button">BESTELLUNG ABSCHLIESSEN →</button></div>
-            <div class="dbb-checkout-test">TESTPHASE: Die Bestellung kann trotz angezeigter Beträge ohne echte Zahlung abgeschlossen werden.</div>
+            <div class="dbb-checkout-test">DEMO-MODUS: Die Bestellung kann ohne echte Zahlung abgeschlossen werden.</div>
             <div class="dbb-feedback" id="dbbCheckoutFeedback"></div>
           </aside>
         </div>
@@ -945,10 +945,10 @@
           </div>
           <div class="dbb-summer-decor" aria-hidden="true"><span class="dbb-summer-sun"></span><span class="dbb-summer-wave one"></span><span class="dbb-summer-wave two"></span></div>
           <div class="dbb-pink-decor" aria-hidden="true"><span class="dbb-pink-sweep"></span><span class="dbb-pink-sparkles"></span></div>
-          <span class="dbb-lobby-version" data-skielsen-version>V15.1.18</span>
+          <span class="dbb-lobby-version" data-skielsen-version>V15.1.19</span>
           <small>05 · EIGENSTÄNDIGE TURNIER-LOBBY</small>
           <h1 id="dbbLobbyHeroTitle">TURNIER<br>VORBEREITEN.</h1>
-          <p id="dbbLobbyHeroLead">Bis der Admin „JETZT STARTEN“ bestätigt, bleibt das Turnier vollständig in dieser Lobby. Danach wird die V13-Turnieransicht mit dem V15-Runtime-State geöffnet.</p>
+          <p id="dbbLobbyHeroLead">Bis der Admin „JETZT STARTEN“ bestätigt, bleibt das Turnier vollständig in dieser Lobby. Danach wird die laufende Turnieransicht geöffnet.</p>
         </section>
 
         <div class="dbb-lobby-overview">
@@ -987,7 +987,7 @@
                 <button class="dbb-btn secondary" id="dbbOpenSettings" type="button" style="width:100%;margin-top:9px">TURNIER SETTINGS</button>
                 <div class="dbb-lobby-testtools" id="dbbLobbyTestTools" hidden>
                   <button id="dbbFillBots" type="button">FREIE PLÄTZE MIT BOTS FÜLLEN</button>
-                  <button id="dbbClearBots" type="button">TEST-BOTS ENTFERNEN</button>
+                  <button id="dbbClearBots" type="button">BOTS ENTFERNEN</button>
                 </div>
                 <div class="dbb-lobby-games-mini" id="dbbLobbyGames"></div>
                 <div class="dbb-feedback" id="dbbLobbyFeedback"></div>
@@ -1000,8 +1000,8 @@
       <section id="dbbStartedStep" class="dbb-hidden">
         <div class="dbb-started-card">
           <small>TURNIERSTATUS · LIVE</small>
-          <h1>V15 WIRD GELADEN.</h1>
-          <p>Die V13-Turnieransicht wird mit Teilnehmern, Games, Features, Themes und dem V15 Runtime-State initialisiert.</p>
+          <h1>TURNIER WIRD GELADEN.</h1>
+          <p>Die Turnieransicht wird mit Teilnehmern, Games, Features und Theme initialisiert.</p>
           <div class="dbb-started-lock"><b>FALLBACK:</b><br>Falls die Runtime nicht geladen werden kann, bleibt dieser Screen sichtbar und zeigt den Fehler in der Lobby-Feedback-Zeile.</div>
           <button id="dbbStartedHome" type="button">← ZU MEIN SKIELSEN</button>
         </div>
@@ -1009,7 +1009,7 @@
     </main>
 
     <div class="dbb-lobby-sheet" id="dbbLobbyAssignSheet" aria-hidden="true"><div class="dbb-lobby-sheet-card"><h3 id="dbbLobbyAssignTitle">TEAM ZUWEISEN</h3><p>Freie Slots können von Playern selbst belegt werden. Der Admin darf nur noch nicht zugewiesene Player einsortieren.</p><div class="dbb-lobby-team-choices" id="dbbLobbyTeamChoices"></div><button class="dbb-lobby-sheet-close" id="dbbLobbyAssignClose" type="button">ABBRECHEN</button></div></div>
-    <div class="dbb-start-confirm" id="dbbStartConfirm" aria-hidden="true"><div class="dbb-start-confirm-card"><h3>TURNIER UNWIDERRUFLICH STARTEN?</h3><p>Nach diesem Schritt gibt es keinen Rückweg in die Lobby. Der Invite-Code wird gesperrt, der aktive Kader und die Team-/Farbzuordnung gelten als final. <span data-skielsen-version>V15.1.18</span> öffnet danach die aktive Turnieransicht.</p><div class="dbb-start-confirm-actions"><button id="dbbStartCancel" type="button">ABBRECHEN</button><button class="danger" id="dbbStartConfirmButton" type="button">UNWIDERRUFLICH STARTEN</button></div></div></div>
+    <div class="dbb-start-confirm" id="dbbStartConfirm" aria-hidden="true"><div class="dbb-start-confirm-card"><h3>TURNIER UNWIDERRUFLICH STARTEN?</h3><p>Nach diesem Schritt gibt es keinen Rückweg in die Lobby. Der Invite-Code wird gesperrt, der aktive Kader und die Team-/Farbzuordnung gelten als final. <span data-skielsen-version>V15.1.19</span> öffnet danach die aktive Turnieransicht.</p><div class="dbb-start-confirm-actions"><button id="dbbStartCancel" type="button">ABBRECHEN</button><button class="danger" id="dbbStartConfirmButton" type="button">UNWIDERRUFLICH STARTEN</button></div></div></div>
     <div class="dbb-exit-confirm" id="dbbExitConfirm" aria-hidden="true"><div class="dbb-exit-confirm-card"><h3 id="dbbExitConfirmTitle">TURNIERERSTELLUNG ABBRECHEN?</h3><p id="dbbExitConfirmText">Der noch nicht abgeschlossene Warenkorb verfällt. Die aktuelle Turniererstellung wird verworfen.</p><div class="dbb-exit-confirm-actions"><button id="dbbExitConfirmCancel" type="button">WEITERMACHEN</button><button class="danger" id="dbbExitConfirmProceed" type="button">ENTWURF VERWERFEN</button></div></div></div>
 
     <section id="dbbShopStep" class="dbb-shop-step dbb-hidden" aria-label="Turnier-Shop">
@@ -1018,14 +1018,14 @@
   </div>
 </div>
 
-<script type="module" id="db-bootstrap-v14f-js" src="assets/js/06-db-bootstrap.js?v=15.1.18"></script>
+<script type="module" id="db-bootstrap-v14f-js" src="assets/js/06-db-bootstrap.js?v=15.1.19"></script>
 
 
-<script id="v15-tournament-engine-js" src="assets/js/07-tournament-engine.js?v=15.1.18"></script>
+<script id="v15-tournament-engine-js" src="assets/js/07-tournament-engine.js?v=15.1.19"></script>
 
 
 
-<script id="v1507-inapp-runtime" src="assets/js/08-inapp-runtime.js?v=15.1.18"></script>
+<script id="v1507-inapp-runtime" src="assets/js/08-inapp-runtime.js?v=15.1.19"></script>
 
 
 

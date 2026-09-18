@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.18';
+const VERSION=window.SKIELSEN_VERSION||'15.1.19';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -10,7 +10,7 @@ const MORE_LESS_GAME_KEY='higher_lower';
 const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null;
 let inAppMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -281,6 +281,23 @@ function renderPlayerSession(s){
     if(fb)fb.textContent=r.error?'FEHLER: '+(r.error.message||'AKTION NICHT GESPEICHERT'):'AKTION SERVERSEITIG ANGENOMMEN · '+String(r.data?.action_id||'').slice(0,8).toUpperCase();
   });
 }
+async function recoverCompletedNativeGame(){
+  const g=currentGame();
+  if(!g?.tournament_game_id||!supportedNativeGame(g)||!db)return false;
+  const rpc=isBuzzerGame(g)?'get_buzzer_time_game_result':'get_higher_lower_game_result';
+  try{
+    const {data,error}=await db.rpc(rpc,{p_tournament_game_id:g.tournament_game_id});
+    if(error||!data)return false;
+    const result=data.result||data;
+    const key=String(g.tournament_game_id)+'|'+String(result?.finalized_at||result?.tournament_handoff?.completed_at||'complete');
+    if(lastRecoveredResultKey===key)return true;
+    const bridge=window.skielsenBuzzerBridge;
+    if(!bridge?.ingestInAppGameResult)return false;
+    const ok=bridge.ingestInAppGameResult(g.tournament_game_id,result);
+    if(ok)lastRecoveredResultKey=key;
+    return !!ok;
+  }catch(err){console.warn('In-App completed result recovery',err);return false}
+}
 async function setReady(v){
   if(!playerSession||!db)return;
   const r=await db.rpc('set_in_app_game_ready',{p_session_id:playerSession.session_id,p_ready:!!v});
@@ -297,6 +314,7 @@ async function pollPlayer(){
     if(r.error){console.warn('In-App session poll',r.error);return}
     playerSession=r.data||null;
     renderPlayerSession(playerSession);
+    if(!playerSession)await recoverCompletedNativeGame();
     if(playerSession&&Date.now()-lastHeartbeat>HEARTBEAT_MS){
       lastHeartbeat=Date.now();
       db.rpc('heartbeat_in_app_game_session',{p_session_id:playerSession.session_id}).catch?.(()=>{});
