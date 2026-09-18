@@ -7,6 +7,8 @@ const screens=[...document.querySelectorAll('.mol-screen')];
 let categories=[],facts=[],playerCount=4,players=[],familiarityTier='NORMAL';
 let selectedCategory=null,lastCategoryKey=null,sequence=[],index=0,currentPlayer=0,turnNo=1;
 let categoryNo=0,categoryStarter=0,categoryWinner=null,pendingChoice=null;
+let comparisonGroup=null,heightBlockQuestion=0;
+const HEIGHT_BLOCK_SIZE=5;
 const usedFactIds=new Map();
 
 const q=s=>document.querySelector(s);
@@ -24,7 +26,7 @@ function rest(path){
 async function loadCatalog(){
   const [cats,rows]=await Promise.all([
     rest('comparison_fact_categories?select=category_key,display_name,unit,min_facts_required,sort_order&is_active=eq.true&order=sort_order.asc'),
-    rest('available_comparison_facts?select=fact_id,category_key,label,value,display_value,description,difficulty,familiarity_tier&is_active=eq.true')
+    rest('available_comparison_facts?select=fact_id,category_key,label,value,display_value,description,difficulty,familiarity_tier,comparison_group,metric_type,reference_period&is_active=eq.true')
   ]);
   categories=cats;
   facts=rows;
@@ -52,14 +54,32 @@ function renderScoreboard(){
   ).join('');
 }
 function tierLabel(){return familiarityTier==='EASY'?'EASY':familiarityTier==='HARDCORE'?'HARDCORE':'NORMAL'}
+function heightGroupedMode(){return selectedCategory?.category_key==='HEIGHT'&&familiarityTier!=='HARDCORE'}
+function heightGroups(){
+  const grouped={};
+  facts.filter(f=>f.category_key==='HEIGHT'&&f.familiarity_tier===familiarityTier&&f.comparison_group).forEach(f=>{
+    (grouped[f.comparison_group]??=[]).push(f);
+  });
+  return Object.entries(grouped).filter(([,rows])=>rows.length>=HEIGHT_BLOCK_SIZE+1).map(([key])=>key);
+}
+function groupLabel(group){return group==='MOUNTAIN'?'BERGE':group==='BUILDING'?'GEBÄUDE':String(group||'').replaceAll('_',' ')}
 function playableCategories(){
-  const counts={};
-  facts.filter(f=>f.familiarity_tier===familiarityTier).forEach(f=>counts[f.category_key]=(counts[f.category_key]||0)+1);
-  return categories.filter(c=>(counts[c.category_key]||0)>=Number(c.min_facts_required||2));
+  const tierFacts=facts.filter(f=>f.familiarity_tier===familiarityTier);
+  const counts={};tierFacts.forEach(f=>counts[f.category_key]=(counts[f.category_key]||0)+1);
+  return categories.filter(c=>{
+    if(c.category_key==='LENGTH'&&familiarityTier!=='HARDCORE')return false;
+    if(c.category_key==='HEIGHT'&&familiarityTier!=='HARDCORE'){
+      const groups={};
+      tierFacts.filter(f=>f.category_key==='HEIGHT'&&f.comparison_group).forEach(f=>groups[f.comparison_group]=(groups[f.comparison_group]||0)+1);
+      return Object.values(groups).filter(n=>n>=HEIGHT_BLOCK_SIZE+1).length>=2;
+    }
+    return (counts[c.category_key]||0)>=Number(c.min_facts_required||2);
+  });
 }
 function refreshCatalogStatus(){
   const playable=playableCategories(),tierFacts=facts.filter(f=>f.familiarity_tier===familiarityTier);
-  q('#difficultyHint').textContent=tierLabel()+' · nur Fakten dieser Einstufung werden gezogen.';
+  const special=familiarityTier==='HARDCORE'?' · LÄNGE FREIGESCHALTET':' · LÄNGE NUR HARDCORE';
+  q('#difficultyHint').textContent=tierLabel()+' · nur Fakten dieser Einstufung werden gezogen'+special+'.';
   q('#loadStatus').textContent=playable.length+' KATEGORIEN · '+tierFacts.length+' '+tierLabel()+'-FAKTEN · '+playable.map(c=>c.display_name).join(' · ');
   q('#startBtn').disabled=!playable.length;
 }
@@ -75,7 +95,7 @@ async function spinCategory(){
   categoryNo++;
   categoryStarter=(categoryNo-1)%players.length;
   players.forEach(p=>p.active=true);
-  categoryWinner=null;pendingChoice=null;
+  categoryWinner=null;pendingChoice=null;comparisonGroup=null;heightBlockQuestion=0;
   show('categoryScreen');
   const label=q('#rouletteLabel'),unit=q('#rouletteUnit');
   const delays=[75,75,80,80,90,100,115,130,150,180,220,270,330,410,520];
@@ -93,33 +113,69 @@ async function spinCategory(){
   await wait(900);
   prepareSequence();
 }
-function categoryFacts(){
-  return facts.filter(f=>f.category_key===selectedCategory.category_key&&f.familiarity_tier===familiarityTier);
+function pickHeightGroup(exclude=null){
+  let groups=heightGroups();
+  if(exclude&&groups.length>1)groups=groups.filter(g=>g!==exclude);
+  return groups[Math.floor(Math.random()*groups.length)]||null;
 }
-function availableFacts(){
-  const all=categoryFacts();
-  const usedKey=familiarityTier+'::'+selectedCategory.category_key;
+function categoryFacts(group=comparisonGroup){
+  return facts.filter(f=>{
+    if(f.category_key!==selectedCategory.category_key||f.familiarity_tier!==familiarityTier)return false;
+    if(heightGroupedMode())return f.comparison_group===group;
+    return true;
+  });
+}
+function usedKeyFor(group=comparisonGroup){
+  return familiarityTier+'::'+selectedCategory.category_key+'::'+(heightGroupedMode()?(group||'NONE'):'ALL');
+}
+function availableFacts(group=comparisonGroup){
+  const all=categoryFacts(group);
+  const usedKey=usedKeyFor(group);
   let used=usedFactIds.get(usedKey);
   if(!used){used=new Set();usedFactIds.set(usedKey,used)}
   let open=all.filter(f=>!used.has(f.fact_id));
-  if(open.length<2){used.clear();open=[...all]}
+  const needed=heightGroupedMode()?HEIGHT_BLOCK_SIZE+1:2;
+  if(open.length<needed){used.clear();open=[...all]}
   return open;
 }
 function markUsed(fact){
   if(!fact?.fact_id)return;
-  const usedKey=familiarityTier+'::'+selectedCategory.category_key;
+  const group=heightGroupedMode()?fact.comparison_group:comparisonGroup;
+  const usedKey=usedKeyFor(group);
   let used=usedFactIds.get(usedKey);
   if(!used){used=new Set();usedFactIds.set(usedKey,used)}
   used.add(fact.fact_id);
 }
-function prepareSequence(){
+function periodLabel(period){
+  if(!period||!/^[0-9]{4}-[0-9]{2}$/.test(period))return '';
+  const [y,m]=period.split('-').map(Number);
+  return new Intl.DateTimeFormat('de-DE',{month:'long',year:'numeric'}).format(new Date(Date.UTC(y,m-1,1))).toUpperCase();
+}
+function categoryHeading(){
+  if(!selectedCategory)return '—';
+  if(selectedCategory.category_key==='HEIGHT'&&heightGroupedMode())return 'HÖHE · '+groupLabel(comparisonGroup);
+  if(selectedCategory.category_key==='DISTANCE')return 'ENTFERNUNG · HAUPTSTÄDTE';
+  if(selectedCategory.category_key==='WIKIPEDIA_VIEWS'){
+    const p=periodLabel(categoryFacts()?.[0]?.reference_period);
+    return 'WIKIPEDIA-AUFRUFE'+(p?' · '+p:'');
+  }
+  return selectedCategory.display_name;
+}
+function playCategoryHeading(){
+  const base=categoryHeading();
+  if(heightGroupedMode())return base+' · FRAGE '+Math.min(HEIGHT_BLOCK_SIZE,heightBlockQuestion+1)+'/'+HEIGHT_BLOCK_SIZE;
+  return base;
+}
+function prepareSequence({initial=true,blockTransition=false}={}){
+  if(heightGroupedMode()&&!comparisonGroup)comparisonGroup=pickHeightGroup();
   sequence=shuffle(availableFacts());
-  index=0;turnNo=1;currentPlayer=categoryStarter;
+  index=0;
+  if(initial){turnNo=1;currentPlayer=categoryStarter}
   markUsed(sequence[0]);
-  q('#categoryTitle').textContent=selectedCategory.display_name;
+  q('#categoryTitle').textContent=categoryHeading();
   q('#referenceLabel').textContent=sequence[0].label;
   q('#referenceValue').textContent=sequence[0].display_value||formatValue(sequence[0].value);
-  q('#starterLabel').textContent=players[categoryStarter].name+' BEGINNT';
+  q('#starterLabel').textContent=blockTransition?(players[currentPlayer].name+' IST DRAN · NEUER 5ER-BLOCK'):(players[currentPlayer].name+' BEGINNT');
   show('referenceScreen');
 }
 function formatValue(v){
@@ -154,7 +210,7 @@ function renderPlay(){
     sequence=[sequence[index],...more];index=0;
   }
   const prev=sequence[index],cur=sequence[index+1],p=players[currentPlayer];
-  q('#playCategory').textContent=selectedCategory.display_name;
+  q('#playCategory').textContent=playCategoryHeading();
   q('#roundNo').textContent=String(turnNo).padStart(2,'0');
   q('#prevLabel').textContent=prev.label;
   q('#prevValue').textContent=prev.display_value||formatValue(prev.value);
@@ -169,7 +225,7 @@ function choose(choice){
   markUsed(cur);
   if(!ok)p.active=false;
   pendingChoice={prev,cur,player:p,playerSeat:currentPlayer,ok,choice,correct};
-  q('#revealKicker').textContent=selectedCategory.display_name+' · AUFLÖSUNG';
+  q('#revealKicker').textContent=playCategoryHeading()+' · AUFLÖSUNG';
   q('#revealResult').textContent=ok?'RICHTIG':'FALSCH · AUSGESCHIEDEN';
   q('#revealResult').className='reveal-result '+(ok?'correct':'wrong');
   q('#revealPlayer').textContent=p.name;
@@ -185,18 +241,26 @@ function choose(choice){
 function next(){
   if(!pendingChoice)return;
   index++;turnNo++;
+  if(heightGroupedMode())heightBlockQuestion++;
   const from=pendingChoice.playerSeat;
   pendingChoice=null;
   const survivors=activePlayers();
   if(survivors.length===1){finishCategory(survivors[0]);return}
   currentPlayer=nextActiveSeat(from);
+  if(heightGroupedMode()&&heightBlockQuestion>=HEIGHT_BLOCK_SIZE){
+    const previousGroup=comparisonGroup;
+    comparisonGroup=pickHeightGroup(previousGroup)||previousGroup;
+    heightBlockQuestion=0;
+    prepareSequence({initial:false,blockTransition:true});
+    return;
+  }
   renderPlay();
 }
 function finishCategory(winner){
   if(!winner)return;
   categoryWinner=winner;winner.score++;
   q('#winnerTitle').textContent=winner.name+' GEWINNT.';
-  q('#winnerCopy').textContent='LAST MAN STANDING · '+selectedCategory.display_name+' · KATEGORIE '+categoryNo;
+  q('#winnerCopy').textContent='LAST MAN STANDING · '+categoryHeading()+' · KATEGORIE '+categoryNo;
   const ordered=[...players].sort((a,b)=>Number(b.active)-Number(a.active)||b.score-a.score||a.seat-b.seat);
   q('#finalBoard').innerHTML=ordered.map((p,i)=>
     '<div class="final-row '+(!p.active?'out':'')+'">'+
