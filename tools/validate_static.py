@@ -107,3 +107,7 @@ if "#v1536MatchControlStart" not in engine_text or "handleMatchDetailControlActi
 if "e.stopImmediatePropagation();void handleMatchDetailControlAction(matchStart)" not in engine_text: fail('Match-Start wird nicht im Capture-Listener abgefangen')
 
 if "window.skielsenInApp?.start?.(runtime)" not in engine_text: fail('In-App Runtime wird beim Turnierstart nicht explizit initialisiert')
+
+if "serverPhaseForGame" not in engine_text or "phase:serverPhaseForGame" not in engine_text: fail('Server-Game-Status wird nicht in lokalen Lifecycle übernommen')
+
+if "const serverActive=String(g.status||'').toUpperCase()==='ACTIVE'" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('Native In-App Lifecycle hängt noch am lokalen Matchstatus')
