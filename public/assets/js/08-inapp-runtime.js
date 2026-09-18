@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.6';
+const VERSION=window.SKIELSEN_VERSION||'15.1.7';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -33,9 +33,7 @@ function ensureLiveStrip(){
 }
 function updateInAppChrome(){
   const layer=document.getElementById('v15InAppLayer');
-  const minimize=document.getElementById('v15InAppMinimize');
   const strip=ensureLiveStrip();
-  if(minimize)minimize.hidden=!inAppSurfaceLive;
   const showStrip=!!(inAppSurfaceLive&&inAppMinimized);
   strip.hidden=!showStrip;
   document.body.classList.toggle('v15-inapp-minimized-live',showStrip);
@@ -105,10 +103,9 @@ function ensureLayer(){
   layer.id='v15InAppLayer';
   layer.hidden=true;
   layer.setAttribute('aria-live','polite');
-  layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><button class="v15-inapp-minimize" id="v15InAppMinimize" type="button" hidden aria-label="In-App-Spiel minimieren"><span aria-hidden="true">—</span> MINIMIEREN</button><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
+  layer.innerHTML='<div class="v15-inapp-topstrip"><i></i><i></i><i></i><i></i></div><main class="v15-inapp-shell"><div id="v15InAppPlayerContent"></div></main>';
   document.body.appendChild(layer);
   ensureLiveStrip();
-  document.getElementById('v15InAppMinimize')?.addEventListener('click',()=>minimizeInApp(true));
   return layer;
 }
 function ensureBuzzerBridgeAssets(){
