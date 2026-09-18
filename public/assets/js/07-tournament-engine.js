@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.17';
+const VERSION=window.SKIELSEN_VERSION||'15.1.18';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -204,15 +204,23 @@ function createScheduledMatches(g,gameIndex,participants){
    {id:`g${gameIndex}-m3`,stage:'FINAL',a:null,b:null,status:'SCHEDULED',scoreA:null,scoreB:null,placeholderA:'SIEGER HF 1',placeholderB:'SIEGER HF 2'}
  ];
 }
+function serverPhaseForGame(src,current='PLANNED'){
+ const st=String(src?.status||'').toUpperCase();
+ if(st==='ACTIVE')return 'ACTIVE';
+ if(st==='PREPARING'||st==='JOKER_RESOLVED')return 'PREPARING';
+ if(st==='COMPLETED')return 'COMPLETED';
+ if(st==='PLANNED')return 'PLANNED';
+ return current||'PLANNED';
+}
 function syncGameMetadataFromRuntime(target,rt){
  const games=Array.isArray(target.games)?target.games:(target.games=[]),runtimeGames=Array.isArray(rt?.games)?rt.games:[];
  const current=games[target.currentGameIndex||0]||null;
- const applyMeta=(g,src)=>['name','short_name','category','environment','competition_mode','default_play_mode','tracker_type','result_type','rules_text','rules_json','skill_profile','play_mode','format_template'].forEach(k=>{if(src?.[k]!==undefined)g[k]=src[k]});
+ const applyMeta=(g,src)=>{['name','short_name','category','environment','competition_mode','default_play_mode','tracker_type','result_type','rules_text','rules_json','skill_profile','play_mode','format_template','status'].forEach(k=>{if(src?.[k]!==undefined)g[k]=src[k]});g.phase=serverPhaseForGame(src,g.phase)};
  runtimeGames.forEach((src,i)=>{
    let g=games.find(x=>x.tournament_game_id&&src.tournament_game_id&&x.tournament_game_id===src.tournament_game_id)||
          games.find(x=>x.game_id===src.game_id&&Number(x.sequence_no)===Number(src.sequence_no));
    if(!g){
-     g={...src,phase:'PLANNED',matchIndex:0,matches:[],placements:null,joker:{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false},vote:null};
+     g={...src,phase:serverPhaseForGame(src,'PLANNED'),matchIndex:0,matches:[],placements:null,joker:{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false},vote:null};
      games.push(g);
    }
    applyMeta(g,src);
@@ -271,8 +279,8 @@ function defaultState(rt){
  const wallets={},transactions=[];
  core.actors.forEach(a=>{wallets[a.id]=1000;transactions.push({id:'tx-'+a.id,type:'START_CREDIT',actorId:a.id,amount:1000,at:nowLabel(),reason:'STARTGUTHABEN'})});
  const rankings={};core.participants.forEach(p=>rankings[p.id]={points:0,first:0,second:0,third:0,last:0,mvp:0,lvp:0,bonus:0});
- const games=(rt.games||[]).map((g,i)=>({...g,phase:'PLANNED',matchIndex:0,matches:[],placements:null,joker:{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false},vote:null}));
- games.forEach((g,i)=>{g.matches=createScheduledMatches(g,i,core.participants)});
+ const games=(rt.games||[]).map((g,i)=>({...g,phase:serverPhaseForGame(g,'PLANNED'),matchIndex:0,matches:[],placements:null,joker:{submissions:[],accepted:null,resolved:false,locked:false,awaitingPick:false},vote:null}));
+ games.forEach((g,i)=>{g.matches=createScheduledMatches(g,i,core.participants);if(g.phase==='ACTIVE'&&String(g.tracker_type||'').toUpperCase()==='IN_APP_NATIVE'&&g.matches?.[0])g.matches[0].status='LIVE'});
  const jokers={};core.participants.forEach(p=>jokers[p.id]={DOUBLE_POINTS:'AVAILABLE',PICK_OPPONENT:'AVAILABLE'});
  const s={version:15,createdAt:new Date().toISOString(),currentGameIndex:0,actors:core.actors,participants:core.participants,userActorId:core.userActorId,userParticipantId:core.userParticipantId,skills,ratings,wallets,transactions,rankings,games,bets:{},betDecisions:{},oddsSnapshots:{},jokers,jokerResolutionSeen:{},audit:[],news:[],matchHistory:[],awards:[],finalBonusApplied:false,tournamentDone:false,selectedProfileActorId:core.userActorId};
  s.audit.push({at:nowLabel(),text:'V15 TEST-RUNTIME INITIALISIERT · '+core.actors.length+' PLAYER/BOTS'});
