@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.10';
+const VERSION=window.SKIELSEN_VERSION||'15.1.11';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -862,6 +862,14 @@ async function refreshServerJokerBoard(notify=false){
          // not only the admin browser that called prepare_tournament_game().
          finishJokerPreparation(g);
        }
+       if(isCurrent&&sg.status==='ACTIVE'){
+         const nativeInApp=String(g?.tracker_type||'').toUpperCase()==='IN_APP_NATIVE'||String(g?.play_mode||g?.default_play_mode||'').toUpperCase()==='IN_APP';
+         if(!g.matches?.length)buildMatchesForGame(g);else g.phase='ACTIVE';
+         if(nativeInApp){
+           const liveMatch=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0];
+           if(liveMatch&&liveMatch.status!=='CONCLUDED')liveMatch.status='LIVE';
+         }
+       }
      }
      const pp=serverJokerBoard.pending_pick;
      if(pp){
@@ -927,7 +935,14 @@ function showJokerSuccess(){
  const sum=q('#v1510JokerDialogSummary');if(sum)sum.innerHTML=`<b>${esc(jokerTypeLabel(meta.type))}</b><br>${String(meta.gameIndex+1).padStart(2,'0')} · ${esc(meta.gameName)}<br><small>STATUS · EINGEREICHT</small>`;
  const cancel=q('#v1510JokerDialogCancel');if(cancel)cancel.textContent='VERSTANDEN';const confirm=q('#v1510JokerDialogConfirm');if(confirm)confirm.hidden=true;d.hidden=false
 }
-function startMatch(){const g=gameNow(),m=matchNow();if(!m)return;if(!feature('feature.betting')&&m.status==='BETTING_OPEN')m.status='READY';syncBettingGateStatus(m);if(m.status!=='BETTING_OPEN'&&m.status!=='READY')return;if(!gateComplete(m)){setText('#quickResultFeedback','BETTING GATE NOCH OFFEN · ALLE PLAYER MÜSSEN WETTEN ODER ÜBERSPRINGEN.');return}m.status='LIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon()}
+async function startMatch(){const g=gameNow(),m=matchNow();if(!m)return;if(!feature('feature.betting')&&m.status==='BETTING_OPEN')m.status='READY';syncBettingGateStatus(m);if(m.status!=='BETTING_OPEN'&&m.status!=='READY')return;if(!gateComplete(m)){setText('#quickResultFeedback','BETTING GATE NOCH OFFEN · ALLE PLAYER MÜSSEN WETTEN ODER ÜBERSPRINGEN.');return}
+ const nativeInApp=String(g?.tracker_type||'').toUpperCase()==='IN_APP_NATIVE'||String(g?.play_mode||g?.default_play_mode||'').toUpperCase()==='IN_APP';
+ if(nativeInApp&&client&&g?.tournament_game_id&&isAdmin()){
+   const {data,error}=await client.rpc('activate_tournament_game',{p_tournament_game_id:g.tournament_game_id});
+   if(error){console.warn('Server game activation failed',error);setText('#quickResultFeedback','MATCH KONNTE SERVERSEITIG NICHT GESTARTET WERDEN · '+String(error.message||error));return}
+   if(data?.status!=='ACTIVE'){setText('#quickResultFeedback','SERVER HAT DEN MATCHSTART NICHT BESTÄTIGT.');return}
+ }
+ m.status='LIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon()}
 function autofillScore(){const m=matchNow();if(!m)return;const a=3+(hash(m.id+'A')%8),b=2+(hash(m.id+'B')%8);let aa=a,bb=b;if(aa===bb)aa++;const ia=q('#quickResultA'),ib=q('#quickResultB');if(ia)ia.value=aa;if(ib)ib.value=bb;syncQuickResultButton()}
 function syncQuickResultButton(){const sel=gameControlSelection(),m=sel.m,a=Number(q('#quickResultA')?.value),b=Number(q('#quickResultB')?.value);const ok=sel.isCurrent&&m?.status==='LIVE'&&Number.isFinite(a)&&Number.isFinite(b)&&a>=0&&b>=0&&a!==b;setHoldLabel(q('#quickResultConfirm'),'ERGEBNIS BESTÄTIGEN',!ok)}
 
