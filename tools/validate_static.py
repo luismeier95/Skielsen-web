@@ -96,3 +96,6 @@ for name in ['07-tournament-engine.js','08-inapp-runtime.js','10-buzzer-tourname
  s=(PUBLIC/'assets/js'/name).read_text(encoding='utf-8')
  if 'window.SKIELSEN_VERSION' not in s: fail(f'{name} nutzt nicht die zentrale Version')
 print(f'OK: SKIELSEN V{v} · {len(p.refs)} Referenzen geprüft · Version zentralisiert')
+
+if 'profile-page-active' not in (PUBLIC/'assets/css/app.css').read_text(encoding='utf-8'): fail('Player-Subnav ist nicht auf Player-Page begrenzt')
+if "m.status==='BETTING_OPEN'&&!gateComplete(m)" not in engine_text: fail('Server-Betting-Gate wird in Match UI nicht verwendet')
