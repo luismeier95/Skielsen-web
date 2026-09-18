@@ -33,6 +33,11 @@ for kind,ref in p.refs:
   if parse_qs(u.query).get('v')!=[v]: fail(f'Cache-Version fehlt/abweichend: {ref}')
 if missing: fail(repr(missing[:20]))
 if f'SKIELSEN V{v}' not in h: fail('Versionskonflikt index/title')
+history_js=PUBLIC/'assets/js/00-app-history.js'
+if not history_js.exists(): fail('00-app-history.js fehlt')
+history_text=history_js.read_text(encoding='utf-8')
+if 'popstate' not in history_text or 'pushState' not in history_text or 'replaceState' not in history_text: fail('App-History-Controller unvollständig')
+if 'assets/js/00-app-history.js?v='+v not in h: fail('App-History-Controller fehlt oder Cache-Version stimmt nicht')
 version_js=(PUBLIC/'assets/js/00-version.js').read_text(encoding='utf-8')
 if f"const VERSION='{v}';" not in version_js: fail('00-version.js stimmt nicht mit version.json überein')
 if 'V15.0.35' in h: fail('Veraltete sichtbare V15.0.35-Version in index.html')
