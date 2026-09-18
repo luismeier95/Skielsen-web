@@ -55,6 +55,12 @@ engine_text=(PUBLIC/'assets/js/07-tournament-engine.js').read_text(encoding='utf
 bridge_text=(PUBLIC/'assets/js/10-buzzer-tournament-bridge.js').read_text(encoding='utf-8')
 if 'beginPostGameFlow' not in engine_text or 'postGameVoteResults' not in engine_text or "g.phase='AWARD_REVEAL'" not in engine_text: fail('Post-Game Voting/Reveal Flow fehlt')
 if "client.rpc('activate_tournament_game'" not in engine_text: fail('Serverseitiger MATCH START fehlt')
+for rpc in ['get_betting_market_state','open_betting_market','submit_betting_decision','settle_betting_market']:
+ if rpc not in engine_text: fail(f'Serverseitiger Betting-Workflow fehlt: {rpc}')
+for rpc in ['get_tournament_vote_state','open_tournament_vote_session','submit_tournament_vote']:
+ if rpc not in engine_text: fail(f'Serverseitiger MVP/LVP-Workflow fehlt: {rpc}')
+if "type==='LVP'||c.participantId!==vp?.id" not in engine_text: fail('LVP-Kandidatenregel erlaubt Teampartner nicht')
+if 'submission_count' not in engine_text or 'openMultiJokerDialog(g,reportedCount)' not in engine_text: fail('Joker-Randomizer submission_count-Flow fehlt')
 if "sg.status==='ACTIVE'" not in engine_text or "liveMatch.status='LIVE'" not in engine_text: fail('Server ACTIVE wird nicht auf Player-Clients gespiegelt')
 if 'Server lifecycle is authoritative' not in engine_text or 'finishJokerPreparation(g);' not in engine_text: fail('Cross-device PREPARING→ACTIVE Sync fehlt')
 if "addEventListener('click',revealVoteWinner)" not in engine_text or "addEventListener('click',continueVoteReveal)" not in engine_text: fail('MVP/LVP Reveal Controls fehlen')
