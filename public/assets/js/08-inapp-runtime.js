@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.20';
+const VERSION=window.SKIELSEN_VERSION||'15.1.21';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -10,8 +10,8 @@ const MORE_LESS_GAME_KEY='higher_lower';
 const colorHex={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null;
-let inAppMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
+let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
@@ -29,7 +29,7 @@ function ensureLiveStrip(){
   strip.hidden=true;
   strip.setAttribute('aria-label','Live In-App-Spiel wieder im Vollbild öffnen');
   strip.innerHTML='<span class="v15-inapp-live-main"><i aria-hidden="true"></i><span><b id="v15InAppLiveTitle">IN-APP GAME LIVE</b><small id="v15InAppLiveMeta">ZURÜCK INS VOLLBILD</small></span></span><strong>ÖFFNEN →</strong>';
-  strip.addEventListener('click',()=>openInAppFullscreen('push'));
+  strip.addEventListener('click',()=>{void forceOpenActiveInApp('push')});
   document.body.appendChild(strip);
   return strip;
 }
@@ -54,6 +54,7 @@ function ensureInAppHistory(){
 }
 function openInAppFullscreen(historyMode='push'){
   if(!inAppSurfaceLive)return false;
+  inAppManualMinimized=false;
   inAppMinimized=false;
   const layer=ensureLayer();
   layer.hidden=false;
@@ -68,8 +69,41 @@ function openInAppFullscreen(historyMode='push'){
   }
   return true;
 }
+async function forceOpenActiveInApp(historyMode='push'){
+  if(!db||!rt?.tournament_id){
+    start(window.skielsenV15?.runtime||rt);
+    if(!db||!rt?.tournament_id)return false;
+  }
+  try{
+    const {data,error}=await db.rpc('get_my_active_in_app_game',{p_tournament_id:rt.tournament_id});
+    if(error)throw error;
+    if(!data)return false;
+    playerSession=data;
+    playerSessionMisses=0;
+    inAppManualMinimized=false;
+    inAppMinimized=false;
+    renderPlayerSession(playerSession);
+    const layer=ensureLayer();
+    layer.hidden=false;
+    if(playerSession.status==='ACTIVE'){
+      inAppSurfaceLive=true;
+      inAppSurfaceKey=String(playerSession.session_id||'inapp');
+      inAppSurfaceLabel=String(playerSession.game?.name||'IN-APP GAME');
+    }
+    updateInAppChrome();
+    if(historyMode!=='none'&&playerSession.status==='ACTIVE')openInAppFullscreen(historyMode);
+    return true;
+  }catch(err){
+    console.warn('Force open active In-App game',err);
+    const strip=ensureLiveStrip(),meta=document.getElementById('v15InAppLiveMeta');
+    if(meta)meta.textContent='SESSION KONNTE NICHT GELADEN WERDEN · ERNEUT ANTIPPEN';
+    strip.hidden=false;
+    return false;
+  }
+}
 function minimizeInApp(useHistory=true){
   if(!inAppSurfaceLive)return false;
+  inAppManualMinimized=true;
   inAppMinimized=true;
   const layer=ensureLayer();
   layer.hidden=true;
@@ -81,6 +115,7 @@ function prepareInAppSurface(key,label,live){
   const nextKey=String(key||'inapp');
   if(inAppSurfaceKey!==nextKey){
     inAppSurfaceKey=nextKey;
+    inAppManualMinimized=false;
     inAppMinimized=false;
   }
   inAppSurfaceLive=!!live;
@@ -94,6 +129,7 @@ function clearInAppSurface(){
   inAppSurfaceKey=null;
   inAppSurfaceLabel='IN-APP GAME';
   inAppMinimized=false;
+  inAppManualMinimized=false;
   const strip=document.getElementById('v15InAppLiveStrip');
   if(strip)strip.hidden=true;
   document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open');
@@ -251,6 +287,7 @@ function renderPlayerSession(s){
     return;
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
+  if(active&&!inAppManualMinimized)inAppMinimized=false;
   if(active&&s.game?.module_key===BUZZER_MODULE){
     window.skielsenMoreLess?.unmount?.();
     renderBuzzerSession(s);
@@ -312,9 +349,17 @@ async function pollPlayer(){
     if(rt?.test_mode&&isBuzzerGame(testGame)&&buzzerGameIsLive(testGame)){playerSession=null;renderBuzzerTest(testGame);return}
     const r=await db.rpc('get_my_active_in_app_game',{p_tournament_id:rt.tournament_id});
     if(r.error){console.warn('In-App session poll',r.error);return}
-    playerSession=r.data||null;
-    renderPlayerSession(playerSession);
-    if(!playerSession)await recoverCompletedNativeGame();
+    if(r.data){
+      playerSession=r.data;playerSessionMisses=0;
+      renderPlayerSession(playerSession);
+    }else{
+      playerSessionMisses++;
+      if(playerSession&&playerSessionMisses<3){
+        console.warn('In-App session poll returned empty; keeping last session snapshot',playerSessionMisses);
+      }else{
+        playerSession=null;renderPlayerSession(null);await recoverCompletedNativeGame();
+      }
+    }
     if(playerSession&&Date.now()-lastHeartbeat>HEARTBEAT_MS){
       lastHeartbeat=Date.now();
       db.rpc('heartbeat_in_app_game_session',{p_session_id:playerSession.session_id}).catch?.(()=>{});
@@ -596,7 +641,7 @@ function start(runtime){
   ensureAdminPanel();
   ensureBuzzerBridgeAssets().catch(err=>console.warn('Buzzer bridge assets',err));
   clearInterval(pollTimer);
-  pollPlayer();
+  void forceOpenActiveInApp('replace').then(opened=>{if(!opened)void pollPlayer()});
   pollTimer=setInterval(pollPlayer,POLL_MS);
   return true;
 }
@@ -623,7 +668,8 @@ window.skielsenInApp={
   start,
   poll:pollPlayer,
   minimize:()=>minimizeInApp(true),
-  openFullscreen:()=>openInAppFullscreen('push'),
+  openFullscreen:()=>forceOpenActiveInApp('push'),
+  openActive:()=>forceOpenActiveInApp('push'),
   finishAndExit:finishInAppSurface,
   get minimized(){return inAppMinimized},
   get live(){return inAppSurfaceLive},
