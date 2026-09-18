@@ -130,3 +130,9 @@ if "The submit RPC is the authoritative confirmation" not in engine_text: fail('
 if "forceOpenActiveInApp" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('In-App Force-Open-Recovery fehlt')
 
 if "playerSessionMisses<3" not in (PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8'): fail('In-App Poll löscht Session bei Einzel-Miss zu aggressiv')
+
+if "set_higher_lower_tier" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Difficulty-Setter fehlt')
+
+if "EASY" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8') or "HARDCORE" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Difficulty-Auswahl fehlt')
+
+if "molCategoryRouletteLabel" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Category-Roulette fehlt')
