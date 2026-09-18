@@ -101,3 +101,7 @@ if 'profile-page-active' not in (PUBLIC/'assets/css/app.css').read_text(encoding
 if "m.status==='BETTING_OPEN'&&!gateComplete(m)" not in engine_text: fail('Server-Betting-Gate wird in Match UI nicht verwendet')
 
 if "g.phase='ACTIVE';" not in engine_text or "setTimeout(()=>window.skielsenInApp?.poll?.(),0)" not in engine_text: fail('In-App Matchstart synchronisiert lokalen Game-Lifecycle nicht')
+
+if "#v1536MatchControlStart" not in engine_text or "handleMatchDetailControlAction" not in engine_text: fail('Delegierter Match-Start-Handler fehlt')
+
+if "e.stopImmediatePropagation();void handleMatchDetailControlAction(matchStart)" not in engine_text: fail('Match-Start wird nicht im Capture-Listener abgefangen')
