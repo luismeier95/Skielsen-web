@@ -4002,6 +4002,8 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
 .mvp-winner-badge.team-blue{background:#1515ff;color:#fff}
 .mvp-winner-badge.team-red{background:#ff1717;color:#fff}
 .mvp-winner-badge.team-green{background:#00a65a;color:#fff}
+.mvp-winner-badge[data-award-type="LVP"]::after{content:"LVP"}
+.mvp-winner-badge[data-award-type="MVP"]::after{content:"MVP"}
 .mvp-winner-badge.reveal{
   animation:mvpBadgeReveal .85s cubic-bezier(.16,1.35,.38,1) both;
 }
