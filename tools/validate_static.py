@@ -73,6 +73,12 @@ if 'transform:translateZ(0)' not in main_css_text or 'contain:paint' not in main
 if "register('inapp'" not in runtime_text or 'minimizeInApp' not in runtime_text: fail('In-App History/Minimize-Controller fehlt')
 if 'v15InAppMinimize' in runtime_text or '.v15-inapp-minimize{' in main_css_text or '.v15-inapp-minimize span{' in main_css_text: fail('Alter sichtbarer In-App-Minimieren-Button ist noch vorhanden')
 if 'popstate' not in history_text or 'pushState' not in history_text or 'replaceState' not in history_text: fail('App-History-Controller unvollständig')
+if 'assets/js/00-team-identity.js?v='+v not in h: fail('Team Identity Runtime fehlt oder Cache-Version stimmt nicht')
+if h.index('assets/js/00-team-identity.js?v='+v) > h.index('assets/js/00-theme-contract.js?v='+v): fail('Team Identity Runtime muss vor Theme Contract geladen werden')
+team_identity_js=(PUBLIC/'assets/js/00-team-identity.js').read_text(encoding='utf-8')
+for _needle in ["BLUE:Object.freeze({id:'BLUE',label:'BLAU',hex:'#2979FF'","RED:Object.freeze({id:'RED',label:'ROT',hex:'#FF1744'","YELLOW:Object.freeze({id:'YELLOW',label:'PINK',hex:'#FF2ED1'","GREEN:Object.freeze({id:'GREEN',label:'TÜRKIS',hex:'#00F5D4'"]:
+ if _needle not in team_identity_js: fail('Neue Team Identity Palette unvollständig: '+_needle)
+
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
 theme_contract_js=(PUBLIC/'assets/js/00-theme-contract.js').read_text(encoding='utf-8')
