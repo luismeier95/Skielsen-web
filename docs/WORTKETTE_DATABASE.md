@@ -89,3 +89,53 @@ Die Auswahl findet also nicht live nach jeder richtigen Antwort statt.
 - `DEAD_END`: kein Ausgang
 
 Für den Ausbau der Datenbank sollten zuerst DEAD_END-, LINEAR- und THIN-Knoten erweitert werden. Ziel ist nicht nur eine hohe Zahl von Komposita, sondern ein dicht verzweigtes Netz.
+
+
+## Node-Status: Dead End, Linear, Thin, Healthy
+
+Die Begriffe beziehen sich ausschließlich auf die Zahl der aktuell nutzbaren **ausgehenden** Verbindungen eines Nomens:
+
+- `DEAD_END`: 0 Ausgänge. Das Wort ist im Spiel nur als **letztes Wort einer Kette** zulässig.
+- `LINEAR`: genau 1 Ausgang. Das Wort ist intern spielbar, aber stark vorhersehbar.
+- `THIN`: 2–3 Ausgänge. Etwas Variation, aber noch relativ leicht lernbar.
+- `HEALTHY`: mindestens 4 Ausgänge. Zielzustand für häufige interne Knoten.
+
+Ein Dead End ist nicht automatisch ein fehlerhaftes Nomen. Unter der strengen Regel „beide Nomen bleiben unverändert“ sind viele deutsche Wörter natürliche Endpunkte, weil übliche Komposita ein Fugenelement oder eine Stammänderung benötigen. Beispiele: `FLASCHE` führt typischerweise zu `Flaschen-...`, `LAMPE` zu `Lampen-...`, `SCHULE` zu `Schul-...`. Solche Wörter werden nicht künstlich mit fragwürdigen Kombinationen verlängert.
+
+Der Generator erzwingt daher:
+
+- `DEAD_END` niemals mitten in einer Kette
+- `DEAD_END` nur als letztes Lösungswort
+- interne Knoten müssen mindestens einen weiteren Ausgang besitzen
+
+Zusätzlich existieren nun:
+
+- `word_chain_terminal_nodes`: priorisierte Liste aller natürlichen/noch ungeklärten Endknoten
+- `word_chain_expansion_queue`: Arbeitsliste zuerst DEAD_END, danach LINEAR, danach THIN
+- `play_role=TERMINAL_ONLY|INTERNAL_OK`
+- `expansion_priority`: Priorität nach Netzstatus und Zahl der eingehenden Wege
+
+### Dead-End-Pass 1
+
+Im ersten Ausbau wurden 22 streng unveränderte Übergänge ergänzt, unter anderem:
+
+`BAHN → HOF → BAHNHOF`
+`ZAHN → ARZT → ZAHNARZT`
+`STAMM → BAUM → STAMMBAUM`
+`SCHLOSS → HOF → SCHLOSSHOF`
+`LAND → HAUS → LANDHAUS`
+`BLATT → GOLD → BLATTGOLD`
+`GOLD → RING → GOLDRING`
+`RING → FINGER → RINGFINGER`
+`FINGER → HUT → FINGERHUT`
+`FEUER → WEHR → FEUERWEHR`
+`WEHR → TURM → WEHRTURM`
+`TURM → UHR → TURMUHR`
+`VERTRAG → PARTNER → VERTRAGPARTNER`
+`WALL → FAHRT → WALLFAHRT`
+`WECHSEL → GELD → WECHSELGELD`
+`POLITIK → FELD → POLITIKFELD`
+`BALLEN → PRESSE → BALLENPRESSE`
+`PRESSE → HAUS → PRESSEHAUS`
+
+Dadurch sank die Zahl der Dead-End-Knoten von 76 auf 62. Die verbleibenden Dead Ends werden nicht automatisch „repariert“; nur sprachlich saubere, unveränderte Komposita werden ergänzt.
