@@ -18,7 +18,7 @@ const fmtClockMs=ms=>{
   return `00:${pad2(sec)}:${pad2(cs%100)}`;
 };
 const fmtSec=ms=>ms==null?'—':(Number(ms)/1000).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
-const teamColor=color=>COLORS[String(color||'').toUpperCase()]||'#1515ff';
+const teamColor=color=>COLORS[String(color||'').toUpperCase()]||'var(--theme-accent)';
 const teamFallback=color=>'TEAM '+(COLOR_DE[String(color||'').toUpperCase()]||String(color||'').toUpperCase()||'—');
 
 const SEGMENTS={
