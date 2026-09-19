@@ -153,3 +153,9 @@ if 'var(--inapp-page)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(en
 if '--theme-accent' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less erbt Tournament Theme nicht')
 
 if "document.body.dataset.themePack=theme" not in engine_text: fail('Runtime setzt ausgewähltes Tournament Theme nicht')
+
+if 'data-mol-minimize' not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Minimieren-Button fehlt')
+
+if "window.skielsenInApp?.minimize?.()" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Minimieren nutzt nicht den gemeinsamen In-App-Flow')
+
+if '.mol-minimize{' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less Minimieren-Styles fehlen')
