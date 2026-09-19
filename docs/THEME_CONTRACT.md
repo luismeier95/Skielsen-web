@@ -36,10 +36,10 @@ Skielsen Core ist als bestehende visuelle Referenz eingefroren. Seine bisherige 
 
 Participant Identity bleibt unabhängig vom Theme:
 
-- Blau `#1515ff`
-- Rot `#ff1717`
-- Gelb `#f2b705`
-- Grün `#00a65a`
+- Blau `#2979FF`
+- Rot `#FF1744`
+- Pink `#FF2ED1` (interne ID `YELLOW`)
+- Türkis `#00F5D4` (interne ID `GREEN`)
 
 Gold/Silber/Bronze bleiben ebenfalls semantische Sonderfarben. Ein Theme darf diese Identitäten nicht durch Dekorfarben ersetzen.
 
