@@ -48,8 +48,10 @@ function viewerLabel(){
   return p?.display_name?`${team} · ${String(p.display_name).toUpperCase()}`:team;
 }
 function setTheme(){
-  const c=teamColor(state?.current?.identity_color);
+  const identity=String(state?.current?.identity_color||'').toUpperCase(),c=teamColor(identity);
+  const onTeam=identity==='BLUE'?'#ffffff':'#050505';
   root?.style.setProperty('--bzt-team',c);
+  root?.style.setProperty('--bzt-team-on',onTeam);
 }
 function liveElapsedMs(){
   if(state?.phase!=='RUNNING')return 0;
