@@ -77,3 +77,17 @@
 #v15MoreLessRoot .mol-difficulty-picker button.active{background:var(--theme-button)!important;color:var(--theme-button-text)!important;border-color:var(--theme-button)!important}
 #v15MoreLessRoot .mol-category-dots i{background:var(--theme-border-strong)!important}
 #v15MoreLessRoot .mol-category-label.flash{color:var(--theme-accent)!important}
+
+
+/* In-App chrome parity: visible minimize control for More or Less */
+.mol-full-header-right{display:flex;align-items:center;gap:10px}
+.mol-minimize{
+  width:38px;height:38px;flex:0 0 38px;border:1px solid color-mix(in srgb,var(--theme-header-text) 28%,transparent);
+  background:color-mix(in srgb,var(--theme-header-text) 8%,transparent);color:var(--theme-header-text);
+  display:grid;place-items:center;font:900 24px/1 var(--mol-ui);cursor:pointer
+}
+.mol-minimize:active{transform:translateY(1px)}
+@media(max-width:560px){
+  .mol-full-header-right{gap:7px}
+  .mol-minimize{width:34px;height:34px;flex-basis:34px;font-size:21px}
+}
