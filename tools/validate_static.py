@@ -1,7 +1,7 @@
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, parse_qs
-import json, sys
+import json, sys, re
 ROOT=Path(__file__).resolve().parents[1]; PUBLIC=ROOT/'public'; INDEX=PUBLIC/'index.html'
 class P(HTMLParser):
  def __init__(self): super().__init__(); self.refs=[]; self.inline_scripts=0; self.inline_styles=0
@@ -172,3 +172,86 @@ if "set_tournament_theme_pack" not in engine_text: fail('Admin Theme Dropdown is
 if 'data-theme-preview="theme.girly.pink_chaos"' in h: fail('Match Detail hat noch einen erzwungenen Theme-Preview-Override')
 
 if 'TEMPORARY QA SNIPPET: Match Detail = Pink Chaos' in theme_css: fail('Alter Match Detail QA-Theme-Override ist noch aktiv')
+
+
+# Theme Contract V1: required tokens + WCAG AA contrast checks.
+_THEME_IDS=['theme.skielsen.core','theme.jga.night','theme.christmas.winter_clash','theme.summer.sunset_showdown','theme.girly.pink_chaos']
+_THEME_REQUIRED=[
+ '--theme-root-canvas','--theme-browser-color','--theme-page','--theme-on-page',
+ '--theme-surface','--theme-on-surface','--theme-surface-soft','--theme-on-surface-soft',
+ '--theme-surface-muted','--theme-on-surface-muted','--theme-header','--theme-on-header',
+ '--theme-nav','--theme-on-nav','--theme-inverse-surface','--theme-on-inverse',
+ '--theme-accent','--theme-on-accent','--theme-primary-action','--theme-on-primary-action',
+ '--theme-secondary-action','--theme-on-secondary-action','--theme-secondary-border',
+ '--theme-success-bg','--theme-on-success','--theme-danger-bg','--theme-on-danger',
+ '--theme-warning-bg','--theme-on-warning','--theme-disabled-bg','--theme-on-disabled',
+ '--theme-disabled-border','--theme-input-bg','--theme-on-input','--theme-input-border',
+ '--theme-chip-bg','--theme-on-chip','--theme-ribbon-bg','--theme-on-ribbon',
+ '--theme-ribbon-border','--theme-dialog-bg','--theme-on-dialog','--theme-muted',
+ '--theme-placeholder','--theme-border','--theme-border-strong'
+]
+_THEME_PAIRS=[
+ ('--theme-on-page','--theme-page'),
+ ('--theme-on-surface','--theme-surface'),
+ ('--theme-on-surface-soft','--theme-surface-soft'),
+ ('--theme-on-surface-muted','--theme-surface-muted'),
+ ('--theme-on-header','--theme-header'),
+ ('--theme-on-nav','--theme-nav'),
+ ('--theme-on-inverse','--theme-inverse-surface'),
+ ('--theme-on-accent','--theme-accent'),
+ ('--theme-on-primary-action','--theme-primary-action'),
+ ('--theme-on-secondary-action','--theme-secondary-action'),
+ ('--theme-on-disabled','--theme-disabled-bg'),
+ ('--theme-on-input','--theme-input-bg'),
+ ('--theme-on-chip','--theme-chip-bg'),
+ ('--theme-on-success','--theme-success-bg'),
+ ('--theme-on-danger','--theme-danger-bg'),
+ ('--theme-on-warning','--theme-warning-bg'),
+ ('--theme-on-ribbon','--theme-ribbon-bg'),
+ ('--theme-on-dialog','--theme-dialog-bg'),
+ ('--theme-placeholder','--theme-input-bg')
+]
+def _hex_rgb(value):
+ v=value.strip().lower()
+ if re.fullmatch(r'#[0-9a-f]{3}',v):
+  v='#'+''.join(ch*2 for ch in v[1:])
+ if not re.fullmatch(r'#[0-9a-f]{6}',v): return None
+ return tuple(int(v[i:i+2],16)/255 for i in (1,3,5))
+def _rel_luminance(value):
+ rgb=_hex_rgb(value)
+ if rgb is None: return None
+ def lin(c): return c/12.92 if c<=.04045 else ((c+.055)/1.055)**2.4
+ r,g,b=(lin(c) for c in rgb)
+ return .2126*r+.7152*g+.0722*b
+def _contrast(fg,bg):
+ a,b=_rel_luminance(fg),_rel_luminance(bg)
+ if a is None or b is None: return None
+ return (max(a,b)+.05)/(min(a,b)+.05)
+def _theme_vars(theme_id):
+ # Collect all declarations across repeated blocks for this theme.
+ pattern=re.compile(r'body\.v15-tournament-active\[data-theme-pack="'+re.escape(theme_id)+r'"\]\s*\{([^}]*)\}',re.S)
+ vals={}
+ for block in pattern.findall(theme_css):
+  for name,value in re.findall(r'(--theme-[a-z0-9-]+)\s*:\s*([^;]+)',block,re.I):
+   vals[name.strip()]=value.strip()
+ return vals
+for _theme_id in _THEME_IDS:
+ _vars=_theme_vars(_theme_id)
+ _missing=[x for x in _THEME_REQUIRED if x not in _vars]
+ if _missing: fail(f'Theme Contract Tokens fehlen in {_theme_id}: {_missing}')
+ for _fg,_bg in _THEME_PAIRS:
+  _ratio=_contrast(_vars[_fg],_vars[_bg])
+  if _ratio is None: fail(f'Theme Contract Kontrast kann nicht statisch geprüft werden: {_theme_id} {_fg}/{_bg} = {_vars[_fg]} / {_vars[_bg]}')
+  if _ratio<4.5: fail(f'Theme Contract Kontrast < 4.5:1: {_theme_id} {_fg}/{_bg} = {_ratio:.2f}:1')
+if 'docs/THEME_CONTRACT.md' not in [str(p.relative_to(ROOT)).replace('\\','/') for p in ROOT.rglob('THEME_CONTRACT.md')]:
+ fail('Theme Contract Dokumentation fehlt')
+if "getPropertyValue('--theme-browser-color')" not in engine_text:
+ fail('Browser Chrome wird nicht aus dem Theme Contract gelesen')
+
+if not (ROOT/'docs/THEME_CONTRACT.md').exists(): fail('Theme Contract Dokumentation fehlt')
+
+if not (ROOT/'docs/THEME_TEMPLATE.css').exists(): fail('Theme Template fehlt')
+
+if 'THEME CONTRACT V1 · REQUIRED SEMANTIC PAIRS' not in theme_css: fail('Theme Contract CSS Tokens fehlen')
+
+if 'THEME CONTRACT V1 · COMPONENT APPLICATION' not in theme_css: fail('Theme Contract Component Mapping fehlt')
