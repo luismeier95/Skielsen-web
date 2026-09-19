@@ -259,3 +259,77 @@ body.v15-tournament-active[data-theme-animations="true"][data-theme-pack="theme.
 #matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] :where(.detail-section,.betting-block,.match-joker-block,.v1536-match-control,.v1536-result-shell,.detail-disclosure){
   background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
 }
+
+
+/* ---------- High-specificity runtime enforcement ----------
+   Beats historical page-id + !important rules without changing layout. */
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+){
+  background-color:var(--theme-page)!important;color:var(--theme-text)!important
+}
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+) :where(
+  .main-page-hero,.utility-hero,.games-intro,.profile,.home-module,.panel,.skills-panel,.standings,
+  .match-section,.ranking-section,.bet-match-card,.bet-slip,.bet-context,.utility-panel,.admin-management,
+  .prototype-sim-panel,.prototype-admin-bet-gate,.compact-panel,.game-card,.games-filterbar,
+  .v1535-control-match,.v1535-control-state,.detail-hero,.detail-section,.betting-block,.match-joker-block,
+  .v1536-match-control,.v1536-result-shell,.detail-disclosure,.past-disclosure,.v20-history-list,
+  .v1508-joker-panel,.joker-card,.v1508-joker-selection,.v1508-accepted-pick,.v1510-joker-dialog-card,
+  .v1511-joker-resolution-card,.candidate-card,.coin-adjust-dialog,.admin-news-editor,
+  .match-result-pop__card,.mvp-complete-card,.v1536-dialog,.v1536-result-confirm-dialog,.jl-panel,.jl-rule,
+  .jl-ready,.jl-sheet-card,.jl-name-card
+){
+  background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
+}
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+) :where(
+  .home-module-head,.pm-head,.achievement-section-head,.match-section-head,.ranking-section-head,
+  .games-section-head,.utility-head,.detail-section-head,.bet-section-head,.v1508-joker-section-head,
+  .v1525-joker-section-head
+){
+  background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important
+}
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+) :where(
+  .action-card,.mandatory-action-card,.optional-action-card,.home-story,.kpi,.skill-row,.pm-block,.achievement-card,
+  .ranking-row,.ranking-breakdown-inner,.bet-context-grid,.slip-selection,.slip-quote,.potential-win,.my-bets,
+  .community-bets,.wallet-ledger,.v1536-control-row,.v1536-control-info,.v1536-control-gate,.v1536-result-head,
+  .v1510-joker-dialog-summary,.v1511-joker-resolution-summary,.v1530-tap-panel,.admin-roster,.admin-game-list,
+  .v1535-control-state-body,.games-status-filter,.jl-user,.jl-invite,.jl-status,.jl-mode-preview,.jl-waiting
+){
+  background-color:var(--theme-surface-soft)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
+}
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+) :where(
+  .eyebrow,.main-hero-pre,.matches-kicker,.ranking-kicker,.bet-kicker,.news-kicker,.section-id,.section-no,
+  .panel-subtitle,.standings-subtitle,.kpi-label,.kpi-meta,.player-meta,.rank-label,.utility-copy,.action-type,
+  .v1535-control-kicker,.detail-event span,.detail-section-head span,.v1536-control-info small,.games-filter-group>span,
+  .v1508-joker-state,.action-feedback
+){color:var(--theme-muted)!important}
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+) :where(
+  .primary-action,.place-bet-btn,.v1536-control-action,.v1535-control-action,.quick-result-confirm,.jl-primary,
+  .jl-start,.jl-mobile-start,.mvp-result-continue,.v1530-continue,.game-control-start
+){background:var(--theme-button)!important;color:var(--theme-button-text)!important;border-color:var(--theme-button)!important}
+
+/* Match Detail QA preview gets the same specificity as the global authority. */
+body.v15-tournament-active[data-theme-pack] #matchDetailPage[data-theme-preview="theme.girly.pink_chaos"]{
+  background-color:var(--theme-page)!important;color:var(--theme-text)!important
+}
+body.v15-tournament-active[data-theme-pack] #matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] :where(
+  .detail-hero,.detail-section,.betting-block,.match-joker-block,.v1536-match-control,.v1536-result-shell,.detail-disclosure,.past-disclosure
+){
+  background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
+}
