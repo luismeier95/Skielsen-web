@@ -288,5 +288,16 @@ if 'THEME CONTRACT V1 · REQUIRED SEMANTIC PAIRS' not in theme_css: fail('Theme 
 
 if 'THEME CONTRACT V1 · COMPONENT APPLICATION' not in theme_css: fail('Theme Contract Component Mapping fehlt')
 if 'THEME CONTRACT V2 · DYNAMIC BACKEND CONTRACT' not in theme_css: fail('Theme Contract v2 dynamisches Component Mapping fehlt')
+if 'Theme Contract v2 · non-Core legacy coverage' not in theme_css: fail('Nicht-Core Legacy-Abdeckung des Theme Contract fehlt')
+for _needle in [
+ '.games-intro p',
+ '.admin-mandatory-hold',
+ '#v15InAppLayer',
+ '#jokerPage',
+ '.mobile-more-grid a'
+]:
+ if _needle not in theme_css: fail('Theme Contract Legacy-Abdeckung fehlt: '+_needle)
+if ':not([data-theme-pack="theme.skielsen.core2"])' not in theme_css: fail('Core 2 ist nicht von Nicht-Core Theme-Reparaturen ausgenommen')
+
 if 'skielsen-theme-context' not in theme_css: fail('Theme Contract v2 Workflow/Lobby Mapping fehlt')
 
