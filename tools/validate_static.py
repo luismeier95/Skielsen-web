@@ -165,3 +165,11 @@ if 'document.documentElement.dataset.themePack=theme' not in engine_text: fail('
 if '<meta name="theme-color" content="#e9e9e9"/>' not in h: fail('Browser theme-color entspricht nicht dem Core Canvas')
 
 if 'html[data-theme-pack="theme.skielsen.core"]{background:#e9e9e9!important}' not in theme_css: fail('Core Browser-Canvas ist nicht Shop-like #e9e9e9')
+
+if 'id="adminThemeSelect"' not in h: fail('Admin Theme Dropdown fehlt')
+
+if "set_tournament_theme_pack" not in engine_text: fail('Admin Theme Dropdown ist nicht serverseitig verdrahtet')
+
+if 'data-theme-preview="theme.girly.pink_chaos"' in h: fail('Match Detail hat noch einen erzwungenen Theme-Preview-Override')
+
+if 'TEMPORARY QA SNIPPET: Match Detail = Pink Chaos' in theme_css: fail('Alter Match Detail QA-Theme-Override ist noch aktiv')
