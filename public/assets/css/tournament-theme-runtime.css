@@ -1,0 +1,261 @@
+/* SKIELSEN · Tournament Theme Authority
+   Final visual layer for all LIVE tournament pages.
+   Layout remains page-owned; palette/chrome is theme-owned.
+   Player/team identity colors remain semantic and are not theme tokens. */
+
+/* ---------- Theme token registry ---------- */
+body.v15-tournament-active{
+  --theme-page:#e9e9e9;
+  --theme-surface:#ffffff;
+  --theme-surface-soft:#f7f7f7;
+  --theme-surface-muted:#eeeeee;
+  --theme-border:#dddddd;
+  --theme-border-strong:#c7c7c7;
+  --theme-text:#050505;
+  --theme-muted:#777777;
+  --theme-faint:#aaaaaa;
+  --theme-accent:#7c5cff;
+  --theme-accent-2:#1515ff;
+  --theme-button:#050505;
+  --theme-button-text:#ffffff;
+  --theme-header:#050505;
+  --theme-header-text:#ffffff;
+  --theme-nav:#050505;
+  --theme-nav-text:#ffffff;
+  --theme-nav-muted:#777777;
+  --theme-inverse-surface:#050505;
+  --theme-inverse-text:#ffffff;
+  --theme-success:#16864b;
+  --theme-danger:#d62828;
+  --theme-warning:#c79a32;
+  --theme-overlay:rgba(0,0,0,.72);
+  --theme-shadow:0 12px 34px rgba(0,0,0,.12);
+  --theme-shadow-soft:0 8px 22px rgba(0,0,0,.08);
+  --theme-focus:color-mix(in srgb,var(--theme-accent) 24%,transparent);
+}
+body.v15-tournament-active[data-theme-pack="theme.skielsen.core"]{
+  --theme-page:#e9e9e9;--theme-surface:#ffffff;--theme-surface-soft:#f7f7f7;--theme-surface-muted:#eeeeee;
+  --theme-border:#dddddd;--theme-border-strong:#c7c7c7;--theme-text:#050505;--theme-muted:#777777;--theme-faint:#aaaaaa;
+  --theme-accent:#7c5cff;--theme-accent-2:#1515ff;--theme-button:#050505;--theme-button-text:#ffffff;
+  --theme-header:#050505;--theme-header-text:#ffffff;--theme-nav:#050505;--theme-nav-text:#ffffff;--theme-nav-muted:#777777;
+  --theme-inverse-surface:#050505;--theme-inverse-text:#ffffff;--theme-success:#16864b;--theme-danger:#d62828;--theme-warning:#c79a32;
+  --theme-overlay:rgba(0,0,0,.72);--theme-shadow:0 12px 34px rgba(0,0,0,.12);--theme-shadow-soft:0 8px 22px rgba(0,0,0,.08);
+}
+body.v15-tournament-active[data-theme-pack="theme.jga.night"]{
+  --theme-page:#0b0b0f;--theme-surface:#15151b;--theme-surface-soft:#1a1a22;--theme-surface-muted:#252530;
+  --theme-border:#3a3a47;--theme-border-strong:#555565;--theme-text:#f7f7fa;--theme-muted:#a6a6b2;--theme-faint:#747481;
+  --theme-accent:#ff3d9a;--theme-accent-2:#b56cff;--theme-button:#ff3d9a;--theme-button-text:#160913;
+  --theme-header:#050505;--theme-header-text:#ffffff;--theme-nav:#09090d;--theme-nav-text:#ffffff;--theme-nav-muted:#918b98;
+  --theme-inverse-surface:#050505;--theme-inverse-text:#ffffff;--theme-success:#55d69a;--theme-danger:#ff6a8f;--theme-warning:#ffd166;
+  --theme-overlay:rgba(4,3,7,.82);--theme-shadow:0 14px 38px rgba(0,0,0,.34);--theme-shadow-soft:0 8px 24px rgba(0,0,0,.24);
+}
+body.v15-tournament-active[data-theme-pack="theme.christmas.winter_clash"]{
+  --theme-page:#07120e;--theme-surface:#10241a;--theme-surface-soft:#163024;--theme-surface-muted:#1d3a2c;
+  --theme-border:#335845;--theme-border-strong:#5b765f;--theme-text:#fff8e8;--theme-muted:#c5d2c8;--theme-faint:#879b8d;
+  --theme-accent:#e6bd58;--theme-accent-2:#b91f2c;--theme-button:#0b5b36;--theme-button-text:#fff8e8;
+  --theme-header:#0a1d13;--theme-header-text:#fff8e8;--theme-nav:#0a1d13;--theme-nav-text:#fff8e8;--theme-nav-muted:#a8b9ad;
+  --theme-inverse-surface:#07120e;--theme-inverse-text:#fff8e8;--theme-success:#61c58b;--theme-danger:#e05a65;--theme-warning:#e6bd58;
+  --theme-overlay:rgba(2,10,6,.82);--theme-shadow:0 14px 38px rgba(0,0,0,.3);--theme-shadow-soft:0 8px 24px rgba(0,0,0,.2);
+}
+body.v15-tournament-active[data-theme-pack="theme.summer.sunset_showdown"]{
+  --theme-page:#071720;--theme-surface:#0c2029;--theme-surface-soft:#12303a;--theme-surface-muted:#173d47;
+  --theme-border:#2d5961;--theme-border-strong:#568087;--theme-text:#fffdf7;--theme-muted:#bed7da;--theme-faint:#7da4aa;
+  --theme-accent:#ff6f61;--theme-accent-2:#ffd447;--theme-button:#ff6f61;--theme-button-text:#18242a;
+  --theme-header:#071d27;--theme-header-text:#fffdf7;--theme-nav:#071d27;--theme-nav-text:#fffdf7;--theme-nav-muted:#91b4b8;
+  --theme-inverse-surface:#071720;--theme-inverse-text:#fffdf7;--theme-success:#52d4ae;--theme-danger:#ff7e7e;--theme-warning:#ffd447;
+  --theme-overlay:rgba(3,14,19,.82);--theme-shadow:0 14px 38px rgba(0,0,0,.3);--theme-shadow-soft:0 8px 24px rgba(0,0,0,.2);
+}
+body.v15-tournament-active[data-theme-pack="theme.girly.pink_chaos"]{
+  --theme-page:#160814;--theme-surface:#24101f;--theme-surface-soft:#33162c;--theme-surface-muted:#431d39;
+  --theme-border:#613051;--theme-border-strong:#875075;--theme-text:#fff7fd;--theme-muted:#d9bfd2;--theme-faint:#9f7895;
+  --theme-accent:#ff4fb3;--theme-accent-2:#b983ff;--theme-button:#ff4fb3;--theme-button-text:#1c0b19;
+  --theme-header:#1b0918;--theme-header-text:#fff7fd;--theme-nav:#1b0918;--theme-nav-text:#fff7fd;--theme-nav-muted:#bd93b2;
+  --theme-inverse-surface:#120710;--theme-inverse-text:#fff7fd;--theme-success:#73e5b8;--theme-danger:#ff73b9;--theme-warning:#ffd36e;
+  --theme-overlay:rgba(12,3,10,.84);--theme-shadow:0 14px 42px rgba(0,0,0,.36);--theme-shadow-soft:0 8px 26px rgba(0,0,0,.26);
+}
+
+/* Compatibility aliases for older runtime CSS. */
+body.v15-tournament-active{
+  --app-page-bg:var(--theme-page);--app-surface:var(--theme-surface);--app-surface-soft:var(--theme-surface-soft);
+  --app-surface-muted:var(--theme-surface-muted);--app-border:var(--theme-border);--app-border-strong:var(--theme-border-strong);
+  --app-text:var(--theme-text);--app-muted:var(--theme-muted);--app-accent:var(--theme-accent);--app-accent-soft:var(--theme-surface-muted);
+  --app-button:var(--theme-button);--app-button-text:var(--theme-button-text);
+  --v15-bg:var(--theme-page);--v15-surface:var(--theme-surface);--v15-ink:var(--theme-text);--v15-muted:var(--theme-muted);
+  --v15-accent:var(--theme-accent);--v15-header:var(--theme-header);
+  background:var(--theme-page)!important;color:var(--theme-text)!important;
+}
+
+/* ---------- Global tournament chrome ---------- */
+body.v15-tournament-active .sk-header,
+body.v15-tournament-active .topbar{background:var(--theme-header)!important;color:var(--theme-header-text)!important;border-color:var(--theme-border)!important}
+body.v15-tournament-active .sk-header__nav a,
+body.v15-tournament-active .main-nav a{color:var(--theme-nav-muted)!important}
+body.v15-tournament-active .sk-header__nav a.active,
+body.v15-tournament-active .main-nav a.active{color:var(--theme-nav-text)!important}
+body.v15-tournament-active .sk-header__nav a.active:after,
+body.v15-tournament-active .main-nav a.active:after{background:var(--theme-accent)!important}
+body.v15-tournament-active .mobile-nav,
+body.v15-tournament-active .mobile-more-menu,
+body.v15-tournament-active .profile-nav{background:var(--theme-nav)!important;color:var(--theme-nav-text)!important;border-color:var(--theme-border)!important}
+body.v15-tournament-active .mobile-nav a,
+body.v15-tournament-active .mobile-nav button,
+body.v15-tournament-active .mobile-more-menu a,
+body.v15-tournament-active .mobile-more-menu button,
+body.v15-tournament-active .profile-nav a{color:var(--theme-nav-muted)!important}
+body.v15-tournament-active .mobile-nav .active,
+body.v15-tournament-active .mobile-more-menu .active,
+body.v15-tournament-active .profile-nav a.active{color:var(--theme-nav-text)!important}
+body.v15-tournament-active .mobile-nav .active:after,
+body.v15-tournament-active .profile-nav a.active:after{background:var(--theme-accent)!important}
+body.v15-tournament-active .mobile-more-backdrop{background:var(--theme-overlay)!important}
+
+/* ---------- Page canvas ---------- */
+body.v15-tournament-active :where(
+  #homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,
+  #mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage
+){background:var(--theme-page)!important;color:var(--theme-text)!important}
+
+/* ---------- Primary themed surfaces ---------- */
+body.v15-tournament-active :where(
+  .main-page-hero,.utility-hero,.games-intro,.profile,
+  .home-module,.panel,.skills-panel,.standings,.match-section,.ranking-section,
+  .bet-match-card,.bet-slip,.bet-context,.utility-panel,.admin-management,
+  .prototype-sim-panel,.prototype-admin-bet-gate,.compact-panel,
+  .game-card,.games-filterbar,.v1535-control-match,.v1535-control-state,
+  .detail-hero,.detail-section,.betting-block,.match-joker-block,.v1536-match-control,.v1536-result-shell,
+  .detail-disclosure,.past-disclosure,.v20-history-list,
+  .v1508-joker-panel,.joker-card,.v1508-joker-selection,.v1508-accepted-pick,
+  .v1510-joker-dialog-card,.v1511-joker-resolution-card,
+  .candidate-card,.coin-adjust-dialog,.admin-news-editor,
+  .match-result-pop__card,.mvp-complete-card,.v1536-dialog,.v1536-result-confirm-dialog,
+  .jl-panel,.jl-rule,.jl-ready,.jl-sheet-card,.jl-name-card
+){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important;box-shadow:none}
+
+/* ---------- Soft / secondary surfaces ---------- */
+body.v15-tournament-active :where(
+  .action-card,.mandatory-action-card,.optional-action-card,.home-story,
+  .kpi,.skill-row,.pm-block,.achievement-card,.ranking-row,.ranking-breakdown-inner,
+  .bet-context-grid,.slip-selection,.slip-quote,.potential-win,.my-bets,.community-bets,.wallet-ledger,
+  .v1536-control-row,.v1536-control-info,.v1536-control-gate,.v1536-result-head,
+  .v1510-joker-dialog-summary,.v1511-joker-resolution-summary,.v1530-tap-panel,
+  .admin-roster,.admin-game-list,.v1535-control-state-body,.games-status-filter,
+  .jl-user,.jl-invite,.jl-status,.jl-mode-preview,.jl-waiting
+){background:var(--theme-surface-soft)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}
+
+body.v15-tournament-active :where(
+  .section-bar,.home-module-head,.pm-head,.achievement-section-head,.match-section-head,
+  .ranking-section-head,.games-section-head,.utility-head,.detail-section-head,.bet-section-head,
+  .v1508-joker-section-head,.v1525-joker-section-head
+){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important}
+
+body.v15-tournament-active :where(
+  .eyebrow,.main-hero-pre,.matches-kicker,.ranking-kicker,.bet-kicker,.news-kicker,
+  .section-id,.section-no,.panel-subtitle,.standings-subtitle,.kpi-label,.kpi-meta,
+  .player-meta,.rank-label,.utility-copy,.action-type,.v1535-control-kicker,
+  .detail-event span,.detail-section-head span,.v1536-control-info small,
+  .games-filter-group>span,.v1508-joker-state,.action-feedback
+){color:var(--theme-muted)!important}
+
+/* ---------- Inputs / controls ---------- */
+body.v15-tournament-active :where(
+  input,select,textarea,.custom-stake,.jl-code-input,.player-profile-select-wrap select
+){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important;accent-color:var(--theme-accent)}
+body.v15-tournament-active :where(input,select,textarea):focus{outline:2px solid var(--theme-focus)!important;outline-offset:1px}
+
+body.v15-tournament-active :where(
+  .primary-action,.place-bet-btn,.v1536-control-action,.v1535-control-action,
+  .quick-result-confirm,.jl-primary,.jl-start,.jl-mobile-start,.mvp-result-continue,
+  .v1530-continue,.game-control-start
+){background:var(--theme-button)!important;color:var(--theme-button-text)!important;border-color:var(--theme-button)!important}
+body.v15-tournament-active :where(
+  .detail-back,.context-back,.secondary,.v1508-joker-secondary,.prototype-skip-bet,
+  .games-filter,.games-filter-toggle,.v1510-joker-dialog-actions button.secondary,
+  .v1511-joker-resolution-actions button.secondary
+){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important}
+body.v15-tournament-active :where(
+  .games-filter.active,.games-status-filter .active
+){background:var(--theme-accent)!important;color:var(--theme-button-text)!important;border-color:var(--theme-accent)!important}
+
+/* ---------- Theme-owned accents/status ---------- */
+body.v15-tournament-active .main-page-hero,
+body.v15-tournament-active .utility-hero,
+body.v15-tournament-active .games-intro,
+body.v15-tournament-active .detail-hero,
+body.v15-tournament-active .v1535-control-match{border-top-color:var(--theme-accent)!important}
+body.v15-tournament-active .detail-status{color:var(--theme-danger)!important}
+body.v15-tournament-active .rank-change,
+body.v15-tournament-active .v1536-control-gate .ok{color:var(--theme-success)!important}
+body.v15-tournament-active .live-dot,
+body.v15-tournament-active .news-live{color:var(--theme-danger)!important}
+body.v15-tournament-active .coin-wallet,
+body.v15-tournament-active .bet-game,
+body.v15-tournament-active .v1530-category{color:var(--theme-accent)!important}
+
+/* Keep participant/team identity colors semantic. */
+body.v15-tournament-active .team-blue,
+body.v15-tournament-active .strip-blue{--identity:#1515ff}
+body.v15-tournament-active .team-red,
+body.v15-tournament-active .strip-red{--identity:#ff1717}
+body.v15-tournament-active .team-yellow,
+body.v15-tournament-active .strip-yellow{--identity:#f2b705}
+body.v15-tournament-active .team-green,
+body.v15-tournament-active .strip-green{--identity:#00a65a}
+
+/* ---------- Dialogs and overlays ---------- */
+body.v15-tournament-active :where(
+  .v1536-modal,.v1536-pick-overlay,.match-result-pop,.mvp-complete-popup,
+  .v1510-joker-dialog-backdrop,.v1511-joker-resolution-backdrop
+){background:var(--theme-overlay)!important}
+body.v15-tournament-active :where(
+  .v1536-dialog,.v1536-pick-card,.match-result-pop__card,.mvp-complete-card,
+  .v1510-joker-dialog-card,.v1511-joker-resolution-card
+){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important;box-shadow:var(--theme-shadow)!important}
+
+/* ---------- In-App frame ---------- */
+body.v15-tournament-active #v15InAppLayer{
+  background:var(--theme-page)!important;color:var(--theme-text)!important;
+  --inapp-page:var(--theme-page);--inapp-surface:var(--theme-surface);--inapp-soft:var(--theme-surface-soft);
+  --inapp-border:var(--theme-border);--inapp-text:var(--theme-text);--inapp-muted:var(--theme-muted);
+  --inapp-accent:var(--theme-accent);--inapp-dark:var(--theme-inverse-surface);--inapp-dark-text:var(--theme-inverse-text);
+}
+body.v15-tournament-active #v15InAppLayer .v15-inapp-topstrip,
+body.v15-tournament-active #v15InAppLiveStrip{background:var(--theme-inverse-surface)!important;color:var(--theme-inverse-text)!important;border-color:var(--theme-accent)!important}
+body.v15-tournament-active #v15InAppLiveStrip button{background:transparent!important;color:var(--theme-inverse-text)!important}
+
+/* ---------- Optional theme motion ---------- */
+body.v15-tournament-active[data-theme-animations="true"][data-theme-pack="theme.girly.pink_chaos"] .app-page.active:before{
+  content:"";position:fixed;inset:68px 0 70px;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 12% 18%,color-mix(in srgb,var(--theme-accent) 13%,transparent) 0 2px,transparent 3px),
+    radial-gradient(circle at 78% 26%,color-mix(in srgb,var(--theme-accent-2) 14%,transparent) 0 2px,transparent 3px),
+    radial-gradient(circle at 54% 72%,color-mix(in srgb,var(--theme-accent) 10%,transparent) 0 3px,transparent 4px);
+  background-size:96px 96px,128px 128px,154px 154px;
+  animation:themePinkDrift 8s linear infinite;
+}
+@keyframes themePinkDrift{to{background-position:96px 96px,-128px 128px,154px -154px}}
+
+/* ---------- TEMPORARY QA SNIPPET: Match Detail = Pink Chaos ----------
+   Remove data-theme-preview from #matchDetailPage to return to the tournament theme. */
+#matchDetailPage[data-theme-preview="theme.girly.pink_chaos"]{
+  --theme-page:#160814;--theme-surface:#24101f;--theme-surface-soft:#33162c;--theme-surface-muted:#431d39;
+  --theme-border:#613051;--theme-border-strong:#875075;--theme-text:#fff7fd;--theme-muted:#d9bfd2;--theme-faint:#9f7895;
+  --theme-accent:#ff4fb3;--theme-accent-2:#b983ff;--theme-button:#ff4fb3;--theme-button-text:#1c0b19;
+  --theme-header:#1b0918;--theme-header-text:#fff7fd;--theme-nav:#1b0918;--theme-nav-text:#fff7fd;--theme-nav-muted:#bd93b2;
+  --theme-inverse-surface:#120710;--theme-inverse-text:#fff7fd;--theme-success:#73e5b8;--theme-danger:#ff73b9;--theme-warning:#ffd36e;
+  --theme-overlay:rgba(12,3,10,.84);--theme-shadow:0 14px 42px rgba(0,0,0,.36);--theme-shadow-soft:0 8px 26px rgba(0,0,0,.26);
+  --app-page-bg:var(--theme-page);--app-surface:var(--theme-surface);--app-surface-soft:var(--theme-surface-soft);
+  --app-surface-muted:var(--theme-surface-muted);--app-border:var(--theme-border);--app-border-strong:var(--theme-border-strong);
+  --app-text:var(--theme-text);--app-muted:var(--theme-muted);--app-accent:var(--theme-accent);--app-button:var(--theme-button);--app-button-text:var(--theme-button-text);
+  --v15-bg:var(--theme-page);--v15-surface:var(--theme-surface);--v15-ink:var(--theme-text);--v15-muted:var(--theme-muted);--v15-accent:var(--theme-accent);
+  background:
+    radial-gradient(circle at 82% 5%,color-mix(in srgb,var(--theme-accent-2) 18%,transparent),transparent 28%),
+    linear-gradient(180deg,color-mix(in srgb,var(--theme-accent) 8%,var(--theme-page)),var(--theme-page) 38%)!important;
+}
+#matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] .detail-hero{
+  background:linear-gradient(135deg,var(--theme-surface),color-mix(in srgb,var(--theme-accent) 10%,var(--theme-surface)))!important;
+  border-top-color:var(--theme-accent)!important;
+  box-shadow:var(--theme-shadow-soft)!important;
+}
+#matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] :where(.detail-section,.betting-block,.match-joker-block,.v1536-match-control,.v1536-result-shell,.detail-disclosure){
+  background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
+}
