@@ -3,7 +3,7 @@
 const VERSION=window.SKIELSEN_VERSION||'15.1.27';
 const GAME_ID='game.buzzer_time_stop';
 const RESULT_RPC='get_buzzer_time_game_result';
-const COLORS={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
+const COLORS={BLUE:'#2979FF',RED:'#FF1744',YELLOW:'#FF2ED1',GREEN:'#00F5D4'};
 let db=null,engine=null,installed=false,detailIndex=null,jokerBridgeBound=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const feature=(rt,id)=>!!(rt?.features||[]).find(f=>f.feature_id===id&&f.enabled);
