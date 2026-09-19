@@ -241,33 +241,6 @@ body.v15-tournament-active[data-theme-animations="true"][data-theme-pack="theme.
 }
 @keyframes themePinkDrift{to{background-position:96px 96px,-128px 128px,154px -154px}}
 
-/* ---------- TEMPORARY QA SNIPPET: Match Detail = Pink Chaos ----------
-   Remove data-theme-preview from #matchDetailPage to return to the tournament theme. */
-#matchDetailPage[data-theme-preview="theme.girly.pink_chaos"]{
-  --theme-page:#160814;--theme-surface:#24101f;--theme-surface-soft:#33162c;--theme-surface-muted:#431d39;
-  --theme-border:#613051;--theme-border-strong:#875075;--theme-text:#fff7fd;--theme-muted:#d9bfd2;--theme-faint:#9f7895;
-  --theme-accent:#ff4fb3;--theme-accent-2:#b983ff;--theme-button:#ff4fb3;--theme-button-text:#1c0b19;
-  --theme-header:#1b0918;--theme-header-text:#fff7fd;--theme-nav:#1b0918;--theme-nav-text:#fff7fd;--theme-nav-muted:#bd93b2;
-  --theme-inverse-surface:#120710;--theme-inverse-text:#fff7fd;--theme-success:#73e5b8;--theme-danger:#ff73b9;--theme-warning:#ffd36e;
-  --theme-overlay:rgba(12,3,10,.84);--theme-shadow:0 14px 42px rgba(0,0,0,.36);--theme-shadow-soft:0 8px 26px rgba(0,0,0,.26);
-  --app-page-bg:var(--theme-page);--app-surface:var(--theme-surface);--app-surface-soft:var(--theme-surface-soft);
-  --app-surface-muted:var(--theme-surface-muted);--app-border:var(--theme-border);--app-border-strong:var(--theme-border-strong);
-  --app-text:var(--theme-text);--app-muted:var(--theme-muted);--app-accent:var(--theme-accent);--app-button:var(--theme-button);--app-button-text:var(--theme-button-text);
-  --v15-bg:var(--theme-page);--v15-surface:var(--theme-surface);--v15-ink:var(--theme-text);--v15-muted:var(--theme-muted);--v15-accent:var(--theme-accent);
-  background:
-    radial-gradient(circle at 82% 5%,color-mix(in srgb,var(--theme-accent-2) 18%,transparent),transparent 28%),
-    linear-gradient(180deg,color-mix(in srgb,var(--theme-accent) 8%,var(--theme-page)),var(--theme-page) 38%)!important;
-}
-#matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] .detail-hero{
-  background:linear-gradient(135deg,var(--theme-surface),color-mix(in srgb,var(--theme-accent) 10%,var(--theme-surface)))!important;
-  border-top-color:var(--theme-accent)!important;
-  box-shadow:var(--theme-shadow-soft)!important;
-}
-#matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] :where(.detail-section,.betting-block,.match-joker-block,.v1536-match-control,.v1536-result-shell,.detail-disclosure){
-  background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
-}
-
-
 /* ---------- High-specificity runtime enforcement ----------
    Beats historical page-id + !important rules without changing layout. */
 body.v15-tournament-active[data-theme-pack] :is(
@@ -330,13 +303,3 @@ body.v15-tournament-active[data-theme-pack] :is(
   .primary-action,.place-bet-btn,.v1536-control-action,.v1535-control-action,.quick-result-confirm,.jl-primary,
   .jl-start,.jl-mobile-start,.mvp-result-continue,.v1530-continue,.game-control-start
 ){background:var(--theme-button)!important;color:var(--theme-button-text)!important;border-color:var(--theme-button)!important}
-
-/* Match Detail QA preview gets the same specificity as the global authority. */
-body.v15-tournament-active[data-theme-pack] #matchDetailPage[data-theme-preview="theme.girly.pink_chaos"]{
-  background-color:var(--theme-page)!important;color:var(--theme-text)!important
-}
-body.v15-tournament-active[data-theme-pack] #matchDetailPage[data-theme-preview="theme.girly.pink_chaos"] :where(
-  .detail-hero,.detail-section,.betting-block,.match-joker-block,.v1536-match-control,.v1536-result-shell,.detail-disclosure,.past-disclosure
-){
-  background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
-}
