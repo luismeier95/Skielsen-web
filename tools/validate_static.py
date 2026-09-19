@@ -73,6 +73,24 @@ if 'transform:translateZ(0)' not in main_css_text or 'contain:paint' not in main
 if "register('inapp'" not in runtime_text or 'minimizeInApp' not in runtime_text: fail('In-App History/Minimize-Controller fehlt')
 if 'v15InAppMinimize' in runtime_text or '.v15-inapp-minimize{' in main_css_text or '.v15-inapp-minimize span{' in main_css_text: fail('Alter sichtbarer In-App-Minimieren-Button ist noch vorhanden')
 if 'popstate' not in history_text or 'pushState' not in history_text or 'replaceState' not in history_text: fail('App-History-Controller unvollständig')
+if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
+if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
+theme_contract_js=(PUBLIC/'assets/js/00-theme-contract.js').read_text(encoding='utf-8')
+for _key in [
+ 'root_canvas','browser_color','page','on_page','surface','on_surface','surface_soft','on_surface_soft',
+ 'surface_muted','on_surface_muted','border','border_strong','muted','faint','placeholder','header','on_header',
+ 'nav','on_nav','nav_muted','inverse_surface','on_inverse','accent','on_accent','accent_2','primary_action',
+ 'on_primary_action','secondary_action','on_secondary_action','secondary_border','success_bg','on_success',
+ 'danger_bg','on_danger','warning_bg','on_warning','disabled_bg','on_disabled','disabled_border','input_bg',
+ 'on_input','input_border','chip_bg','on_chip','ribbon_bg','on_ribbon','ribbon_border','dialog_bg','on_dialog',
+ 'overlay','shadow','shadow_soft','focus','less_action','on_less_action','more_action','on_more_action'
+]:
+ if _key+':' not in theme_contract_js: fail(f'Theme Contract v2 Token fehlt: {_key}')
+if 'THEME_CONTRACT_CONTRAST_FAILED' not in theme_contract_js: fail('Theme Contract v2 Browser-Kontrastprüfung fehlt')
+if 'list_theme_pack_contracts' not in (PUBLIC/'assets/js/06-db-bootstrap.js').read_text(encoding='utf-8'): fail('Workflow lädt Theme-Katalog nicht dynamisch')
+if 'list_theme_pack_contracts' not in engine_text: fail('Tournament Engine lädt Theme-Katalog nicht dynamisch')
+if 'get_theme_pack_contract' not in engine_text: fail('Tournament Engine lädt Theme Contract nicht dynamisch')
+
 if 'assets/js/00-app-history.js?v='+v not in h: fail('App-History-Controller fehlt oder Cache-Version stimmt nicht')
 version_js=(PUBLIC/'assets/js/00-version.js').read_text(encoding='utf-8')
 if f"const VERSION='{v}';" not in version_js: fail('00-version.js stimmt nicht mit version.json überein')
@@ -148,8 +166,12 @@ for _theme in ['theme.skielsen.core','theme.jga.night','theme.christmas.winter_c
 
 
 if 'var(--inapp-page)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8') or 'var(--theme-button)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8'): fail('Buzzer erbt Tournament Theme nicht')
+if 'var(--bzt-team-on' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8'): fail('Buzzer Participant-Farbe hat keine semantische Textfarbe')
+
 
 if '--theme-accent' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less erbt Tournament Theme nicht')
+if '--theme-less-action' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8') or '--theme-more-action' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less Funktionsrollen fehlen')
+
 
 if "document.body.dataset.themePack=theme" not in engine_text: fail('Runtime setzt ausgewähltes Tournament Theme nicht')
 
@@ -255,3 +277,6 @@ if not (ROOT/'docs/THEME_TEMPLATE.css').exists(): fail('Theme Template fehlt')
 if 'THEME CONTRACT V1 · REQUIRED SEMANTIC PAIRS' not in theme_css: fail('Theme Contract CSS Tokens fehlen')
 
 if 'THEME CONTRACT V1 · COMPONENT APPLICATION' not in theme_css: fail('Theme Contract Component Mapping fehlt')
+if 'THEME CONTRACT V2 · DYNAMIC BACKEND CONTRACT' not in theme_css: fail('Theme Contract v2 dynamisches Component Mapping fehlt')
+if 'skielsen-theme-context' not in theme_css: fail('Theme Contract v2 Workflow/Lobby Mapping fehlt')
+
