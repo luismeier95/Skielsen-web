@@ -1170,3 +1170,59 @@ body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen
   color:var(--theme-on-surface)!important;
   -webkit-text-fill-color:var(--theme-on-surface)!important;
 }
+
+
+/* ---------- Theme Contract v2 · section heading specificity fix ---------- */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(
+  #profileMatchesView .pm-head,
+  #achievementsView .achievement-section-head,
+  #playerHistoryView .pm-head,
+  #matchesPage .match-section-head,
+  #rankingPage .ranking-section-head,
+  #gamesPage .games-section-head,
+  #jokerPage .v1508-joker-section-head>div
+){
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-bottom-color:var(--theme-border-strong)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(
+  #profileMatchesView .pm-head h2,
+  #achievementsView .achievement-section-head h2,
+  #playerHistoryView .pm-head h2,
+  #matchesPage .match-section-head h2,
+  #rankingPage .ranking-section-head h2,
+  #gamesPage .games-section-head h2,
+  #jokerPage .v1508-joker-section-head h2
+){
+  color:var(--theme-on-surface)!important;
+  -webkit-text-fill-color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(
+  #profileMatchesView .pm-head>div>span,
+  #achievementsView .achievement-section-head>div>span,
+  #playerHistoryView .pm-head>div>span,
+  #matchesPage .match-section-head .section-no,
+  #rankingPage .ranking-section-head>div>span,
+  #gamesPage .games-section-head .section-no,
+  #jokerPage .v1508-joker-section-head>div>span
+){
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(
+  #profileMatchesView .pm-head>small,
+  #achievementsView .achievement-section-head>small,
+  #playerHistoryView .pm-head>small,
+  #matchesPage .swipe-hint,
+  #rankingPage .ranking-section-head>small,
+  #gamesPage .games-section-head>small,
+  #jokerPage .v1508-joker-section-head>p
+){
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
