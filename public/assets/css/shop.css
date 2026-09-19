@@ -39,7 +39,7 @@ button,select{border-radius:0}
 button{cursor:pointer}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--theme-accent);outline-offset:2px}
 
-.topbar{height:66px;background:#050505;color:#fff;position:sticky;top:0;z-index:80}
+.topbar{height:66px;background:var(--theme-header-contract,#050505);color:var(--theme-on-header-contract,#fff);position:sticky;top:0;z-index:80}
 html[data-theme-id="theme.jga.night"] .topbar{background:#111118}
 html[data-theme-id="theme.christmas.winter_clash"] .topbar{background:linear-gradient(100deg,#06140d,#0b5b36 58%,#741722)}
 html[data-theme-id="theme.summer.sunset_showdown"] .topbar{background:linear-gradient(120deg,#00a6b4,#43d0c1 42%,#ff6f61)}
@@ -368,3 +368,14 @@ html[data-theme-animations="true"][data-theme-id="theme.jga.night"] .section-hea
 html[data-theme-id="theme.jga.night"] button{border-color:#fff}
 .premium-option span b{font-size:9px}.premium-option span small{font-size:8px}.premium-option em{font-size:8px;min-width:88px}.premium-option-composite{min-height:62px;display:grid;grid-template-columns:minmax(0,1fr) 34px auto auto;gap:10px;align-items:center;padding:10px;color:inherit;text-align:left}.premium-option-copy{min-width:0}.premium-option-copy b{display:block;font-size:9px}.premium-option-copy small{display:block;margin-top:4px;font-size:8px;line-height:1.4;color:var(--theme-text-muted)}.premium-option-price{font:12px/1 var(--display);white-space:nowrap}.premium-option-action{font-style:normal;font-size:8px;font-weight:950;min-width:88px;text-align:center;padding:8px;border:1px solid var(--theme-border-strong)}.premium-info-inline{width:34px;height:34px;align-self:center;justify-self:center;border:0;background:transparent;color:var(--theme-text);font:900 18px/1 var(--ui);display:grid;place-items:center}.premium-info-inline:hover{background:var(--theme-surface-muted)}.premium-option-composite.active{box-shadow:inset 5px 0 0 var(--theme-accent);background:var(--theme-accent-soft)}.premium-option-composite.active .premium-option-action{background:var(--theme-accent);color:#fff;border-color:var(--theme-accent)}
 .game-animation-demo{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:18px}.game-animation-demo.open{display:flex}.game-animation-card{width:min(520px,100%);background:#09090d;color:#fff;border:1px solid #fff;padding:20px}.game-animation-stage{height:220px;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,#5f42e8 0,transparent 28%),#12121a;position:relative}.demo-player-card{width:180px;height:110px;background:#fff;color:#050505;display:grid;place-items:center;font:22px/1 var(--display);transform:translateY(90px) rotate(-8deg) scale(.7);opacity:0}.game-animation-demo.open .demo-player-card{animation:demoReveal 1.6s cubic-bezier(.2,.8,.2,1) infinite alternate}.game-animation-card button{width:100%;height:44px;margin-top:10px;border:1px solid #fff;background:#050505;color:#fff;font-size:9px;font-weight:950}@keyframes demoReveal{to{transform:translateY(0) rotate(0) scale(1);opacity:1;box-shadow:0 18px 50px rgba(124,92,255,.45)}}
+
+/* Theme Contract v2: future backend themes need no shop-specific selector. */
+html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]) .topbar{
+  color:var(--theme-on-header-contract,#fff)
+}
+html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]) :where(.logo small,.top-meta){
+  color:color-mix(in srgb,var(--theme-on-header-contract,#fff) 68%,transparent)
+}
+html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]) .shop-home-nav{
+  color:var(--theme-on-header-contract,#fff)
+}
