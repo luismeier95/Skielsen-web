@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root{
-  --team-blue:#1515ff;
-  --team-red:#ff1717;
-  --team-yellow:#f2b705;
-  --team-green:#00a65a;
+  --team-blue:#2979FF;
+  --team-red:#FF1744;
+  --team-yellow:#FF2ED1;
+  --team-green:#00F5D4;
 
   --theme-page-bg:#e9e9e9;
   --theme-surface:#fff;
