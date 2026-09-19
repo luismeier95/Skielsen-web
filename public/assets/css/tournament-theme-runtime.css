@@ -595,7 +595,7 @@ body.v15-tournament-active[data-theme-pack] #v15InAppLayer{
    ========================================================================== */
 
 body[data-theme-pack]{
-  --theme-team-blue:#2979FF;--theme-on-team-blue:#ffffff;
+  --theme-team-blue:#2979FF;--theme-on-team-blue:#050505;
   --theme-team-red:#FF1744;--theme-on-team-red:#050505;
   --theme-team-yellow:#FF2ED1;--theme-on-team-yellow:#050505;
   --theme-team-green:#00F5D4;--theme-on-team-green:#050505;
