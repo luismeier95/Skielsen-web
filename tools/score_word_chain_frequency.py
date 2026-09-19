@@ -70,7 +70,7 @@ def main():
     rows = []
     for row in targets:
         word = str(row["compound_word"])
-        score = round(float(zipf_frequency(word, "de", wordlist="large")), 2)
+        score = round(float(zipf_frequency(word.lower(), "de", wordlist="large")), 2)
         hk = derewo.get(word.upper())
         # 0..100 occurrence index. DeReWo is authoritative when available:
         # lower HK = more frequent. wordfreq supplies a secondary modern/web signal.
