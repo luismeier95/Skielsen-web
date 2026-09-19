@@ -36,10 +36,19 @@ Skielsen Core ist als bestehende visuelle Referenz eingefroren. Seine bisherige 
 
 Participant Identity bleibt unabhängig vom Theme:
 
-- Blau `#2979FF`
-- Rot `#FF1744`
-- Pink `#FF2ED1` (interne ID `YELLOW`)
-- Türkis `#00F5D4` (interne ID `GREEN`)
+- Blau `#1515FF`
+- Rot `#FF1717`
+- Gelb `#F2B705`
+- Grün `#00A65A`
+
+Einzige explizite Ausnahme: `theme.skielsen.core2` ist ein exakter Clone von Skielsen Core. Es ersetzt ausschließlich jedes Auftauchen dieser vier Core-Farben:
+
+- `#1515FF` → `#2979FF`
+- `#FF1717` → `#FF1744`
+- `#F2B705` → `#00F5D4`
+- `#00A65A` → `#FF2ED1`
+
+Alle übrigen Tokens, Flächen, Typografie-, Status-, Button-, Dialog- und Layoutregeln bleiben identisch zu Skielsen Core.
 
 Gold/Silber/Bronze bleiben ebenfalls semantische Sonderfarben. Ein Theme darf diese Identitäten nicht durch Dekorfarben ersetzen.
 
