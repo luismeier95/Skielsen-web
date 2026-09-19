@@ -35,7 +35,7 @@
     try{
       const {data,error}=await supabase.rpc('list_theme_pack_contracts',{});
       if(error)throw error;
-      themeCatalog=(Array.isArray(data)?data:[]).filter(row=>window.skielsenThemeContract?.validate?.(row?.theme_contract)?.ok);
+      themeCatalog=(Array.isArray(data)?data:[]).filter(row=>window.skielsenThemeContract?.validate?.(row?.theme_contract,{themePackId:row?.theme_pack_id})?.ok);
       return themeCatalog;
     }catch(err){console.warn('Theme catalog load failed',err);themeCatalog=[];return []}
   }
