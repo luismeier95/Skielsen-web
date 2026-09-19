@@ -610,13 +610,13 @@ body[data-theme-pack]{
 
 /* Workflow / Join / Lobby contract.
    Core is excluded so the current Skielsen Core presentation remains byte-for-byte visual fallback. */
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]){
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]){
   background:var(--theme-page)!important;color:var(--theme-on-page)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-main,.dbb-lobby-page,.jl-page
 ){color:var(--theme-on-page)!important}
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-panel,.dbb-profile-card,.dbb-action-card,.dbb-create-option,.dbb-context,.dbb-table,
   .dbb-material-card,.dbb-material-summary,.dbb-order-list,.dbb-order-row,.dbb-checkout-summary,
   .dbb-lobby-hero,.dbb-lobby-codebox,.dbb-lobby-stats,.dbb-lobby-panel,.dbb-lobby-team,
@@ -625,19 +625,19 @@ body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielse
 ){
   background:var(--theme-surface)!important;color:var(--theme-on-surface)!important;border-color:var(--theme-border)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-material-games,.dbb-order-note,.dbb-lobby-team-slot,.dbb-lobby-games-mini div,
   .dbb-lobby-player,.dbb-join-user,.dbb-group-note,.dbb-source-info,.dbb-series-note,
   .jl-user,.jl-mode-preview,.jl-waiting
 ){
   background:var(--theme-surface-soft)!important;color:var(--theme-on-surface-soft)!important;border-color:var(--theme-border)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-panel-head,.dbb-section-title,.dbb-lobby-panel-head,.dbb-procure-head,.jl-panel-head
 ){
   background:var(--theme-surface)!important;color:var(--theme-on-surface)!important;border-color:var(--theme-border-strong)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-kicker,.dbb-lead,.dbb-meta,.dbb-meta-row span,.dbb-material-meta,.dbb-material-price small,
   .dbb-material-stat small,.dbb-lobby-hero small,.dbb-lobby-hero p,.dbb-lobby-version,
   .dbb-lobby-codebox small,.dbb-lobby-codebox p,.dbb-lobby-stat small,.dbb-lobby-stat span,
@@ -646,51 +646,51 @@ body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielse
   .jl-hero>span,.jl-hero p,.jl-panel-head span,.jl-user small,.jl-user b,.jl-label,.jl-help
 ){color:var(--theme-muted)!important}
 
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   input,select,textarea,.dbb-field input,.dbb-lobby-team-name input,.jl-code-input
 ){
   background:var(--theme-input-bg)!important;color:var(--theme-on-input)!important;
   -webkit-text-fill-color:var(--theme-on-input)!important;border-color:var(--theme-input-border)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(input,textarea)::placeholder{
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(input,textarea)::placeholder{
   color:var(--theme-placeholder)!important;opacity:1!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(input,select,textarea,button):focus-visible{
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(input,select,textarea,button):focus-visible{
   outline:3px solid var(--theme-focus)!important;outline-offset:2px!important
 }
 
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-btn.primary,.dbb-lobby-start,.jl-primary,.jl-start,.jl-mobile-start
 ){
   background:var(--theme-primary-action)!important;color:var(--theme-on-primary-action)!important;border-color:var(--theme-primary-action)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-btn.secondary,.dbb-back,.dbb-lobby-code-actions button,.dbb-lobby-panel-head button,
   .dbb-lobby-player button,.dbb-lobby-team-name button,.dbb-material-choice button,
   .dbb-material-variant-cancel,.dbb-started-card button,.jl-sheet-cancel,.jl-member button
 ){
   background:var(--theme-secondary-action)!important;color:var(--theme-on-secondary-action)!important;border-color:var(--theme-secondary-border)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-material-choice button.active,.dbb-material-variant.active,.dbb-theme-choice button.active,
   .dbb-mode button.active,.dbb-auth-tab.active,.dbb-setting-toggle.on,.dbb-lobby-player button.assigned
 ){
   background:var(--theme-accent)!important;color:var(--theme-on-accent)!important;border-color:var(--theme-accent)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-tournament-delete,.dbb-start-confirm-actions .danger,.dbb-exit-confirm-actions .danger
 ){
   background:var(--theme-danger-bg)!important;color:var(--theme-on-danger)!important;border-color:var(--theme-danger-bg)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) button:disabled{
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) button:disabled{
   background:var(--theme-disabled-bg)!important;color:var(--theme-on-disabled)!important;border-color:var(--theme-disabled-border)!important;opacity:1!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-lobby-sheet-card,.dbb-start-confirm-card,.dbb-exit-confirm-card,.jl-sheet-card,.jl-name-modal,.jl-name-card
 ){
   background:var(--theme-dialog-bg)!important;color:var(--theme-on-dialog)!important;border-color:var(--theme-border)!important;box-shadow:var(--theme-shadow)!important
 }
-body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) :where(
   .dbb-lobby-sheet,.dbb-start-confirm,.dbb-exit-confirm,.jl-sheet,.jl-name-overlay
 ){background:var(--theme-overlay)!important}
 
@@ -699,7 +699,7 @@ body[data-theme-pack] :where(.dbb-feedback.ok,.status-success){color:var(--theme
 body[data-theme-pack] :where(.dbb-feedback.error,.status-error){color:var(--theme-danger-bg)!important}
 
 /* Tournament destructive actions: Reset is destructive, never primary. */
-body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) #prototypeReset{
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #prototypeReset{
   background:var(--theme-danger-bg)!important;color:var(--theme-on-danger)!important;border-color:var(--theme-danger-bg)!important
 }
 
