@@ -4,7 +4,7 @@
    Player/team identity colors remain semantic and are not theme tokens. */
 
 /* ---------- Browser / root canvas ---------- */
-html[data-theme-pack="theme.skielsen.core"]{background:#e9e9e9!important}
+html[data-theme-pack="theme.skielsen.core"],html[data-theme-pack="theme.skielsen.core2"]{background:#e9e9e9!important}
 html[data-theme-pack="theme.jga.night"]{background:#0b0b0f!important}
 html[data-theme-pack="theme.christmas.winter_clash"]{background:#07120e!important}
 html[data-theme-pack="theme.summer.sunset_showdown"]{background:#071720!important}
@@ -41,6 +41,14 @@ body.v15-tournament-active{
   --theme-focus:color-mix(in srgb,var(--theme-accent) 24%,transparent);
 }
 body.v15-tournament-active[data-theme-pack="theme.skielsen.core"]{
+  --theme-page:#e9e9e9;--theme-surface:#ffffff;--theme-surface-soft:#f7f7f7;--theme-surface-muted:#eeeeee;
+  --theme-border:#dddddd;--theme-border-strong:#c7c7c7;--theme-text:#050505;--theme-muted:#777777;--theme-faint:#aaaaaa;
+  --theme-accent:#7c5cff;--theme-accent-2:var(--core-blue);--theme-button:#050505;--theme-button-text:#ffffff;
+  --theme-header:#050505;--theme-header-text:#ffffff;--theme-nav:#050505;--theme-nav-text:#ffffff;--theme-nav-muted:#777777;
+  --theme-inverse-surface:#050505;--theme-inverse-text:#ffffff;--theme-success:#16864b;--theme-danger:#d62828;--theme-warning:#c79a32;
+  --theme-overlay:rgba(0,0,0,.72);--theme-shadow:0 12px 34px rgba(0,0,0,.12);--theme-shadow-soft:0 8px 22px rgba(0,0,0,.08);
+}
+body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"]{
   --theme-page:#e9e9e9;--theme-surface:#ffffff;--theme-surface-soft:#f7f7f7;--theme-surface-muted:#eeeeee;
   --theme-border:#dddddd;--theme-border-strong:#c7c7c7;--theme-text:#050505;--theme-muted:#777777;--theme-faint:#aaaaaa;
   --theme-accent:#7c5cff;--theme-accent-2:var(--core-blue);--theme-button:#050505;--theme-button-text:#ffffff;
@@ -186,7 +194,7 @@ body.v15-tournament-active :where(
 /* ---------- Theme-owned accents/status ---------- */
 body.v15-tournament-active .main-page-hero,
 body.v15-tournament-active .utility-hero,
-body.v15-tournament-active .games-intro,
+body.v15-tournament-active .games-intro{border-left-color:var(--theme-accent)!important}
 body.v15-tournament-active .detail-hero,
 body.v15-tournament-active .v1535-control-match{border-top-color:var(--theme-accent)!important}
 body.v15-tournament-active .detail-status{color:var(--theme-danger)!important}
@@ -1339,4 +1347,16 @@ body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen
 body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
 #matchesPage .v20-ffa-crosshair:after{
   background:var(--theme-border)!important;
+}
+
+/* V15.1.44 · GENERAL ACCENT AUTHORITY */
+body.v15-tournament-active[data-theme-pack] .main-page-hero .main-hero-pre,
+body.v15-tournament-active[data-theme-pack] .games-intro .main-hero-pre,
+body.v15-tournament-active[data-theme-pack] .utility-hero .main-hero-pre,
+body.v15-tournament-active[data-theme-pack] :is(.matches-kicker,.ranking-kicker,.bet-kicker,.news-kicker,.ach-kicker,.v1535-control-kicker){
+  color:var(--theme-accent)!important;-webkit-text-fill-color:var(--theme-accent)!important
+}
+body.skielsen-theme-context[data-theme-pack] :is(.dbb-lobby-hero,.jl-hero){border-left-color:var(--theme-accent)!important}
+body.skielsen-theme-context[data-theme-pack] :is(.dbb-kicker,.dbb-lobby-hero>small,.jl-hero>span){
+  color:var(--theme-accent)!important;-webkit-text-fill-color:var(--theme-accent)!important
 }
