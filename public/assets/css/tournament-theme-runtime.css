@@ -200,13 +200,13 @@ body.v15-tournament-active .v1530-category{color:var(--theme-accent)!important}
 
 /* Keep participant/team identity colors semantic. */
 body.v15-tournament-active .team-blue,
-body.v15-tournament-active .strip-blue{--identity:#1515ff}
+body.v15-tournament-active .strip-blue{--identity:#2979FF}
 body.v15-tournament-active .team-red,
-body.v15-tournament-active .strip-red{--identity:#ff1717}
+body.v15-tournament-active .strip-red{--identity:#FF1744}
 body.v15-tournament-active .team-yellow,
-body.v15-tournament-active .strip-yellow{--identity:#f2b705}
+body.v15-tournament-active .strip-yellow{--identity:#FF2ED1}
 body.v15-tournament-active .team-green,
-body.v15-tournament-active .strip-green{--identity:#00a65a}
+body.v15-tournament-active .strip-green{--identity:#00F5D4}
 
 /* ---------- Dialogs and overlays ---------- */
 body.v15-tournament-active :where(
@@ -595,10 +595,10 @@ body.v15-tournament-active[data-theme-pack] #v15InAppLayer{
    ========================================================================== */
 
 body[data-theme-pack]{
-  --theme-team-blue:#1515ff;--theme-on-team-blue:#ffffff;
-  --theme-team-red:#ff1717;--theme-on-team-red:#050505;
-  --theme-team-yellow:#f2b705;--theme-on-team-yellow:#050505;
-  --theme-team-green:#00a65a;--theme-on-team-green:#050505;
+  --theme-team-blue:#2979FF;--theme-on-team-blue:#ffffff;
+  --theme-team-red:#FF1744;--theme-on-team-red:#050505;
+  --theme-team-yellow:#FF2ED1;--theme-on-team-yellow:#050505;
+  --theme-team-green:#00F5D4;--theme-on-team-green:#050505;
   --theme-medal-gold:#c79a32;--theme-medal-silver:#9da3aa;--theme-medal-bronze:#a86438;
   --theme-text:var(--theme-on-surface);
   --theme-header-text:var(--theme-on-header);
