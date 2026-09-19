@@ -69,9 +69,9 @@
 #v15MoreLessRoot .mol-full-vs,
 #v15MoreLessRoot .mol-full-continue,
 #v15MoreLessRoot .mol-setup-start{background:var(--theme-button)!important;color:var(--theme-button-text)!important}
-#v15MoreLessRoot .mol-full-choice .less{background:var(--theme-inverse-surface)!important;color:var(--theme-inverse-text)!important}
-#v15MoreLessRoot .mol-full-choice .more{background:var(--theme-accent)!important;color:var(--theme-button-text)!important}
-#v15MoreLessRoot .mol-full-wait{background:var(--theme-inverse-surface)!important;color:var(--theme-muted)!important}
+#v15MoreLessRoot .mol-full-choice .less{background:var(--theme-less-action)!important;color:var(--theme-on-less-action)!important}
+#v15MoreLessRoot .mol-full-choice .more{background:var(--theme-more-action)!important;color:var(--theme-on-more-action)!important}
+#v15MoreLessRoot .mol-full-wait{background:var(--theme-disabled-bg)!important;color:var(--theme-on-disabled)!important;border-color:var(--theme-disabled-border)!important}
 #v15MoreLessRoot .mol-difficulty-picker button{background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important}
 #v15MoreLessRoot .mol-difficulty-picker button span{color:var(--theme-muted)!important}
 #v15MoreLessRoot .mol-difficulty-picker button.active{background:var(--theme-button)!important;color:var(--theme-button-text)!important;border-color:var(--theme-button)!important}
@@ -91,3 +91,9 @@
   .mol-full-header-right{gap:7px}
   .mol-minimize{width:34px;height:34px;flex-basis:34px;font-size:21px}
 }
+
+#v15MoreLessRoot .mol-difficulty-picker button:disabled,
+#v15MoreLessRoot .mol-setup-start:disabled{background:var(--theme-disabled-bg)!important;color:var(--theme-on-disabled)!important;border-color:var(--theme-disabled-border)!important;opacity:1!important}
+#v15MoreLessRoot .mol-setup-feedback{color:var(--theme-danger-bg)!important}
+#v15MoreLessRoot .mol-full-result.correct{background:var(--theme-success-bg)!important;color:var(--theme-on-success)!important}
+#v15MoreLessRoot .mol-full-result.wrong{background:var(--theme-danger-bg)!important;color:var(--theme-on-danger)!important}
