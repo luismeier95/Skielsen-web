@@ -699,7 +699,7 @@ body[data-theme-pack] :where(.dbb-feedback.ok,.status-success){color:var(--theme
 body[data-theme-pack] :where(.dbb-feedback.error,.status-error){color:var(--theme-danger-bg)!important}
 
 /* Tournament destructive actions: Reset is destructive, never primary. */
-body.v15-tournament-active[data-theme-pack] #prototypeReset{
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) #prototypeReset{
   background:var(--theme-danger-bg)!important;color:var(--theme-on-danger)!important;border-color:var(--theme-danger-bg)!important
 }
 
