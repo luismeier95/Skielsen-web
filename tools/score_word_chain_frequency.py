@@ -7,6 +7,8 @@ from pathlib import Path
 
 from wordfreq import zipf_frequency
 
+DEREWO_URL = "https://raw.githubusercontent.com/cytobi/chelem/main/datasets/derewo/derewo-v-ww-bll-320000g-2012-12-31-1.0/derewo-v-ww-bll-320000g-2012-12-31-1.0.txt"
+
 PRELIM_KEEP = 2.70
 PRELIM_REVIEW = 2.20
 
@@ -34,6 +36,27 @@ def fetch_targets():
     with urllib.request.urlopen(req, timeout=30) as response:
         return json.loads(response.read().decode("utf-8"))
 
+def fetch_derewo_classes():
+    req = urllib.request.Request(DEREWO_URL, headers={"User-Agent": "Skielsen-Wortkette-Audit/1.0"})
+    with urllib.request.urlopen(req, timeout=60) as response:
+        raw = response.read()
+    text = raw.decode("utf-8", errors="replace")
+    classes = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        try:
+            hk = int(parts[1])
+        except ValueError:
+            continue
+        word = parts[0].upper()
+        classes[word] = min(hk, classes.get(word, hk))
+    return classes
+
 def band(score):
     if score >= PRELIM_KEEP:
         return "keep"
@@ -43,14 +66,23 @@ def band(score):
 
 def main():
     targets = fetch_targets()
+    derewo = fetch_derewo_classes()
     rows = []
     for row in targets:
         word = str(row["compound_word"])
         score = round(float(zipf_frequency(word, "de", wordlist="large")), 2)
+        hk = derewo.get(word.upper())
+        # 0..100 occurrence index. DeReWo is authoritative when available:
+        # lower HK = more frequent. wordfreq supplies a secondary modern/web signal.
+        derewo_component = 0 if hk is None else max(0, min(100, 100 - 4 * max(0, hk - 5)))
+        zipf_component = max(0, min(100, (score - 1.0) * 25))
+        occurrence_score = round((0.7 * derewo_component + 0.3 * zipf_component) if hk is not None else zipf_component, 1)
         rows.append({
             "edge_id": int(row["edge_id"]),
             "compound_word": word,
             "zipf": score,
+            "derewo_class": hk,
+            "occurrence_score": occurrence_score,
             "preliminary_decision": band(score),
         })
 
@@ -66,7 +98,7 @@ def main():
 
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "source": "wordfreq 3.1.1, German large list; multi-source corpus snapshot through about 2021",
+        "source": "Composite audit: DeReWo 2013 (DeReKo general-language frequency class) + wordfreq 3.1.1 German large list",
         "license_note": "wordfreq code Apache-2.0; included frequency data CC BY-SA 4.0 / attributed sources.",
         "preliminary_thresholds": {
             "keep_min_zipf": PRELIM_KEEP,
