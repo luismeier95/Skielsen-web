@@ -1361,3 +1361,21 @@ body.skielsen-theme-context[data-theme-pack] :is(.dbb-lobby-hero,.jl-hero){borde
 body.skielsen-theme-context[data-theme-pack] :is(.dbb-kicker,.dbb-lobby-hero>small,.jl-hero>span){
   color:var(--theme-accent)!important;-webkit-text-fill-color:var(--theme-accent)!important
 }
+
+
+/* V15.1.46 · FINAL MAIN HERO ACCENT EDGE
+   Surface authority sets border-color generically; this must run last so the
+   canonical page-header accent edge is not downgraded to the neutral border. */
+body.v15-tournament-active[data-theme-pack] :is(
+  #homePage > .home-dashboard-hero.main-page-hero,
+  #profilePage > .profile.main-page-hero,
+  #matchesPage > .matches-hero.main-page-hero,
+  #rankingPage > .ranking-hero.main-page-hero,
+  #betsPage > .bet-hero.main-page-hero,
+  #newsPage > .news-hero.main-page-hero,
+  #jokerPage > .utility-hero.main-page-hero,
+  #adminPage > .utility-hero.main-page-hero,
+  #gamesPage .games-intro.main-page-hero
+){
+  border-left-color:var(--theme-accent)!important;
+}
