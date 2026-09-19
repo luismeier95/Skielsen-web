@@ -405,3 +405,184 @@ body.v15-tournament-active[data-theme-pack]{
   --theme-button:var(--theme-primary-action);
   --theme-button-text:var(--theme-on-primary-action);
 }
+
+
+/* ==========================================================================
+   THEME CONTRACT V1 · COMPONENT APPLICATION
+   These selectors are role-based. Future themes should change tokens, not
+   component selectors.
+   ========================================================================== */
+
+/* Browser / page chrome */
+html[data-theme-pack]{background:var(--theme-root-canvas)!important}
+body.v15-tournament-active[data-theme-pack]{
+  background:var(--theme-page)!important;
+  color:var(--theme-on-page)!important
+}
+body.v15-tournament-active[data-theme-pack] .sk-header,
+body.v15-tournament-active[data-theme-pack] .topbar{
+  background:var(--theme-header)!important;
+  color:var(--theme-on-header)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(.mobile-nav,.mobile-more-menu,.profile-nav){
+  background:var(--theme-nav)!important;
+  color:var(--theme-on-nav)!important
+}
+
+/* Primary / secondary / destructive actions */
+body.v15-tournament-active[data-theme-pack] :where(
+  .primary,.primary-action,.place-bet-btn,.v1536-control-action,.v1535-control-action,
+  .quick-result-confirm,.jl-primary,.jl-start,.jl-mobile-start,.mvp-result-continue,
+  .v1530-continue,.game-control-start,#gameControlStart,#prototypeReset,
+  #applyCoinAdjustment,#publishAdminNews,#lockJokerBtn,#submitMvpVote
+){
+  background:var(--theme-primary-action)!important;
+  color:var(--theme-on-primary-action)!important;
+  border-color:var(--theme-primary-action)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(
+  .secondary,.detail-back,.context-back,.v1508-joker-secondary,.prototype-skip-bet,
+  .games-filter,.games-filter-toggle,.v1510-joker-dialog-actions button.secondary,
+  .v1511-joker-resolution-actions button.secondary
+){
+  background:var(--theme-secondary-action)!important;
+  color:var(--theme-on-secondary-action)!important;
+  border-color:var(--theme-secondary-border)!important
+}
+body.v15-tournament-active[data-theme-pack] button:disabled,
+body.v15-tournament-active[data-theme-pack] .is-disabled{
+  background:var(--theme-disabled-bg)!important;
+  color:var(--theme-on-disabled)!important;
+  border-color:var(--theme-disabled-border)!important;
+  opacity:1!important;
+  cursor:not-allowed!important
+}
+
+/* Accent selections must always use the matching on-accent color */
+body.v15-tournament-active[data-theme-pack] :where(
+  .games-filter.active,.games-status-filter .active,.filter.active,
+  .admin-theme-tool select:focus
+){
+  background:var(--theme-accent)!important;
+  color:var(--theme-on-accent)!important;
+  border-color:var(--theme-accent)!important
+}
+
+/* Inputs */
+body.v15-tournament-active[data-theme-pack] :where(
+  input,select,textarea,.custom-stake,.jl-code-input,.player-profile-select-wrap select
+){
+  background:var(--theme-input-bg)!important;
+  color:var(--theme-on-input)!important;
+  border-color:var(--theme-input-border)!important;
+  caret-color:var(--theme-on-input)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(input,textarea)::placeholder{
+  color:var(--theme-placeholder)!important;
+  opacity:1!important
+}
+body.v15-tournament-active[data-theme-pack] :where(input,select,textarea):focus{
+  outline:3px solid var(--theme-accent)!important;
+  outline-offset:2px!important
+}
+
+/* Chips / neutral badges */
+body.v15-tournament-active[data-theme-pack] :where(
+  .game-meta span,.detail-chips span,.material-badge,.demo-badge,
+  .v1530-team-chip,.feature-unlock
+){
+  background:var(--theme-chip-bg)!important;
+  color:var(--theme-on-chip)!important;
+  border-color:var(--theme-border)!important
+}
+
+/* Semantic state surfaces */
+body.v15-tournament-active[data-theme-pack] :where(.status-success,.is-success,.ready){
+  background:var(--theme-success-bg)!important;
+  color:var(--theme-on-success)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(.status-danger,.is-danger,.danger){
+  background:var(--theme-danger-bg)!important;
+  color:var(--theme-on-danger)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(.status-warning,.is-warning,.warning){
+  background:var(--theme-warning-bg)!important;
+  color:var(--theme-on-warning)!important
+}
+
+/* Ribbons / persistent live chrome */
+body.v15-tournament-active[data-theme-pack] #v15InAppLiveStrip,
+body.v15-tournament-active[data-theme-pack] .v1517-flow-toast,
+body.v15-tournament-active[data-theme-pack] .v1536-tip-row{
+  background:var(--theme-ribbon-bg)!important;
+  color:var(--theme-on-ribbon)!important;
+  border-color:var(--theme-ribbon-border)!important
+}
+body.v15-tournament-active[data-theme-pack] #v15InAppLiveStrip :where(button,b,small,span),
+body.v15-tournament-active[data-theme-pack] .v1517-flow-toast :where(button,b,small,span),
+body.v15-tournament-active[data-theme-pack] .v1536-tip-row :where(button,b,small,span){
+  color:var(--theme-on-ribbon)!important
+}
+
+/* Dialog cards */
+body.v15-tournament-active[data-theme-pack] :where(
+  .v1536-dialog,.v1536-pick-card,.match-result-pop__card,.mvp-complete-card,
+  .v1510-joker-dialog-card,.v1511-joker-resolution-card,.jl-sheet-card,.jl-name-card
+){
+  background:var(--theme-dialog-bg)!important;
+  color:var(--theme-on-dialog)!important;
+  border-color:var(--theme-border)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(
+  .v1536-dialog,.v1536-pick-card,.match-result-pop__card,.mvp-complete-card,
+  .v1510-joker-dialog-card,.v1511-joker-resolution-card,.jl-sheet-card,.jl-name-card
+) :where(h1,h2,h3,h4,strong,b,p,span,label,small){
+  color:inherit
+}
+
+/* Surface text pair enforcement */
+body.v15-tournament-active[data-theme-pack] :where(
+  .main-page-hero,.utility-hero,.games-intro,.profile,.home-module,.panel,.skills-panel,
+  .standings,.match-section,.ranking-section,.bet-match-card,.bet-slip,.bet-context,
+  .utility-panel,.admin-management,.prototype-sim-panel,.prototype-admin-bet-gate,
+  .compact-panel,.game-card,.games-filterbar,.detail-hero,.detail-section,.betting-block,
+  .match-joker-block,.v1536-match-control,.v1536-result-shell,.detail-disclosure,
+  .past-disclosure,.v20-history-list,.v1508-joker-panel,.joker-card,.v1508-joker-selection,
+  .v1508-accepted-pick,.candidate-card,.coin-adjust-dialog,.admin-news-editor
+){
+  color:var(--theme-on-surface)!important
+}
+body.v15-tournament-active[data-theme-pack] :where(
+  .action-card,.mandatory-action-card,.optional-action-card,.home-story,.kpi,.skill-row,
+  .pm-block,.achievement-card,.ranking-row,.ranking-breakdown-inner,.bet-context-grid,
+  .slip-selection,.slip-quote,.potential-win,.my-bets,.community-bets,.wallet-ledger,
+  .v1536-control-row,.v1536-control-info,.v1536-control-gate,.v1536-result-head,
+  .admin-roster,.admin-game-list,.v1535-control-state-body,.games-status-filter,
+  .jl-user,.jl-invite,.jl-status,.jl-mode-preview,.jl-waiting
+){
+  color:var(--theme-on-surface-soft)!important
+}
+
+/* Muted text should never inherit a hardcoded dark color on dark themes. */
+body.v15-tournament-active[data-theme-pack] :where(
+  small,.eyebrow,.main-hero-pre,.matches-kicker,.ranking-kicker,.bet-kicker,.news-kicker,
+  .section-id,.section-no,.panel-subtitle,.standings-subtitle,.kpi-label,.kpi-meta,
+  .player-meta,.rank-label,.utility-copy,.action-type,.v1535-control-kicker,
+  .detail-event span,.detail-section-head span,.v1536-control-info small,
+  .games-filter-group>span,.v1508-joker-state,.action-feedback
+){
+  color:var(--theme-muted)
+}
+
+/* In-App inherits semantic pairs too. */
+body.v15-tournament-active[data-theme-pack] #v15InAppLayer{
+  --inapp-page:var(--theme-page);
+  --inapp-surface:var(--theme-surface);
+  --inapp-soft:var(--theme-surface-soft);
+  --inapp-border:var(--theme-border);
+  --inapp-text:var(--theme-on-surface);
+  --inapp-muted:var(--theme-muted);
+  --inapp-accent:var(--theme-accent);
+  --inapp-dark:var(--theme-inverse-surface);
+  --inapp-dark-text:var(--theme-on-inverse);
+}
