@@ -1107,7 +1107,7 @@
     await openStandaloneLobby(lastResult,lastResult.join_code||null);
   }
 
-  const LOBBY_COLORS={RED:['ROT','#ff1717'],BLUE:['BLAU','#1515ff'],YELLOW:['GELB','#f2b705'],GREEN:['GRÜN','#00a65a']};
+  const LOBBY_COLORS={RED:['ROT','#FF1744'],BLUE:['BLAU','#2979FF'],YELLOW:['PINK','#FF2ED1'],GREEN:['TÜRKIS','#00F5D4']};
   const LOBBY_TEAM_COLOR_ORDER=['BLUE','RED','YELLOW','GREEN'];
   const LOBBY_SOLO_COLOR_ORDER=['RED','BLUE','YELLOW','GREEN'];
   function lobbyInitials(name){return String(name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'?'}
