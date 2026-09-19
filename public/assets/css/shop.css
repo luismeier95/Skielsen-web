@@ -1,10 +1,12 @@
+:root{--core-blue:#1515FF;--core-red:#FF1717;--core-yellow:#F2B705;--core-green:#00A65A}
+html[data-theme-pack="theme.skielsen.core2"],body[data-theme-pack="theme.skielsen.core2"],html[data-theme-id="theme.skielsen.core2"]{--core-blue:#2979FF;--core-red:#FF1744;--core-yellow:#00F5D4;--core-green:#FF2ED1}
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root{
-  --team-blue:#2979FF;
-  --team-red:#FF1744;
-  --team-yellow:#FF2ED1;
-  --team-green:#00F5D4;
+  --team-blue:var(--core-blue);
+  --team-red:var(--core-red);
+  --team-yellow:var(--core-yellow);
+  --team-green:var(--core-green);
 
   --theme-page-bg:#e9e9e9;
   --theme-surface:#fff;
