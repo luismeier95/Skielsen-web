@@ -6,6 +6,24 @@ const SUPABASE_KEY='sb_publishable_6Cuc1rH2WGua2UT__Ta18w_BJVG4O1b';
 
 const q=s=>document.querySelector(s);
 const screens=[...document.querySelectorAll('.wk-screen')];
+
+function getPersistentPlayerKey(){
+  const storageKey='skielsen_word_chain_player_key_v1';
+  try{
+    let key=localStorage.getItem(storageKey);
+    if(!key){
+      key=(globalThis.crypto?.randomUUID?.()||('wc-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)));
+      localStorage.setItem(storageKey,key);
+    }
+    return 'solo:'+key;
+  }catch(_){
+    if(!globalThis.__skielsenWordChainSessionKey){
+      globalThis.__skielsenWordChainSessionKey='solo:session-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+    }
+    return globalThis.__skielsenWordChainSessionKey;
+  }
+}
+const PLAYER_KEY=getPersistentPlayerKey();
 let timeLimit=0,state=null,busy=false,timer=0,timeLeft=0,correctCount=0;
 
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'auto'})}
@@ -69,7 +87,7 @@ async function startGame(){
   if(busy)return;
   busy=true;const btn=q('#startBtn');btn.disabled=true;btn.textContent='KETTE WIRD IM BACKEND FESTGELEGT …';
   try{
-    state=await rpc('start_word_chain_solo');
+    state=await rpc('start_word_chain_solo',{p_player_key:PLAYER_KEY,p_steps:10});
     correctCount=0;
     setBackendStatus('KETTE SERVERSEITIG GESPERRT','live');
     show('playScreen');renderState();feedback('');startTimer();setTimeout(focusGuess,80);
