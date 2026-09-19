@@ -372,12 +372,12 @@ html[data-theme-id="theme.jga.night"] button{border-color:#fff}
 .game-animation-demo{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:18px}.game-animation-demo.open{display:flex}.game-animation-card{width:min(520px,100%);background:#09090d;color:#fff;border:1px solid #fff;padding:20px}.game-animation-stage{height:220px;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,#5f42e8 0,transparent 28%),#12121a;position:relative}.demo-player-card{width:180px;height:110px;background:#fff;color:#050505;display:grid;place-items:center;font:22px/1 var(--display);transform:translateY(90px) rotate(-8deg) scale(.7);opacity:0}.game-animation-demo.open .demo-player-card{animation:demoReveal 1.6s cubic-bezier(.2,.8,.2,1) infinite alternate}.game-animation-card button{width:100%;height:44px;margin-top:10px;border:1px solid #fff;background:#050505;color:#fff;font-size:9px;font-weight:950}@keyframes demoReveal{to{transform:translateY(0) rotate(0) scale(1);opacity:1;box-shadow:0 18px 50px rgba(124,92,255,.45)}}
 
 /* Theme Contract v2: future backend themes need no shop-specific selector. */
-html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]) .topbar{
+html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]):not([data-theme-id="theme.skielsen.core2"]) .topbar{
   color:var(--theme-on-header-contract,#fff)
 }
-html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]) :where(.logo small,.top-meta){
+html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]):not([data-theme-id="theme.skielsen.core2"]) :where(.logo small,.top-meta){
   color:color-mix(in srgb,var(--theme-on-header-contract,#fff) 68%,transparent)
 }
-html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]) .shop-home-nav{
+html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]):not([data-theme-id="theme.skielsen.core2"]) .shop-home-nav{
   color:var(--theme-on-header-contract,#fff)
 }
