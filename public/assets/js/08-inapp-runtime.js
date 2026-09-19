@@ -7,7 +7,7 @@ const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
 const MORE_LESS_MODULE='more-or-less';
 const MORE_LESS_GAME_KEY='higher_lower';
-const colorHex={BLUE:'#2979FF',RED:'#FF1744',YELLOW:'#FF2ED1',GREEN:'#00F5D4'};
+const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
 let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
