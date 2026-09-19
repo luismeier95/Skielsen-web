@@ -19,3 +19,11 @@
 .v15-buzzer-final td:first-child{font-weight:900}.v15-buzzer-final td:first-child b{font-family:var(--display,Arial);margin-right:5px}
 .v15-buzzer-empty{margin-top:20px;padding:16px;border:1px solid #ddd;background:#fafafa;font:900 10px/1.4 var(--ui,Arial);letter-spacing:.5px;color:#777;text-align:center}
 @media(max-width:640px){.v15-buzzer-history{margin-top:22px;padding-top:14px}.v15-buzzer-history-head{display:block}.v15-buzzer-history-head>span{display:block;margin-top:8px;text-align:left}.v15-buzzer-history-head h3{font-size:18px}.v15-buzzer-final>header,.v15-buzzer-round>header{padding:10px}.v15-buzzer-history th,.v15-buzzer-history td{padding:10px 8px}}
+
+
+/* Theme Authority · persistent Buzzer result details */
+body.v15-tournament-active .v15-buzzer-history{border-top-color:var(--theme-border-strong)!important;color:var(--theme-text)!important}
+body.v15-tournament-active .v15-buzzer-history-head :where(small,span){color:var(--theme-muted)!important}
+body.v15-tournament-active :where(.v15-buzzer-final,.v15-buzzer-round){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}
+body.v15-tournament-active :where(.v15-buzzer-final>header,.v15-buzzer-round>header){background:var(--theme-surface-soft)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important}
+body.v15-tournament-active :where(.v15-buzzer-final>header small,.v15-buzzer-round>header small){color:var(--theme-muted)!important}
