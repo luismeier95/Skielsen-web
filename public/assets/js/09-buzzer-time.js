@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 
-const COLORS={BLUE:'#2979FF',RED:'#FF1744',YELLOW:'#FF2ED1',GREEN:'#00F5D4'};
-const COLOR_DE={BLUE:'BLAU',RED:'ROT',YELLOW:'PINK',GREEN:'TÜRKIS'};
+const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
+const COLOR_DE={BLUE:'BLAU',RED:'ROT',YELLOW:'GELB',GREEN:'GRÜN'};
 const POLL_MS=500,REVEAL_MS=10000;
 
 let root=null,session=null,db=null,state=null,pollTimer=0,raf=0,busy=false;
@@ -49,7 +49,9 @@ function viewerLabel(){
 }
 function setTheme(){
   const identity=String(state?.current?.identity_color||'').toUpperCase(),c=teamColor(identity);
-  const onTeam='#050505';
+  const theme=String(document.documentElement.dataset.themePack||document.body.dataset.themePack||'theme.skielsen.core');
+  const coreFamily=theme==='theme.skielsen.core'||theme==='theme.skielsen.core2';
+  const onTeam=coreFamily?'#ffffff':(identity==='BLUE'?'#ffffff':'#050505');
   root?.style.setProperty('--bzt-team',c);
   root?.style.setProperty('--bzt-team-on',onTeam);
 }
