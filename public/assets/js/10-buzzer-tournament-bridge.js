@@ -89,7 +89,7 @@ function ingestHigherLowerResult(tournamentGameId,result){
     addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'MEHR ODER WENIGER').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${Number(r.category_wins||0)} KATEGORIE-SIEGE`).join(' · '));
   }
   engine.render();persistLocalState();
-  if(gi===Number(st.currentGameIndex||0)){
+  if(gi===Number(st.currentGameIndex||0)&&!g.postGameServerComplete){
     window.skielsenInApp?.finishAndExit?.();
     if(typeof engine.beginPostGameFlow==='function')engine.beginPostGameFlow(g,m,placements[0]);else continuePostGame(g);
   }
@@ -104,7 +104,7 @@ function ingestInAppGameResult(tournamentGameId,result){
   if(g.inAppResult?.finalized_at===result.finalized_at&&g.resultsCommitted)return true;
   g.inAppResult=result;g.placements=[...placements];g.phase='RESULTS';const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0];if(m){m.participantIds=Array.isArray(m.participantIds)&&m.participantIds.length?m.participantIds:[...placements];m.placements=[...placements];m.values=Object.fromEntries(rows.map(r=>[r.participant_id,Number(r.total_deviation_ms||0)]));m.status='CONCLUDED'}
   if(!g.resultsCommitted){if(m)settleLocalBets(st,m,placements[0]);commitLocalPoints(st,rt,g,placements);st.matchHistory=Array.isArray(st.matchHistory)?st.matchHistory:[];st.matchHistory.unshift({gameIndex:gi,game:g.name,stage:m?.stage||'MULTI_PARTICIPANT',participantIds:[...placements],placements:[...placements],values:m?.values?{...m.values}:null,winner:placements[0],at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),source:'IN_APP_BUZZER'});addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'BUZZER').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${fmtMs(r.total_deviation_ms)}`).join(' · '))}
-  engine.render();persistLocalState();if(gi===Number(st.currentGameIndex||0)){window.skielsenInApp?.finishAndExit?.();if(typeof engine.beginPostGameFlow==='function')engine.beginPostGameFlow(g,m,placements[0]);else continuePostGame(g)}return true;
+  engine.render();persistLocalState();if(gi===Number(st.currentGameIndex||0)&&!g.postGameServerComplete){window.skielsenInApp?.finishAndExit?.();if(typeof engine.beginPostGameFlow==='function')engine.beginPostGameFlow(g,m,placements[0]);else continuePostGame(g)}return true;
 }
 
 function resultMarkup(payload){
