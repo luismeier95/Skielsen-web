@@ -1,0 +1,2671 @@
+{
+  "generated_at": "2026-09-19T16:00:39.289362+00:00",
+  "source": "wordfreq 3.1.1, German large list; multi-source corpus snapshot through about 2021",
+  "license_note": "wordfreq code Apache-2.0; included frequency data CC BY-SA 4.0 / attributed sources.",
+  "preliminary_thresholds": {
+    "keep_min_zipf": 2.7,
+    "review_min_zipf": 2.2,
+    "drop_below_zipf": 2.2
+  },
+  "summary": {
+    "count": 440,
+    "min_zipf": 0.0,
+    "max_zipf": 4.67,
+    "bands": {
+      "keep": 213,
+      "review": 111,
+      "drop": 116
+    },
+    "named_examples": {
+      "HUNDELEINE": null,
+      "HUNDESPORT": {
+        "edge_id": 467,
+        "compound_word": "HUNDESPORT",
+        "zipf": 2.26,
+        "preliminary_decision": "review"
+      }
+    }
+  },
+  "rows": [
+    {
+      "edge_id": 375,
+      "compound_word": "BAHNHOF",
+      "zipf": 4.67,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 195,
+      "compound_word": "ZEITRAUM",
+      "zipf": 4.51,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 387,
+      "compound_word": "FEUERWEHR",
+      "zipf": 4.49,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 328,
+      "compound_word": "MITTELPUNKT",
+      "zipf": 4.41,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 167,
+      "compound_word": "PARKPLATZ",
+      "zipf": 4.29,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 58,
+      "compound_word": "HÖHEPUNKT",
+      "zipf": 4.26,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 132,
+      "compound_word": "WERKSTATT",
+      "zipf": 4.25,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 217,
+      "compound_word": "RADFAHRER",
+      "zipf": 4.19,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 338,
+      "compound_word": "ABENDESSEN",
+      "zipf": 4.14,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 27,
+      "compound_word": "SPIELZEUG",
+      "zipf": 4.13,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 155,
+      "compound_word": "GUTSCHEIN",
+      "zipf": 4.11,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 329,
+      "compound_word": "MITTELMEER",
+      "zipf": 4.09,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 296,
+      "compound_word": "BILDSCHIRM",
+      "zipf": 4.08,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 130,
+      "compound_word": "WERKZEUG",
+      "zipf": 4.07,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 360,
+      "compound_word": "MARKTPLATZ",
+      "zipf": 4.06,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 144,
+      "compound_word": "STANDPUNKT",
+      "zipf": 4.01,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 14,
+      "compound_word": "HAUSTÜR",
+      "zipf": 3.99,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 292,
+      "compound_word": "UHRZEIT",
+      "zipf": 3.97,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 447,
+      "compound_word": "ARBEITSZEIT",
+      "zipf": 3.96,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 92,
+      "compound_word": "BODENSEE",
+      "zipf": 3.96,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 214,
+      "compound_word": "RADWEG",
+      "zipf": 3.93,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 376,
+      "compound_word": "ZAHNARZT",
+      "zipf": 3.89,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 177,
+      "compound_word": "LAUFZEIT",
+      "zipf": 3.88,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 358,
+      "compound_word": "JAHRBUCH",
+      "zipf": 3.86,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 173,
+      "compound_word": "KREISLAUF",
+      "zipf": 3.86,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 25,
+      "compound_word": "SPIELPLATZ",
+      "zipf": 3.86,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 161,
+      "compound_word": "BANDBREITE",
+      "zipf": 3.82,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 127,
+      "compound_word": "KRAFTWERK",
+      "zipf": 3.79,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 194,
+      "compound_word": "ZEITPLAN",
+      "zipf": 3.74,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 229,
+      "compound_word": "TORWART",
+      "zipf": 3.73,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 269,
+      "compound_word": "GELDBEUTEL",
+      "zipf": 3.72,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 250,
+      "compound_word": "WELTRAUM",
+      "zipf": 3.72,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 222,
+      "compound_word": "SPORTART",
+      "zipf": 3.67,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 71,
+      "compound_word": "WORTLAUT",
+      "zipf": 3.67,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 325,
+      "compound_word": "MUSIKVIDEO",
+      "zipf": 3.66,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 247,
+      "compound_word": "TIERARZT",
+      "zipf": 3.66,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 166,
+      "compound_word": "PARKHAUS",
+      "zipf": 3.65,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 26,
+      "compound_word": "SPIELFELD",
+      "zipf": 3.65,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 266,
+      "compound_word": "TASCHENGELD",
+      "zipf": 3.64,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 343,
+      "compound_word": "ROTWEIN",
+      "zipf": 3.63,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 34,
+      "compound_word": "REGENBOGEN",
+      "zipf": 3.61,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 221,
+      "compound_word": "SPORTWAGEN",
+      "zipf": 3.61,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 15,
+      "compound_word": "HAUSTIER",
+      "zipf": 3.6,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 69,
+      "compound_word": "WORTSCHATZ",
+      "zipf": 3.6,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 156,
+      "compound_word": "SCHEINWERFER",
+      "zipf": 3.59,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 126,
+      "compound_word": "FACHARZT",
+      "zipf": 3.58,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 121,
+      "compound_word": "POSTFACH",
+      "zipf": 3.58,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 204,
+      "compound_word": "RAUMFAHRT",
+      "zipf": 3.58,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 193,
+      "compound_word": "ZEITGEIST",
+      "zipf": 3.58,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 381,
+      "compound_word": "LANDHAUS",
+      "zipf": 3.57,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 43,
+      "compound_word": "WASSERFALL",
+      "zipf": 3.57,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 311,
+      "compound_word": "FRAGEZEICHEN",
+      "zipf": 3.56,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 96,
+      "compound_word": "BAUHAUS",
+      "zipf": 3.55,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 16,
+      "compound_word": "HAUSARZT",
+      "zipf": 3.55,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 323,
+      "compound_word": "MUSIKSCHULE",
+      "zipf": 3.53,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 223,
+      "compound_word": "SPORTHALLE",
+      "zipf": 3.52,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 134,
+      "compound_word": "STOFFWECHSEL",
+      "zipf": 3.52,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 476,
+      "compound_word": "ROLLENSPIEL",
+      "zipf": 3.51,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 220,
+      "compound_word": "SPORTPLATZ",
+      "zipf": 3.51,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 158,
+      "compound_word": "ARMBAND",
+      "zipf": 3.5,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 86,
+      "compound_word": "DACHBODEN",
+      "zipf": 3.5,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 180,
+      "compound_word": "WEGWEISER",
+      "zipf": 3.5,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 346,
+      "compound_word": "WEINBERG",
+      "zipf": 3.5,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 186,
+      "compound_word": "STEINZEIT",
+      "zipf": 3.49,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 251,
+      "compound_word": "WELTREKORD",
+      "zipf": 3.49,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 125,
+      "compound_word": "FACHKRAFT",
+      "zipf": 3.48,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 245,
+      "compound_word": "LAGERFEUER",
+      "zipf": 3.48,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 37,
+      "compound_word": "REGENWALD",
+      "zipf": 3.47,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 120,
+      "compound_word": "POSTKARTE",
+      "zipf": 3.46,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 208,
+      "compound_word": "WINDKRAFT",
+      "zipf": 3.46,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 335,
+      "compound_word": "VIDEOSPIEL",
+      "zipf": 3.45,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 215,
+      "compound_word": "RADSPORT",
+      "zipf": 3.44,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 192,
+      "compound_word": "ZEITDRUCK",
+      "zipf": 3.44,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 187,
+      "compound_word": "STEINBRUCH",
+      "zipf": 3.39,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 248,
+      "compound_word": "TIERPARK",
+      "zipf": 3.38,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 59,
+      "compound_word": "PUNKTZAHL",
+      "zipf": 3.37,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 256,
+      "compound_word": "REISEZIEL",
+      "zipf": 3.35,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 448,
+      "compound_word": "HALLENBAD",
+      "zipf": 3.34,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 249,
+      "compound_word": "TIERWELT",
+      "zipf": 3.34,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 103,
+      "compound_word": "LUFTDRUCK",
+      "zipf": 3.32,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 466,
+      "compound_word": "ORTSZEIT",
+      "zipf": 3.32,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 235,
+      "compound_word": "SCHUSSWAFFE",
+      "zipf": 3.32,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 333,
+      "compound_word": "BLICKFELD",
+      "zipf": 3.31,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 115,
+      "compound_word": "KNOPFDRUCK",
+      "zipf": 3.31,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 106,
+      "compound_word": "LUFTRAUM",
+      "zipf": 3.3,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 267,
+      "compound_word": "TASCHENTUCH",
+      "zipf": 3.3,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 379,
+      "compound_word": "SINNBILD",
+      "zipf": 3.29,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 252,
+      "compound_word": "WELTREISE",
+      "zipf": 3.29,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 472,
+      "compound_word": "NOTENBANK",
+      "zipf": 3.28,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 68,
+      "compound_word": "WORTSPIEL",
+      "zipf": 3.28,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 456,
+      "compound_word": "BEZIRKSAMT",
+      "zipf": 3.27,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 377,
+      "compound_word": "STAMMBAUM",
+      "zipf": 3.27,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 139,
+      "compound_word": "BANKKONTO",
+      "zipf": 3.26,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 319,
+      "compound_word": "FILMMUSIK",
+      "zipf": 3.26,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 361,
+      "compound_word": "MARKTWERT",
+      "zipf": 3.26,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 392,
+      "compound_word": "WALLFAHRT",
+      "zipf": 3.25,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 209,
+      "compound_word": "WINDPARK",
+      "zipf": 3.25,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 359,
+      "compound_word": "JAHRMARKT",
+      "zipf": 3.24,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 35,
+      "compound_word": "REGENWASSER",
+      "zipf": 3.24,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 44,
+      "compound_word": "WASSERHAHN",
+      "zipf": 3.23,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 348,
+      "compound_word": "BERGWERK",
+      "zipf": 3.22,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 487,
+      "compound_word": "ORANGENSAFT",
+      "zipf": 3.22,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 40,
+      "compound_word": "WALDRAND",
+      "zipf": 3.2,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 2,
+      "compound_word": "APFELSAFT",
+      "zipf": 3.19,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 453,
+      "compound_word": "ARTENSCHUTZ",
+      "zipf": 3.19,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 133,
+      "compound_word": "WERKSTOFF",
+      "zipf": 3.18,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 300,
+      "compound_word": "BUCHLADEN",
+      "zipf": 3.17,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 244,
+      "compound_word": "LAGERHAUS",
+      "zipf": 3.17,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 262,
+      "compound_word": "ARZTPRAXIS",
+      "zipf": 3.16,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 350,
+      "compound_word": "BERGLAND",
+      "zipf": 3.16,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 334,
+      "compound_word": "BLICKPUNKT",
+      "zipf": 3.15,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 29,
+      "compound_word": "FELDWEG",
+      "zipf": 3.15,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 484,
+      "compound_word": "LÖWENZAHN",
+      "zipf": 3.15,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 49,
+      "compound_word": "BETTDECKE",
+      "zipf": 3.14,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 331,
+      "compound_word": "MEERWASSER",
+      "zipf": 3.14,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 153,
+      "compound_word": "STÜCKZAHL",
+      "zipf": 3.14,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 261,
+      "compound_word": "ZIELORT",
+      "zipf": 3.14,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 372,
+      "compound_word": "BAUMSTAMM",
+      "zipf": 3.13,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 24,
+      "compound_word": "BRETTSPIEL",
+      "zipf": 3.12,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 88,
+      "compound_word": "DACHSTUHL",
+      "zipf": 3.12,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 145,
+      "compound_word": "STANDBEIN",
+      "zipf": 3.12,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 124,
+      "compound_word": "FACHWERK",
+      "zipf": 3.11,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 28,
+      "compound_word": "SPIELBALL",
+      "zipf": 3.11,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 122,
+      "compound_word": "POSTAMT",
+      "zipf": 3.1,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 327,
+      "compound_word": "STILMITTEL",
+      "zipf": 3.1,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 260,
+      "compound_word": "ZIELLINIE",
+      "zipf": 3.1,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 330,
+      "compound_word": "MITTELWEG",
+      "zipf": 3.08,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 75,
+      "compound_word": "SCHATZKAMMER",
+      "zipf": 3.08,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 48,
+      "compound_word": "WASSERWERK",
+      "zipf": 3.08,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 164,
+      "compound_word": "KURPARK",
+      "zipf": 3.07,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 291,
+      "compound_word": "UHRWERK",
+      "zipf": 3.07,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 281,
+      "compound_word": "GLASHAUS",
+      "zipf": 3.06,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 142,
+      "compound_word": "KONTOSTAND",
+      "zipf": 3.06,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 364,
+      "compound_word": "PAPIERKORB",
+      "zipf": 3.06,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 33,
+      "compound_word": "MANGELWARE",
+      "zipf": 3.05,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 95,
+      "compound_word": "SATZZEICHEN",
+      "zipf": 3.05,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 207,
+      "compound_word": "WINDRAD",
+      "zipf": 3.05,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 143,
+      "compound_word": "KONTONUMMER",
+      "zipf": 3.04,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 451,
+      "compound_word": "WARENHAUS",
+      "zipf": 3.04,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 83,
+      "compound_word": "FEHLERMELDUNG",
+      "zipf": 3.02,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 3,
+      "compound_word": "APFELKUCHEN",
+      "zipf": 3.01,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 112,
+      "compound_word": "DRUCKLUFT",
+      "zipf": 3.01,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 320,
+      "compound_word": "FILMSTAR",
+      "zipf": 3.01,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 253,
+      "compound_word": "WELTKARTE",
+      "zipf": 3.01,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 140,
+      "compound_word": "BANKRÄUBER",
+      "zipf": 3.0,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 4,
+      "compound_word": "BAUMHAUS",
+      "zipf": 3.0,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 1,
+      "compound_word": "APFELBAUM",
+      "zipf": 2.99,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 107,
+      "compound_word": "LUFTBALLON",
+      "zipf": 2.99,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 74,
+      "compound_word": "SCHRIFTSTÜCK",
+      "zipf": 2.99,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 184,
+      "compound_word": "STEINHAUS",
+      "zipf": 2.99,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 458,
+      "compound_word": "BOOTSHAUS",
+      "zipf": 2.98,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 240,
+      "compound_word": "FESTZELT",
+      "zipf": 2.98,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 332,
+      "compound_word": "MEERBLICK",
+      "zipf": 2.98,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 146,
+      "compound_word": "BEINBRUCH",
+      "zipf": 2.97,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 77,
+      "compound_word": "SCHATZSUCHE",
+      "zipf": 2.97,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 271,
+      "compound_word": "GELDMENGE",
+      "zipf": 2.96,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 468,
+      "compound_word": "JACKENTASCHE",
+      "zipf": 2.96,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 393,
+      "compound_word": "WECHSELGELD",
+      "zipf": 2.96,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 64,
+      "compound_word": "ZAHLTAG",
+      "zipf": 2.96,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 97,
+      "compound_word": "BAUPLAN",
+      "zipf": 2.95,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 342,
+      "compound_word": "ROTLICHT",
+      "zipf": 2.95,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 474,
+      "compound_word": "REIHENHAUS",
+      "zipf": 2.94,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 285,
+      "compound_word": "WANDBILD",
+      "zipf": 2.94,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 243,
+      "compound_word": "ZELTLAGER",
+      "zipf": 2.94,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 306,
+      "compound_word": "LOKALZEITUNG",
+      "zipf": 2.93,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 351,
+      "compound_word": "LICHTSCHALTER",
+      "zipf": 2.92,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 241,
+      "compound_word": "FESTTAG",
+      "zipf": 2.91,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 165,
+      "compound_word": "PARKBANK",
+      "zipf": 2.91,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 38,
+      "compound_word": "WALDWEG",
+      "zipf": 2.91,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 46,
+      "compound_word": "WASSERBALL",
+      "zipf": 2.91,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 459,
+      "compound_word": "BREITENSPORT",
+      "zipf": 2.9,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 341,
+      "compound_word": "PROGRAMMHEFT",
+      "zipf": 2.9,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 313,
+      "compound_word": "ZEICHENTRICK",
+      "zipf": 2.9,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 21,
+      "compound_word": "TÜRRAHMEN",
+      "zipf": 2.89,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 339,
+      "compound_word": "ABENDPROGRAMM",
+      "zipf": 2.88,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 6,
+      "compound_word": "BAUMSCHULE",
+      "zipf": 2.88,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 93,
+      "compound_word": "BODENSATZ",
+      "zipf": 2.88,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 61,
+      "compound_word": "PUNKTSPIEL",
+      "zipf": 2.88,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 45,
+      "compound_word": "WASSERFLASCHE",
+      "zipf": 2.87,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 362,
+      "compound_word": "WERTPAPIER",
+      "zipf": 2.87,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 278,
+      "compound_word": "FENSTERBANK",
+      "zipf": 2.86,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 51,
+      "compound_word": "BETTLAKEN",
+      "zipf": 2.85,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 254,
+      "compound_word": "REKORDZEIT",
+      "zipf": 2.85,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 479,
+      "compound_word": "TRAUMHAUS",
+      "zipf": 2.85,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 98,
+      "compound_word": "BAUSTOFF",
+      "zipf": 2.84,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 302,
+      "compound_word": "BUCHFORM",
+      "zipf": 2.84,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 228,
+      "compound_word": "BURGHOF",
+      "zipf": 2.84,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 246,
+      "compound_word": "LAGERPLATZ",
+      "zipf": 2.84,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 31,
+      "compound_word": "PLATZMANGEL",
+      "zipf": 2.84,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 239,
+      "compound_word": "FESTPLATZ",
+      "zipf": 2.83,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 18,
+      "compound_word": "HAUSBOOT",
+      "zipf": 2.83,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 380,
+      "compound_word": "SCHLOSSHOF",
+      "zipf": 2.83,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 100,
+      "compound_word": "SEEWEG",
+      "zipf": 2.83,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 259,
+      "compound_word": "ZIELPUNKT",
+      "zipf": 2.83,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 131,
+      "compound_word": "WERKBANK",
+      "zipf": 2.82,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 178,
+      "compound_word": "LAUFRAD",
+      "zipf": 2.81,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 149,
+      "compound_word": "BRUCHLANDUNG",
+      "zipf": 2.8,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 282,
+      "compound_word": "GLASTÜR",
+      "zipf": 2.8,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 94,
+      "compound_word": "SATZBAU",
+      "zipf": 2.8,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 211,
+      "compound_word": "SCHUTZWALL",
+      "zipf": 2.79,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 242,
+      "compound_word": "ZELTPLATZ",
+      "zipf": 2.79,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 84,
+      "compound_word": "FEHLERQUOTE",
+      "zipf": 2.78,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 101,
+      "compound_word": "SEEBAD",
+      "zipf": 2.77,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 201,
+      "compound_word": "BÜROSTUHL",
+      "zipf": 2.76,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 317,
+      "compound_word": "TRICKFILM",
+      "zipf": 2.76,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 233,
+      "compound_word": "SCHUSSLINIE",
+      "zipf": 2.75,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 310,
+      "compound_word": "FORMSACHE",
+      "zipf": 2.74,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 307,
+      "compound_word": "LOKALPOLITIK",
+      "zipf": 2.73,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 137,
+      "compound_word": "ZEUGHAUS",
+      "zipf": 2.73,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 290,
+      "compound_word": "TAFELRUNDE",
+      "zipf": 2.72,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 91,
+      "compound_word": "BODENBELAG",
+      "zipf": 2.7,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 53,
+      "compound_word": "FALLHÖHE",
+      "zipf": 2.7,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 36,
+      "compound_word": "REGENJACKE",
+      "zipf": 2.7,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 280,
+      "compound_word": "FENSTERRAHMEN",
+      "zipf": 2.69,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 212,
+      "compound_word": "SCHUTZRAUM",
+      "zipf": 2.69,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 450,
+      "compound_word": "WAFFENLAGER",
+      "zipf": 2.69,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 483,
+      "compound_word": "ZEITUNGSPAPIER",
+      "zipf": 2.69,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 73,
+      "compound_word": "SCHRIFTBILD",
+      "zipf": 2.68,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 321,
+      "compound_word": "FILMABEND",
+      "zipf": 2.67,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 202,
+      "compound_word": "RAUMZEIT",
+      "zipf": 2.67,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 8,
+      "compound_word": "SAFTLADEN",
+      "zipf": 2.67,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 354,
+      "compound_word": "BLITZLICHT",
+      "zipf": 2.66,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 87,
+      "compound_word": "DACHFENSTER",
+      "zipf": 2.66,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 206,
+      "compound_word": "FAHRTWIND",
+      "zipf": 2.66,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 305,
+      "compound_word": "LADENLOKAL",
+      "zipf": 2.66,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 170,
+      "compound_word": "DECKBLATT",
+      "zipf": 2.65,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 445,
+      "compound_word": "FLASCHENPOST",
+      "zipf": 2.65,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 385,
+      "compound_word": "FINGERHUT",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 270,
+      "compound_word": "GELDSCHEIN",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 196,
+      "compound_word": "PLANSPIEL",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 203,
+      "compound_word": "RAUMLUFT",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 384,
+      "compound_word": "RINGFINGER",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 230,
+      "compound_word": "TORBOGEN",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 345,
+      "compound_word": "WEINGLAS",
+      "zipf": 2.64,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 382,
+      "compound_word": "BLATTGOLD",
+      "zipf": 2.63,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 79,
+      "compound_word": "KAMMERJÄGER",
+      "zipf": 2.63,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 76,
+      "compound_word": "SCHATZTRUHE",
+      "zipf": 2.62,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 65,
+      "compound_word": "TAGWERK",
+      "zipf": 2.62,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 50,
+      "compound_word": "BETTZEUG",
+      "zipf": 2.61,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 324,
+      "compound_word": "MUSIKSTIL",
+      "zipf": 2.61,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 365,
+      "compound_word": "PAPIERGELD",
+      "zipf": 2.61,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 347,
+      "compound_word": "BERGBAHN",
+      "zipf": 2.6,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 110,
+      "compound_word": "DRUCKFEHLER",
+      "zipf": 2.6,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 128,
+      "compound_word": "KRAFTSPORT",
+      "zipf": 2.6,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 104,
+      "compound_word": "LUFTPUMPE",
+      "zipf": 2.6,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 47,
+      "compound_word": "WASSERBETT",
+      "zipf": 2.6,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 337,
+      "compound_word": "ABENDROT",
+      "zipf": 2.59,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 85,
+      "compound_word": "FEHLERSUCHE",
+      "zipf": 2.59,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 284,
+      "compound_word": "GLASDACH",
+      "zipf": 2.59,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 141,
+      "compound_word": "BANKNOTE",
+      "zipf": 2.58,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 463,
+      "compound_word": "GEISTESBLITZ",
+      "zipf": 2.58,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 283,
+      "compound_word": "GLASWAND",
+      "zipf": 2.58,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 371,
+      "compound_word": "BAUMSTUMPF",
+      "zipf": 2.57,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 299,
+      "compound_word": "RAHMENVERTRAG",
+      "zipf": 2.56,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 344,
+      "compound_word": "ROTSTIFT",
+      "zipf": 2.56,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 389,
+      "compound_word": "TURMUHR",
+      "zipf": 2.56,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 20,
+      "compound_word": "TÜRSCHLOSS",
+      "zipf": 2.56,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 213,
+      "compound_word": "SCHUTZBRILLE",
+      "zipf": 2.55,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 219,
+      "compound_word": "FAHRERTÜR",
+      "zipf": 2.54,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 168,
+      "compound_word": "PARKDECK",
+      "zipf": 2.54,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 308,
+      "compound_word": "FORMFEHLER",
+      "zipf": 2.53,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 255,
+      "compound_word": "REKORDWERT",
+      "zipf": 2.53,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 191,
+      "compound_word": "ROHRBRUCH",
+      "zipf": 2.53,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 298,
+      "compound_word": "RAHMENHANDLUNG",
+      "zipf": 2.52,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 452,
+      "compound_word": "AMTSHAUS",
+      "zipf": 2.5,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 5,
+      "compound_word": "BAUMKRONE",
+      "zipf": 2.5,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 349,
+      "compound_word": "BERGSEE",
+      "zipf": 2.5,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 148,
+      "compound_word": "BRUCHSTÜCK",
+      "zipf": 2.5,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 32,
+      "compound_word": "PLATZREGEN",
+      "zipf": 2.49,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 55,
+      "compound_word": "FALLBEIL",
+      "zipf": 2.48,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 226,
+      "compound_word": "WAGENBURG",
+      "zipf": 2.48,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 200,
+      "compound_word": "BÜROHAUS",
+      "zipf": 2.47,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 218,
+      "compound_word": "FAHRERHAUS",
+      "zipf": 2.47,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 17,
+      "compound_word": "HAUSDACH",
+      "zipf": 2.47,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 210,
+      "compound_word": "WINDSCHUTZ",
+      "zipf": 2.47,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 108,
+      "compound_word": "BALLONFAHRT",
+      "zipf": 2.46,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 99,
+      "compound_word": "SEELUFT",
+      "zipf": 2.46,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 286,
+      "compound_word": "WANDUHR",
+      "zipf": 2.46,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 160,
+      "compound_word": "BANDWURM",
+      "zipf": 2.45,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 464,
+      "compound_word": "HANDELSWARE",
+      "zipf": 2.45,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 105,
+      "compound_word": "LUFTPOST",
+      "zipf": 2.45,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 318,
+      "compound_word": "TRICKKISTE",
+      "zipf": 2.45,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 19,
+      "compound_word": "TÜRGRIFF",
+      "zipf": 2.45,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 373,
+      "compound_word": "BAUMRINDE",
+      "zipf": 2.44,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 129,
+      "compound_word": "KRAFTFELD",
+      "zipf": 2.44,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 60,
+      "compound_word": "PUNKTLANDUNG",
+      "zipf": 2.44,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 357,
+      "compound_word": "SCHALTERHALLE",
+      "zipf": 2.44,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 471,
+      "compound_word": "KULTFILM",
+      "zipf": 2.43,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 154,
+      "compound_word": "STÜCKWERK",
+      "zipf": 2.43,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 391,
+      "compound_word": "PARTNERLAND",
+      "zipf": 2.42,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 78,
+      "compound_word": "KAMMERSPIEL",
+      "zipf": 2.38,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 113,
+      "compound_word": "DRUCKWERK",
+      "zipf": 2.37,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 22,
+      "compound_word": "GRIFFBRETT",
+      "zipf": 2.36,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 162,
+      "compound_word": "WURMLOCH",
+      "zipf": 2.36,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 116,
+      "compound_word": "KNOPFLOCH",
+      "zipf": 2.35,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 258,
+      "compound_word": "REISEPLAN",
+      "zipf": 2.35,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 179,
+      "compound_word": "WEGRAND",
+      "zipf": 2.35,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 70,
+      "compound_word": "WORTBRUCH",
+      "zipf": 2.35,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 368,
+      "compound_word": "BALLSPIEL",
+      "zipf": 2.34,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 231,
+      "compound_word": "TORPFOSTEN",
+      "zipf": 2.34,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 457,
+      "compound_word": "BLECHDACH",
+      "zipf": 2.33,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 301,
+      "compound_word": "BUCHDECKEL",
+      "zipf": 2.33,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 396,
+      "compound_word": "PRESSEHAUS",
+      "zipf": 2.33,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 66,
+      "compound_word": "TAGTRAUM",
+      "zipf": 2.33,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 52,
+      "compound_word": "FALLTÜR",
+      "zipf": 2.32,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 378,
+      "compound_word": "STUMPFSINN",
+      "zipf": 2.32,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 279,
+      "compound_word": "FENSTERGLAS",
+      "zipf": 2.31,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 30,
+      "compound_word": "FELDBETT",
+      "zipf": 2.29,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 198,
+      "compound_word": "PLANSTELLE",
+      "zipf": 2.29,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 41,
+      "compound_word": "BOGENLAMPE",
+      "zipf": 2.28,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 237,
+      "compound_word": "HOFFEST",
+      "zipf": 2.28,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 234,
+      "compound_word": "SCHUSSWEITE",
+      "zipf": 2.28,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 363,
+      "compound_word": "WERTARBEIT",
+      "zipf": 2.28,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 461,
+      "compound_word": "DECKENLAMPE",
+      "zipf": 2.27,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 159,
+      "compound_word": "ARMLEHNE",
+      "zipf": 2.26,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 467,
+      "compound_word": "HUNDESPORT",
+      "zipf": 2.26,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 176,
+      "compound_word": "LAUFWEG",
+      "zipf": 2.26,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 72,
+      "compound_word": "LAUTSCHRIFT",
+      "zipf": 2.25,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 383,
+      "compound_word": "GOLDRING",
+      "zipf": 2.24,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 199,
+      "compound_word": "BÜROTÜR",
+      "zipf": 2.23,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 123,
+      "compound_word": "POSTWAGEN",
+      "zipf": 2.23,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 147,
+      "compound_word": "BEINARBEIT",
+      "zipf": 2.22,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 183,
+      "compound_word": "RANDGEBIET",
+      "zipf": 2.21,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 152,
+      "compound_word": "STÜCKGUT",
+      "zipf": 2.2,
+      "preliminary_decision": "review"
+    },
+    {
+      "edge_id": 227,
+      "compound_word": "BURGTOR",
+      "zipf": 2.19,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 288,
+      "compound_word": "TAFELBILD",
+      "zipf": 2.19,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 225,
+      "compound_word": "WAGENRAD",
+      "zipf": 2.19,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 185,
+      "compound_word": "STEINOFEN",
+      "zipf": 2.18,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 205,
+      "compound_word": "RAUMTEILER",
+      "zipf": 2.17,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 352,
+      "compound_word": "LICHTBLITZ",
+      "zipf": 2.16,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 190,
+      "compound_word": "ROHRPOST",
+      "zipf": 2.16,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 138,
+      "compound_word": "ZEUGWART",
+      "zipf": 2.16,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 355,
+      "compound_word": "BLITZSCHUTZ",
+      "zipf": 2.14,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 303,
+      "compound_word": "LADENTÜR",
+      "zipf": 2.14,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 465,
+      "compound_word": "HANDLUNGSORT",
+      "zipf": 2.12,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 469,
+      "compound_word": "KASSENBUCH",
+      "zipf": 2.11,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 366,
+      "compound_word": "KORBBALL",
+      "zipf": 2.11,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 394,
+      "compound_word": "POLITIKFELD",
+      "zipf": 2.08,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 478,
+      "compound_word": "STELLENPLAN",
+      "zipf": 2.08,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 388,
+      "compound_word": "WEHRTURM",
+      "zipf": 2.08,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 114,
+      "compound_word": "DRUCKKAMMER",
+      "zipf": 2.07,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 272,
+      "compound_word": "GELDHAUS",
+      "zipf": 2.06,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 9,
+      "compound_word": "KUCHENFORM",
+      "zipf": 2.06,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 314,
+      "compound_word": "ZEICHENSTIFT",
+      "zipf": 2.06,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 11,
+      "compound_word": "KUCHENTEIG",
+      "zipf": 2.04,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 172,
+      "compound_word": "STUHLKREIS",
+      "zipf": 2.04,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 273,
+      "compound_word": "BEUTELTIER",
+      "zipf": 2.03,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 174,
+      "compound_word": "KREISFORM",
+      "zipf": 2.01,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 188,
+      "compound_word": "OFENROHR",
+      "zipf": 2.01,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 181,
+      "compound_word": "RANDSTEIN",
+      "zipf": 2.01,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 287,
+      "compound_word": "WANDTAFEL",
+      "zipf": 2.01,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 289,
+      "compound_word": "TAFELWASSER",
+      "zipf": 2.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 473,
+      "compound_word": "PUMPENHAUS",
+      "zipf": 1.99,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 297,
+      "compound_word": "RAHMENBEDINGUNG",
+      "zipf": 1.98,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 304,
+      "compound_word": "LADENKASSE",
+      "zipf": 1.97,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 62,
+      "compound_word": "PUNKTWERT",
+      "zipf": 1.97,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 462,
+      "compound_word": "ESSENSZEIT",
+      "zipf": 1.95,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 111,
+      "compound_word": "DRUCKKNOPF",
+      "zipf": 1.93,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 238,
+      "compound_word": "HOFHUND",
+      "zipf": 1.9,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 336,
+      "compound_word": "VIDEOWAND",
+      "zipf": 1.9,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 475,
+      "compound_word": "RESTGELD",
+      "zipf": 1.89,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 63,
+      "compound_word": "ZAHLWORT",
+      "zipf": 1.89,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 102,
+      "compound_word": "BADHAUS",
+      "zipf": 1.87,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 171,
+      "compound_word": "STUHLBEIN",
+      "zipf": 1.87,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 224,
+      "compound_word": "WAGENTÜR",
+      "zipf": 1.87,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 117,
+      "compound_word": "LOCHKARTE",
+      "zipf": 1.86,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 274,
+      "compound_word": "KAMERATASCHE",
+      "zipf": 1.85,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 257,
+      "compound_word": "REISEWEG",
+      "zipf": 1.84,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 460,
+      "compound_word": "BRILLENGLAS",
+      "zipf": 1.83,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 353,
+      "compound_word": "LICHTJAHR",
+      "zipf": 1.82,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 150,
+      "compound_word": "BRUCHLINIE",
+      "zipf": 1.81,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 340,
+      "compound_word": "PROGRAMMFEHLER",
+      "zipf": 1.8,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 263,
+      "compound_word": "ARZTKITTEL",
+      "zipf": 1.76,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 23,
+      "compound_word": "GRIFFSTÜCK",
+      "zipf": 1.76,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 486,
+      "compound_word": "HERDENTIER",
+      "zipf": 1.76,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 182,
+      "compound_word": "RANDBEZIRK",
+      "zipf": 1.76,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 485,
+      "compound_word": "ELEFANTENHERDE",
+      "zipf": 1.73,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 312,
+      "compound_word": "FRAGEFORM",
+      "zipf": 1.72,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 232,
+      "compound_word": "PFOSTENSCHUSS",
+      "zipf": 1.67,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 216,
+      "compound_word": "RADHAUS",
+      "zipf": 1.67,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 326,
+      "compound_word": "STILFRAGE",
+      "zipf": 1.61,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 136,
+      "compound_word": "STOFFBALLEN",
+      "zipf": 1.61,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 189,
+      "compound_word": "OFENBANK",
+      "zipf": 1.57,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 322,
+      "compound_word": "STARKULT",
+      "zipf": 1.57,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 80,
+      "compound_word": "JÄGERZAUN",
+      "zipf": 1.54,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 367,
+      "compound_word": "KORBSESSEL",
+      "zipf": 1.53,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 10,
+      "compound_word": "KUCHENBLECH",
+      "zipf": 1.53,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 268,
+      "compound_word": "TUCHHANDEL",
+      "zipf": 1.52,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 81,
+      "compound_word": "ZAUNPFOSTEN",
+      "zipf": 1.52,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 163,
+      "compound_word": "WURMKUR",
+      "zipf": 1.51,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 395,
+      "compound_word": "BALLENPRESSE",
+      "zipf": 1.49,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 294,
+      "compound_word": "BILDRAHMEN",
+      "zipf": 1.49,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 477,
+      "compound_word": "RUNDENZAHL",
+      "zipf": 1.47,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 386,
+      "compound_word": "HUTBAND",
+      "zipf": 1.46,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 275,
+      "compound_word": "KAMERAOBJEKTIV",
+      "zipf": 1.46,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 54,
+      "compound_word": "FALLWIND",
+      "zipf": 1.44,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 356,
+      "compound_word": "SCHALTERRAUM",
+      "zipf": 1.43,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 446,
+      "compound_word": "LAMPENLICHT",
+      "zipf": 1.4,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 42,
+      "compound_word": "BOGENSCHUSS",
+      "zipf": 1.36,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 89,
+      "compound_word": "DACHRAND",
+      "zipf": 1.36,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 57,
+      "compound_word": "HIEBWAFFE",
+      "zipf": 1.36,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 482,
+      "compound_word": "ZANGENGRIFF",
+      "zipf": 1.32,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 236,
+      "compound_word": "HOFTÜR",
+      "zipf": 1.3,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 13,
+      "compound_word": "TEIGROLLE",
+      "zipf": 1.24,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 265,
+      "compound_word": "KITTELTASCHE",
+      "zipf": 1.23,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 67,
+      "compound_word": "TAGLICHT",
+      "zipf": 1.23,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 39,
+      "compound_word": "WALDTIER",
+      "zipf": 1.2,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 454,
+      "compound_word": "BEDINGUNGSSATZ",
+      "zipf": 1.15,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 277,
+      "compound_word": "DECKELRAND",
+      "zipf": 1.13,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 276,
+      "compound_word": "OBJEKTIVDECKEL",
+      "zipf": 1.13,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 151,
+      "compound_word": "BRUCHZAHL",
+      "zipf": 1.12,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 119,
+      "compound_word": "LOCHREIHE",
+      "zipf": 1.07,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 12,
+      "compound_word": "TEIGWARE",
+      "zipf": 1.06,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 369,
+      "compound_word": "BALLFELD",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 109,
+      "compound_word": "BALLONKORB",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 374,
+      "compound_word": "BAUMRING",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 56,
+      "compound_word": "BEILHIEB",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 455,
+      "compound_word": "BELAGSART",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 295,
+      "compound_word": "BILDBUCH",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 90,
+      "compound_word": "BODENLAMPE",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 169,
+      "compound_word": "DECKSTUHL",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 488,
+      "compound_word": "EIMERGRIFF",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 309,
+      "compound_word": "FORMFRAGE",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 470,
+      "compound_word": "KISTENDECKEL",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 175,
+      "compound_word": "KREISPUNKT",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 449,
+      "compound_word": "LANDUNGSPUNKT",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 118,
+      "compound_word": "LOCHZANGE",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 197,
+      "compound_word": "PLANBÜRO",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 264,
+      "compound_word": "PRAXISTÜR",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 7,
+      "compound_word": "SAFTFLASCHE",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 370,
+      "compound_word": "SESSELBEIN",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 315,
+      "compound_word": "STIFTHALTER",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 316,
+      "compound_word": "STIFTZAHN",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 135,
+      "compound_word": "STOFFREST",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 480,
+      "compound_word": "TRUHENDECKEL",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 293,
+      "compound_word": "UHRBAND",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 390,
+      "compound_word": "VERTRAGPARTNER",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 481,
+      "compound_word": "WEITENREKORD",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 157,
+      "compound_word": "WERFERARM",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 82,
+      "compound_word": "ZAUNTOR",
+      "zipf": 0.0,
+      "preliminary_decision": "drop"
+    }
+  ]
+}
