@@ -36,17 +36,6 @@ function sevenMarkup(value='00:00:00'){
   }).join('');
 }
 
-function currentViewer(){
-  const memberId=state?.viewer?.member_id;
-  return (session?.players||[]).find(p=>p.tournament_member_id===memberId)||null;
-}
-function viewerLabel(){
-  if(testMode){const c=state?.current||{};return `${String(c.team_name||teamFallback(c.identity_color)).toUpperCase()} · ${String(c.display_name||'PLAYER').toUpperCase()}`}
-  const p=currentViewer();
-  const color=p?.identity_color||'';
-  const team=teamFallback(color);
-  return p?.display_name?`${team} · ${String(p.display_name).toUpperCase()}`:team;
-}
 function setTheme(){
   const identity=String(state?.current?.identity_color||'').toUpperCase(),c=teamColor(identity);
   const theme=String(document.documentElement.dataset.themePack||document.body.dataset.themePack||'theme.skielsen.core');

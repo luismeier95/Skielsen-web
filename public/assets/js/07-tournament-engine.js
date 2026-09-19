@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.40';
+const VERSION=window.SKIELSEN_VERSION||'15.1.41';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -111,7 +111,6 @@ function userActor(){return actor(state?.userActorId)}
 function userParticipant(){return participant(state?.userParticipantId)}
 function actorParticipant(a){return participant(a?.participantId)}
 function activeActorIds(){return (state?.actors||[]).map(a=>a.id)}
-function realActorIds(){return (state?.actors||[]).filter(a=>!a.isBot).map(a=>a.id)}
 function currentMatchSequence(g=gameNow(),m=matchNow()){if(!g||!m)return 1;const ix=(g.matches||[]).indexOf(m);return ix>=0?ix+1:Number(g.matchIndex||0)+1}
 function serverBettingApplies(){return !!(client&&runtime?.tournament_id&&gameNow()?.tournament_game_id&&feature('feature.betting'))}
 function serverVoteApplies(g=gameNow()){return !!(client&&runtime?.tournament_id&&g?.tournament_game_id)}
@@ -175,7 +174,6 @@ function buildRatings(rt,actors){
 
 function competitionMode(g){return String(g?.competition_mode||'').toUpperCase()}
 function isMatchBasedGame(g){return competitionMode(g)==='MATCH_BASED'}
-function isFreeForAllGame(g){return competitionMode(g)==='FREE_FOR_ALL'}
 function isSharedContestGame(g){return !!g&&!isMatchBasedGame(g)}
 function isSharedContestMatch(m){return m?.stage==='FREE_FOR_ALL'||m?.stage==='MULTI_PARTICIPANT'}
 function sharedContestStage(g){return competitionMode(g).startsWith('FREE_FOR_ALL')?'FREE_FOR_ALL':'MULTI_PARTICIPANT'}
@@ -568,7 +566,6 @@ function resolveBracketAfterMatch(g,deferPostGame=false){
  if(i<g.matches.length-1){g.matchIndex=i+1;openCurrentMarket(g)}else{finishGame(g,deferPostGame)}
 }
 function commitGamePlacementPoints(g){if(!g||g.resultsCommitted)return false;const placements=g.placements||[];placements.forEach((pid,ix)=>{const r=state.rankings[pid],place=ix+1;let pts=scoringPoints(place);if(feature('feature.joker')&&g.joker?.accepted?.type==='DOUBLE_POINTS'&&g.joker.accepted.participantId===pid)pts*=2;r.points+=pts;if(place===1)r.first++;else if(place===2)r.second++;else if(place===3)r.third++;else if(place===4)r.last++});g.resultsCommitted=true;return true}
-function secretJokerRevealDetail(g){const a=g?.joker?.accepted;if(!a)return '';const owner=teamName(participant(a.participantId));if(a.type==='DOUBLE_POINTS'){const place=(g.placements||[]).indexOf(a.participantId)+1,base=place>0?scoringPoints(place):0;return `${owner} · PLATZ ${place||'—'} · ${base} → ${base*2} PUNKTE`}return `${owner} · ${jokerTypeLabel(a.type)}`}
 function jokerTeamColorHex(p){
  return ({BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'}[p?.color]||'var(--theme-accent)');
 }
@@ -938,12 +935,6 @@ function primeJokerNotificationBaseline(board){
 
 function jokerResolutionGame(ss){return (state.games||[]).find(g=>g.tournament_game_id===ss?.tournament_game_id)||null}
 function closeJokerResolutionDialog(){const d=q('#v1511JokerResolutionDialog'),card=d?q('.v1511-joker-resolution-card',d):null;if(card?.classList.contains('is-pick')&&pendingPickDialogGameId)pendingPickDismissedFor=pendingPickDialogGameId;if(d)d.hidden=true;pendingPickDialogGameId=null;selectedJokerTarget=null}
-function renderBracketSummary(g){
- const ms=g?.matches||[],a=ms.find(x=>x.stage==='SEMIFINAL_1'),b=ms.find(x=>x.stage==='SEMIFINAL_2');
- if(!a||!b)return 'TURNIERBAUM WURDE AKTUALISIERT.';
- const n=x=>x?teamName(participant(x)):'TBD';
- return `HF 1 · ${esc(n(a.a))} VS ${esc(n(a.b))}<br>HF 2 · ${esc(n(b.a))} VS ${esc(n(b.b))}`;
-}
 function openJokerResolutionNotice(ss){
  const g=jokerResolutionGame(ss),d=q('#v1511JokerResolutionDialog'),card=q('.v1511-joker-resolution-card',d),choices=q('#v1511OpponentChoices'),close=q('#v1511JokerResolutionClose'),confirm=q('#v1511JokerResolutionConfirm');
  if(!d||!card||!g)return;
@@ -966,14 +957,6 @@ function openPendingPickDialog(pp){
  const g=(state.games||[]).find(x=>x.tournament_game_id===pp?.tournament_game_id),p=userParticipant(),overlay=q('#v1536PickOpponentOverlay'),card=q('#v1536PickCard'),choices=q('#v1536PickChoices'),grid=q('#v1536PickChoiceGrid'),confirm=q('#v1536PickConfirm');
  if(!g||!p||!overlay||!card||!choices||!grid||!confirm)return;if(!g.joker?.awaitingPick)return;if(overlay.hidden===false&&pendingPickDialogGameId===g.tournament_game_id)return;
  pendingPickDialogGameId=g.tournament_game_id;pendingPickDismissedFor=null;selectedJokerTarget=null;setText('#v1536PickOwner',`${teamName(p)} WÄHLT`);grid.innerHTML=state.participants.filter(x=>x.id!==p.id).map(x=>`<button class="v1536-pick-choice" type="button" data-v1536-pick-target="${esc(x.id)}"><i class="${marker(x.color)}"></i><span><strong>${esc(x.name)}</strong><span>ALS GEGNER WÄHLEN</span></span></button>`).join('');confirm.disabled=true;confirm.classList.remove('ready');confirm.textContent='AUSWAHL BESTÄTIGEN';choices.hidden=true;overlay.className='v1536-pick-overlay';overlay.hidden=false;card.classList.remove('flipped');requestAnimationFrame(()=>{setTimeout(()=>card.classList.add('flipped'),320);setTimeout(()=>{choices.hidden=false;overlay.classList.add('selecting')},1350)})
-}
-function showBracketUpdatedDialog(g){
- const d=q('#v1511JokerResolutionDialog'),card=q('.v1511-joker-resolution-card',d),choices=q('#v1511OpponentChoices'),confirm=q('#v1511JokerResolutionConfirm'),close=q('#v1511JokerResolutionClose');
- if(!d||!card)return;pendingPickDialogGameId=null;selectedJokerTarget=null;card.classList.remove('is-rejected','is-pick');card.classList.add('is-success');
- setText('#v1511JokerResolutionKicker','JOKER ANGEWENDET');setText('#v1511JokerResolutionTitle','TURNIERBAUM AKTUALISIERT');
- setText('#v1511JokerResolutionCopy','Deine Gegnerwahl wurde gespeichert. Die Halbfinals wurden neu aufgebaut und das Betting wird jetzt auf Basis dieses finalen Brackets geöffnet.');
- const s=q('#v1511JokerResolutionSummary');if(s)s.innerHTML=renderBracketSummary(g);
- if(choices){choices.hidden=true;choices.innerHTML=''}if(confirm)confirm.hidden=true;if(close)close.textContent='MATCHES ANSEHEN';d.dataset.afterClose='matches';d.hidden=false;
 }
 function handleJokerBoardNotifications(board,notify){
  if(!state||!board)return;
@@ -1169,33 +1152,6 @@ async function startMatch(){
 function autofillScore(){const m=matchNow();if(!m)return;const a=3+(hash(m.id+'A')%8),b=2+(hash(m.id+'B')%8);let aa=a,bb=b;if(aa===bb)aa++;const ia=q('#quickResultA'),ib=q('#quickResultB');if(ia)ia.value=aa;if(ib)ib.value=bb;syncQuickResultButton()}
 function syncQuickResultButton(){const sel=gameControlSelection(),m=sel.m,a=Number(q('#quickResultA')?.value),b=Number(q('#quickResultB')?.value);const ok=sel.isCurrent&&m?.status==='LIVE'&&Number.isFinite(a)&&Number.isFinite(b)&&a>=0&&b>=0&&a!==b;setHoldLabel(q('#quickResultConfirm'),'ERGEBNIS BESTÄTIGEN',!ok)}
 
-function ffaPlacementValues(page=document){return qa('[data-v15-ffa-place]',page).map(sel=>({participantId:sel.dataset.v15FfaPlace,place:Number(sel.value)}))}
-function ffaPlacementValid(page=document){const m=matchNow(),vals=ffaPlacementValues(page);if(!isSharedContestMatch(m)||m.status!=='LIVE'||vals.length!==(m.participantIds||[]).length)return false;const n=vals.length,places=vals.map(x=>x.place);return places.every(x=>Number.isInteger(x)&&x>=1&&x<=n)&&new Set(places).size===n}
-function concludeFreeForAll(){const m=matchNow(),page=q('#gameControlPage');if(!m||!isSharedContestMatch(m)||!ffaPlacementValid(page))return false;const placements=ffaPlacementValues(page).sort((a,b)=>a.place-b.place).map(x=>x.participantId);return concludeSharedPlacements(placements,'GAME CONTROL PLACEMENT')}
-function ensureFfaControlUi(page){
- let roster=q('#v15FfaControlRoster',page);if(!roster){roster=document.createElement('div');roster.id='v15FfaControlRoster';roster.className='v15-ffa-control-roster';const gate=q('#prototypeControlBetGate',page);gate?.parentNode?.insertBefore(roster,gate)}
- let panel=q('#v15FfaResultPanel',page);if(!panel){panel=document.createElement('section');panel.id='v15FfaResultPanel';panel.className='utility-panel v15-ffa-result-panel';const quick=q('.quick-result-panel',page);quick?.parentNode?.insertBefore(panel,quick?.nextSibling||null)}
- return {roster,panel};
-}
-function renderFfaGameControl(g,m,page){
- const {roster,panel}=ensureFfaControlUi(page),ps=freeForAllRoster(m),quick=q('.quick-result-panel',page);if(quick)quick.hidden=true;if(roster)roster.hidden=true;
- const snap=feature('feature.betting')?freezeOdds(m,g):null,decided=Object.keys(state.betDecisions[m.id]||{}).length;setText('#prototypeControlBetTitle',feature('feature.betting')?`MULTI BETTING · ${decided}/${activeActorIds().length} ENTSCHIEDEN`:'BETTING AUS');setText('#prototypeControlBetCopy',feature('feature.betting')?`Mehrwege-Markt mit ${snapshotSelections(snap).length} Participants · Quoten beim Öffnen eingefroren.`:'Betting ist für dieses Turnier deaktiviert.');
- if(!panel)return;panel.hidden=false;
- if(m.status!=='LIVE'){
-   panel.innerHTML=`<div class="utility-head"><h2>ENDERGEBNIS</h2><small>GAME CONTROL</small></div><div class="v1514-auto-state"><strong>${m.status==='CONCLUDED'?'ERGEBNIS GESPEICHERT':'NOCH NICHT FREIGEGEBEN'}</strong><span>${m.status==='CONCLUDED'?`BETTING ABGERECHNET · DEIN GUTHABEN ${fmt(currentWallet())} COINS`:'Die Ergebnisauswahl wird hier freigeschaltet, sobald das Game LIVE ist.'}</span></div>`;return
- }
- const mode=resultEntryMode(g,m);
- if(mode==='METRIC'){
-   const unit=metricUnitLabel(g),step=['STROKES','LINK_COUNT','PRIZE_LEVEL','POINTS'].includes(resultType(g))?'1':'any';
-   panel.innerHTML=`<div class="utility-head"><h2>ENDERGEBNIS · ${esc(unit)}</h2><small>4-PLAYER · GAME CONTROL</small></div><p class="v1514-entry-kicker">${metricLowerWins(g)?'NIEDRIGSTER WERT GEWINNT':'HÖCHSTER WERT GEWINNT'} · ALLE WERTE DIREKT HIER EINTRAGEN. GLEICHSTÄNDE MÜSSEN VORHER NACH DER GAMESPEZIFISCHEN TIEBREAK-REGEL AUFGELÖST WERDEN.</p><div class="v1514-metric-grid">${ps.map(p=>`<label class="v1514-metric-row"><span><i class="${marker(p.color)}"></i>${esc(p.name)}</span><input type="number" step="${step}" min="0" inputmode="decimal" data-v1532-control-metric="${esc(p.id)}" placeholder="${esc(unit)}"></label>`).join('')}</div><button class="quick-result-confirm" id="v1532ControlMetricConfirm" type="button" disabled>ENDERGEBNIS BESTÄTIGEN</button><p class="admin-inline-feedback" id="v1532ControlFeedback"></p>`;
-   const sync=()=>{const vals=qa('[data-v1532-control-metric]',panel),ok=vals.length===ps.length&&vals.every(x=>x.value!==''&&Number.isFinite(Number(x.value)));const b=q('#v1532ControlMetricConfirm',panel);if(b)b.disabled=!ok};qa('[data-v1532-control-metric]',panel).forEach(x=>x.addEventListener('input',sync));q('#v1532ControlMetricConfirm',panel)?.addEventListener('click',()=>{const values=Object.fromEntries(qa('[data-v1532-control-metric]',panel).map(x=>[x.dataset.v1532ControlMetric,Number(x.value)]));concludeSharedMetrics(values)});return
- }
- m.resultDraft=m.resultDraft||{};const picked=Array.isArray(m.resultDraft.placements)?m.resultDraft.placements.filter(id=>(m.participantIds||[]).includes(id)):[];m.resultDraft.placements=picked;const remaining=ps.filter(p=>!picked.includes(p.id)),nextPlace=picked.length+1;
- if(remaining.length===1&&picked.length===ps.length-1){const final=[...picked,remaining[0].id];m.resultDraft.placements=[];concludeSharedPlacements(final,'GAME CONTROL PLACEMENT');return}
- panel.innerHTML=`<div class="utility-head"><h2>ENDERGEBNIS · PLATZIERUNG</h2><small>4-PLAYER · GAME CONTROL</small></div><div class="v1514-placement-step"><p class="v1514-entry-kicker">PLATZIERUNG NACHEINANDER ANTIPPEN. DER LETZTE VERBLEIBENDE PARTICIPANT WIRD AUTOMATISCH AUF PLATZ ${ps.length} GESETZT.</p>${picked.length?`<div class="v1514-place-picked">${picked.map((id,i)=>`<span>${i+1}. ${esc(teamName(participant(id)))}</span>`).join('')}</div>`:''}<h4>WER WURDE ${nextPlace}.?</h4><div class="v1514-place-grid">${remaining.map(p=>`<button class="v1514-place-btn" type="button" data-v1532-control-place="${esc(p.id)}"><i class="${marker(p.color)}"></i><span><strong>${esc(p.name)}</strong><small>PLATZ ${nextPlace}</small></span></button>`).join('')}</div>${picked.length?'<button class="v1514-place-undo" id="v1532ControlPlaceUndo" type="button">LETZTE AUSWAHL ZURÜCK</button>':''}</div>`;
- qa('[data-v1532-control-place]',panel).forEach(btn=>btn.addEventListener('click',()=>{m.resultDraft.placements.push(btn.dataset.v1532ControlPlace);renderGameControl()}));q('#v1532ControlPlaceUndo',panel)?.addEventListener('click',()=>{m.resultDraft.placements.pop();renderGameControl()})
-}
-function clearFfaGameControl(page){const quick=q('.quick-result-panel',page),roster=q('#v15FfaControlRoster',page),panel=q('#v15FfaResultPanel',page);if(quick)quick.hidden=false;if(roster)roster.hidden=true;if(panel)panel.hidden=true}
 
 
 function participantOrderForDisplay(list){const order=String(runtime?.mode).toUpperCase()==='TEAM'?TEAM_ORDER:SOLO_ORDER;return [...list].sort((a,b)=>order.indexOf(a?.color)-order.indexOf(b?.color))}
