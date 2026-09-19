@@ -37,3 +37,10 @@ main{width:min(1040px,100%);margin:0 auto;padding:28px 18px 100px}.wk-screen{dis
 .compound-prompt{grid-template-columns:1fr 58px}
 .compound-prompt b{width:58px;height:48px;background:var(--accent);font-size:24px}
 .compound-prompt span strong{display:block;margin-top:4px;color:#050505;font:900 10px/1 var(--ui);letter-spacing:.5px}
+
+/* V6 · unmistakable per-player letter prompt */
+.letter-command{margin:12px 0 9px;background:#050505;color:#fff;padding:12px 13px;display:grid;grid-template-columns:1fr 64px;align-items:center;gap:10px;border-left:5px solid var(--accent)}
+.letter-command span{font:900 7px/1.35 var(--ui);letter-spacing:.75px}
+.letter-command span strong{display:block;margin-top:5px;color:#aaa;font:800 6px/1.35 var(--ui);letter-spacing:.45px}
+.letter-command b{width:64px;height:54px;display:grid;place-items:center;background:var(--accent);color:#fff;font:30px/1 var(--display)}
+.compound-prompt{display:none}

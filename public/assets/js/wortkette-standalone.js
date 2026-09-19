@@ -152,9 +152,20 @@ async function discoverContinuations(base){
   }
 }
 
+async function viableContinuations(base,used,needFuture=true){
+  const options=(await discoverContinuations(base)).filter(o=>!used.has(keyWord(o.next)));
+  if(!needFuture)return options;
+  const checked=await Promise.all(options.map(async o=>{
+    const future=(await discoverContinuations(o.next)).filter(n=>!used.has(keyWord(n.next))&&keyWord(n.next)!==keyWord(o.next));
+    return future.length?o:null;
+  }));
+  return checked.filter(Boolean);
+}
+
 async function assignRequiredLetters(){
+  const needFuture=currentRound<rounds;
   for(const p of players){
-    const options=(await discoverContinuations(p.lastValid)).filter(o=>!p.used.has(keyWord(o.next)));
+    const options=await viableContinuations(p.lastValid,p.used,needFuture);
     if(!options.length){
       p.requiredLetter='—';
       p.noContinuation=true;
@@ -167,9 +178,9 @@ async function assignRequiredLetters(){
 }
 
 async function exampleFor(p){
-  const local=localExample(p);if(local)return local;
-  const options=(await discoverContinuations(p.lastValid))
-    .filter(o=>firstLetter(o.next)===p.requiredLetter&&!p.used.has(keyWord(o.next)));
+  const needFuture=currentRound<rounds;
+  const options=(await viableContinuations(p.lastValid,p.used,needFuture))
+    .filter(o=>firstLetter(o.next)===p.requiredLetter);
   return options[0]||null;
 }
 
@@ -203,7 +214,7 @@ function playerCard(p,i){
   return '<article class="player-card '+(p.locked?'locked ':'')+(phase==='REVEAL'?(p.result?.ok?'valid':'invalid'):'')+'" style="--player-color:'+p.color+'" data-player="'+i+'">'+
     '<div class="player-head"><i></i><div><small>PLAYER / TEAM '+String(i+1).padStart(2,'0')+'</small><strong>'+esc(p.name)+'</strong></div><div class="mistakes"><b>'+p.errors+'</b><span>FEHLER</span></div></div>'+
     '<div class="chain-current"><small>AKTUELLES AUSGANGSWORT</small><strong>'+esc(p.lastValid)+'</strong></div>'+
-    '<div class="compound-prompt"><span>NEUES NOMEN MUSS MIT DIESEM BUCHSTABEN BEGINNEN<strong>BEIDE NOMEN BLEIBEN UNVERÄNDERT</strong></span><b>'+esc(p.requiredLetter)+'</b></div>'+
+    '<div class="letter-command"><span>VORGABE-BUCHSTABE<strong>DEIN NEUES NOMEN MUSS HIERMIT BEGINNEN · BEIDE NOMEN BLEIBEN UNVERÄNDERT</strong></span><b>'+esc(p.requiredLetter)+'</b></div>'+
     '<div class="answer-row"><input data-answer="'+i+'" maxlength="32" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(p.requiredLetter)+'…"><button data-submit="'+i+'" type="button" '+(p.noContinuation?'disabled':'')+'>LOCK IN</button></div>'+
     state+reveal+'</article>';
 }
@@ -236,8 +247,8 @@ function updateTop(){
 async function startGame(){
   const custom=titleCaseWord(q('#startWordInput').value),start=custom||titleCaseWord(randomStart());
   if(!lettersOnly(start)){alert('Bitte ein gültiges Start-Nomen eingeben.');return}
-  const continuations=await discoverContinuations(start);
-  if(!continuations.length){alert('Für dieses Start-Nomen konnte keine unveränderte, belegte Fortsetzung gefunden werden. Bitte anderes Startwort wählen.');return}
+  const continuations=await viableContinuations(start,new Set([keyWord(start)]),rounds>1);
+  if(!continuations.length){alert('Dieses Start-Nomen führt nicht in eine fortsetzbare Kette. Bitte anderes Startwort wählen.');return}
   readPlayers(start);currentRound=0;show('playScreen');await startRound();
 }
 async function startRound(){
@@ -292,6 +303,11 @@ async function validatePlayer(p,roundStarted){
       return fail('BEIDE TEILE MÜSSEN EIGENSTÄNDIGE DEUTSCHE NOMEN SEIN.');
     }
     return fail('DAS EXAKTE KOMPOSITUM '+exactCompound(p.lastValid,word).toLocaleUpperCase('de-DE')+' IST NICHT ALS DEUTSCHES NOMEN BELEGT. KEINE FUGENELEMENTE ODER BEUGUNGEN ERLAUBT.');
+  }
+  if(currentRound<rounds){
+    const nextUsed=new Set(p.used);nextUsed.add(keyWord(word));
+    const future=await viableContinuations(word,nextUsed,true);
+    if(!future.length)return fail(word.toLocaleUpperCase('de-DE')+' WÜRDE DIE KETTE BEENDEN · FÜR DIE NÄCHSTE RUNDE GIBT ES KEINE SICHERE BUCHSTABENVORGABE.');
   }
   return {ok:true,compound:verified.compound,message:'GÜLTIG: '+String(verified.compound).toLocaleUpperCase('de-DE')+'.'}
 }
