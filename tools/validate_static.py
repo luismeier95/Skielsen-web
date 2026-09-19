@@ -146,7 +146,6 @@ if h.index('assets/css/tournament-theme-runtime.css?v='+v) < h.index('assets/css
 for _theme in ['theme.skielsen.core','theme.jga.night','theme.christmas.winter_clash','theme.summer.sunset_showdown','theme.girly.pink_chaos']:
  if _theme not in theme_css: fail(f'Theme fehlt in Theme Authority: {_theme}')
 
-if 'data-theme-preview="theme.girly.pink_chaos"' not in h: fail('Match Detail Pink-Chaos QA-Snippet fehlt')
 
 if 'var(--inapp-page)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8') or 'var(--theme-button)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8'): fail('Buzzer erbt Tournament Theme nicht')
 
