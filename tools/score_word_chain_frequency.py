@@ -12,7 +12,7 @@ PRELIM_REVIEW = 2.20
 
 def db_config():
     text = Path("public/assets/js/06-db-bootstrap.js").read_text(encoding="utf-8")
-    url = re.search(r"https://[a-z0-9]+\\.supabase\\.co", text)
+    url = re.search(r"https://[a-z0-9]+\.supabase\.co", text)
     key = re.search(r"sb_publishable_[A-Za-z0-9_-]+", text)
     if not url or not key:
         raise RuntimeError("Supabase public config not found")
