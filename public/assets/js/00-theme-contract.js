@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.41';
+const VERSION=window.SKIELSEN_VERSION||'15.1.42';
 
 const TOKEN_MAP=Object.freeze({
   root_canvas:'--theme-root-canvas',
