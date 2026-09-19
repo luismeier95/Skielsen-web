@@ -159,3 +159,9 @@ if 'data-mol-minimize' not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_
 if "window.skielsenInApp?.minimize?.()" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Minimieren nutzt nicht den gemeinsamen In-App-Flow')
 
 if '.mol-minimize{' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less Minimieren-Styles fehlen')
+
+if 'document.documentElement.dataset.themePack=theme' not in engine_text: fail('Tournament Theme wird nicht auf html root gespiegelt')
+
+if '<meta name="theme-color" content="#e9e9e9"/>' not in h: fail('Browser theme-color entspricht nicht dem Core Canvas')
+
+if 'html[data-theme-pack="theme.skielsen.core"]{background:#e9e9e9!important}' not in theme_css: fail('Core Browser-Canvas ist nicht Shop-like #e9e9e9')
