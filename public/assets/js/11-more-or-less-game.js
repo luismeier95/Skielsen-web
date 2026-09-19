@@ -2,7 +2,7 @@
 'use strict';
 
 const POLL_MS=650;
-const COLORS={BLUE:'#2979FF',RED:'#FF1744',YELLOW:'#FF2ED1',GREEN:'#00F5D4'};
+const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
 let root=null,session=null,db=null,state=null,pollTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
