@@ -1142,3 +1142,31 @@ body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen
 .home-standing-row.mine :is(b,strong,span){
   color:var(--theme-on-surface-soft)!important;
 }
+
+
+/* ---------- Theme Contract v2 · HOME specificity fix ---------- */
+/* Legacy app.css contains #homePage + !important rules.
+   Match that ID specificity so non-Core themes can actually own the text colors. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#homePage .home-module-head{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-bottom-color:var(--theme-border-strong)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#homePage .home-module-head h2{
+  color:var(--theme-on-surface)!important;
+  -webkit-text-fill-color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#homePage .home-module-head>div>span,
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#homePage .home-module-head>small{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#homePage .home-module-head button{
+  color:var(--theme-on-surface)!important;
+  -webkit-text-fill-color:var(--theme-on-surface)!important;
+}
