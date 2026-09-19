@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-19T16:00:39.289362+00:00",
+  "generated_at": "2026-09-19T16:01:53.195005+00:00",
   "source": "wordfreq 3.1.1, German large list; multi-source corpus snapshot through about 2021",
   "license_note": "wordfreq code Apache-2.0; included frequency data CC BY-SA 4.0 / attributed sources.",
   "preliminary_thresholds": {
@@ -8,16 +8,21 @@
     "drop_below_zipf": 2.2
   },
   "summary": {
-    "count": 440,
+    "count": 445,
     "min_zipf": 0.0,
     "max_zipf": 4.67,
     "bands": {
-      "keep": 213,
-      "review": 111,
-      "drop": 116
+      "keep": 214,
+      "review": 112,
+      "drop": 119
     },
     "named_examples": {
-      "HUNDELEINE": null,
+      "HUNDELEINE": {
+        "edge_id": 489,
+        "compound_word": "HUNDELEINE",
+        "zipf": 2.11,
+        "preliminary_decision": "drop"
+      },
       "HUNDESPORT": {
         "edge_id": 467,
         "compound_word": "HUNDESPORT",
@@ -781,6 +786,12 @@
       "edge_id": 260,
       "compound_word": "ZIELLINIE",
       "zipf": 3.1,
+      "preliminary_decision": "keep"
+    },
+    {
+      "edge_id": 491,
+      "compound_word": "HUNDEFUTTER",
+      "zipf": 3.09,
       "preliminary_decision": "keep"
     },
     {
@@ -1870,6 +1881,12 @@
       "preliminary_decision": "review"
     },
     {
+      "edge_id": 490,
+      "compound_word": "HUNDEHÜTTE",
+      "zipf": 2.31,
+      "preliminary_decision": "review"
+    },
+    {
       "edge_id": 30,
       "compound_word": "FELDBETT",
       "zipf": 2.29,
@@ -2038,6 +2055,12 @@
       "preliminary_decision": "drop"
     },
     {
+      "edge_id": 489,
+      "compound_word": "HUNDELEINE",
+      "zipf": 2.11,
+      "preliminary_decision": "drop"
+    },
+    {
       "edge_id": 469,
       "compound_word": "KASSENBUCH",
       "zipf": 2.11,
@@ -2047,6 +2070,12 @@
       "edge_id": 366,
       "compound_word": "KORBBALL",
       "zipf": 2.11,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 492,
+      "compound_word": "HUNDEKUCHEN",
+      "zipf": 2.09,
       "preliminary_decision": "drop"
     },
     {
@@ -2149,6 +2178,12 @@
       "edge_id": 297,
       "compound_word": "RAHMENBEDINGUNG",
       "zipf": 1.98,
+      "preliminary_decision": "drop"
+    },
+    {
+      "edge_id": 493,
+      "compound_word": "HUNDEHALSBAND",
+      "zipf": 1.97,
       "preliminary_decision": "drop"
     },
     {
