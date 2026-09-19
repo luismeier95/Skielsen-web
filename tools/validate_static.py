@@ -76,12 +76,16 @@ if 'popstate' not in history_text or 'pushState' not in history_text or 'replace
 if 'assets/js/00-team-identity.js?v='+v not in h: fail('Team Identity Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-team-identity.js?v='+v) > h.index('assets/js/00-theme-contract.js?v='+v): fail('Team Identity Runtime muss vor Theme Contract geladen werden')
 team_identity_js=(PUBLIC/'assets/js/00-team-identity.js').read_text(encoding='utf-8')
-for _needle in ["BLUE:Object.freeze({id:'BLUE',label:'BLAU',hex:'#2979FF'","RED:Object.freeze({id:'RED',label:'ROT',hex:'#FF1744'","YELLOW:Object.freeze({id:'YELLOW',label:'PINK',hex:'#FF2ED1'","GREEN:Object.freeze({id:'GREEN',label:'TÜRKIS',hex:'#00F5D4'"]:
- if _needle not in team_identity_js: fail('Neue Team Identity Palette unvollständig: '+_needle)
+for _needle in ["hex:'#1515FF'","hex:'#FF1717'","hex:'#F2B705'","hex:'#00A65A'","hex:'#2979FF'","hex:'#FF1744'","hex:'#00F5D4'","hex:'#FF2ED1'"]:
+ if _needle not in team_identity_js: fail('Core/Core2 Team-Palette unvollständig: '+_needle)
 
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
 theme_contract_js=(PUBLIC/'assets/js/00-theme-contract.js').read_text(encoding='utf-8')
+main_css_text=(PUBLIC/'assets/css/app.css').read_text(encoding='utf-8')
+for _needle in ['--core-blue:#1515FF','--core-red:#FF1717','--core-yellow:#F2B705','--core-green:#00A65A','--core-blue:#2979FF','--core-red:#FF1744','--core-yellow:#00F5D4','--core-green:#FF2ED1']:
+ if _needle not in main_css_text: fail('Core/Core2 CSS-Palette fehlt: '+_needle)
+
 for _key in [
  'root_canvas','browser_color','page','on_page','surface','on_surface','surface_soft','on_surface_soft',
  'surface_muted','on_surface_muted','border','border_strong','muted','faint','placeholder','header','on_header',
