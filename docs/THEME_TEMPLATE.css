@@ -1,86 +1,79 @@
 /*
-  SKIELSEN THEME TEMPLATE · Theme Contract v1
-  Copy this block, change only the values, and register the theme_pack_id.
-  Do NOT add page-specific selectors for the theme.
+  SKIELSEN Theme Contract v2
+  New themes are backend data, not CSS theme blocks.
+
+  This file is only a visual reference for the CSS variable mapping produced by
+  public/assets/js/00-theme-contract.js. Do NOT copy this block to add a theme.
 */
 
-body.v15-tournament-active[data-theme-pack="theme.example.new_theme"]{
-  /* Browser / page chrome */
-  --theme-root-canvas:#e9e9e9;
-  --theme-browser-color:#e9e9e9;
-  --theme-page:#e9e9e9;
-  --theme-on-page:#050505;
+body[data-theme-pack="theme.example"]{
+  --theme-root-canvas:#000000;
+  --theme-browser-color:#000000;
+  --theme-page:#000000;
+  --theme-on-page:#ffffff;
 
-  /* Surfaces */
-  --theme-surface:#ffffff;
-  --theme-on-surface:#050505;
-  --theme-surface-soft:#f7f7f7;
-  --theme-on-surface-soft:#050505;
-  --theme-surface-muted:#eeeeee;
-  --theme-on-surface-muted:#050505;
+  --theme-surface:#111111;
+  --theme-on-surface:#ffffff;
+  --theme-surface-soft:#181818;
+  --theme-on-surface-soft:#ffffff;
+  --theme-surface-muted:#222222;
+  --theme-on-surface-muted:#ffffff;
 
-  /* Borders / typography */
-  --theme-border:#dddddd;
-  --theme-border-strong:#c7c7c7;
-  --theme-muted:#666666;
-  --theme-faint:#aaaaaa;
-  --theme-placeholder:#666666;
+  --theme-border:#444444;
+  --theme-border-strong:#666666;
+  --theme-muted:#b8b8b8;
+  --theme-faint:#969696;
+  --theme-placeholder:#b8b8b8;
 
-  /* Header / navigation / inverse */
   --theme-header:#050505;
   --theme-on-header:#ffffff;
   --theme-nav:#050505;
   --theme-on-nav:#ffffff;
-  --theme-nav-muted:#777777;
+  --theme-nav-muted:#b8b8b8;
+
   --theme-inverse-surface:#050505;
   --theme-on-inverse:#ffffff;
-
-  /* Accent */
-  --theme-accent:#7c5cff;
+  --theme-accent:#ffd447;
   --theme-on-accent:#050505;
-  --theme-accent-2:#1515ff;
+  --theme-accent-2:#ff6f61;
 
-  /* Actions */
-  --theme-primary-action:#050505;
-  --theme-on-primary-action:#ffffff;
-  --theme-secondary-action:#ffffff;
-  --theme-on-secondary-action:#050505;
-  --theme-secondary-border:#c7c7c7;
+  --theme-primary-action:#ffd447;
+  --theme-on-primary-action:#050505;
+  --theme-secondary-action:#111111;
+  --theme-on-secondary-action:#ffffff;
+  --theme-secondary-border:#666666;
 
-  /* Semantic states */
-  --theme-success-bg:#16864b;
-  --theme-on-success:#ffffff;
-  --theme-danger-bg:#d62828;
-  --theme-on-danger:#ffffff;
-  --theme-warning-bg:#c79a32;
+  --theme-success-bg:#73e5b8;
+  --theme-on-success:#050505;
+  --theme-danger-bg:#ff7e7e;
+  --theme-on-danger:#050505;
+  --theme-warning-bg:#ffd447;
   --theme-on-warning:#050505;
 
-  /* Disabled */
-  --theme-disabled-bg:#d9d9d9;
-  --theme-on-disabled:#5a5a5a;
-  --theme-disabled-border:#bdbdbd;
+  --theme-disabled-bg:#333333;
+  --theme-on-disabled:#c7c7c7;
+  --theme-disabled-border:#666666;
 
-  /* Inputs */
-  --theme-input-bg:#ffffff;
-  --theme-on-input:#050505;
-  --theme-input-border:#c7c7c7;
+  --theme-input-bg:#111111;
+  --theme-on-input:#ffffff;
+  --theme-input-border:#666666;
 
-  /* Chips / badges */
-  --theme-chip-bg:#eeeeee;
-  --theme-on-chip:#050505;
+  --theme-chip-bg:#222222;
+  --theme-on-chip:#ffffff;
 
-  /* Persistent live chrome */
   --theme-ribbon-bg:#050505;
   --theme-on-ribbon:#ffffff;
-  --theme-ribbon-border:#7c5cff;
+  --theme-ribbon-border:#ffd447;
 
-  /* Dialogs */
-  --theme-dialog-bg:#ffffff;
-  --theme-on-dialog:#050505;
+  --theme-dialog-bg:#111111;
+  --theme-on-dialog:#ffffff;
   --theme-overlay:rgba(0,0,0,.72);
+  --theme-shadow:0 18px 46px rgba(0,0,0,.28);
+  --theme-shadow-soft:0 10px 30px rgba(0,0,0,.18);
+  --theme-focus:rgba(255,212,71,.25);
 
-  /* Elevation / focus */
-  --theme-shadow:0 12px 34px rgba(0,0,0,.12);
-  --theme-shadow-soft:0 8px 22px rgba(0,0,0,.08);
-  --theme-focus:color-mix(in srgb,var(--theme-accent) 24%,transparent);
+  --theme-less-action:#242424;
+  --theme-on-less-action:#ffffff;
+  --theme-more-action:#ffd447;
+  --theme-on-more-action:#050505;
 }
