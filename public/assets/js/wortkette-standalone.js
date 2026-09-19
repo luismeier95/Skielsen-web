@@ -13,7 +13,7 @@ const COMPOUND_GRAPH={
   lampe:[['SCHIRM','LAMPENSCHIRM'],['LICHT','LAMPENLICHT']],
   schirm:[['STÄNDER','SCHIRMSTÄNDER'],['GRIFF','SCHIRMGRIFF']],
   tisch:[['BEIN','TISCHBEIN'],['PLATTE','TISCHPLATTE'],['DECKE','TISCHDECKE']],
-  bein:[['BRUCH','BEINBRUCH'],['KLEID','BEINKLEID']],
+  bein:[['BRUCH','BEINBRUCH']],
   nase:[['RING','NASENRING'],['BLUTEN','NASENBLUTEN'],['LOCH','NASENLOCH']],
   ring:[['FINGER','RINGFINGER'],['GRÖSSE','RINGGRÖSSE']],
   elefant:[['HERDE','ELEFANTENHERDE'],['HAUT','ELEFANTENHAUT']],
@@ -96,22 +96,54 @@ function compoundCandidates(base,next){
   return [...new Set(variants.map(x=>x.charAt(0).toLocaleUpperCase('de-DE')+x.slice(1)))];
 }
 async function findCompound(base,next){
-  const local=LOCAL_COMPOUNDS.get(keyWord(base)+'|'+keyWord(next));
+  const pairKey=keyWord(base)+'|'+keyWord(next);
+
+  // Curated list contains only deliberately approved, ordinary German compounds.
+  const local=LOCAL_COMPOUNDS.get(pairKey);
   if(local)return local;
-  const cacheKey=keyWord(base)+'|'+keyWord(next);
-  if(wikiCache.has(cacheKey))return wikiCache.get(cacheKey);
+
+  if(wikiCache.has(pairKey))return wikiCache.get(pairKey);
+
+  // Important: the submitted second noun is NOT validated on its own.
+  // We generate possible German compound spellings and require the COMBINED
+  // word itself to exist as a German noun entry in Wiktionary.
   const candidates=compoundCandidates(base,next);
-  const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),3000);
+  const candidateKeys=new Set(candidates.map(keyWord));
+  const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),3500);
+
   try{
-    const titles=candidates.join('|');
-    const url='https://de.wiktionary.org/w/api.php?action=query&format=json&origin=*&redirects=1&titles='+encodeURIComponent(titles);
-    const r=await fetch(url,{signal:ctrl.signal});const d=await r.json();
-    const pages=Object.values(d?.query?.pages||{}).filter(p=>p&&p.missing===undefined);
-    const valid=pages.length?String(pages[0].title||''):null;
-    wikiCache.set(cacheKey,valid);return valid;
+    const params=new URLSearchParams({
+      action:'query',
+      format:'json',
+      origin:'*',
+      redirects:'1',
+      prop:'categories',
+      cllimit:'max',
+      titles:candidates.join('|')
+    });
+    const r=await fetch('https://de.wiktionary.org/w/api.php?'+params.toString(),{signal:ctrl.signal});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+
+    const pages=Object.values(d?.query?.pages||{});
+    const validPage=pages.find(page=>{
+      if(!page||page.missing!==undefined||page.invalid!==undefined||Number(page.ns)!==0)return false;
+      if(!candidateKeys.has(keyWord(page.title||'')))return false;
+      const categories=Array.isArray(page.categories)?page.categories:[];
+      return categories.some(c=>String(c?.title||'').toLocaleLowerCase('de-DE')==='kategorie:substantiv (deutsch)');
+    });
+
+    const valid=validPage?String(validPage.title||''):null;
+    wikiCache.set(pairKey,valid);
+    return valid;
   }catch(_){
-    wikiCache.set(cacheKey,null);return null;
-  }finally{clearTimeout(to)}
+    // No permissive fallback: if the compound itself cannot be verified,
+    // it is rejected. This prevents made-up combinations such as EIMERRAND.
+    wikiCache.set(pairKey,null);
+    return null;
+  }finally{
+    clearTimeout(to);
+  }
 }
 
 function renderNames(){
@@ -215,7 +247,7 @@ async function validatePlayer(p,roundStarted){
   if(lettersOnly(word).length<2)return fail('ZU KURZ.');
   if(p.used.has(keyWord(word)))return fail('DIESES NOMEN WAR SCHON IN DEINER KETTE.');
   const compound=await findCompound(p.lastValid,word);
-  if(!compound)return fail('AUS '+p.lastValid.toLocaleUpperCase('de-DE')+' + '+word.toLocaleUpperCase('de-DE')+' ENTSTEHT KEIN ANERKANNTES ZUSAMMENGESETZTES NOMEN.');
+  if(!compound)return fail('DAS KOMPOSITUM AUS '+p.lastValid.toLocaleUpperCase('de-DE')+' + '+word.toLocaleUpperCase('de-DE')+' IST NICHT ALS DEUTSCHES NOMEN BELEGT. DAS EINZELWORT ALLEIN REICHT NICHT.');
   return {ok:true,compound,message:'GÜLTIG: '+compound.toLocaleUpperCase('de-DE')+'.'}
 }
 async function resolveRound(roundStarted){
@@ -241,8 +273,8 @@ async function probeDictionary(){
   const el=q('#dictionaryStatus');
   try{
     const compound=await findCompound('Orange','Saft');
-    el.textContent=compound?'KOMPOSITUM-PRÜFUNG ONLINE':'LOKALE KOMPOSITA';el.className='wk-dict '+(compound?'ok':'warn');
-  }catch(_){el.textContent='LOKALE KOMPOSITA';el.className='wk-dict warn'}
+    el.textContent=compound?'KOMPOSITUM-PRÜFUNG STRIKT':'NUR KURATIERTE KOMPOSITA';el.className='wk-dict '+(compound?'strict':'warn');
+  }catch(_){el.textContent='NUR KURATIERTE KOMPOSITA';el.className='wk-dict warn'}
 }
 
 q('#playerCount').addEventListener('click',e=>{const b=e.target.closest('button[data-count]');if(!b)return;playerCount=Number(b.dataset.count);setSegment(q('#playerCount'),'count',playerCount);renderNames()});

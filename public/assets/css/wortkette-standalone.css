@@ -28,3 +28,7 @@ main{width:min(1040px,100%);margin:0 auto;padding:28px 18px 100px}.wk-screen{dis
 @media(max-width:760px){main{padding:18px 10px 90px}.wk-header{height:64px}.wk-header img{width:88px}.wk-dict{display:none}.setup-grid{grid-template-columns:1fr}.player-board{grid-template-columns:1fr}.game-top{grid-template-columns:1fr auto}.game-title{display:none}.player-card{min-height:250px}.final-row{grid-template-columns:40px 6px 1fr auto}.final-row small{grid-column:3/5;text-align:left}.player-names{grid-template-columns:1fr}}
 
 .timer-options button:first-child.active{box-shadow:inset 0 -4px 0 var(--accent);background:#252525}.timer-options button:first-child{min-width:66px}
+
+/* V4 · strict compound validation */
+.wk-dict.strict{color:#7c5cff}
+.compound-result b,.correct-example b{overflow-wrap:anywhere}
