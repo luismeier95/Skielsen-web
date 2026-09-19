@@ -88,7 +88,29 @@ function cssSupports(prop,value){
   try{return !window.CSS||typeof window.CSS.supports!=='function'||window.CSS.supports(prop,value)}
   catch(_){return false}
 }
-function validate(input){
+const CONTRAST_PAIRS=Object.freeze([
+  ['on_page','page'],['on_surface','surface'],['on_surface_soft','surface_soft'],['on_surface_muted','surface_muted'],
+  ['on_header','header'],['on_nav','nav'],['on_inverse','inverse_surface'],['on_accent','accent'],
+  ['on_primary_action','primary_action'],['on_secondary_action','secondary_action'],['on_disabled','disabled_bg'],
+  ['on_input','input_bg'],['on_chip','chip_bg'],['on_success','success_bg'],['on_danger','danger_bg'],
+  ['on_warning','warning_bg'],['on_ribbon','ribbon_bg'],['on_dialog','dialog_bg'],['placeholder','input_bg']
+]);
+function rgb(hex){
+  let v=String(hex||'').trim().toLowerCase();
+  if(/^#[0-9a-f]{3}$/.test(v))v='#'+[...v.slice(1)].map(x=>x+x).join('');
+  if(!/^#[0-9a-f]{6}$/.test(v))return null;
+  return [1,3,5].map(i=>parseInt(v.slice(i,i+2),16)/255);
+}
+function luminance(hex){
+  const x=rgb(hex);if(!x)return null;
+  const lin=n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4);
+  return .2126*lin(x[0])+.7152*lin(x[1])+.0722*lin(x[2]);
+}
+function contrast(fg,bg){
+  const a=luminance(fg),b=luminance(bg);if(a==null||b==null)return null;
+  return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+}
+function validate(input,options={}){
   const contract=unwrap(input);
   if(!contract||Number(contract.version)<2||!contract.tokens||typeof contract.tokens!=='object'){
     return {ok:false,error:'THEME_CONTRACT_V2_REQUIRED',contract:null};
@@ -102,6 +124,18 @@ function validate(input){
     else if(SHADOW_KEYS.has(key)&&!cssSupports('box-shadow',value))invalid.push(key);
   }
   if(invalid.length)return {ok:false,error:'THEME_CONTRACT_INVALID_VALUES',invalid,contract:null};
+  const contrastFailures=[];
+  for(const [fg,bg] of CONTRAST_PAIRS){
+    const ratio=contrast(tokens[fg],tokens[bg]);
+    if(ratio==null||ratio<4.5)contrastFailures.push({fg,bg,ratio});
+  }
+  if(options.themePackId&&options.themePackId!=='theme.skielsen.core'){
+    for(const [fg,bg] of [['on_less_action','less_action'],['on_more_action','more_action']]){
+      const ratio=contrast(tokens[fg],tokens[bg]);
+      if(ratio==null||ratio<4.5)contrastFailures.push({fg,bg,ratio});
+    }
+  }
+  if(contrastFailures.length)return {ok:false,error:'THEME_CONTRACT_CONTRAST_FAILED',contrastFailures,contract:null};
   return {ok:true,error:null,contract:{version:Number(contract.version),tokens:{...tokens}}};
 }
 function clearInlineProperties(){
@@ -121,7 +155,7 @@ function apply(themePackId,input,options={}){
   const theme=String(themePackId||'theme.skielsen.core');
   const animations=!!options.animations,context=options.context||'tournament';
   setThemeIdentity(theme,animations,context);
-  const checked=validate(input);
+  const checked=validate(input,{themePackId:theme});
   if(!checked.ok){
     console.warn('SKIELSEN Theme Contract rejected',theme,checked.error,checked.missing||checked.invalid||'');
     return false;
