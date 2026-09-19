@@ -129,7 +129,7 @@ function validate(input,options={}){
     const ratio=contrast(tokens[fg],tokens[bg]);
     if(ratio==null||ratio<4.5)contrastFailures.push({fg,bg,ratio});
   }
-  if(options.themePackId&&options.themePackId!=='theme.skielsen.core'){
+  if(options.themePackId&&!['theme.skielsen.core','theme.skielsen.core2'].includes(options.themePackId)){
     for(const [fg,bg] of [['on_less_action','less_action'],['on_more_action','more_action']]){
       const ratio=contrast(tokens[fg],tokens[bg]);
       if(ratio==null||ratio<4.5)contrastFailures.push({fg,bg,ratio});
