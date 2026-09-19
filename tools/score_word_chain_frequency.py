@@ -11,6 +11,7 @@ DEREWO_URL = "https://raw.githubusercontent.com/cytobi/chelem/main/datasets/dere
 
 PRELIM_KEEP = 2.70
 PRELIM_REVIEW = 2.20
+OCCURRENCE_THRESHOLD = 35.0
 
 def db_config():
     text = Path("public/assets/js/06-db-bootstrap.js").read_text(encoding="utf-8")
@@ -83,6 +84,7 @@ def main():
             "zipf": score,
             "derewo_class": hk,
             "occurrence_score": occurrence_score,
+            "occurrence_threshold_decision": "keep" if occurrence_score >= OCCURRENCE_THRESHOLD else "drop",
             "preliminary_decision": band(score),
         })
 
@@ -100,6 +102,7 @@ def main():
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source": "Composite audit: DeReWo 2013 (DeReKo general-language frequency class) + wordfreq 3.1.1 German large list",
         "license_note": "wordfreq code Apache-2.0; included frequency data CC BY-SA 4.0 / attributed sources.",
+        "production_occurrence_threshold": OCCURRENCE_THRESHOLD,
         "preliminary_thresholds": {
             "keep_min_zipf": PRELIM_KEEP,
             "review_min_zipf": PRELIM_REVIEW,

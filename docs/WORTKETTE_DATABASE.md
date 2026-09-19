@@ -159,21 +159,19 @@ Der Klammerzusatz ist Edge-spezifisch und wird dem Spieler vorgegeben. Er muss n
 
 Mit dem ersten Connector-Pass stieg der aktive Graph auf 440 Verbindungen. Die Zahl der DEAD_END-Knoten sank von 62 auf 23. Connector-Kanten werden zunächst als `seed` geführt und können separat geprüft und auf `verified` gesetzt werden.
 
-## Frequency Gate V12
+## Frequency Gate V13
 
 Alle aktiven Komposita werden zusätzlich mit einem kombinierten Vorkommensscore bewertet. Der Score kombiniert DeReWo/DeReKo und wordfreq.
 
-- `< 15`: standardmäßig deaktiviert
-- `15–29.9`: Review-Zone; bleibt aktiv, soll aber sprachlich geprüft werden
-- `>= 30`: regulär aktiv
+- `< 35`: standardmäßig deaktiviert
+- `>= 35`: regulär aktiv
 - `frequency_override_keep=true`: bewusster Familiarity-Override für klare Alltagswörter, die vom Korpus unterschätzt werden
 
-Nach dem ersten vollständigen Lauf über 445 Verbindungen:
+Nach Umstellung des Thresholds auf 35 bei 445 bewerteten Verbindungen:
 
-- 16 Verbindungen unter dem Threshold wurden deaktiviert
-- 7 niedrige Scores wurden bewusst als Familiarity-Override behalten
-- 30 Verbindungen liegen in der Review-Zone 15–30
-- 429 Verbindungen sind aktuell aktiv
+- 65 Verbindungen liegen unter dem Threshold
+- 7 davon bleiben durch bewussten Familiarity-Override aktiv
+- 380 Verbindungen sind aktuell aktiv
 
 Die ersten Overrides sind: `BILDBUCH`, `OBJEKTIVDECKEL`, `STIFTHALTER`, `LANDUNGSPUNKT`, `WEITENREKORD`, `ZAUNTOR`, `SESSELBEIN`.
 
