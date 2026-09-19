@@ -121,3 +121,18 @@
   #v15InAppLayer.buzzer-mode{padding:18px}
   .bzt-app{min-height:760px;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.14)}
 }
+
+
+/* Theme Authority · Buzzer inherits the active tournament theme. */
+#v15InAppLayer.buzzer-mode{background:var(--inapp-page)!important}
+#v15InAppLayer.buzzer-mode .bzt-loading{background:var(--inapp-soft)!important;color:var(--inapp-muted)!important}
+#v15InAppLayer.buzzer-mode .bzt-app{background:var(--inapp-soft)!important;color:var(--inapp-text)!important;border-color:var(--inapp-border)!important}
+#v15InAppLayer.buzzer-mode .bzt-header,
+#v15InAppLayer.buzzer-mode .bzt-now,
+#v15InAppLayer.buzzer-mode .bzt-reveal-head{background:var(--inapp-dark)!important;color:var(--inapp-dark-text)!important}
+#v15InAppLayer.buzzer-mode :where(.bzt-info,.bzt-message,.bzt-countdown,.bzt-round-card,.bzt-final-card){background:var(--inapp-surface)!important;color:var(--inapp-text)!important;border-color:var(--inapp-border)!important}
+#v15InAppLayer.buzzer-mode :where(.bzt-header-row>span,.bzt-now span,.bzt-info span,.bzt-message,.bzt-countdown span,.bzt-reveal-head span,.bzt-round-card small,.bzt-final-card small){color:var(--inapp-muted)!important}
+#v15InAppLayer.buzzer-mode .bzt-action{background:var(--theme-button)!important;color:var(--theme-button-text)!important}
+#v15InAppLayer.buzzer-mode .bzt-action.stop{background:var(--bzt-team)!important;color:#fff!important}
+#v15InAppLayer.buzzer-mode .bzt-action.wait{background:var(--inapp-soft)!important;color:var(--inapp-muted)!important;border-color:var(--inapp-border)!important}
+#v15InAppLayer.buzzer-mode .bzt-display-shell{background:linear-gradient(var(--theme-inverse-surface),color-mix(in srgb,var(--theme-inverse-surface) 82%,black))!important;border-color:var(--theme-inverse-surface)!important;box-shadow:var(--theme-shadow-soft)!important}
