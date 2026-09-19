@@ -3,6 +3,13 @@
    Layout remains page-owned; palette/chrome is theme-owned.
    Player/team identity colors remain semantic and are not theme tokens. */
 
+/* ---------- Browser / root canvas ---------- */
+html[data-theme-pack="theme.skielsen.core"]{background:#e9e9e9!important}
+html[data-theme-pack="theme.jga.night"]{background:#0b0b0f!important}
+html[data-theme-pack="theme.christmas.winter_clash"]{background:#07120e!important}
+html[data-theme-pack="theme.summer.sunset_showdown"]{background:#071720!important}
+html[data-theme-pack="theme.girly.pink_chaos"]{background:#160814!important}
+
 /* ---------- Theme token registry ---------- */
 body.v15-tournament-active{
   --theme-page:#e9e9e9;

@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.24';
+const VERSION=window.SKIELSEN_VERSION||'15.1.25';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1498,7 +1498,7 @@ async function restoreTournamentHistory(entry){
 }
 window.skielsenHistory?.register('tournament',restoreTournamentHistory);
 
-function updateTheme(){if(!runtime)return;const theme=runtime.theme_pack_id||'theme.skielsen.core';document.body.dataset.themePack=theme;document.body.classList.add('v15-tournament-active');const anim=feature('feature.theme_animations');document.body.dataset.themeAnimations=anim?'true':'false';const player=userParticipant();if(player)document.documentElement.style.setProperty('--player',({BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'}[player.color]||'var(--theme-accent)'))}
+function updateTheme(){if(!runtime)return;const theme=runtime.theme_pack_id||'theme.skielsen.core';document.body.dataset.themePack=theme;document.documentElement.dataset.themePack=theme;document.body.classList.add('v15-tournament-active');const anim=feature('feature.theme_animations');document.body.dataset.themeAnimations=anim?'true':'false';document.documentElement.dataset.themeAnimations=anim?'true':'false';const player=userParticipant();if(player)document.documentElement.style.setProperty('--player',({BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'}[player.color]||'var(--theme-accent)'))}
 function setupHeader(){qa('.sk-header__version,.sk-header__meta').forEach(version=>version.textContent=(version.textContent||'').replace(/V\d+(?:\.\d+){1,2}/,'V'+VERSION));q('#v15TestRibbon')?.remove()}
 
 async function leaveTournamentToAccountHome(){
@@ -1508,7 +1508,7 @@ async function leaveTournamentToAccountHome(){
  if(jokerPollTimer){clearInterval(jokerPollTimer);jokerPollTimer=0}
  stopBettingPolling();stopVotePolling();
  q('#v15TestRibbon')?.remove();
- document.body.classList.remove('v15-tournament-active');
+ document.body.classList.remove('v15-tournament-active');delete document.body.dataset.themePack;delete document.body.dataset.themeAnimations;delete document.documentElement.dataset.themePack;delete document.documentElement.dataset.themeAnimations;
  if(typeof window.skielsenOpenAccountHome==='function'){
    await window.skielsenOpenAccountHome();
    return true;
