@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 
-const COLORS={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
-const COLOR_DE={BLUE:'BLAU',RED:'ROT',YELLOW:'GELB',GREEN:'GRÜN'};
+const COLORS={BLUE:'#2979FF',RED:'#FF1744',YELLOW:'#FF2ED1',GREEN:'#00F5D4'};
+const COLOR_DE={BLUE:'BLAU',RED:'ROT',YELLOW:'PINK',GREEN:'TÜRKIS'};
 const POLL_MS=500,REVEAL_MS=10000;
 
 let root=null,session=null,db=null,state=null,pollTimer=0,raf=0,busy=false;
