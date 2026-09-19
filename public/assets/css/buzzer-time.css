@@ -130,9 +130,17 @@
 #v15InAppLayer.buzzer-mode .bzt-header,
 #v15InAppLayer.buzzer-mode .bzt-now,
 #v15InAppLayer.buzzer-mode .bzt-reveal-head{background:var(--inapp-dark)!important;color:var(--inapp-dark-text)!important}
-#v15InAppLayer.buzzer-mode :where(.bzt-info,.bzt-message,.bzt-countdown,.bzt-round-card,.bzt-final-card){background:var(--inapp-surface)!important;color:var(--inapp-text)!important;border-color:var(--inapp-border)!important}
+#v15InAppLayer.buzzer-mode :where(.bzt-info,.bzt-message,.bzt-countdown,.bzt-round-card,.bzt-final-card,.bzt-table-wrap){background:var(--inapp-surface)!important;color:var(--inapp-text)!important;border-color:var(--inapp-border)!important}
 #v15InAppLayer.buzzer-mode :where(.bzt-header-row>span,.bzt-now span,.bzt-info span,.bzt-message,.bzt-countdown span,.bzt-reveal-head span,.bzt-round-card small,.bzt-final-card small){color:var(--inapp-muted)!important}
 #v15InAppLayer.buzzer-mode .bzt-action{background:var(--theme-button)!important;color:var(--theme-button-text)!important}
-#v15InAppLayer.buzzer-mode .bzt-action.stop{background:var(--bzt-team)!important;color:#fff!important}
-#v15InAppLayer.buzzer-mode .bzt-action.wait{background:var(--inapp-soft)!important;color:var(--inapp-muted)!important;border-color:var(--inapp-border)!important}
+#v15InAppLayer.buzzer-mode .bzt-action.stop{background:var(--bzt-team)!important;color:var(--bzt-team-on,#fff)!important}
+#v15InAppLayer.buzzer-mode .bzt-action.wait{background:var(--theme-disabled-bg)!important;color:var(--theme-on-disabled)!important;border-color:var(--theme-disabled-border)!important}
 #v15InAppLayer.buzzer-mode .bzt-display-shell{background:linear-gradient(var(--theme-inverse-surface),color-mix(in srgb,var(--theme-inverse-surface) 82%,black))!important;border-color:var(--theme-inverse-surface)!important;box-shadow:var(--theme-shadow-soft)!important}
+
+#v15InAppLayer.buzzer-mode .bzt-table-title{border-bottom-color:var(--theme-border-strong)!important}
+#v15InAppLayer.buzzer-mode .bzt-table-wrap :where(th,.bzt-auto-note){color:var(--theme-muted)!important}
+#v15InAppLayer.buzzer-mode .bzt-table-wrap :where(th,td){border-bottom-color:var(--theme-border)!important}
+#v15InAppLayer.buzzer-mode .bzt-table-wrap tr.best{background:var(--theme-surface-soft)!important;color:var(--theme-on-surface-soft)!important}
+#v15InAppLayer.buzzer-mode .bzt-reveal-head span,
+#v15InAppLayer.buzzer-mode .bzt-header-row>span,
+#v15InAppLayer.buzzer-mode .bzt-now span{color:color-mix(in srgb,var(--inapp-dark-text) 68%,transparent)!important}
