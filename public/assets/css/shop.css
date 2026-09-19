@@ -1,5 +1,5 @@
 :root{--core-blue:#1515FF;--core-red:#FF1717;--core-yellow:#F2B705;--core-green:#00A65A}
-html[data-theme-pack="theme.skielsen.core2"],body[data-theme-pack="theme.skielsen.core2"],html[data-theme-id="theme.skielsen.core2"]{--core-blue:#2979FF;--core-red:#FF1744;--core-yellow:#00F5D4;--core-green:#FF2ED1}
+html[data-theme-pack="theme.skielsen.core2"],body[data-theme-pack="theme.skielsen.core2"],html[data-theme-id="theme.skielsen.core2"],body[data-theme-id="theme.skielsen.core2"]{--core-blue:#2979FF;--core-red:#FF1744;--core-yellow:#00F5D4;--core-green:#FF2ED1;--team-blue:#2979FF;--team-red:#FF1744;--team-yellow:#00F5D4;--team-green:#FF2ED1}
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root{
