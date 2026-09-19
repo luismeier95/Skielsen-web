@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.30';
+const VERSION=window.SKIELSEN_VERSION||'15.1.31';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -908,7 +908,7 @@ function latestServerJokerSubmissions(board){
 function primeJokerNotificationBaseline(board){
  if(!state||!board)return;
  state.jokerResolutionSeen=state.jokerResolutionSeen||{};
- for(const ss of latestServerJokerSubmissions(board)){
+ for(const ss of board.submissions||[]){
    if(['ACCEPTED','REJECTED'].includes(ss.status)&&ss.joker_submission_id)state.jokerResolutionSeen[ss.joker_submission_id]=true;
  }
 }
@@ -959,7 +959,9 @@ function handleJokerBoardNotifications(board,notify){
    for(const ss of latest){
      if(!['ACCEPTED','REJECTED'].includes(ss.status))continue;
      if(state.jokerResolutionSeen?.[ss.joker_submission_id])continue;
+     const g=jokerResolutionGame(ss),historical=!!g&&(isJokerHistoryGame(g)||String(g.status||'').toUpperCase()==='COMPLETED'||!!g.postGameServerComplete);
      state.jokerResolutionSeen[ss.joker_submission_id]=true;
+     if(historical){saveSoon();continue}
      if(ss.status==='ACCEPTED'&&ss.joker_type==='PICK_OPPONENT'&&board.pending_pick?.joker_submission_id===ss.joker_submission_id){
        openPendingPickDialog(board.pending_pick);
      }else{
