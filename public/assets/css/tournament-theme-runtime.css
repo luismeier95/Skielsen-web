@@ -586,3 +586,131 @@ body.v15-tournament-active[data-theme-pack] #v15InAppLayer{
   --inapp-dark:var(--theme-inverse-surface);
   --inapp-dark-text:var(--theme-on-inverse);
 }
+
+
+/* ==========================================================================
+   THEME CONTRACT V2 · DYNAMIC BACKEND CONTRACT
+   Theme IDs are data. Component selectors are stable.
+   Skielsen Core deliberately keeps its existing base presentation unchanged.
+   ========================================================================== */
+
+body[data-theme-pack]{
+  --theme-team-blue:#1515ff;--theme-on-team-blue:#ffffff;
+  --theme-team-red:#ff1717;--theme-on-team-red:#050505;
+  --theme-team-yellow:#f2b705;--theme-on-team-yellow:#050505;
+  --theme-team-green:#00a65a;--theme-on-team-green:#050505;
+  --theme-medal-gold:#c79a32;--theme-medal-silver:#9da3aa;--theme-medal-bronze:#a86438;
+  --theme-text:var(--theme-on-surface);
+  --theme-header-text:var(--theme-on-header);
+  --theme-nav-text:var(--theme-on-nav);
+  --theme-inverse-text:var(--theme-on-inverse);
+  --theme-button:var(--theme-primary-action);
+  --theme-button-text:var(--theme-on-primary-action);
+}
+
+/* Workflow / Join / Lobby contract.
+   Core is excluded so the current Skielsen Core presentation remains byte-for-byte visual fallback. */
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]){
+  background:var(--theme-page)!important;color:var(--theme-on-page)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-main,.dbb-lobby-page,.jl-page
+){color:var(--theme-on-page)!important}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-panel,.dbb-profile-card,.dbb-action-card,.dbb-create-option,.dbb-context,.dbb-table,
+  .dbb-material-card,.dbb-material-summary,.dbb-order-list,.dbb-order-row,.dbb-checkout-summary,
+  .dbb-lobby-hero,.dbb-lobby-codebox,.dbb-lobby-stats,.dbb-lobby-panel,.dbb-lobby-team,
+  .dbb-lobby-single,.dbb-lobby-ready,.dbb-started-card,.dbb-setting-row,.dbb-procure-box,
+  .jl-hero,.jl-panel,.jl-status,.jl-ready,.jl-rule
+){
+  background:var(--theme-surface)!important;color:var(--theme-on-surface)!important;border-color:var(--theme-border)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-material-games,.dbb-order-note,.dbb-lobby-team-slot,.dbb-lobby-games-mini div,
+  .dbb-lobby-player,.dbb-join-user,.dbb-group-note,.dbb-source-info,.dbb-series-note,
+  .jl-user,.jl-mode-preview,.jl-waiting
+){
+  background:var(--theme-surface-soft)!important;color:var(--theme-on-surface-soft)!important;border-color:var(--theme-border)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-panel-head,.dbb-section-title,.dbb-lobby-panel-head,.dbb-procure-head,.jl-panel-head
+){
+  background:var(--theme-surface)!important;color:var(--theme-on-surface)!important;border-color:var(--theme-border-strong)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-kicker,.dbb-lead,.dbb-meta,.dbb-meta-row span,.dbb-material-meta,.dbb-material-price small,
+  .dbb-material-stat small,.dbb-lobby-hero small,.dbb-lobby-hero p,.dbb-lobby-version,
+  .dbb-lobby-codebox small,.dbb-lobby-codebox p,.dbb-lobby-stat small,.dbb-lobby-stat span,
+  .dbb-lobby-team-slot.occupied b,.dbb-lobby-player small,.dbb-lobby-single small,
+  .dbb-lobby-single span,.dbb-lobby-adminnote,.dbb-setting-row small,.dbb-feedback,
+  .jl-hero>span,.jl-hero p,.jl-panel-head span,.jl-user small,.jl-user b,.jl-label,.jl-help
+){color:var(--theme-muted)!important}
+
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  input,select,textarea,.dbb-field input,.dbb-lobby-team-name input,.jl-code-input
+){
+  background:var(--theme-input-bg)!important;color:var(--theme-on-input)!important;
+  -webkit-text-fill-color:var(--theme-on-input)!important;border-color:var(--theme-input-border)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(input,textarea)::placeholder{
+  color:var(--theme-placeholder)!important;opacity:1!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(input,select,textarea,button):focus-visible{
+  outline:3px solid var(--theme-focus)!important;outline-offset:2px!important
+}
+
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-btn.primary,.dbb-lobby-start,.jl-primary,.jl-start,.jl-mobile-start
+){
+  background:var(--theme-primary-action)!important;color:var(--theme-on-primary-action)!important;border-color:var(--theme-primary-action)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-btn.secondary,.dbb-back,.dbb-lobby-code-actions button,.dbb-lobby-panel-head button,
+  .dbb-lobby-player button,.dbb-lobby-team-name button,.dbb-material-choice button,
+  .dbb-material-variant-cancel,.dbb-started-card button,.jl-sheet-cancel,.jl-member button
+){
+  background:var(--theme-secondary-action)!important;color:var(--theme-on-secondary-action)!important;border-color:var(--theme-secondary-border)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-material-choice button.active,.dbb-material-variant.active,.dbb-theme-choice button.active,
+  .dbb-mode button.active,.dbb-auth-tab.active,.dbb-setting-toggle.on,.dbb-lobby-player button.assigned
+){
+  background:var(--theme-accent)!important;color:var(--theme-on-accent)!important;border-color:var(--theme-accent)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-tournament-delete,.dbb-start-confirm-actions .danger,.dbb-exit-confirm-actions .danger
+){
+  background:var(--theme-danger-bg)!important;color:var(--theme-on-danger)!important;border-color:var(--theme-danger-bg)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) button:disabled{
+  background:var(--theme-disabled-bg)!important;color:var(--theme-on-disabled)!important;border-color:var(--theme-disabled-border)!important;opacity:1!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-lobby-sheet-card,.dbb-start-confirm-card,.dbb-exit-confirm-card,.jl-sheet-card,.jl-name-modal,.jl-name-card
+){
+  background:var(--theme-dialog-bg)!important;color:var(--theme-on-dialog)!important;border-color:var(--theme-border)!important;box-shadow:var(--theme-shadow)!important
+}
+body.skielsen-theme-context[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]) :where(
+  .dbb-lobby-sheet,.dbb-start-confirm,.dbb-exit-confirm,.jl-sheet,.jl-name-overlay
+){background:var(--theme-overlay)!important}
+
+/* Status language */
+body[data-theme-pack] :where(.dbb-feedback.ok,.status-success){color:var(--theme-success-bg)!important}
+body[data-theme-pack] :where(.dbb-feedback.error,.status-error){color:var(--theme-danger-bg)!important}
+
+/* Tournament destructive actions: Reset is destructive, never primary. */
+body.v15-tournament-active[data-theme-pack] #prototypeReset{
+  background:var(--theme-danger-bg)!important;color:var(--theme-on-danger)!important;border-color:var(--theme-danger-bg)!important
+}
+
+/* Participant identity and medals are semantic constants, not theme decoration. */
+body[data-theme-pack] .team-blue{background:var(--theme-team-blue)!important}
+body[data-theme-pack] .team-red{background:var(--theme-team-red)!important}
+body[data-theme-pack] .team-yellow{background:var(--theme-team-yellow)!important}
+body[data-theme-pack] .team-green{background:var(--theme-team-green)!important}
+body[data-theme-pack] :where(.gold,.gold-tier .ach-icon){color:var(--theme-medal-gold)!important}
+body[data-theme-pack] :where(.silver,.silver-tier .ach-icon){color:var(--theme-medal-silver)!important}
+body[data-theme-pack] :where(.bronze,.bronze-tier .ach-icon){color:var(--theme-medal-bronze)!important}
+
+/* New themes get complete browser chrome from the contract with no theme-ID selector. */
+html[data-theme-pack]{background:var(--theme-root-canvas)!important}
