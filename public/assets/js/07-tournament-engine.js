@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.25';
+const VERSION=window.SKIELSEN_VERSION||'15.1.26';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1418,6 +1418,7 @@ function renderAdmin(){
  const g=gameNow(),m=matchNow();setText('#prototypeStateLabel',state.tournamentDone?'TURNIER ABGESCHLOSSEN':`STATUS · ${g?.name||'TURNIER'} · ${g?.phase||'—'}`);const sim=q('.prototype-sim-panel span');if(sim)sim.textContent='Diagnose und Recovery. Der operative Spielworkflow läuft über MATCHES und die Match Page.';
  const ob=q('#prototypeOtherBets');if(ob)ob.hidden=true;const ov=q('#prototypeOtherMvp');if(ov)ov.hidden=true;const af=q('#prototypeAutofill');if(af)af.hidden=true;
  const adminBetGate=q('#prototypeAdminBetGate');if(adminBetGate)adminBetGate.hidden=!feature('feature.betting');if(feature('feature.betting')){const total=activeActorIds().length,dec=m?Object.keys(state.betDecisions[m.id]||{}).length:0;setText('#prototypeAdminBetCount',`${dec} / ${total} ENTSCHIEDEN`);setText('#prototypeAdminBetPending','READ ONLY');setText('#prototypeAdminBetGateState','INFO')}
+ const themeSel=q('#adminThemeSelect');if(themeSel&&runtime?.theme_pack_id&&themeSel.value!==runtime.theme_pack_id)themeSel.value=runtime.theme_pack_id;
  const coinSel=q('#coinAdjustPlayer');if(coinSel){const cur=coinSel.value;coinSel.innerHTML=state.actors.map(a=>`<option value="${esc(a.id)}">${esc(a.name.toUpperCase())} · ${esc(actorParticipant(a)?.name||'')}${a.isBot?' · BOT':''}</option>`).join('');if(state.actors.some(a=>a.id===cur))coinSel.value=cur}
  const roster=q('#v20AdminRoster');if(roster)roster.innerHTML=state.actors.map(a=>{const p=actorParticipant(a);return `<div><b>${esc(a.name)}</b><span><i class="${marker(p?.color)}"></i>${esc(p?.name||'NICHT ZUGEORDNET')}</span><em>${a.isBot?'BOT':'PLAYER'}</em></div>`}).join('')||'<div class="v20-empty">KEINE PLAYER GELADEN.</div>';const ag=q('#adminGameList');if(ag)ag.innerHTML=state.games.map((x,i)=>`<div class="${i===state.currentGameIndex?'current':''}"><b>${String(i+1).padStart(2,'0')}</b><span>${esc(x.name)}</span><em>${esc(x.phase)}</em></div>`).join('')||'<div class="v20-empty">KEINE GAMES GELADEN.</div>';const ar=q('#auditLogRows');if(ar)ar.innerHTML=state.audit.slice(0,18).map(x=>`<div class="audit-row"><b>${esc(x.at)}</b><span>${esc(x.text)}</span></div>`).join('')||'<div class="v20-empty">NOCH KEINE AUDIT-EINTRÄGE.</div>'
 }
@@ -1498,7 +1499,7 @@ async function restoreTournamentHistory(entry){
 }
 window.skielsenHistory?.register('tournament',restoreTournamentHistory);
 
-function updateTheme(){if(!runtime)return;const theme=runtime.theme_pack_id||'theme.skielsen.core';document.body.dataset.themePack=theme;document.documentElement.dataset.themePack=theme;document.body.classList.add('v15-tournament-active');const anim=feature('feature.theme_animations');document.body.dataset.themeAnimations=anim?'true':'false';document.documentElement.dataset.themeAnimations=anim?'true':'false';const player=userParticipant();if(player)document.documentElement.style.setProperty('--player',({BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'}[player.color]||'var(--theme-accent)'))}
+function updateTheme(){if(!runtime)return;const theme=runtime.theme_pack_id||'theme.skielsen.core';document.body.dataset.themePack=theme;document.documentElement.dataset.themePack=theme;document.body.classList.add('v15-tournament-active');const anim=feature('feature.theme_animations');document.body.dataset.themeAnimations=anim?'true':'false';document.documentElement.dataset.themeAnimations=anim?'true':'false';const themeMeta={'theme.skielsen.core':'#e9e9e9','theme.jga.night':'#0b0b0f','theme.christmas.winter_clash':'#07120e','theme.summer.sunset_showdown':'#071720','theme.girly.pink_chaos':'#160814'};const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',themeMeta[theme]||'#e9e9e9');const player=userParticipant();if(player)document.documentElement.style.setProperty('--player',({BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'}[player.color]||'var(--theme-accent)'))}
 function setupHeader(){qa('.sk-header__version,.sk-header__meta').forEach(version=>version.textContent=(version.textContent||'').replace(/V\d+(?:\.\d+){1,2}/,'V'+VERSION));q('#v15TestRibbon')?.remove()}
 
 async function leaveTournamentToAccountHome(){
@@ -1546,6 +1547,25 @@ function bind(){if(bound)return;bound=true;
  q('#placeBetBtn')?.addEventListener('click',async()=>{const m=matchNow(),snap=m?state.oddsSnapshots[m.id]:null;if(!m||!selectedBetParticipant||userBetDecision())return;const stake=Number(q('#stakeRange')?.value||0),sel=selectionSnapshot(snap,selectedBetParticipant),odds=sel?.odds;if(!odds)return;if(await placeBetFor(state.userActorId,selectedBetParticipant,stake,odds)){addAudit('BET PLACED · '+userActor().name+' · '+teamName(participant(selectedBetParticipant))+' · '+stake);renderAll();saveSoon();returnFromBetting()}});
  q('#prototypeSkipBet')?.addEventListener('click',async()=>{if(await skipBetFor(state.userActorId)){addAudit('BET SKIPPED · '+userActor().name);renderAll();saveSoon();returnFromBetting()}});
  q('#prototypeOtherBets')?.addEventListener('click',simulateOtherBets);q('#prototypeOtherMvp')?.addEventListener('click',simulateOtherVotes);q('#prototypeAutofill')?.addEventListener('click',autofillScore);
+ q('#adminThemeSelect')?.addEventListener('change',async e=>{
+   if(!isAdmin()||!client||!runtime?.tournament_id)return;
+   const select=e.currentTarget,next=select.value,previous=runtime.theme_pack_id||'theme.skielsen.core',feedback=q('#adminThemeFeedback');
+   select.disabled=true;if(feedback)feedback.textContent='THEME WIRD GESPEICHERT…';
+   try{
+     const {data,error}=await client.rpc('set_tournament_theme_pack',{p_tournament_id:runtime.tournament_id,p_theme_pack_id:next});
+     if(error)throw error;
+     runtime.theme_pack_id=data?.theme_pack_id||next;
+     updateTheme();renderAll();saveSoon();
+     addAudit('ADMIN THEME · '+runtime.theme_pack_id);
+     if(feedback)feedback.textContent='AKTIV · '+String(data?.theme_name||runtime.theme_pack_id).toUpperCase();
+     showFlowToast('ADMIN','THEME AKTUALISIERT',String(data?.theme_name||runtime.theme_pack_id).toUpperCase(),1800);
+   }catch(err){
+     console.error('Theme update failed',err);
+     select.value=previous;
+     runtime.theme_pack_id=previous;updateTheme();
+     if(feedback)feedback.textContent='FEHLER · '+String(err?.message||err);
+   }finally{select.disabled=false}
+ });
  q('#prototypeReset')?.addEventListener('click',async()=>{
  if(!isAdmin()||!client||!runtime?.tournament_id)return;
  if(!confirm('TURNIER KOMPLETT ZURÜCKSETZEN?\n\nGelöscht werden laufende Matches, Ergebnisse, Betting, Wallets, Votes/Awards, Joker-Submissions, In-App-Sessions, News und Runtime-Daten.\n\nGames, Reihenfolge, Teilnehmer, Teams und Feature-Settings bleiben erhalten.'))return;

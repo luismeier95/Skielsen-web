@@ -146,7 +146,6 @@ if h.index('assets/css/tournament-theme-runtime.css?v='+v) < h.index('assets/css
 for _theme in ['theme.skielsen.core','theme.jga.night','theme.christmas.winter_clash','theme.summer.sunset_showdown','theme.girly.pink_chaos']:
  if _theme not in theme_css: fail(f'Theme fehlt in Theme Authority: {_theme}')
 
-if 'data-theme-preview="theme.girly.pink_chaos"' not in h: fail('Match Detail Pink-Chaos QA-Snippet fehlt')
 
 if 'var(--inapp-page)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8') or 'var(--theme-button)' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8'): fail('Buzzer erbt Tournament Theme nicht')
 
@@ -165,3 +164,11 @@ if 'document.documentElement.dataset.themePack=theme' not in engine_text: fail('
 if '<meta name="theme-color" content="#e9e9e9"/>' not in h: fail('Browser theme-color entspricht nicht dem Core Canvas')
 
 if 'html[data-theme-pack="theme.skielsen.core"]{background:#e9e9e9!important}' not in theme_css: fail('Core Browser-Canvas ist nicht Shop-like #e9e9e9')
+
+if 'id="adminThemeSelect"' not in h: fail('Admin Theme Dropdown fehlt')
+
+if "set_tournament_theme_pack" not in engine_text: fail('Admin Theme Dropdown ist nicht serverseitig verdrahtet')
+
+if 'data-theme-preview="theme.girly.pink_chaos"' in h: fail('Match Detail hat noch einen erzwungenen Theme-Preview-Override')
+
+if 'TEMPORARY QA SNIPPET: Match Detail = Pink Chaos' in theme_css: fail('Alter Match Detail QA-Theme-Override ist noch aktiv')
