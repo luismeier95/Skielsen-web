@@ -1,4 +1,5 @@
 name: Wortkette frequency audit
+# rerun: frequency-threshold-pass-1
 
 on:
   push:
