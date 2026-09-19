@@ -32,3 +32,8 @@ main{width:min(1040px,100%);margin:0 auto;padding:28px 18px 100px}.wk-screen{dis
 /* V4 · strict compound validation */
 .wk-dict.strict{color:#7c5cff}
 .compound-result b,.correct-example b{overflow-wrap:anywhere}
+
+/* V5 · required-letter + exact noun composition */
+.compound-prompt{grid-template-columns:1fr 58px}
+.compound-prompt b{width:58px;height:48px;background:var(--accent);font-size:24px}
+.compound-prompt span strong{display:block;margin-top:4px;color:#050505;font:900 10px/1 var(--ui);letter-spacing:.5px}
