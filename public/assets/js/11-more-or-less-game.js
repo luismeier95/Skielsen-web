@@ -52,11 +52,19 @@ function scoreboard(){
     <b>${Number(p.category_wins||0)} SIEGE</b>
   </div>`).join('');
 }
+function minimizeGame(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  return !!window.skielsenInApp?.minimize?.();
+}
+function bindChrome(){
+  root?.querySelectorAll('[data-mol-minimize]').forEach(btn=>btn.addEventListener('click',minimizeGame));
+}
 function header(){
-  return `<header class="mol-full-header"><div><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MEHR ODER WENIGER</span></div><div class="mol-full-meta"><b>${esc(tierLabel(state?.tier))}</b><span>KATEGORIE ${Number(state?.category_no||1)} / ${Number(state?.category_count||5)}</span></div></header>`;
+  return `<header class="mol-full-header"><div><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MEHR ODER WENIGER</span></div><div class="mol-full-header-right"><div class="mol-full-meta"><b>${esc(tierLabel(state?.tier))}</b><span>KATEGORIE ${Number(state?.category_no||1)} / ${Number(state?.category_count||5)}</span></div><button class="mol-minimize" data-mol-minimize type="button" aria-label="Spiel minimieren" title="Spiel minimieren">⌄</button></div></header>`;
 }
 function setupHeader(){
-  return `<header class="mol-full-header"><div><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MEHR ODER WENIGER</span></div><div class="mol-full-meta"><b>SETUP</b><span>5 KATEGORIEN</span></div></header>`;
+  return `<header class="mol-full-header"><div><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MEHR ODER WENIGER</span></div><div class="mol-full-header-right"><div class="mol-full-meta"><b>SETUP</b><span>5 KATEGORIEN</span></div><button class="mol-minimize" data-mol-minimize type="button" aria-label="Spiel minimieren" title="Spiel minimieren">⌄</button></div></header>`;
 }
 function difficultyMarkup(){
   const admin=isAdmin();
@@ -125,6 +133,7 @@ async function animateCategoryPick(){
   const categoryNo=Number(state.category_no||1),token=++animationToken;
   categoryAnimating=true;
   root.innerHTML=categoryAnimationMarkup();
+  bindChrome();
   const label=root.querySelector('#molCategoryRouletteLabel'),unit=root.querySelector('#molCategoryRouletteUnit');
   let pool=categoryPoolForTier(state.tier);
   const selected={category_key:state.category.category_key,display_name:state.category.display_name||state.category.category_key,unit:state.category.unit||''};
@@ -206,10 +215,12 @@ function render(){
   if(!selectedTier()){
     root.innerHTML=difficultyMarkup();
     bindDifficulty();
+    bindChrome();
     return;
   }
   if(!state){
     root.innerHTML=`<section class="mol-full-app">${header()}<main class="mol-full-content"><div class="mol-full-wait">SPIELDATEN WERDEN GELADEN…</div></main></section>`;
+    bindChrome();
     return;
   }
   if(state.phase==='QUESTION'&&Number(state.category_no||1)!==animatedCategoryNo){
@@ -220,6 +231,7 @@ function render(){
   if(state.phase==='COMPLETE'||state.status==='FINISHED')root.innerHTML=completeMarkup();
   else if(state.phase==='REVEAL')root.innerHTML=revealMarkup();
   else root.innerHTML=questionMarkup();
+  bindChrome();
   root.querySelectorAll('[data-mol-choice]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.molChoice)));
   document.getElementById('molFullContinue')?.addEventListener('click',()=>act('CONTINUE'));
 }
