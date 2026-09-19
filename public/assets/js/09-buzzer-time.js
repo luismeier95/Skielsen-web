@@ -49,7 +49,8 @@ function viewerLabel(){
 }
 function setTheme(){
   const identity=String(state?.current?.identity_color||'').toUpperCase(),c=teamColor(identity);
-  const onTeam=identity==='BLUE'?'#ffffff':'#050505';
+  const theme=String(document.documentElement.dataset.themePack||document.body.dataset.themePack||'theme.skielsen.core');
+  const onTeam=theme==='theme.skielsen.core'?'#ffffff':(identity==='BLUE'?'#ffffff':'#050505');
   root?.style.setProperty('--bzt-team',c);
   root?.style.setProperty('--bzt-team-on',onTeam);
 }
