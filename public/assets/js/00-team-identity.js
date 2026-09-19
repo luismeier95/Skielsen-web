@@ -2,8 +2,8 @@
 'use strict';
 
 const PALETTE=Object.freeze({
-  BLUE:Object.freeze({id:'BLUE',label:'BLAU',hex:'#2979FF',on:'#ffffff',cssClass:'team-blue'}),
-  RED:Object.freeze({id:'RED',label:'ROT',hex:'#FF1744',on:'#ffffff',cssClass:'team-red'}),
+  BLUE:Object.freeze({id:'BLUE',label:'BLAU',hex:'#2979FF',on:'#050505',cssClass:'team-blue'}),
+  RED:Object.freeze({id:'RED',label:'ROT',hex:'#FF1744',on:'#050505',cssClass:'team-red'}),
   YELLOW:Object.freeze({id:'YELLOW',label:'PINK',hex:'#FF2ED1',on:'#050505',cssClass:'team-yellow'}),
   GREEN:Object.freeze({id:'GREEN',label:'TÜRKIS',hex:'#00F5D4',on:'#050505',cssClass:'team-green'})
 });
@@ -29,8 +29,8 @@ root.style.setProperty('--team-blue','#2979FF');
 root.style.setProperty('--team-red','#FF1744');
 root.style.setProperty('--team-yellow','#FF2ED1');
 root.style.setProperty('--team-green','#00F5D4');
-root.style.setProperty('--team-on-blue','#ffffff');
-root.style.setProperty('--team-on-red','#ffffff');
+root.style.setProperty('--team-on-blue','#050505');
+root.style.setProperty('--team-on-red','#050505');
 root.style.setProperty('--team-on-yellow','#050505');
 root.style.setProperty('--team-on-green','#050505');
 })();
