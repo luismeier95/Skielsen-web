@@ -1,20 +1,21 @@
 {
-  "generated_at": "2026-09-19T17:11:42.419100+00:00",
+  "generated_at": "2026-09-19T21:53:01.998565+00:00",
   "source": "Composite audit: DeReWo 2013 (DeReKo general-language frequency class) + wordfreq 3.1.1 German large list",
   "license_note": "wordfreq code Apache-2.0; included frequency data CC BY-SA 4.0 / attributed sources.",
+  "production_occurrence_threshold": 35.0,
   "preliminary_thresholds": {
     "keep_min_zipf": 2.7,
     "review_min_zipf": 2.2,
     "drop_below_zipf": 2.2
   },
   "summary": {
-    "count": 445,
+    "count": 380,
     "min_zipf": 0.0,
     "max_zipf": 4.67,
     "bands": {
       "keep": 214,
-      "review": 112,
-      "drop": 119
+      "review": 108,
+      "drop": 58
     },
     "named_examples": {
       "HUNDELEINE": {
@@ -23,6 +24,7 @@
         "zipf": 2.11,
         "derewo_class": 19,
         "occurrence_score": 39.1,
+        "occurrence_threshold_decision": "keep",
         "preliminary_decision": "drop"
       },
       "HUNDESPORT": {
@@ -31,6 +33,7 @@
         "zipf": 2.26,
         "derewo_class": 17,
         "occurrence_score": 45.8,
+        "occurrence_threshold_decision": "keep",
         "preliminary_decision": "review"
       }
     }
@@ -42,6 +45,7 @@
       "zipf": 4.67,
       "derewo_class": 10,
       "occurrence_score": 83.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -50,6 +54,7 @@
       "zipf": 4.51,
       "derewo_class": 12,
       "occurrence_score": 76.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -58,6 +63,7 @@
       "zipf": 4.49,
       "derewo_class": 10,
       "occurrence_score": 82.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -66,6 +72,7 @@
       "zipf": 4.41,
       "derewo_class": 11,
       "occurrence_score": 78.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -74,6 +81,7 @@
       "zipf": 4.29,
       "derewo_class": 11,
       "occurrence_score": 77.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -82,6 +90,7 @@
       "zipf": 4.26,
       "derewo_class": null,
       "occurrence_score": 81.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -90,6 +99,7 @@
       "zipf": 4.25,
       "derewo_class": 12,
       "occurrence_score": 74.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -98,6 +108,7 @@
       "zipf": 4.19,
       "derewo_class": 13,
       "occurrence_score": 71.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -106,6 +117,7 @@
       "zipf": 4.14,
       "derewo_class": 14,
       "occurrence_score": 68.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -114,6 +126,7 @@
       "zipf": 4.13,
       "derewo_class": 13,
       "occurrence_score": 71.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -122,6 +135,7 @@
       "zipf": 4.11,
       "derewo_class": 13,
       "occurrence_score": 70.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -130,6 +144,7 @@
       "zipf": 4.09,
       "derewo_class": 14,
       "occurrence_score": 68.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -138,6 +153,7 @@
       "zipf": 4.08,
       "derewo_class": 13,
       "occurrence_score": 70.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -146,6 +162,7 @@
       "zipf": 4.07,
       "derewo_class": 13,
       "occurrence_score": 70.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -154,6 +171,7 @@
       "zipf": 4.06,
       "derewo_class": 12,
       "occurrence_score": 73.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -162,6 +180,7 @@
       "zipf": 4.01,
       "derewo_class": 13,
       "occurrence_score": 70.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -170,6 +189,7 @@
       "zipf": 3.99,
       "derewo_class": null,
       "occurrence_score": 74.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -178,6 +198,7 @@
       "zipf": 3.97,
       "derewo_class": 15,
       "occurrence_score": 64.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -186,6 +207,7 @@
       "zipf": 3.96,
       "derewo_class": 13,
       "occurrence_score": 69.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -194,6 +216,7 @@
       "zipf": 3.96,
       "derewo_class": null,
       "occurrence_score": 74.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -202,6 +225,7 @@
       "zipf": 3.93,
       "derewo_class": 13,
       "occurrence_score": 69.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -210,6 +234,7 @@
       "zipf": 3.89,
       "derewo_class": 14,
       "occurrence_score": 66.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -218,6 +243,7 @@
       "zipf": 3.88,
       "derewo_class": 13,
       "occurrence_score": 69.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -226,6 +252,7 @@
       "zipf": 3.86,
       "derewo_class": 14,
       "occurrence_score": 66.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -234,6 +261,7 @@
       "zipf": 3.86,
       "derewo_class": 14,
       "occurrence_score": 66.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -242,6 +270,7 @@
       "zipf": 3.86,
       "derewo_class": 12,
       "occurrence_score": 71.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -250,6 +279,7 @@
       "zipf": 3.82,
       "derewo_class": 14,
       "occurrence_score": 65.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -258,6 +288,7 @@
       "zipf": 3.79,
       "derewo_class": 12,
       "occurrence_score": 71.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -266,6 +297,7 @@
       "zipf": 3.74,
       "derewo_class": 13,
       "occurrence_score": 68.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -274,6 +306,7 @@
       "zipf": 3.73,
       "derewo_class": 12,
       "occurrence_score": 70.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -282,6 +315,7 @@
       "zipf": 3.72,
       "derewo_class": 14,
       "occurrence_score": 65.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -290,6 +324,7 @@
       "zipf": 3.72,
       "derewo_class": 14,
       "occurrence_score": 65.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -298,6 +333,7 @@
       "zipf": 3.67,
       "derewo_class": 13,
       "occurrence_score": 67.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -306,6 +342,7 @@
       "zipf": 3.67,
       "derewo_class": 14,
       "occurrence_score": 64.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -314,6 +351,7 @@
       "zipf": 3.66,
       "derewo_class": 15,
       "occurrence_score": 62.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -322,6 +360,7 @@
       "zipf": 3.66,
       "derewo_class": 14,
       "occurrence_score": 64.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -330,6 +369,7 @@
       "zipf": 3.65,
       "derewo_class": 14,
       "occurrence_score": 64.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -338,6 +378,7 @@
       "zipf": 3.65,
       "derewo_class": 13,
       "occurrence_score": 67.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -346,6 +387,7 @@
       "zipf": 3.64,
       "derewo_class": 15,
       "occurrence_score": 61.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -354,6 +396,7 @@
       "zipf": 3.63,
       "derewo_class": 14,
       "occurrence_score": 64.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -362,6 +405,7 @@
       "zipf": 3.61,
       "derewo_class": 14,
       "occurrence_score": 64.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -370,6 +414,7 @@
       "zipf": 3.61,
       "derewo_class": 15,
       "occurrence_score": 61.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -378,6 +423,7 @@
       "zipf": 3.6,
       "derewo_class": 14,
       "occurrence_score": 64.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -386,6 +432,7 @@
       "zipf": 3.6,
       "derewo_class": 15,
       "occurrence_score": 61.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -394,6 +441,7 @@
       "zipf": 3.59,
       "derewo_class": 14,
       "occurrence_score": 64.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -402,6 +450,7 @@
       "zipf": 3.58,
       "derewo_class": 14,
       "occurrence_score": 64.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -410,6 +459,7 @@
       "zipf": 3.58,
       "derewo_class": 14,
       "occurrence_score": 64.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -418,6 +468,7 @@
       "zipf": 3.58,
       "derewo_class": 14,
       "occurrence_score": 64.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -426,6 +477,7 @@
       "zipf": 3.58,
       "derewo_class": 14,
       "occurrence_score": 64.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -434,6 +486,7 @@
       "zipf": 3.57,
       "derewo_class": 14,
       "occurrence_score": 64.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -442,6 +495,7 @@
       "zipf": 3.57,
       "derewo_class": 15,
       "occurrence_score": 61.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -450,6 +504,7 @@
       "zipf": 3.56,
       "derewo_class": 14,
       "occurrence_score": 64.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -458,6 +513,7 @@
       "zipf": 3.55,
       "derewo_class": null,
       "occurrence_score": 63.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -466,6 +522,7 @@
       "zipf": 3.55,
       "derewo_class": 14,
       "occurrence_score": 63.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -474,6 +531,7 @@
       "zipf": 3.53,
       "derewo_class": 12,
       "occurrence_score": 69.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -482,6 +540,7 @@
       "zipf": 3.52,
       "derewo_class": 12,
       "occurrence_score": 69.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -490,6 +549,7 @@
       "zipf": 3.52,
       "derewo_class": 16,
       "occurrence_score": 58.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -498,6 +558,7 @@
       "zipf": 3.51,
       "derewo_class": 15,
       "occurrence_score": 60.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -506,6 +567,7 @@
       "zipf": 3.51,
       "derewo_class": 12,
       "occurrence_score": 69.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -514,6 +576,7 @@
       "zipf": 3.5,
       "derewo_class": 16,
       "occurrence_score": 57.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -522,6 +585,7 @@
       "zipf": 3.5,
       "derewo_class": 15,
       "occurrence_score": 60.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -530,6 +594,7 @@
       "zipf": 3.5,
       "derewo_class": 15,
       "occurrence_score": 60.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -538,6 +603,7 @@
       "zipf": 3.5,
       "derewo_class": 13,
       "occurrence_score": 66.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -546,6 +612,7 @@
       "zipf": 3.49,
       "derewo_class": 15,
       "occurrence_score": 60.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -554,6 +621,7 @@
       "zipf": 3.49,
       "derewo_class": 13,
       "occurrence_score": 66.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -562,6 +630,7 @@
       "zipf": 3.48,
       "derewo_class": 13,
       "occurrence_score": 66.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -570,6 +639,7 @@
       "zipf": 3.48,
       "derewo_class": 15,
       "occurrence_score": 60.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -578,6 +648,7 @@
       "zipf": 3.47,
       "derewo_class": 14,
       "occurrence_score": 63.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -586,6 +657,7 @@
       "zipf": 3.46,
       "derewo_class": 14,
       "occurrence_score": 63.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -594,6 +666,7 @@
       "zipf": 3.46,
       "derewo_class": 15,
       "occurrence_score": 60.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -602,6 +675,7 @@
       "zipf": 3.45,
       "derewo_class": 15,
       "occurrence_score": 60.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -610,6 +684,7 @@
       "zipf": 3.44,
       "derewo_class": 13,
       "occurrence_score": 65.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -618,6 +693,7 @@
       "zipf": 3.44,
       "derewo_class": 15,
       "occurrence_score": 60.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -626,6 +702,7 @@
       "zipf": 3.39,
       "derewo_class": 14,
       "occurrence_score": 62.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -634,6 +711,7 @@
       "zipf": 3.38,
       "derewo_class": 15,
       "occurrence_score": 59.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -642,6 +720,7 @@
       "zipf": 3.37,
       "derewo_class": 15,
       "occurrence_score": 59.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -650,6 +729,7 @@
       "zipf": 3.35,
       "derewo_class": 15,
       "occurrence_score": 59.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -658,6 +738,7 @@
       "zipf": 3.34,
       "derewo_class": 13,
       "occurrence_score": 65.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -666,6 +747,7 @@
       "zipf": 3.34,
       "derewo_class": 15,
       "occurrence_score": 59.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -674,6 +756,7 @@
       "zipf": 3.32,
       "derewo_class": 16,
       "occurrence_score": 56.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -682,6 +765,7 @@
       "zipf": 3.32,
       "derewo_class": 14,
       "occurrence_score": 62.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -690,6 +774,7 @@
       "zipf": 3.32,
       "derewo_class": 15,
       "occurrence_score": 59.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -698,6 +783,7 @@
       "zipf": 3.31,
       "derewo_class": 15,
       "occurrence_score": 59.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -706,6 +792,7 @@
       "zipf": 3.31,
       "derewo_class": 15,
       "occurrence_score": 59.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -714,6 +801,7 @@
       "zipf": 3.3,
       "derewo_class": 15,
       "occurrence_score": 59.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -722,6 +810,7 @@
       "zipf": 3.3,
       "derewo_class": 16,
       "occurrence_score": 56.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -730,6 +819,7 @@
       "zipf": 3.29,
       "derewo_class": 15,
       "occurrence_score": 59.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -738,6 +828,7 @@
       "zipf": 3.29,
       "derewo_class": 15,
       "occurrence_score": 59.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -746,6 +837,7 @@
       "zipf": 3.28,
       "derewo_class": 14,
       "occurrence_score": 61.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -754,6 +846,7 @@
       "zipf": 3.28,
       "derewo_class": 16,
       "occurrence_score": 56.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -762,6 +855,7 @@
       "zipf": 3.27,
       "derewo_class": 14,
       "occurrence_score": 61.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -770,6 +864,7 @@
       "zipf": 3.27,
       "derewo_class": 16,
       "occurrence_score": 56.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -778,6 +873,7 @@
       "zipf": 3.26,
       "derewo_class": 16,
       "occurrence_score": 56.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -786,6 +882,7 @@
       "zipf": 3.26,
       "derewo_class": 14,
       "occurrence_score": 61.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -794,6 +891,7 @@
       "zipf": 3.26,
       "derewo_class": 15,
       "occurrence_score": 58.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -802,6 +900,7 @@
       "zipf": 3.25,
       "derewo_class": 15,
       "occurrence_score": 58.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -810,6 +909,7 @@
       "zipf": 3.25,
       "derewo_class": 15,
       "occurrence_score": 58.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -818,6 +918,7 @@
       "zipf": 3.24,
       "derewo_class": 15,
       "occurrence_score": 58.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -826,6 +927,7 @@
       "zipf": 3.24,
       "derewo_class": 15,
       "occurrence_score": 58.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -834,6 +936,7 @@
       "zipf": 3.23,
       "derewo_class": 16,
       "occurrence_score": 55.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -842,6 +945,7 @@
       "zipf": 3.22,
       "derewo_class": 14,
       "occurrence_score": 61.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -850,6 +954,7 @@
       "zipf": 3.22,
       "derewo_class": 17,
       "occurrence_score": 53.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -858,6 +963,7 @@
       "zipf": 3.2,
       "derewo_class": 15,
       "occurrence_score": 58.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -866,6 +972,7 @@
       "zipf": 3.19,
       "derewo_class": 16,
       "occurrence_score": 55.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -874,6 +981,7 @@
       "zipf": 3.19,
       "derewo_class": 16,
       "occurrence_score": 55.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -882,6 +990,7 @@
       "zipf": 3.18,
       "derewo_class": 15,
       "occurrence_score": 58.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -890,6 +999,7 @@
       "zipf": 3.17,
       "derewo_class": 16,
       "occurrence_score": 55.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -898,6 +1008,7 @@
       "zipf": 3.17,
       "derewo_class": 15,
       "occurrence_score": 58.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -906,6 +1017,7 @@
       "zipf": 3.16,
       "derewo_class": 15,
       "occurrence_score": 58.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -914,6 +1026,7 @@
       "zipf": 3.16,
       "derewo_class": 15,
       "occurrence_score": 58.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -922,6 +1035,7 @@
       "zipf": 3.15,
       "derewo_class": 13,
       "occurrence_score": 63.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -930,6 +1044,7 @@
       "zipf": 3.15,
       "derewo_class": 15,
       "occurrence_score": 58.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -938,6 +1053,7 @@
       "zipf": 3.15,
       "derewo_class": null,
       "occurrence_score": 53.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -946,6 +1062,7 @@
       "zipf": 3.14,
       "derewo_class": 17,
       "occurrence_score": 52.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -954,6 +1071,7 @@
       "zipf": 3.14,
       "derewo_class": 16,
       "occurrence_score": 55.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -962,6 +1080,7 @@
       "zipf": 3.14,
       "derewo_class": null,
       "occurrence_score": 53.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -970,6 +1089,7 @@
       "zipf": 3.14,
       "derewo_class": 16,
       "occurrence_score": 55.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -978,6 +1098,7 @@
       "zipf": 3.13,
       "derewo_class": 15,
       "occurrence_score": 58.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -986,6 +1107,7 @@
       "zipf": 3.12,
       "derewo_class": 16,
       "occurrence_score": 55.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -994,6 +1116,7 @@
       "zipf": 3.12,
       "derewo_class": 15,
       "occurrence_score": 57.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1002,6 +1125,7 @@
       "zipf": 3.12,
       "derewo_class": 15,
       "occurrence_score": 57.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1010,6 +1134,7 @@
       "zipf": 3.11,
       "derewo_class": 16,
       "occurrence_score": 55.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1018,6 +1143,7 @@
       "zipf": 3.11,
       "derewo_class": 16,
       "occurrence_score": 55.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1026,6 +1152,7 @@
       "zipf": 3.1,
       "derewo_class": 14,
       "occurrence_score": 60.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1034,6 +1161,7 @@
       "zipf": 3.1,
       "derewo_class": 16,
       "occurrence_score": 54.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1042,6 +1170,7 @@
       "zipf": 3.1,
       "derewo_class": 15,
       "occurrence_score": 57.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1050,6 +1179,7 @@
       "zipf": 3.09,
       "derewo_class": 18,
       "occurrence_score": 49.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1058,6 +1188,7 @@
       "zipf": 3.08,
       "derewo_class": 16,
       "occurrence_score": 54.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1066,6 +1197,7 @@
       "zipf": 3.08,
       "derewo_class": 16,
       "occurrence_score": 54.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1074,6 +1206,7 @@
       "zipf": 3.08,
       "derewo_class": 15,
       "occurrence_score": 57.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1082,6 +1215,7 @@
       "zipf": 3.07,
       "derewo_class": 14,
       "occurrence_score": 60.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1090,6 +1224,7 @@
       "zipf": 3.07,
       "derewo_class": 16,
       "occurrence_score": 54.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1098,6 +1233,7 @@
       "zipf": 3.06,
       "derewo_class": 16,
       "occurrence_score": 54.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1106,6 +1242,7 @@
       "zipf": 3.06,
       "derewo_class": 17,
       "occurrence_score": 51.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1114,6 +1251,7 @@
       "zipf": 3.06,
       "derewo_class": 16,
       "occurrence_score": 54.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1122,6 +1260,7 @@
       "zipf": 3.05,
       "derewo_class": 15,
       "occurrence_score": 57.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1130,6 +1269,7 @@
       "zipf": 3.05,
       "derewo_class": 18,
       "occurrence_score": 49.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1138,6 +1278,7 @@
       "zipf": 3.05,
       "derewo_class": 14,
       "occurrence_score": 60.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1146,6 +1287,7 @@
       "zipf": 3.04,
       "derewo_class": 16,
       "occurrence_score": 54.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1154,6 +1296,7 @@
       "zipf": 3.04,
       "derewo_class": 15,
       "occurrence_score": 57.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1162,6 +1305,7 @@
       "zipf": 3.02,
       "derewo_class": 18,
       "occurrence_score": 48.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1170,6 +1314,7 @@
       "zipf": 3.01,
       "derewo_class": 18,
       "occurrence_score": 48.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1178,6 +1323,7 @@
       "zipf": 3.01,
       "derewo_class": 17,
       "occurrence_score": 51.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1186,6 +1332,7 @@
       "zipf": 3.01,
       "derewo_class": 15,
       "occurrence_score": 57.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1194,6 +1341,7 @@
       "zipf": 3.01,
       "derewo_class": 17,
       "occurrence_score": 51.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1202,6 +1350,7 @@
       "zipf": 3.0,
       "derewo_class": null,
       "occurrence_score": 50.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1210,6 +1359,7 @@
       "zipf": 3.0,
       "derewo_class": 17,
       "occurrence_score": 51.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1218,6 +1368,7 @@
       "zipf": 2.99,
       "derewo_class": 16,
       "occurrence_score": 54.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1226,6 +1377,7 @@
       "zipf": 2.99,
       "derewo_class": 15,
       "occurrence_score": 56.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1234,6 +1386,7 @@
       "zipf": 2.99,
       "derewo_class": null,
       "occurrence_score": 49.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1242,6 +1395,7 @@
       "zipf": 2.99,
       "derewo_class": 16,
       "occurrence_score": 54.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1250,6 +1404,7 @@
       "zipf": 2.98,
       "derewo_class": 16,
       "occurrence_score": 54.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1258,6 +1413,7 @@
       "zipf": 2.98,
       "derewo_class": 13,
       "occurrence_score": 62.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1266,6 +1422,7 @@
       "zipf": 2.98,
       "derewo_class": 19,
       "occurrence_score": 45.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1274,6 +1431,7 @@
       "zipf": 2.97,
       "derewo_class": 16,
       "occurrence_score": 54.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1282,6 +1440,7 @@
       "zipf": 2.97,
       "derewo_class": 16,
       "occurrence_score": 54.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1290,6 +1449,7 @@
       "zipf": 2.96,
       "derewo_class": 16,
       "occurrence_score": 53.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1298,6 +1458,7 @@
       "zipf": 2.96,
       "derewo_class": 17,
       "occurrence_score": 51.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1306,6 +1467,7 @@
       "zipf": 2.96,
       "derewo_class": 17,
       "occurrence_score": 51.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1314,6 +1476,7 @@
       "zipf": 2.96,
       "derewo_class": 17,
       "occurrence_score": 51.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1322,6 +1485,7 @@
       "zipf": 2.95,
       "derewo_class": 15,
       "occurrence_score": 56.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1330,6 +1494,7 @@
       "zipf": 2.95,
       "derewo_class": 16,
       "occurrence_score": 53.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1338,6 +1503,7 @@
       "zipf": 2.94,
       "derewo_class": 15,
       "occurrence_score": 56.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1346,6 +1512,7 @@
       "zipf": 2.94,
       "derewo_class": 16,
       "occurrence_score": 53.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1354,6 +1521,7 @@
       "zipf": 2.94,
       "derewo_class": 15,
       "occurrence_score": 56.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1362,6 +1530,7 @@
       "zipf": 2.93,
       "derewo_class": 16,
       "occurrence_score": 53.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1370,6 +1539,7 @@
       "zipf": 2.92,
       "derewo_class": 18,
       "occurrence_score": 48.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1378,6 +1548,7 @@
       "zipf": 2.91,
       "derewo_class": 14,
       "occurrence_score": 59.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1386,6 +1557,7 @@
       "zipf": 2.91,
       "derewo_class": 16,
       "occurrence_score": 53.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1394,6 +1566,7 @@
       "zipf": 2.91,
       "derewo_class": 15,
       "occurrence_score": 56.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1402,6 +1575,7 @@
       "zipf": 2.91,
       "derewo_class": 16,
       "occurrence_score": 53.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1410,6 +1584,7 @@
       "zipf": 2.9,
       "derewo_class": 15,
       "occurrence_score": 56.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1418,6 +1593,7 @@
       "zipf": 2.9,
       "derewo_class": 15,
       "occurrence_score": 56.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1426,6 +1602,7 @@
       "zipf": 2.9,
       "derewo_class": 17,
       "occurrence_score": 50.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1434,6 +1611,7 @@
       "zipf": 2.89,
       "derewo_class": null,
       "occurrence_score": 47.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1442,6 +1620,7 @@
       "zipf": 2.88,
       "derewo_class": 16,
       "occurrence_score": 53.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1450,6 +1629,7 @@
       "zipf": 2.88,
       "derewo_class": 16,
       "occurrence_score": 53.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1458,6 +1638,7 @@
       "zipf": 2.88,
       "derewo_class": 18,
       "occurrence_score": 47.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1466,6 +1647,7 @@
       "zipf": 2.88,
       "derewo_class": 15,
       "occurrence_score": 56.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1474,6 +1656,7 @@
       "zipf": 2.87,
       "derewo_class": 17,
       "occurrence_score": 50.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1482,6 +1665,7 @@
       "zipf": 2.87,
       "derewo_class": 14,
       "occurrence_score": 58.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1490,6 +1674,7 @@
       "zipf": 2.86,
       "derewo_class": 17,
       "occurrence_score": 50.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1498,6 +1683,7 @@
       "zipf": 2.85,
       "derewo_class": 18,
       "occurrence_score": 47.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1506,6 +1692,7 @@
       "zipf": 2.85,
       "derewo_class": 16,
       "occurrence_score": 53.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1514,6 +1701,7 @@
       "zipf": 2.85,
       "derewo_class": 17,
       "occurrence_score": 50.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1522,6 +1710,7 @@
       "zipf": 2.84,
       "derewo_class": 15,
       "occurrence_score": 55.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1530,6 +1719,7 @@
       "zipf": 2.84,
       "derewo_class": 16,
       "occurrence_score": 53.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1538,6 +1728,7 @@
       "zipf": 2.84,
       "derewo_class": 16,
       "occurrence_score": 53.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1546,6 +1737,7 @@
       "zipf": 2.84,
       "derewo_class": 17,
       "occurrence_score": 50.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1554,6 +1746,7 @@
       "zipf": 2.84,
       "derewo_class": 16,
       "occurrence_score": 53.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1562,6 +1755,7 @@
       "zipf": 2.83,
       "derewo_class": 14,
       "occurrence_score": 58.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1570,6 +1764,7 @@
       "zipf": 2.83,
       "derewo_class": 17,
       "occurrence_score": 50.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1578,6 +1773,7 @@
       "zipf": 2.83,
       "derewo_class": 15,
       "occurrence_score": 55.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1586,6 +1782,7 @@
       "zipf": 2.83,
       "derewo_class": 16,
       "occurrence_score": 52.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1594,6 +1791,7 @@
       "zipf": 2.83,
       "derewo_class": 17,
       "occurrence_score": 50.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1602,6 +1800,7 @@
       "zipf": 2.82,
       "derewo_class": 17,
       "occurrence_score": 50.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1610,6 +1809,7 @@
       "zipf": 2.81,
       "derewo_class": 17,
       "occurrence_score": 50.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1618,6 +1818,7 @@
       "zipf": 2.8,
       "derewo_class": 17,
       "occurrence_score": 49.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1626,6 +1827,7 @@
       "zipf": 2.8,
       "derewo_class": null,
       "occurrence_score": 45.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1634,6 +1836,7 @@
       "zipf": 2.8,
       "derewo_class": 17,
       "occurrence_score": 49.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1642,6 +1845,7 @@
       "zipf": 2.79,
       "derewo_class": 17,
       "occurrence_score": 49.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1650,6 +1854,7 @@
       "zipf": 2.79,
       "derewo_class": 16,
       "occurrence_score": 52.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1658,6 +1863,7 @@
       "zipf": 2.78,
       "derewo_class": 16,
       "occurrence_score": 52.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1666,6 +1872,7 @@
       "zipf": 2.77,
       "derewo_class": 16,
       "occurrence_score": 52.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1674,6 +1881,7 @@
       "zipf": 2.76,
       "derewo_class": null,
       "occurrence_score": 44.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1682,6 +1890,7 @@
       "zipf": 2.76,
       "derewo_class": 16,
       "occurrence_score": 52.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1690,6 +1899,7 @@
       "zipf": 2.75,
       "derewo_class": 16,
       "occurrence_score": 52.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1698,6 +1908,7 @@
       "zipf": 2.74,
       "derewo_class": 16,
       "occurrence_score": 52.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1706,6 +1917,7 @@
       "zipf": 2.73,
       "derewo_class": 18,
       "occurrence_score": 46.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1714,6 +1926,7 @@
       "zipf": 2.73,
       "derewo_class": 15,
       "occurrence_score": 55.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1722,6 +1935,7 @@
       "zipf": 2.72,
       "derewo_class": 18,
       "occurrence_score": 46.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1730,6 +1944,7 @@
       "zipf": 2.7,
       "derewo_class": 16,
       "occurrence_score": 51.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1738,6 +1953,7 @@
       "zipf": 2.7,
       "derewo_class": null,
       "occurrence_score": 42.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1746,6 +1962,7 @@
       "zipf": 2.7,
       "derewo_class": 18,
       "occurrence_score": 46.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "keep"
     },
     {
@@ -1754,6 +1971,7 @@
       "zipf": 2.69,
       "derewo_class": 17,
       "occurrence_score": 49.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1762,6 +1980,7 @@
       "zipf": 2.69,
       "derewo_class": 17,
       "occurrence_score": 49.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1770,6 +1989,7 @@
       "zipf": 2.69,
       "derewo_class": 17,
       "occurrence_score": 49.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1778,6 +1998,7 @@
       "zipf": 2.69,
       "derewo_class": 17,
       "occurrence_score": 49.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1786,6 +2007,7 @@
       "zipf": 2.68,
       "derewo_class": 18,
       "occurrence_score": 46.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1794,6 +2016,7 @@
       "zipf": 2.67,
       "derewo_class": 17,
       "occurrence_score": 48.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1802,6 +2025,7 @@
       "zipf": 2.67,
       "derewo_class": 18,
       "occurrence_score": 46.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1810,6 +2034,7 @@
       "zipf": 2.67,
       "derewo_class": 20,
       "occurrence_score": 40.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1818,6 +2043,7 @@
       "zipf": 2.66,
       "derewo_class": 17,
       "occurrence_score": 48.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1826,6 +2052,7 @@
       "zipf": 2.66,
       "derewo_class": 18,
       "occurrence_score": 46.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1834,6 +2061,7 @@
       "zipf": 2.66,
       "derewo_class": 17,
       "occurrence_score": 48.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1842,6 +2070,7 @@
       "zipf": 2.66,
       "derewo_class": 17,
       "occurrence_score": 48.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1850,6 +2079,7 @@
       "zipf": 2.65,
       "derewo_class": 18,
       "occurrence_score": 46.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1858,6 +2088,7 @@
       "zipf": 2.65,
       "derewo_class": 18,
       "occurrence_score": 46.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1866,6 +2097,7 @@
       "zipf": 2.64,
       "derewo_class": 17,
       "occurrence_score": 48.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1874,6 +2106,7 @@
       "zipf": 2.64,
       "derewo_class": 15,
       "occurrence_score": 54.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1882,6 +2115,7 @@
       "zipf": 2.64,
       "derewo_class": 16,
       "occurrence_score": 51.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1890,6 +2124,7 @@
       "zipf": 2.64,
       "derewo_class": 17,
       "occurrence_score": 48.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1898,6 +2133,7 @@
       "zipf": 2.64,
       "derewo_class": 18,
       "occurrence_score": 45.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1906,6 +2142,7 @@
       "zipf": 2.64,
       "derewo_class": 17,
       "occurrence_score": 48.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1914,6 +2151,7 @@
       "zipf": 2.64,
       "derewo_class": 17,
       "occurrence_score": 48.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1922,6 +2160,7 @@
       "zipf": 2.63,
       "derewo_class": 18,
       "occurrence_score": 45.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1930,6 +2169,7 @@
       "zipf": 2.63,
       "derewo_class": null,
       "occurrence_score": 40.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1938,6 +2178,7 @@
       "zipf": 2.62,
       "derewo_class": 18,
       "occurrence_score": 45.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1946,6 +2187,7 @@
       "zipf": 2.62,
       "derewo_class": 17,
       "occurrence_score": 48.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1954,6 +2196,7 @@
       "zipf": 2.61,
       "derewo_class": 18,
       "occurrence_score": 45.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1962,6 +2205,7 @@
       "zipf": 2.61,
       "derewo_class": 15,
       "occurrence_score": 54.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1970,6 +2214,7 @@
       "zipf": 2.61,
       "derewo_class": 18,
       "occurrence_score": 45.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1978,6 +2223,7 @@
       "zipf": 2.6,
       "derewo_class": 14,
       "occurrence_score": 56.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1986,6 +2232,7 @@
       "zipf": 2.6,
       "derewo_class": 18,
       "occurrence_score": 45.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -1994,6 +2241,7 @@
       "zipf": 2.6,
       "derewo_class": 18,
       "occurrence_score": 45.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2002,6 +2250,7 @@
       "zipf": 2.6,
       "derewo_class": 19,
       "occurrence_score": 42.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2010,6 +2259,7 @@
       "zipf": 2.6,
       "derewo_class": 18,
       "occurrence_score": 45.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2018,6 +2268,7 @@
       "zipf": 2.59,
       "derewo_class": 18,
       "occurrence_score": 45.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2026,6 +2277,7 @@
       "zipf": 2.59,
       "derewo_class": 19,
       "occurrence_score": 42.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2034,6 +2286,7 @@
       "zipf": 2.59,
       "derewo_class": 17,
       "occurrence_score": 48.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2042,6 +2295,7 @@
       "zipf": 2.58,
       "derewo_class": 15,
       "occurrence_score": 53.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2050,6 +2304,7 @@
       "zipf": 2.58,
       "derewo_class": 17,
       "occurrence_score": 48.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2058,6 +2313,7 @@
       "zipf": 2.58,
       "derewo_class": 17,
       "occurrence_score": 48.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2066,6 +2322,7 @@
       "zipf": 2.57,
       "derewo_class": 17,
       "occurrence_score": 48.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2074,6 +2331,7 @@
       "zipf": 2.56,
       "derewo_class": 17,
       "occurrence_score": 48.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2082,6 +2340,7 @@
       "zipf": 2.56,
       "derewo_class": 15,
       "occurrence_score": 53.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2090,6 +2349,7 @@
       "zipf": 2.56,
       "derewo_class": 17,
       "occurrence_score": 48.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2098,6 +2358,7 @@
       "zipf": 2.56,
       "derewo_class": null,
       "occurrence_score": 39.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2106,6 +2367,7 @@
       "zipf": 2.55,
       "derewo_class": 18,
       "occurrence_score": 45.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2114,6 +2376,7 @@
       "zipf": 2.54,
       "derewo_class": null,
       "occurrence_score": 38.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2122,6 +2385,7 @@
       "zipf": 2.54,
       "derewo_class": 16,
       "occurrence_score": 50.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2130,6 +2394,7 @@
       "zipf": 2.53,
       "derewo_class": 17,
       "occurrence_score": 47.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2138,6 +2403,7 @@
       "zipf": 2.53,
       "derewo_class": 16,
       "occurrence_score": 50.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2146,6 +2412,7 @@
       "zipf": 2.53,
       "derewo_class": 18,
       "occurrence_score": 45.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2154,6 +2421,7 @@
       "zipf": 2.52,
       "derewo_class": 17,
       "occurrence_score": 47.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2162,6 +2430,7 @@
       "zipf": 2.5,
       "derewo_class": 16,
       "occurrence_score": 50.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2170,6 +2439,7 @@
       "zipf": 2.5,
       "derewo_class": 17,
       "occurrence_score": 47.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2178,6 +2448,7 @@
       "zipf": 2.5,
       "derewo_class": 18,
       "occurrence_score": 44.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2186,6 +2457,7 @@
       "zipf": 2.5,
       "derewo_class": null,
       "occurrence_score": 37.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2194,6 +2466,7 @@
       "zipf": 2.49,
       "derewo_class": 18,
       "occurrence_score": 44.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2202,6 +2475,7 @@
       "zipf": 2.48,
       "derewo_class": 18,
       "occurrence_score": 44.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2210,6 +2484,7 @@
       "zipf": 2.48,
       "derewo_class": 17,
       "occurrence_score": 47.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2218,6 +2493,7 @@
       "zipf": 2.47,
       "derewo_class": null,
       "occurrence_score": 36.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2226,6 +2502,7 @@
       "zipf": 2.47,
       "derewo_class": 18,
       "occurrence_score": 44.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2234,6 +2511,7 @@
       "zipf": 2.47,
       "derewo_class": 17,
       "occurrence_score": 47.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2242,6 +2520,7 @@
       "zipf": 2.47,
       "derewo_class": 19,
       "occurrence_score": 41.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2250,6 +2529,7 @@
       "zipf": 2.46,
       "derewo_class": 17,
       "occurrence_score": 47.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2258,6 +2538,7 @@
       "zipf": 2.46,
       "derewo_class": 19,
       "occurrence_score": 41.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2266,6 +2547,7 @@
       "zipf": 2.46,
       "derewo_class": 19,
       "occurrence_score": 41.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2274,6 +2556,7 @@
       "zipf": 2.45,
       "derewo_class": 18,
       "occurrence_score": 44.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2282,6 +2565,7 @@
       "zipf": 2.45,
       "derewo_class": 18,
       "occurrence_score": 44.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2290,6 +2574,7 @@
       "zipf": 2.45,
       "derewo_class": 19,
       "occurrence_score": 41.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2298,6 +2583,7 @@
       "zipf": 2.45,
       "derewo_class": 17,
       "occurrence_score": 47.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2306,6 +2592,7 @@
       "zipf": 2.45,
       "derewo_class": null,
       "occurrence_score": 36.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2314,6 +2601,7 @@
       "zipf": 2.44,
       "derewo_class": 18,
       "occurrence_score": 44.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2322,6 +2610,7 @@
       "zipf": 2.44,
       "derewo_class": 18,
       "occurrence_score": 44.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2330,6 +2619,7 @@
       "zipf": 2.44,
       "derewo_class": 18,
       "occurrence_score": 44.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2338,6 +2628,7 @@
       "zipf": 2.44,
       "derewo_class": 17,
       "occurrence_score": 47.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2346,6 +2637,7 @@
       "zipf": 2.43,
       "derewo_class": 17,
       "occurrence_score": 47.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2354,6 +2646,7 @@
       "zipf": 2.43,
       "derewo_class": null,
       "occurrence_score": 35.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2362,6 +2655,7 @@
       "zipf": 2.42,
       "derewo_class": 16,
       "occurrence_score": 49.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2370,6 +2664,7 @@
       "zipf": 2.38,
       "derewo_class": 14,
       "occurrence_score": 55.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2378,6 +2673,7 @@
       "zipf": 2.37,
       "derewo_class": 17,
       "occurrence_score": 46.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2386,6 +2682,7 @@
       "zipf": 2.36,
       "derewo_class": 19,
       "occurrence_score": 41.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2394,6 +2691,7 @@
       "zipf": 2.36,
       "derewo_class": 19,
       "occurrence_score": 41.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2402,6 +2700,7 @@
       "zipf": 2.35,
       "derewo_class": 18,
       "occurrence_score": 43.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2410,6 +2709,7 @@
       "zipf": 2.35,
       "derewo_class": 18,
       "occurrence_score": 43.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2418,6 +2718,7 @@
       "zipf": 2.35,
       "derewo_class": 17,
       "occurrence_score": 46.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2426,6 +2727,7 @@
       "zipf": 2.35,
       "derewo_class": 17,
       "occurrence_score": 46.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2434,6 +2736,7 @@
       "zipf": 2.34,
       "derewo_class": 16,
       "occurrence_score": 49.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2442,6 +2745,7 @@
       "zipf": 2.34,
       "derewo_class": 18,
       "occurrence_score": 43.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2450,6 +2754,7 @@
       "zipf": 2.33,
       "derewo_class": 18,
       "occurrence_score": 43.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2458,6 +2763,7 @@
       "zipf": 2.33,
       "derewo_class": 17,
       "occurrence_score": 46.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2466,6 +2772,7 @@
       "zipf": 2.33,
       "derewo_class": 16,
       "occurrence_score": 49.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2474,14 +2781,7 @@
       "zipf": 2.33,
       "derewo_class": 18,
       "occurrence_score": 43.6,
-      "preliminary_decision": "review"
-    },
-    {
-      "edge_id": 52,
-      "compound_word": "FALLTÜR",
-      "zipf": 2.32,
-      "derewo_class": null,
-      "occurrence_score": 33.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2490,6 +2790,7 @@
       "zipf": 2.32,
       "derewo_class": 19,
       "occurrence_score": 40.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2498,14 +2799,7 @@
       "zipf": 2.31,
       "derewo_class": 19,
       "occurrence_score": 40.6,
-      "preliminary_decision": "review"
-    },
-    {
-      "edge_id": 490,
-      "compound_word": "HUNDEHÜTTE",
-      "zipf": 2.31,
-      "derewo_class": null,
-      "occurrence_score": 32.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2514,6 +2808,7 @@
       "zipf": 2.29,
       "derewo_class": 18,
       "occurrence_score": 43.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2522,6 +2817,7 @@
       "zipf": 2.29,
       "derewo_class": 16,
       "occurrence_score": 48.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2530,6 +2826,7 @@
       "zipf": 2.28,
       "derewo_class": 18,
       "occurrence_score": 43.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2538,6 +2835,7 @@
       "zipf": 2.28,
       "derewo_class": 17,
       "occurrence_score": 46.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2546,6 +2844,7 @@
       "zipf": 2.28,
       "derewo_class": 20,
       "occurrence_score": 37.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2554,6 +2853,7 @@
       "zipf": 2.28,
       "derewo_class": 19,
       "occurrence_score": 40.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2562,6 +2862,7 @@
       "zipf": 2.27,
       "derewo_class": 20,
       "occurrence_score": 37.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2570,6 +2871,7 @@
       "zipf": 2.26,
       "derewo_class": 18,
       "occurrence_score": 43.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2578,6 +2880,7 @@
       "zipf": 2.26,
       "derewo_class": 17,
       "occurrence_score": 45.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2586,6 +2889,7 @@
       "zipf": 2.26,
       "derewo_class": 17,
       "occurrence_score": 45.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2594,6 +2898,7 @@
       "zipf": 2.25,
       "derewo_class": 18,
       "occurrence_score": 43.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2602,14 +2907,7 @@
       "zipf": 2.24,
       "derewo_class": 19,
       "occurrence_score": 40.1,
-      "preliminary_decision": "review"
-    },
-    {
-      "edge_id": 199,
-      "compound_word": "BÜROTÜR",
-      "zipf": 2.23,
-      "derewo_class": null,
-      "occurrence_score": 30.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2618,6 +2916,7 @@
       "zipf": 2.23,
       "derewo_class": 19,
       "occurrence_score": 40.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2626,6 +2925,7 @@
       "zipf": 2.22,
       "derewo_class": 18,
       "occurrence_score": 42.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2634,14 +2934,7 @@
       "zipf": 2.21,
       "derewo_class": 17,
       "occurrence_score": 45.5,
-      "preliminary_decision": "review"
-    },
-    {
-      "edge_id": 152,
-      "compound_word": "STÜCKGUT",
-      "zipf": 2.2,
-      "derewo_class": null,
-      "occurrence_score": 30.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "review"
     },
     {
@@ -2650,6 +2943,7 @@
       "zipf": 2.19,
       "derewo_class": 18,
       "occurrence_score": 42.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2658,6 +2952,7 @@
       "zipf": 2.19,
       "derewo_class": 17,
       "occurrence_score": 45.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2666,6 +2961,7 @@
       "zipf": 2.19,
       "derewo_class": 19,
       "occurrence_score": 39.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2674,6 +2970,7 @@
       "zipf": 2.18,
       "derewo_class": 19,
       "occurrence_score": 39.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2682,6 +2979,7 @@
       "zipf": 2.17,
       "derewo_class": 19,
       "occurrence_score": 39.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2690,6 +2988,7 @@
       "zipf": 2.16,
       "derewo_class": 18,
       "occurrence_score": 42.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2698,6 +2997,7 @@
       "zipf": 2.16,
       "derewo_class": 19,
       "occurrence_score": 39.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2706,6 +3006,7 @@
       "zipf": 2.16,
       "derewo_class": 18,
       "occurrence_score": 42.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2714,14 +3015,7 @@
       "zipf": 2.14,
       "derewo_class": 19,
       "occurrence_score": 39.3,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 303,
-      "compound_word": "LADENTÜR",
-      "zipf": 2.14,
-      "derewo_class": null,
-      "occurrence_score": 28.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2730,6 +3024,7 @@
       "zipf": 2.12,
       "derewo_class": 18,
       "occurrence_score": 42.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2738,6 +3033,7 @@
       "zipf": 2.11,
       "derewo_class": 19,
       "occurrence_score": 39.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2746,6 +3042,7 @@
       "zipf": 2.11,
       "derewo_class": 19,
       "occurrence_score": 39.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2754,6 +3051,7 @@
       "zipf": 2.11,
       "derewo_class": 19,
       "occurrence_score": 39.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2762,6 +3060,7 @@
       "zipf": 2.09,
       "derewo_class": 20,
       "occurrence_score": 36.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2770,6 +3069,7 @@
       "zipf": 2.08,
       "derewo_class": 17,
       "occurrence_score": 44.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2778,6 +3078,7 @@
       "zipf": 2.08,
       "derewo_class": 17,
       "occurrence_score": 44.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2786,6 +3087,7 @@
       "zipf": 2.08,
       "derewo_class": 17,
       "occurrence_score": 44.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2794,6 +3096,7 @@
       "zipf": 2.07,
       "derewo_class": 18,
       "occurrence_score": 41.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2802,14 +3105,7 @@
       "zipf": 2.06,
       "derewo_class": 16,
       "occurrence_score": 47.1,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 9,
-      "compound_word": "KUCHENFORM",
-      "zipf": 2.06,
-      "derewo_class": 21,
-      "occurrence_score": 33.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2818,14 +3114,7 @@
       "zipf": 2.06,
       "derewo_class": 19,
       "occurrence_score": 38.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 11,
-      "compound_word": "KUCHENTEIG",
-      "zipf": 2.04,
-      "derewo_class": 21,
-      "occurrence_score": 33.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2834,6 +3123,7 @@
       "zipf": 2.04,
       "derewo_class": 19,
       "occurrence_score": 38.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2842,6 +3132,7 @@
       "zipf": 2.03,
       "derewo_class": 18,
       "occurrence_score": 41.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2850,6 +3141,7 @@
       "zipf": 2.01,
       "derewo_class": 20,
       "occurrence_score": 35.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2858,6 +3150,7 @@
       "zipf": 2.01,
       "derewo_class": 19,
       "occurrence_score": 38.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2866,6 +3159,7 @@
       "zipf": 2.01,
       "derewo_class": 18,
       "occurrence_score": 41.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2874,6 +3168,7 @@
       "zipf": 2.01,
       "derewo_class": 18,
       "occurrence_score": 41.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2882,6 +3177,7 @@
       "zipf": 2.0,
       "derewo_class": 19,
       "occurrence_score": 38.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2890,6 +3186,7 @@
       "zipf": 1.99,
       "derewo_class": 19,
       "occurrence_score": 38.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2898,14 +3195,7 @@
       "zipf": 1.98,
       "derewo_class": 13,
       "occurrence_score": 54.9,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 493,
-      "compound_word": "HUNDEHALSBAND",
-      "zipf": 1.97,
-      "derewo_class": 21,
-      "occurrence_score": 32.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2914,6 +3204,7 @@
       "zipf": 1.97,
       "derewo_class": 19,
       "occurrence_score": 38.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2922,6 +3213,7 @@
       "zipf": 1.97,
       "derewo_class": 19,
       "occurrence_score": 38.1,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2930,6 +3222,7 @@
       "zipf": 1.95,
       "derewo_class": 19,
       "occurrence_score": 37.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2938,6 +3231,7 @@
       "zipf": 1.93,
       "derewo_class": 19,
       "occurrence_score": 37.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2946,6 +3240,7 @@
       "zipf": 1.9,
       "derewo_class": 19,
       "occurrence_score": 37.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2954,14 +3249,7 @@
       "zipf": 1.9,
       "derewo_class": 17,
       "occurrence_score": 43.1,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 475,
-      "compound_word": "RESTGELD",
-      "zipf": 1.89,
-      "derewo_class": 20,
-      "occurrence_score": 34.7,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2970,6 +3258,7 @@
       "zipf": 1.89,
       "derewo_class": 19,
       "occurrence_score": 37.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2978,6 +3267,7 @@
       "zipf": 1.87,
       "derewo_class": 19,
       "occurrence_score": 37.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -2986,14 +3276,7 @@
       "zipf": 1.87,
       "derewo_class": 19,
       "occurrence_score": 37.3,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 224,
-      "compound_word": "WAGENTÜR",
-      "zipf": 1.87,
-      "derewo_class": null,
-      "occurrence_score": 21.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3002,14 +3285,7 @@
       "zipf": 1.86,
       "derewo_class": 19,
       "occurrence_score": 37.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 274,
-      "compound_word": "KAMERATASCHE",
-      "zipf": 1.85,
-      "derewo_class": 22,
-      "occurrence_score": 28.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3018,6 +3294,7 @@
       "zipf": 1.84,
       "derewo_class": 18,
       "occurrence_score": 39.9,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3026,6 +3303,7 @@
       "zipf": 1.83,
       "derewo_class": 17,
       "occurrence_score": 42.6,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3034,6 +3312,7 @@
       "zipf": 1.82,
       "derewo_class": 16,
       "occurrence_score": 45.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3042,30 +3321,7 @@
       "zipf": 1.81,
       "derewo_class": 19,
       "occurrence_score": 36.9,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 340,
-      "compound_word": "PROGRAMMFEHLER",
-      "zipf": 1.8,
-      "derewo_class": 20,
-      "occurrence_score": 34.0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 263,
-      "compound_word": "ARZTKITTEL",
-      "zipf": 1.76,
-      "derewo_class": 20,
-      "occurrence_score": 33.7,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 23,
-      "compound_word": "GRIFFSTÜCK",
-      "zipf": 1.76,
-      "derewo_class": null,
-      "occurrence_score": 19.0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3074,6 +3330,7 @@
       "zipf": 1.76,
       "derewo_class": 19,
       "occurrence_score": 36.5,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3082,22 +3339,7 @@
       "zipf": 1.76,
       "derewo_class": 18,
       "occurrence_score": 39.3,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 485,
-      "compound_word": "ELEFANTENHERDE",
-      "zipf": 1.73,
-      "derewo_class": 20,
-      "occurrence_score": 33.5,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 312,
-      "compound_word": "FRAGEFORM",
-      "zipf": 1.72,
-      "derewo_class": 20,
-      "occurrence_score": 33.4,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3106,6 +3348,7 @@
       "zipf": 1.67,
       "derewo_class": 16,
       "occurrence_score": 44.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3114,6 +3357,7 @@
       "zipf": 1.67,
       "derewo_class": 19,
       "occurrence_score": 35.8,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3122,22 +3366,7 @@
       "zipf": 1.61,
       "derewo_class": 18,
       "occurrence_score": 38.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 136,
-      "compound_word": "STOFFBALLEN",
-      "zipf": 1.61,
-      "derewo_class": 20,
-      "occurrence_score": 32.6,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 189,
-      "compound_word": "OFENBANK",
-      "zipf": 1.57,
-      "derewo_class": 20,
-      "occurrence_score": 32.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3146,102 +3375,7 @@
       "zipf": 1.57,
       "derewo_class": 19,
       "occurrence_score": 35.1,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 80,
-      "compound_word": "JÄGERZAUN",
-      "zipf": 1.54,
-      "derewo_class": null,
-      "occurrence_score": 13.5,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 367,
-      "compound_word": "KORBSESSEL",
-      "zipf": 1.53,
-      "derewo_class": 20,
-      "occurrence_score": 32.0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 10,
-      "compound_word": "KUCHENBLECH",
-      "zipf": 1.53,
-      "derewo_class": 21,
-      "occurrence_score": 29.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 268,
-      "compound_word": "TUCHHANDEL",
-      "zipf": 1.52,
-      "derewo_class": 22,
-      "occurrence_score": 26.3,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 81,
-      "compound_word": "ZAUNPFOSTEN",
-      "zipf": 1.52,
-      "derewo_class": 21,
-      "occurrence_score": 29.1,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 163,
-      "compound_word": "WURMKUR",
-      "zipf": 1.51,
-      "derewo_class": 21,
-      "occurrence_score": 29.0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 395,
-      "compound_word": "BALLENPRESSE",
-      "zipf": 1.49,
-      "derewo_class": 21,
-      "occurrence_score": 28.9,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 294,
-      "compound_word": "BILDRAHMEN",
-      "zipf": 1.49,
-      "derewo_class": 21,
-      "occurrence_score": 28.9,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 477,
-      "compound_word": "RUNDENZAHL",
-      "zipf": 1.47,
-      "derewo_class": 21,
-      "occurrence_score": 28.7,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 386,
-      "compound_word": "HUTBAND",
-      "zipf": 1.46,
-      "derewo_class": 22,
-      "occurrence_score": 25.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 275,
-      "compound_word": "KAMERAOBJEKTIV",
-      "zipf": 1.46,
-      "derewo_class": 20,
-      "occurrence_score": 31.4,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 54,
-      "compound_word": "FALLWIND",
-      "zipf": 1.44,
-      "derewo_class": 20,
-      "occurrence_score": 31.3,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3250,102 +3384,7 @@
       "zipf": 1.43,
       "derewo_class": 18,
       "occurrence_score": 36.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 446,
-      "compound_word": "LAMPENLICHT",
-      "zipf": 1.4,
-      "derewo_class": 21,
-      "occurrence_score": 28.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 42,
-      "compound_word": "BOGENSCHUSS",
-      "zipf": 1.36,
-      "derewo_class": null,
-      "occurrence_score": 9.0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 89,
-      "compound_word": "DACHRAND",
-      "zipf": 1.36,
-      "derewo_class": 22,
-      "occurrence_score": 25.1,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 57,
-      "compound_word": "HIEBWAFFE",
-      "zipf": 1.36,
-      "derewo_class": 21,
-      "occurrence_score": 27.9,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 482,
-      "compound_word": "ZANGENGRIFF",
-      "zipf": 1.32,
-      "derewo_class": 21,
-      "occurrence_score": 27.6,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 236,
-      "compound_word": "HOFTÜR",
-      "zipf": 1.3,
-      "derewo_class": null,
-      "occurrence_score": 7.5,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 13,
-      "compound_word": "TEIGROLLE",
-      "zipf": 1.24,
-      "derewo_class": 22,
-      "occurrence_score": 24.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 265,
-      "compound_word": "KITTELTASCHE",
-      "zipf": 1.23,
-      "derewo_class": 22,
-      "occurrence_score": 24.1,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 67,
-      "compound_word": "TAGLICHT",
-      "zipf": 1.23,
-      "derewo_class": null,
-      "occurrence_score": 5.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 39,
-      "compound_word": "WALDTIER",
-      "zipf": 1.2,
-      "derewo_class": 19,
-      "occurrence_score": 32.3,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 454,
-      "compound_word": "BEDINGUNGSSATZ",
-      "zipf": 1.15,
-      "derewo_class": 23,
-      "occurrence_score": 20.7,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 277,
-      "compound_word": "DECKELRAND",
-      "zipf": 1.13,
-      "derewo_class": null,
-      "occurrence_score": 3.2,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3354,22 +3393,7 @@
       "zipf": 1.13,
       "derewo_class": null,
       "occurrence_score": 3.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 151,
-      "compound_word": "BRUCHZAHL",
-      "zipf": 1.12,
-      "derewo_class": 22,
-      "occurrence_score": 23.3,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 119,
-      "compound_word": "LOCHREIHE",
-      "zipf": 1.07,
-      "derewo_class": null,
-      "occurrence_score": 1.8,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     },
     {
@@ -3378,46 +3402,7 @@
       "zipf": 1.06,
       "derewo_class": 17,
       "occurrence_score": 36.9,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 369,
-      "compound_word": "BALLFELD",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 109,
-      "compound_word": "BALLONKORB",
-      "zipf": 0.0,
-      "derewo_class": 21,
-      "occurrence_score": 25.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 374,
-      "compound_word": "BAUMRING",
-      "zipf": 0.0,
-      "derewo_class": 21,
-      "occurrence_score": 25.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 56,
-      "compound_word": "BEILHIEB",
-      "zipf": 0.0,
-      "derewo_class": 22,
-      "occurrence_score": 22.4,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 455,
-      "compound_word": "BELAGSART",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
+      "occurrence_threshold_decision": "keep",
       "preliminary_decision": "drop"
     },
     {
@@ -3426,54 +3411,7 @@
       "zipf": 0.0,
       "derewo_class": null,
       "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 90,
-      "compound_word": "BODENLAMPE",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 169,
-      "compound_word": "DECKSTUHL",
-      "zipf": 0.0,
-      "derewo_class": 24,
-      "occurrence_score": 16.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 488,
-      "compound_word": "EIMERGRIFF",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 309,
-      "compound_word": "FORMFRAGE",
-      "zipf": 0.0,
-      "derewo_class": 21,
-      "occurrence_score": 25.2,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 470,
-      "compound_word": "KISTENDECKEL",
-      "zipf": 0.0,
-      "derewo_class": 24,
-      "occurrence_score": 16.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 175,
-      "compound_word": "KREISPUNKT",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     },
     {
@@ -3482,38 +3420,7 @@
       "zipf": 0.0,
       "derewo_class": null,
       "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 118,
-      "compound_word": "LOCHZANGE",
-      "zipf": 0.0,
-      "derewo_class": 22,
-      "occurrence_score": 22.4,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 197,
-      "compound_word": "PLANBÜRO",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 264,
-      "compound_word": "PRAXISTÜR",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 7,
-      "compound_word": "SAFTFLASCHE",
-      "zipf": 0.0,
-      "derewo_class": 21,
-      "occurrence_score": 25.2,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     },
     {
@@ -3522,6 +3429,7 @@
       "zipf": 0.0,
       "derewo_class": null,
       "occurrence_score": 0,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     },
     {
@@ -3530,46 +3438,7 @@
       "zipf": 0.0,
       "derewo_class": null,
       "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 316,
-      "compound_word": "STIFTZAHN",
-      "zipf": 0.0,
-      "derewo_class": 22,
-      "occurrence_score": 22.4,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 135,
-      "compound_word": "STOFFREST",
-      "zipf": 0.0,
-      "derewo_class": 19,
-      "occurrence_score": 30.8,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 480,
-      "compound_word": "TRUHENDECKEL",
-      "zipf": 0.0,
-      "derewo_class": 27,
-      "occurrence_score": 8.4,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 293,
-      "compound_word": "UHRBAND",
-      "zipf": 0.0,
-      "derewo_class": 23,
-      "occurrence_score": 19.6,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 390,
-      "compound_word": "VERTRAGPARTNER",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     },
     {
@@ -3578,14 +3447,7 @@
       "zipf": 0.0,
       "derewo_class": null,
       "occurrence_score": 0,
-      "preliminary_decision": "drop"
-    },
-    {
-      "edge_id": 157,
-      "compound_word": "WERFERARM",
-      "zipf": 0.0,
-      "derewo_class": null,
-      "occurrence_score": 0,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     },
     {
@@ -3594,6 +3456,7 @@
       "zipf": 0.0,
       "derewo_class": null,
       "occurrence_score": 0,
+      "occurrence_threshold_decision": "drop",
       "preliminary_decision": "drop"
     }
   ]
