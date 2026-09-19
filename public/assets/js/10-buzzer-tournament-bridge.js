@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.22';
+const VERSION=window.SKIELSEN_VERSION||'15.1.23';
 const GAME_ID='game.buzzer_time_stop';
 const RESULT_RPC='get_buzzer_time_game_result';
 const COLORS={BLUE:'#1515ff',RED:'#ff1717',YELLOW:'#f2b705',GREEN:'#00a65a'};
@@ -62,7 +62,7 @@ async function showBridgeJokerReveal(g){
   try{
     const {data,error}=await db.rpc('get_tournament_game_joker_reveal',{p_tournament_game_id:g.tournament_game_id});if(error||!data?.available||!data?.reveal)return false;
     const p=data.reveal,j=p.joker||{},o=p.owner||{},r=p.result||{};resetBridgeJokerUi();bindBridgeJokerControls();
-    d.style.setProperty('--v1530-team',o.color||COLORS[o.color_key]||'#7c5cff');
+    d.style.setProperty('--v1530-team',o.color||COLORS[o.color_key]||'var(--theme-accent)');
     const set=(id,text)=>{const x=document.getElementById(id);if(x)x.textContent=text??''};
     set('v1530JokerRevealGame',g.name||'BUZZER ZEIT STOPPEN');set('v1530JokerCategory',(j.category||'SECRET')+' JOKER');set('v1530JokerTitle',j.title||g.joker.accepted.type);set('v1530JokerDescription',j.description||'');set('v1530JokerTeam',o.display_name||teamName(engine.state,g.joker.accepted.participantId));set('v1530JokerTeamCaption','JOKER GESETZT VON');set('v1530JokerResultLabel',r.label||'ERGEBNIS');set('v1530JokerResultInitial',revealValue(r,'before'));set('v1530JokerResultFinal',revealValue(r,'after'));set('v1530JokerCaptionTitle',`${o.display_name||'TEAM'} · ${j.title||''}`);set('v1530JokerCaptionText',p.resolution?.success===false?'Der Joker wurde angewendet, brachte aber keinen zusätzlichen Vorteil.':'Der Joker wurde auf die endgültige Game-Wertung angewendet.');
     const start=document.getElementById('v1530JokerRevealStart'),cont=document.getElementById('v1530JokerRevealContinue');if(start)start.dataset.bztBridge='1';if(cont)cont.dataset.bztBridge='1';g.joker.revealed=true;g.joker.revealAcknowledged=false;d.hidden=false;engine.render();persistLocalState();return true;

@@ -15,7 +15,7 @@ const CATEGORY_POOL=[
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const playerById=id=>(state?.players||[]).find(p=>p.participant_id===id)||null;
-const colorOf=p=>COLORS[String(p?.identity_color||'').toUpperCase()]||'#7c5cff';
+const colorOf=p=>COLORS[String(p?.identity_color||'').toUpperCase()]||'var(--theme-accent)';
 const tierLabel=t=>String(t||'NORMAL').toUpperCase();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const selectedTier=()=>String(session?.public_state?.familiarity_tier||'').toUpperCase();

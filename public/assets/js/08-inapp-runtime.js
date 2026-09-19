@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.22';
+const VERSION=window.SKIELSEN_VERSION||'15.1.23';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -211,7 +211,7 @@ function ensureMoreLessAssets(){
 }
 function rosterHtml(s){
   const me=s?.me?.tournament_member_id;
-  return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'#aaa'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
+  return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'var(--theme-muted)'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
 }
 function renderBuzzerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
@@ -445,7 +445,7 @@ function renderCandidates(){
   const wrap=document.getElementById('v15InAppCandidateWrap'),host=document.getElementById('v15InAppCandidates');
   if(!wrap||!host)return;
   wrap.hidden=!adminSession;
-  host.innerHTML=adminCandidates.map(c=>`<label class="v15-inapp-candidate"><input type="checkbox" data-inapp-member="${esc(c.tournament_member_id)}" data-inapp-participant="${esc(c.participant_id)}"><i style="background:${colorHex[c.identity_color]||'#aaa'}"></i><span><strong>${esc(c.display_name||'PLAYER')}</strong><small>${esc(c.identity_color||'')} · ${esc(c.participant_type||'PLAYER')}</small></span></label>`).join('')||'<div class="v15-inapp-message">KEINE WÄHLBAREN PLAYER.</div>';
+  host.innerHTML=adminCandidates.map(c=>`<label class="v15-inapp-candidate"><input type="checkbox" data-inapp-member="${esc(c.tournament_member_id)}" data-inapp-participant="${esc(c.participant_id)}"><i style="background:${colorHex[c.identity_color]||'var(--theme-muted)'}"></i><span><strong>${esc(c.display_name||'PLAYER')}</strong><small>${esc(c.identity_color||'')} · ${esc(c.participant_type||'PLAYER')}</small></span></label>`).join('')||'<div class="v15-inapp-message">KEINE WÄHLBAREN PLAYER.</div>';
   const assigned=new Set((adminSession?.players||[]).map(p=>p.tournament_member_id));
   host.querySelectorAll('[data-inapp-member]').forEach(x=>x.checked=assigned.has(x.dataset.inappMember));
 }

@@ -47,3 +47,33 @@
   .mol-difficulty-picker button{min-height:52px;grid-template-columns:96px 1fr;align-items:center}
   .mol-category-content{padding-top:9vh}
 }
+
+
+/* Theme Authority · More or Less inherits the active tournament theme. */
+#v15MoreLessRoot{
+  --mol-black:var(--theme-text);--mol-bg:var(--theme-page);--mol-purple:var(--theme-accent);
+  --mol-green:var(--theme-success);--mol-red:var(--theme-danger);
+  background:var(--theme-page)!important;color:var(--theme-text)!important
+}
+#v15MoreLessRoot .mol-full-app{background:var(--theme-page)!important;color:var(--theme-text)!important}
+#v15MoreLessRoot .mol-full-header{background:var(--theme-header)!important;color:var(--theme-header-text)!important;border-bottom-color:var(--theme-accent)!important}
+#v15MoreLessRoot .mol-full-header :where(span,b){color:inherit!important}
+#v15MoreLessRoot .mol-full-meta span{color:var(--theme-muted)!important}
+#v15MoreLessRoot .mol-full-kicker{color:var(--theme-accent)!important}
+#v15MoreLessRoot :where(.mol-full-score,.mol-full-compare,.mol-full-reveal-card,.mol-full-final-row,.mol-setup-card){
+  background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important
+}
+#v15MoreLessRoot :where(.mol-full-reference small,.mol-full-current small,.mol-full-current span,.mol-full-reveal-card small,.mol-full-reveal-card p,.mol-full-final-row b,.mol-full-finished-note,.mol-difficulty-hint,.mol-setup-lead,.mol-category-unit){
+  color:var(--theme-muted)!important
+}
+#v15MoreLessRoot .mol-full-vs,
+#v15MoreLessRoot .mol-full-continue,
+#v15MoreLessRoot .mol-setup-start{background:var(--theme-button)!important;color:var(--theme-button-text)!important}
+#v15MoreLessRoot .mol-full-choice .less{background:var(--theme-inverse-surface)!important;color:var(--theme-inverse-text)!important}
+#v15MoreLessRoot .mol-full-choice .more{background:var(--theme-accent)!important;color:var(--theme-button-text)!important}
+#v15MoreLessRoot .mol-full-wait{background:var(--theme-inverse-surface)!important;color:var(--theme-muted)!important}
+#v15MoreLessRoot .mol-difficulty-picker button{background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border-strong)!important}
+#v15MoreLessRoot .mol-difficulty-picker button span{color:var(--theme-muted)!important}
+#v15MoreLessRoot .mol-difficulty-picker button.active{background:var(--theme-button)!important;color:var(--theme-button-text)!important;border-color:var(--theme-button)!important}
+#v15MoreLessRoot .mol-category-dots i{background:var(--theme-border-strong)!important}
+#v15MoreLessRoot .mol-category-label.flash{color:var(--theme-accent)!important}
