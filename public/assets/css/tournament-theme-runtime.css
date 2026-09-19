@@ -1226,3 +1226,117 @@ body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen
   color:var(--theme-muted)!important;
   -webkit-text-fill-color:var(--theme-muted)!important;
 }
+
+
+/* ---------- Theme Contract v2 · MATCHES page screenshot fix ---------- */
+/* Non-Core only. Core and Core 2 remain frozen. */
+
+/* Main MATCHES hero: app.css uses #matchesPage + !important, so match its specificity. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage > .matches-hero.main-page-hero{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-bottom-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage > .matches-hero.main-page-hero h1{
+  color:var(--theme-on-surface)!important;
+  -webkit-text-fill-color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage > .matches-hero.main-page-hero p{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage > .matches-hero.main-page-hero .main-hero-pre{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+
+/* Match section and carousel chrome. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .match-section{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .match-section:after{
+  background:linear-gradient(90deg,transparent,var(--theme-surface))!important;
+}
+
+/* Canonical V20 compact match cards. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-compact-match{
+  background:var(--theme-surface-soft)!important;
+  color:var(--theme-on-surface-soft)!important;
+  border-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-match-head{
+  background:var(--theme-surface-soft)!important;
+  color:var(--theme-on-surface-soft)!important;
+  border-bottom-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-match-title :is(strong,span){
+  color:var(--theme-on-surface-soft)!important;
+  -webkit-text-fill-color:var(--theme-on-surface-soft)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-match-title .dot{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-match-status{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-match-status.is-live{
+  color:var(--theme-danger-bg)!important;
+  -webkit-text-fill-color:var(--theme-danger-bg)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-match-status.is-betting{
+  color:var(--theme-success-bg)!important;
+  -webkit-text-fill-color:var(--theme-success-bg)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-compact-body{
+  background:var(--theme-surface-soft)!important;
+  color:var(--theme-on-surface-soft)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-duel-stage{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage :is(.v20-duel-row,.v20-shared-row,.v20-ffa-team){
+  border-color:var(--theme-border)!important;
+  color:var(--theme-on-surface-soft)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage :is(.v20-duel-row,.v20-shared-row,.v20-ffa-team) :is(strong,b,span){
+  color:var(--theme-on-surface-soft)!important;
+  -webkit-text-fill-color:var(--theme-on-surface-soft)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-duel-row.unresolved strong{
+  color:var(--theme-muted)!important;
+  -webkit-text-fill-color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-ffa-vs{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-ffa-crosshair:before,
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+#matchesPage .v20-ffa-crosshair:after{
+  background:var(--theme-border)!important;
+}
