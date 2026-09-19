@@ -1,3 +1,4 @@
+/* Wortkette Solo V11 · controlled connector suffixes are supplied by backend */
 (()=>{
 'use strict';
 

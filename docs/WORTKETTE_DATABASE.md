@@ -10,14 +10,17 @@ Wortkette wird nicht aus festen Templates gespielt. Vor jeder Session erzeugt da
 
 Jede Zeile ist genau eine gerichtete Verbindung:
 
-`base_word + next_word = compound_word`
+`base_word + link_suffix + next_word = compound_word`
 
-Beispiel:
+Beispiele:
 
-`BAUM + STUMPF = BAUMSTUMPF`
+`BAUM + "" + STUMPF = BAUMSTUMPF`
+
+`TASCHE + N + GELD = TASCHENGELD` → Anzeige im Spiel: `TASCHE(N) + GELD`
 
 Wichtige Felder:
 
+- `link_suffix`: kontrolliertes Fugenelement `"" | N | S | EN | E | ER | ES`
 - `review_status`: `candidate | seed | verified | rejected`
 - `quality_score`: 1–5
 - `familiarity_score`: 1–5
@@ -25,7 +28,7 @@ Wichtige Felder:
 - `last_used_at`: globaler Cooldown
 - `source_ref`, `review_note`, `reviewed_at`: kontrollierte Prüfung
 
-Das Datenmodell erzwingt `compound_word = base_word || next_word`. Fugenelemente oder Beugungen sind damit ausgeschlossen.
+Das Datenmodell erzwingt `compound_word = base_word || link_suffix || next_word`. Das Grundnomen selbst bleibt unverändert; ein freigegebenes Fugenelement wird sichtbar in Klammern angezeigt. Beispiel: `TASCHE(N)`. Nach der Lösung `GELD` wird weiterhin `GELD` zum nächsten Grundnomen. Beliebige Stammänderungen sind nicht erlaubt.
 
 ## Persönliche Historie
 
@@ -100,7 +103,7 @@ Die Begriffe beziehen sich ausschließlich auf die Zahl der aktuell nutzbaren **
 - `THIN`: 2–3 Ausgänge. Etwas Variation, aber noch relativ leicht lernbar.
 - `HEALTHY`: mindestens 4 Ausgänge. Zielzustand für häufige interne Knoten.
 
-Ein Dead End ist nicht automatisch ein fehlerhaftes Nomen. Unter der strengen Regel „beide Nomen bleiben unverändert“ sind viele deutsche Wörter natürliche Endpunkte, weil übliche Komposita ein Fugenelement oder eine Stammänderung benötigen. Beispiele: `FLASCHE` führt typischerweise zu `Flaschen-...`, `LAMPE` zu `Lampen-...`, `SCHULE` zu `Schul-...`. Solche Wörter werden nicht künstlich mit fragwürdigen Kombinationen verlängert.
+Ein Dead End ist nicht automatisch ein fehlerhaftes Nomen. Seit V11 dürfen kontrollierte Fugenelemente ergänzt werden, solange das Grundnomen unverändert bleibt und der Zusatz sichtbar in Klammern steht. Damit sind z. B. `FLASCHE(N) + POST`, `LAMPE(N) + LICHT`, `ARBEIT(S) + ZEIT` oder `LÖWE(N) + ZAHN` zulässig. Echte Stammänderungen wie `SCHULE → SCHUL-...` bleiben weiterhin ausgeschlossen.
 
 Der Generator erzwingt daher:
 
@@ -139,3 +142,19 @@ Im ersten Ausbau wurden 22 streng unveränderte Übergänge ergänzt, unter ande
 `PRESSE → HAUS → PRESSEHAUS`
 
 Dadurch sank die Zahl der Dead-End-Knoten von 76 auf 62. Die verbleibenden Dead Ends werden nicht automatisch „repariert“; nur sprachlich saubere, unveränderte Komposita werden ergänzt.
+
+## Connector-Regel V11
+
+Die neue Regel erweitert den Graphen kontrolliert, ohne freie Wortveränderungen zuzulassen.
+
+- `TASCHE(N) + GELD = TASCHENGELD`
+- `FLASCHE(N) + POST = FLASCHENPOST`
+- `ARBEIT(S) + ZEIT = ARBEITSZEIT`
+- `ART(EN) + SCHUTZ = ARTENSCHUTZ`
+- `GEIST(ES) + BLITZ = GEISTESBLITZ`
+- `LÖWE(N) + ZAHN = LÖWENZAHN`
+- `ELEFANT(EN) + HERDE = ELEFANTENHERDE`
+
+Der Klammerzusatz ist Edge-spezifisch und wird dem Spieler vorgegeben. Er muss nicht geraten werden. Das folgende Kettenwort bleibt immer das reine Nomen, z. B. nach `TASCHE(N) + GELD` lautet das nächste Ausgangswort `GELD`.
+
+Mit dem ersten Connector-Pass stieg der aktive Graph auf 440 Verbindungen. Die Zahl der DEAD_END-Knoten sank von 62 auf 23. Connector-Kanten werden zunächst als `seed` geführt und können separat geprüft und auf `verified` gesetzt werden.
