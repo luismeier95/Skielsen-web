@@ -993,3 +993,152 @@ body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen
 body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
 :is(#homePage,#profilePage,#matchesPage,#matchDetailPage,#rankingPage,#betsPage,#newsPage,#mvpVotePage,#jokerPage,#adminPage,#gameControlPage,#gamesPage)
 :is(input,textarea)::placeholder{color:var(--theme-placeholder)!important}
+
+
+/* ---------- Theme Contract v2 · Home dashboard coverage ---------- */
+/* Screenshot-driven fixes for the current HOME dashboard.
+   Core and Core 2 are intentionally frozen and excluded. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-dashboard-hero,.utility-hero){
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-bottom-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-dashboard-hero,.utility-hero) h1{
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-dashboard-hero,.utility-hero) p{
+  color:var(--theme-muted)!important;
+}
+
+/* Player shortcut inside the HOME hero. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-player-entry{
+  background:var(--theme-surface-soft)!important;
+  color:var(--theme-on-surface-soft)!important;
+  border-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-player-entry :is(strong,b){
+  color:var(--theme-on-surface-soft)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-player-entry small{
+  color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-player-avatar{
+  background:var(--theme-inverse-surface)!important;
+  color:var(--theme-on-inverse)!important;
+}
+
+/* Main HOME modules and their headers. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-module,.utility-panel){
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-module-head,.utility-head){
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-bottom-color:var(--theme-border-strong)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-module-head,.utility-head) :is(h2,strong,b,button){
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+:is(.home-module-head,.utility-head) :is(span,small){
+  color:var(--theme-muted)!important;
+}
+
+/* Next match card. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-card{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-game strong{
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-game small{
+  color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-versus{
+  border-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-versus :is(span,strong){
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-versus b{
+  color:var(--theme-faint)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-meta{
+  color:var(--theme-muted)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-match-meta :is(strong,em){
+  color:var(--theme-on-surface)!important;
+}
+
+/* HOME action cards. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.action-card{
+  background:var(--theme-surface-soft)!important;
+  color:var(--theme-on-surface-soft)!important;
+  border-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.action-card :is(strong,b){
+  color:var(--theme-on-surface-soft)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.action-card :is(.action-type,p){
+  color:var(--theme-muted)!important;
+}
+
+/* HOME story teaser. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-story{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-story strong{
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-story span{
+  color:var(--theme-muted)!important;
+}
+
+/* Standings: the highlighted "mine" row may never be white-on-near-white. */
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-standing-row{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-bottom-color:var(--theme-border)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-standing-row :is(b,strong,span){
+  color:var(--theme-on-surface)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-standing-row.mine{
+  background:var(--theme-surface-soft)!important;
+  color:var(--theme-on-surface-soft)!important;
+  box-shadow:inset 3px 0 0 var(--theme-accent)!important;
+}
+body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"])
+.home-standing-row.mine :is(b,strong,span){
+  color:var(--theme-on-surface-soft)!important;
+}
