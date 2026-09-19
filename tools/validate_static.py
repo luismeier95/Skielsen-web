@@ -247,3 +247,11 @@ if 'docs/THEME_CONTRACT.md' not in [str(p.relative_to(ROOT)).replace('\\','/') f
  fail('Theme Contract Dokumentation fehlt')
 if "getPropertyValue('--theme-browser-color')" not in engine_text:
  fail('Browser Chrome wird nicht aus dem Theme Contract gelesen')
+
+if not (ROOT/'docs/THEME_CONTRACT.md').exists(): fail('Theme Contract Dokumentation fehlt')
+
+if not (ROOT/'docs/THEME_TEMPLATE.css').exists(): fail('Theme Template fehlt')
+
+if 'THEME CONTRACT V1 · REQUIRED SEMANTIC PAIRS' not in theme_css: fail('Theme Contract CSS Tokens fehlen')
+
+if 'THEME CONTRACT V1 · COMPONENT APPLICATION' not in theme_css: fail('Theme Contract Component Mapping fehlt')
