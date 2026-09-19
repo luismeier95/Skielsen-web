@@ -308,7 +308,7 @@
     const wrap=document.getElementById('dbbMyGroups');
     const groups=readLocalGroups().filter(g=>!g.owner_id||g.owner_id===session?.user?.id);
     if(!groups.length){wrap.innerHTML='<div class="dbb-list-empty">NOCH KEINE FESTE GRUPPE. Gruppen dürfen später mehr Mitglieder haben als ein einzelnes Turnier aktive Plätze.</div>';return}
-    wrap.innerHTML=groups.map(g=>`<button class="dbb-group-card" data-open-group="${escapeHtml(g.id)}" type="button"><i style="background:#1515ff"></i><div><small>FESTE GRUPPE · EWIGE TABELLE</small><strong>${escapeHtml(g.name)}</strong><span>${Number(g.member_count||1)} MITGLIEDER · TURNIERKADER JE NACH MODUS</span></div><b class="dbb-card-arrow">→</b></button>`).join('');
+    wrap.innerHTML=groups.map(g=>`<button class="dbb-group-card" data-open-group="${escapeHtml(g.id)}" type="button"><i style="background:#2979FF"></i><div><small>FESTE GRUPPE · EWIGE TABELLE</small><strong>${escapeHtml(g.name)}</strong><span>${Number(g.member_count||1)} MITGLIEDER · TURNIERKADER JE NACH MODUS</span></div><b class="dbb-card-arrow">→</b></button>`).join('');
   }
   async function renderMyTournaments(){
     const wrap=document.getElementById('dbbMyTournaments');
@@ -316,7 +316,7 @@
     if(error){wrap.innerHTML='<div class="dbb-list-empty">TURNIERE KONNTEN NICHT GELADEN WERDEN: '+escapeHtml(error.message||'FEHLER')+'</div>';return}
     const rows=Array.isArray(data)?data:[];
     if(!rows.length){wrap.innerHTML='<div class="dbb-list-empty">NOCH KEIN TURNIER. Erstelle eines oder tritt per Invite-Code bei.</div>';return}
-    wrap.innerHTML=rows.map(t=>{const admin=t.creator_user_id===session?.user?.id;const deletable=admin&&!['LIVE','COMPLETED'].includes(String(t.status||'').toUpperCase());return `<div class="dbb-tournament-row"><button class="dbb-tournament-card" data-open-tournament="${escapeHtml(t.tournament_id)}" data-status="${escapeHtml(t.status||'')}" type="button"><i style="background:${String(t.mode).toUpperCase()==='SOLO'?'#f2b705':'#ff1717'}"></i><div><small>${escapeHtml(String(t.status||'LOBBY').toUpperCase())} · ${admin?'DU BIST ADMIN':'DU BIST PLAYER'}</small><strong>${escapeHtml(String(t.name||'TURNIER').toUpperCase())}</strong><span>${escapeHtml(String(t.mode||'TEAM').toUpperCase())}</span></div><b class="dbb-card-arrow">→</b></button>${deletable?`<button class="dbb-tournament-delete" data-delete-tournament="${escapeHtml(t.tournament_id)}" data-delete-name="${escapeHtml(t.name||'TURNIER')}" type="button">LÖSCHEN</button>`:''}</div>`}).join('');
+    wrap.innerHTML=rows.map(t=>{const admin=t.creator_user_id===session?.user?.id;const deletable=admin&&!['LIVE','COMPLETED'].includes(String(t.status||'').toUpperCase());return `<div class="dbb-tournament-row"><button class="dbb-tournament-card" data-open-tournament="${escapeHtml(t.tournament_id)}" data-status="${escapeHtml(t.status||'')}" type="button"><i style="background:${String(t.mode).toUpperCase()==='SOLO'?'#FF2ED1':'#FF1744'}"></i><div><small>${escapeHtml(String(t.status||'LOBBY').toUpperCase())} · ${admin?'DU BIST ADMIN':'DU BIST PLAYER'}</small><strong>${escapeHtml(String(t.name||'TURNIER').toUpperCase())}</strong><span>${escapeHtml(String(t.mode||'TEAM').toUpperCase())}</span></div><b class="dbb-card-arrow">→</b></button>${deletable?`<button class="dbb-tournament-delete" data-delete-tournament="${escapeHtml(t.tournament_id)}" data-delete-name="${escapeHtml(t.name||'TURNIER')}" type="button">LÖSCHEN</button>`:''}</div>`}).join('');
   }
   async function enterAccountHome(sess,historyMode='push'){
     session=sess;
