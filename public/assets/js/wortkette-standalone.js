@@ -3,35 +3,115 @@
 
 const COLORS=['var(--core-red)','var(--core-blue)','var(--core-yellow)','var(--core-green)'];
 const START_WORDS=['HAUS','LAMPE','TISCH','GARTEN','NASE','ELEFANT','TASSE','APFEL','KAMERA','AUTO','RADIO','ORANGE','EIMER','ROSE','ESEL','LEITER','REGEN','NUDEL','LÖWE','EULE'];
-const EXAMPLE_WORDS={A:'APFEL',B:'BAUM',C:'COMPUTER',D:'DOSE',E:'EIMER',F:'FARBE',G:'GARTEN',H:'HAUS',I:'INSEL',J:'JACKE',K:'KAMERA',L:'LAMPE',M:'MAUS',N:'NASE',O:'ORANGE',P:'PIZZA',Q:'QUELLE',R:'RADIO',S:'SONNE',T:'TISCH',U:'UHR',V:'VOGEL',W:'WASSER',X:'XYLOPHON',Y:'YOGA',Z:'ZUCKER','Ä':'ÄRMEL','Ö':'ÖL','Ü':'ÜBUNG'};
-const LOCAL_WORDS=new Set([
-  'haus','sonne','elefant','tiger','radio','orange','eimer','rose','esel','lampe','ente','tasse','apfel','leiter','regen','nase','auto','ofen','nudel','löwe','eule','erde','engel','garten','nacht','tisch','hund','dose','energie','insel','luft','farbe','eis','salat','telefon','note','essen','stuhl','licht','traum','meer','reise','erde','dorf','fenster','regenbogen','nuss','schrank','kiste','erde','uhr','rad','dach','hase','igel','maus','stern','nebel','blume','ei','idee','echo','obst','tor','ring','gabel','löffel','kuchen','nest','tür','rucksack','kamera','arm','mond','decke','ecke','kissen','socke','hemd','mantel','hose','rock','kleid','jacke','bett','teppich','glas','schere','rasen','baum','wald','fluss','see','berg','straße','stadt','land','insel','wolke','wind','sturm','regen','schnee','hagel','feuer','wasser','erde','luft','brot','käse','milch','kaffee','tee','saft','wein','bier','reis','nudel','suppe','pizza','banane','birne','kirsche','beere','melone','gurke','tomate','kartoffel','zwiebel','pfeffer','salz','zucker','honig','butter','messer','gabel','teller','becher','topf','pfanne','küche','zimmer','treppe','tür','wand','boden','dach','garage','garten','schule','büro','laden','markt','kino','theater','museum','hotel','bank','post','arzt','lehrer','fahrer','bäcker','maler','musik','lied','film','buch','brief','bild','foto','spiel','ball','rad','boot','zug','bus','taxi','flugzeug','schiff','fahrrad','motor','straße','weg','brücke','computer','quelle','vogel','xylophon','yoga','ärmel','öl','übung'
-]);
+
+const COMPOUND_GRAPH={
+  haus:[['TÜR','HAUSTÜR'],['DACH','HAUSDACH'],['ARZT','HAUSARZT']],
+  tür:[['SCHLOSS','TÜRSCHLOSS'],['GRIFF','TÜRGRIFF'],['RAHMEN','TÜRRAHMEN']],
+  schloss:[['GARTEN','SCHLOSSGARTEN'],['TÜR','SCHLOSSTÜR']],
+  garten:[['ZAUN','GARTENZAUN'],['HAUS','GARTENHAUS'],['TÜR','GARTENTÜR']],
+  zaun:[['PFOSTEN','ZAUNPFOSTEN']],
+  lampe:[['SCHIRM','LAMPENSCHIRM'],['LICHT','LAMPENLICHT']],
+  schirm:[['STÄNDER','SCHIRMSTÄNDER'],['GRIFF','SCHIRMGRIFF']],
+  tisch:[['BEIN','TISCHBEIN'],['PLATTE','TISCHPLATTE'],['DECKE','TISCHDECKE']],
+  bein:[['BRUCH','BEINBRUCH'],['KLEID','BEINKLEID']],
+  nase:[['RING','NASENRING'],['BLUTEN','NASENBLUTEN'],['LOCH','NASENLOCH']],
+  ring:[['FINGER','RINGFINGER'],['GRÖSSE','RINGGRÖSSE']],
+  elefant:[['HERDE','ELEFANTENHERDE'],['HAUT','ELEFANTENHAUT']],
+  herde:[['TIER','HERDENTIER']],
+  tasse:[['KUCHEN','TASSENKUCHEN'],['RAND','TASSENRAND']],
+  apfel:[['SAFT','APFELSAFT'],['BAUM','APFELBAUM'],['KUCHEN','APFELKUCHEN']],
+  saft:[['FLASCHE','SAFTFLASCHE'],['LADEN','SAFTLADEN']],
+  flasche:[['HALS','FLASCHENHALS'],['POST','FLASCHENPOST'],['DECKEL','FLASCHENDECKEL']],
+  hals:[['KETTE','HALSKETTE'],['TUCH','HALSTUCH']],
+  kette:[['REAKTION','KETTENREAKTION'],['GLIED','KETTENGLIED']],
+  reaktion:[['ZEIT','REAKTIONSZEIT']],
+  zeit:[['GEIST','ZEITGEIST'],['DRUCK','ZEITDRUCK'],['FENSTER','ZEITFENSTER']],
+  kamera:[['TASCHE','KAMERATASCHE'],['OBJEKTIV','KAMERAOBJEKTIV']],
+  tasche:[['GELD','TASCHENGELD'],['TUCH','TASCHENTUCH']],
+  auto:[['BAHN','AUTOBAHN'],['TÜR','AUTOTÜR'],['RADIO','AUTORADIO']],
+  bahn:[['HOF','BAHNHOF'],['STEIG','BAHNSTEIG']],
+  hof:[['TÜR','HOFTÜR'],['FEST','HOFFEST']],
+  radio:[['SENDER','RADIOSENDER'],['PROGRAMM','RADIOPROGRAMM']],
+  sender:[['NAME','SENDERNAME']],
+  orange:[['SAFT','ORANGENSAFT'],['SCHALE','ORANGENSCHALE']],
+  schale:[['OBST','SCHALENOBST']],
+  eimer:[['GRIFF','EIMERGRIFF'],['DECKEL','EIMERDECKEL']],
+  griff:[['BRETT','GRIFFBRETT'],['FLÄCHE','GRIFFFLÄCHE']],
+  rose:[['GARTEN','ROSENGARTEN'],['DUFT','ROSENDUFT']],
+  esel:[['OHR','ESELSOHR'],['BRÜCKE','ESELSBRÜCKE']],
+  ohr:[['RING','OHRRING'],['LÄPPCHEN','OHRLÄPPCHEN']],
+  leiter:[['WAGEN','LEITERWAGEN'],['BAHN','LEITERBAHN']],
+  regen:[['BOGEN','REGENBOGEN'],['WASSER','REGENWASSER'],['JACKE','REGENJACKE']],
+  bogen:[['LAMPE','BOGENLAMPE']],
+  wasser:[['FLASCHE','WASSERFLASCHE'],['FALL','WASSERFALL'],['HAHN','WASSERHAHN']],
+  nudel:[['SUPPE','NUDELSUPPE'],['TEIG','NUDELTEIG']],
+  suppe:[['TOPF','SUPPENTOPF'],['LÖFFEL','SUPPENLÖFFEL']],
+  löwe:[['ZAHN','LÖWENZAHN'],['MÄHNE','LÖWENMÄHNE']],
+  zahn:[['ARZT','ZAHNARZT'],['BÜRSTE','ZAHNBÜRSTE']],
+  eule:[['RUF','EULENRUF'],['AUGE','EULENAUGE']],
+  auge:[['ARZT','AUGENARZT'],['LID','AUGENLID']],
+  dach:[['BODEN','DACHBODEN'],['FENSTER','DACHFENSTER']],
+  boden:[['LAMPE','BODENLAMPE'],['BELAG','BODENBELAG']],
+  deckel:[['RAND','DECKELRAND']],
+  kuchen:[['FORM','KUCHENFORM'],['BLECH','KUCHENBLECH']],
+  baum:[['HAUS','BAUMHAUS'],['KRONE','BAUMKRONE']],
+  finger:[['RING','FINGERRING'],['ABDRUCK','FINGERABDRUCK']],
+  arzt:[['PRAXIS','ARZTPRAXIS'],['KITTEL','ARZTKITTEL']],
+  praxis:[['TÜR','PRAXISTÜR']],
+  geld:[['BEUTEL','GELDBEUTEL'],['SCHEIN','GELDSCHEIN']],
+  name:[['SCHILD','NAMENSSCHILD']],
+  programm:[['HEFT','PROGRAMMHEFT']]
+};
+
+const LOCAL_COMPOUNDS=new Map();
+Object.entries(COMPOUND_GRAPH).forEach(([base,rows])=>rows.forEach(([next,compound])=>{
+  LOCAL_COMPOUNDS.set(base+'|'+next.toLocaleLowerCase('de-DE'),compound);
+}));
 
 const screens=[...document.querySelectorAll('.wk-screen')];
 const q=s=>document.querySelector(s);
 let playerCount=4,rounds=10,timeLimit=15,currentRound=0,players=[],timer=null,timeLeft=15,phase='SETUP';
 const wikiCache=new Map();
 
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'auto'})}
 function titleCaseWord(value){
   const cleaned=String(value||'').trim().replace(/\s+/g,' ');
   if(!cleaned)return '';
-  return cleaned.charAt(0).toLocaleUpperCase('de-DE')+cleaned.slice(1);
+  return cleaned.charAt(0).toLocaleUpperCase('de-DE')+cleaned.slice(1).toLocaleLowerCase('de-DE');
 }
 function lettersOnly(value){return String(value||'').normalize('NFC').replace(/[^A-Za-zÄÖÜäöüß]/g,'')}
-function firstLetter(word){const s=lettersOnly(word);return (s[0]||'').toLocaleUpperCase('de-DE')}
-function lastLetter(word){const s=lettersOnly(word);let c=(s[s.length-1]||'').toLocaleUpperCase('de-DE');if(c==='ß')c='S';return c}
 function keyWord(word){return titleCaseWord(word).toLocaleLowerCase('de-DE')}
 function msLabel(ms){return (Math.max(0,ms)/1000).toFixed(1).replace('.',',')+' S'}
 function randomStart(){return START_WORDS[Math.floor(Math.random()*START_WORDS.length)]}
+function compoundRows(base){return COMPOUND_GRAPH[keyWord(base)]||[]}
 function exampleFor(p){
-  const required=lastLetter(p.lastValid);
-  const preferred=EXAMPLE_WORDS[required];
-  if(preferred&&!p.used.has(keyWord(preferred)))return preferred;
-  const fallback=[...LOCAL_WORDS].find(w=>firstLetter(w)===required&&!p.used.has(keyWord(w)));
-  return fallback?titleCaseWord(fallback).toLocaleUpperCase('de-DE'):'';
+  const used=p.used;
+  const row=compoundRows(p.lastValid).find(([next])=>!used.has(keyWord(next)))||compoundRows(p.lastValid)[0];
+  return row?{next:row[0],compound:row[1]}:null;
+}
+function compoundCandidates(base,next){
+  const a=lettersOnly(titleCaseWord(base)),b=lettersOnly(titleCaseWord(next));
+  const variants=[a+b,a+'s'+b,a+'n'+b,a+'en'+b,a+'e'+b,a+'er'+b];
+  return [...new Set(variants.map(x=>x.charAt(0).toLocaleUpperCase('de-DE')+x.slice(1)))];
+}
+async function findCompound(base,next){
+  const local=LOCAL_COMPOUNDS.get(keyWord(base)+'|'+keyWord(next));
+  if(local)return local;
+  const cacheKey=keyWord(base)+'|'+keyWord(next);
+  if(wikiCache.has(cacheKey))return wikiCache.get(cacheKey);
+  const candidates=compoundCandidates(base,next);
+  const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),3000);
+  try{
+    const titles=candidates.join('|');
+    const url='https://de.wiktionary.org/w/api.php?action=query&format=json&origin=*&redirects=1&titles='+encodeURIComponent(titles);
+    const r=await fetch(url,{signal:ctrl.signal});const d=await r.json();
+    const pages=Object.values(d?.query?.pages||{}).filter(p=>p&&p.missing===undefined);
+    const valid=pages.length?String(pages[0].title||''):null;
+    wikiCache.set(cacheKey,valid);return valid;
+  }catch(_){
+    wikiCache.set(cacheKey,null);return null;
+  }finally{clearTimeout(to)}
 }
 
 function renderNames(){
@@ -54,17 +134,18 @@ function readPlayers(startWord){
   }));
 }
 function playerCard(p,i){
-  const required=lastLetter(p.lastValid)||'—';
-  const example=phase==='REVEAL'&&p.result&&!p.result.ok&&p.result.example?'<div class="correct-example"><small>MÖGLICHE RICHTIGE ANTWORT</small><b>'+esc(p.result.example)+'</b><span>'+esc(p.result.example)+' wäre für '+esc(lastLetter(p.lastValid))+' gültig gewesen.</span></div>':'';
-  const reveal=phase==='REVEAL'&&p.result?'<div class="answer-reveal"><small>ANTWORT</small><strong>'+esc(p.answer||'—')+'</strong><span>'+esc(p.result.message)+'</span>'+example+'</div>':'';
+  const ex=phase==='REVEAL'&&p.result&&!p.result.ok?p.result.example:null;
+  const example=ex?'<div class="correct-example"><small>EINE GÜLTIGE LÖSUNG</small><b>'+esc(p.lastValid)+' + '+esc(ex.next)+' = '+esc(ex.compound)+'</b><span>Mit '+esc(ex.next)+' wäre ein gültiges zusammengesetztes Nomen entstanden.</span></div>':'';
+  const compound=p.result?.compound?'<div class="compound-result"><small>GÜLTIGES KOMPOSITUM</small><b>'+esc(p.lastValid)+' + '+esc(p.answer)+' = '+esc(p.result.compound)+'</b><span>'+esc(p.answer)+' wird dein neues Ausgangswort.</span></div>':'';
+  const reveal=phase==='REVEAL'&&p.result?'<div class="answer-reveal"><small>DEINE ANTWORT</small><strong>'+esc(p.answer||'—')+'</strong><span>'+esc(p.result.message)+'</span>'+compound+example+'</div>':'';
   const state=phase==='INPUT'
     ?(p.locked?'<div class="player-state wait">EINGELOGGT · WARTET AUF DIE ANDEREN</div>':'<div class="player-state">NOCH NICHT ABGESCHICKT</div>')
-    :(p.result?.ok?'<div class="player-state ok">✓ GÜLTIG</div>':'<div class="player-state bad">✕ FEHLER</div>');
+    :(p.result?.ok?'<div class="player-state ok">✓ GÜLTIGES KOMPOSITUM</div>':'<div class="player-state bad">✕ KEIN GÜLTIGES KOMPOSITUM</div>');
   return '<article class="player-card '+(p.locked?'locked ':'')+(phase==='REVEAL'?(p.result?.ok?'valid':'invalid'):'')+'" style="--player-color:'+p.color+'" data-player="'+i+'">'+
     '<div class="player-head"><i></i><div><small>PLAYER / TEAM '+String(i+1).padStart(2,'0')+'</small><strong>'+esc(p.name)+'</strong></div><div class="mistakes"><b>'+p.errors+'</b><span>FEHLER</span></div></div>'+
-    '<div class="chain-current"><small>LETZTES GÜLTIGES WORT</small><strong>'+esc(p.lastValid)+'</strong></div>'+
-    '<div class="required-letter"><span>NÄCHSTER BUCHSTABE</span><b>'+esc(required)+'</b></div>'+
-    '<div class="answer-row"><input data-answer="'+i+'" maxlength="32" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="'+esc(required)+'…"><button data-submit="'+i+'" type="button">LOCK IN</button></div>'+
+    '<div class="chain-current"><small>AKTUELLES AUSGANGSWORT</small><strong>'+esc(p.lastValid)+'</strong></div>'+
+    '<div class="compound-prompt"><span>BILDE EIN ZUSAMMENGESETZTES NOMEN MIT DIESEM WORT</span><b>+</b></div>'+
+    '<div class="answer-row"><input data-answer="'+i+'" maxlength="32" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="NOMEN …"><button data-submit="'+i+'" type="button">LOCK IN</button></div>'+
     state+reveal+'</article>';
 }
 function renderBoard(){
@@ -84,17 +165,17 @@ function renderBoard(){
 function updateTop(){
   const timerOff=timeLimit<=0;
   q('#roundLabel').textContent=String(currentRound).padStart(2,'0')+' / '+String(rounds).padStart(2,'0');
-  q('#phaseLabel').textContent=phase==='INPUT'?'EINGEBEN':'AUFLÖSUNG';
+  q('#phaseLabel').textContent=phase==='INPUT'?'KOMPOSITUM BILDEN':'AUFLÖSUNG';
   q('#timerValue').textContent=phase==='INPUT'?(timerOff?'∞':String(Math.ceil(timeLeft))):'—';
   q('.timer-shell').classList.toggle('urgent',!timerOff&&phase==='INPUT'&&timeLeft<=5);
   q('.timer-shell').classList.toggle('off',timerOff&&phase==='INPUT');
   q('.progress').classList.toggle('off',timerOff&&phase==='INPUT');
   q('#progressBar').style.width=phase==='INPUT'?(timerOff?'100%':Math.max(0,(timeLeft/timeLimit)*100)+'%'):'0%';
-  q('#simulCopy').textContent=timerOff?'Kein Zeitlimit · die Runde endet, sobald alle eingeloggt haben.':'Antwort abschicken, bevor die Zeit abläuft.';
+  q('#simulCopy').textContent=timerOff?'Kein Zeitlimit · die Runde endet, sobald alle eingeloggt haben.':'Bilde ein zusammengesetztes Nomen und logge es vor Ablauf der Zeit ein.';
 }
 function startGame(){
   const custom=titleCaseWord(q('#startWordInput').value),start=custom||titleCaseWord(randomStart());
-  if(!lettersOnly(start)){alert('Bitte ein gültiges Startwort eingeben.');return}
+  if(!lettersOnly(start)){alert('Bitte ein gültiges Start-Nomen eingeben.');return}
   readPlayers(start);currentRound=0;show('playScreen');startRound();
 }
 function startRound(){
@@ -125,38 +206,21 @@ function lockAnswer(i,timeout=false){
     resolveRound(Number(q('#playScreen').dataset.roundStarted)||performance.now());
   }
 }
-async function dictionaryExists(word){
-  const key=keyWord(word);
-  if(wikiCache.has(key))return wikiCache.get(key);
-  if(LOCAL_WORDS.has(key)){wikiCache.set(key,true);return true}
-  const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),2600);
-  try{
-    const url='https://de.wiktionary.org/w/api.php?action=query&format=json&origin=*&redirects=1&titles='+encodeURIComponent(titleCaseWord(word));
-    const r=await fetch(url,{signal:ctrl.signal});const d=await r.json();
-    const pages=Object.values(d?.query?.pages||{}),ok=pages.some(p=>p&&p.missing===undefined);
-    wikiCache.set(key,ok);return ok;
-  }catch(_){
-    const fallback=/^[A-Za-zÄÖÜäöüß]{2,32}$/.test(lettersOnly(word));
-    return fallback;
-  }finally{clearTimeout(to)}
-}
 async function validatePlayer(p,roundStarted){
-  const required=lastLetter(p.lastValid);
   const word=titleCaseWord(p.answer);
   const responseMs=Math.max(0,(p.submittedAt||performance.now())-roundStarted);
   p.totalMs+=timeLimit>0?Math.min(responseMs,timeLimit*1000):responseMs;
   const fail=message=>({ok:false,message,example:exampleFor(p)});
-  if(!word)return fail(timeLimit>0?'ZEIT ABGELAUFEN · KEIN WORT ABGEGEBEN.':'KEIN WORT ABGEGEBEN.');
-  if(firstLetter(word)!==required)return fail('MUSS MIT '+required+' BEGINNEN.');
-  if(p.used.has(keyWord(word)))return fail('DIESES WORT WAR SCHON IN DEINER KETTE.');
+  if(!word)return fail(timeLimit>0?'ZEIT ABGELAUFEN · KEIN NOMEN ABGEGEBEN.':'KEIN NOMEN ABGEGEBEN.');
   if(lettersOnly(word).length<2)return fail('ZU KURZ.');
-  const exists=await dictionaryExists(word);
-  if(!exists)return fail('NICHT IM DEUTSCHEN WIKTIONARY GEFUNDEN.');
-  return {ok:true,message:'GÜLTIG · NÄCHSTER BUCHSTABE: '+lastLetter(word)+'.'}
+  if(p.used.has(keyWord(word)))return fail('DIESES NOMEN WAR SCHON IN DEINER KETTE.');
+  const compound=await findCompound(p.lastValid,word);
+  if(!compound)return fail('AUS '+p.lastValid.toLocaleUpperCase('de-DE')+' + '+word.toLocaleUpperCase('de-DE')+' ENTSTEHT KEIN ANERKANNTES ZUSAMMENGESETZTES NOMEN.');
+  return {ok:true,compound,message:'GÜLTIG: '+compound.toLocaleUpperCase('de-DE')+'.'}
 }
 async function resolveRound(roundStarted){
   if(phase!=='INPUT')return;phase='CHECK';updateTop();
-  q('#phaseLabel').textContent='PRÜFEN …';
+  q('#phaseLabel').textContent='KOMPOSITA PRÜFEN …';
   const results=await Promise.all(players.map(p=>validatePlayer(p,roundStarted)));
   players.forEach((p,i)=>{
     p.result=results[i];
@@ -176,9 +240,9 @@ function finish(){
 async function probeDictionary(){
   const el=q('#dictionaryStatus');
   try{
-    const ok=await dictionaryExists('Haus');
-    el.textContent=ok?'WIKTIONARY ONLINE':'LOKALER FALLBACK';el.className='wk-dict '+(ok?'ok':'warn');
-  }catch(_){el.textContent='LOKALER FALLBACK';el.className='wk-dict warn'}
+    const compound=await findCompound('Orange','Saft');
+    el.textContent=compound?'KOMPOSITUM-PRÜFUNG ONLINE':'LOKALE KOMPOSITA';el.className='wk-dict '+(compound?'ok':'warn');
+  }catch(_){el.textContent='LOKALE KOMPOSITA';el.className='wk-dict warn'}
 }
 
 q('#playerCount').addEventListener('click',e=>{const b=e.target.closest('button[data-count]');if(!b)return;playerCount=Number(b.dataset.count);setSegment(q('#playerCount'),'count',playerCount);renderNames()});
