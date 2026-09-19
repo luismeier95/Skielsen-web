@@ -253,6 +253,7 @@ function ensureTournamentSchedule(target,participants){
      g.matches=createScheduledMatches(g,i,participants);
      g.matchIndex=0;
    }
+   syncBracketDependencies(g);
  });
 }
 
@@ -542,24 +543,25 @@ function routeToCurrentWork(){
 function concludeCurrentMatch(scoreA,scoreB){const g=gameNow(),m=matchNow();if(!g||!m||m.status!=='LIVE')return false;scoreA=Number(scoreA);scoreB=Number(scoreB);if(!Number.isFinite(scoreA)||!Number.isFinite(scoreB)||scoreA<0||scoreB<0||scoreA===scoreB)return false;m.scoreA=scoreA;m.scoreB=scoreB;m.status='CONCLUDED';const w=winner(m),l=loser(m);settleBets(m,w);updateRatingsAfterMatch(m,g);state.matchHistory.unshift({gameIndex:state.currentGameIndex,game:g.name,stage:m.stage,a:m.a,b:m.b,scoreA,scoreB,winner:w,at:nowLabel()});addAudit('RESULT CONFIRMED · '+g.name+' · '+stageLabel(m.stage)+' · '+scoreA+':'+scoreB);const pre=state.oddsSnapshots[m.id];if(pre){const wp=w===m.a?pre.pa:pre.pb;if(wp<.4)addNews('UNDERDOG SCHLÄGT ZURÜCK.',`${teamName(participant(w))} gewinnt ${g.name} mit ${Math.round(wp*100)} % eingefrorener Siegchance.`,'UPSET');else addNews(`${teamName(participant(w))} SETZT SICH DURCH.`,`${g.name} · ${stageLabel(m.stage)} endet ${scoreA}:${scoreB}.`)}else addNews(`${teamName(participant(w))} GEWINNT.`,`${g.name} · ${stageLabel(m.stage)} endet ${scoreA}:${scoreB}.`);
  resolveBracketAfterMatch(g,true);showResultPopup(m,g,w,()=>{if(g.phase==='RESULTS')continueCompletedGameFlow(g);else{renderAll();saveSoon();routeToCurrentWork()}});renderAll();saveSoon();return true}
 function rrStandings(g){const ps=state.participants.map(p=>({id:p.id,wins:0,diff:0,for:0}));const map=Object.fromEntries(ps.map(x=>[x.id,x]));g.matches.slice(0,3).forEach(m=>{if(m.status!=='CONCLUDED')return;map[m.a].for+=m.scoreA;map[m.b].for+=m.scoreB;map[m.a].diff+=m.scoreA-m.scoreB;map[m.b].diff+=m.scoreB-m.scoreA;map[winner(m)].wins++});let arr=[...ps];arr.sort((x,y)=>y.wins-x.wins||y.diff-x.diff||y.for-x.for||hash(g.game_id+'|'+x.id)-hash(g.game_id+'|'+y.id));const groups={};arr.forEach(x=>(groups[x.wins]||(groups[x.wins]=[])).push(x));Object.values(groups).forEach(gr=>{if(gr.length===2){const a=gr[0],b=gr[1],hm=g.matches.slice(0,3).find(m=>m.status==='CONCLUDED'&&((m.a===a.id&&m.b===b.id)||(m.a===b.id&&m.b===a.id)));if(hm&&winner(hm)===b.id){const ia=arr.indexOf(a),ib=arr.indexOf(b);if(Math.abs(ia-ib)===1)[arr[ia],arr[ib]]=[arr[ib],arr[ia]]}}});return arr}
+function syncBracketDependencies(g){
+ if(!g||!Array.isArray(g.matches)||state?.participants?.length!==4)return g;
+ const sf1=g.matches.find(x=>x.stage==='SEMIFINAL_1');
+ const sf2=g.matches.find(x=>x.stage==='SEMIFINAL_2');
+ const third=g.matches.find(x=>x.stage==='THIRD_PLACE');
+ const final=g.matches.find(x=>x.stage==='FINAL');
+ if(sf1?.status==='CONCLUDED'){
+   if(third)third.a=loser(sf1);
+   if(final)final.a=winner(sf1);
+ }
+ if(sf2?.status==='CONCLUDED'){
+   if(third)third.b=loser(sf2);
+   if(final)final.b=winner(sf2);
+ }
+ return g;
+}
 function resolveBracketAfterMatch(g,deferPostGame=false){
  const i=g.matchIndex,m=g.matches[i];
- if(state.participants.length===4){
-   const sf1=g.matches.find(x=>x.stage==='SEMIFINAL_1')||g.matches[0];
-   const sf2=g.matches.find(x=>x.stage==='SEMIFINAL_2')||g.matches[1];
-   const third=g.matches.find(x=>x.stage==='THIRD_PLACE')||g.matches[2];
-   const final=g.matches.find(x=>x.stage==='FINAL')||g.matches[3];
-   // Propagate each semifinal independently as soon as its result is known.
-   // This keeps the bracket informative while the other semifinal is still open.
-   if(sf1?.status==='CONCLUDED'){
-     if(third)third.a=loser(sf1);
-     if(final)final.a=winner(sf1);
-   }
-   if(sf2?.status==='CONCLUDED'){
-     if(third)third.b=loser(sf2);
-     if(final)final.b=winner(sf2);
-   }
- }
+ syncBracketDependencies(g);
  if(state.participants.length===3&&i===2){
    const st=rrStandings(g);g.rrStandings=st;g.matches[3].a=st[0].id;g.matches[3].b=st[1].id
  }
