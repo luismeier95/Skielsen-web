@@ -136,3 +136,20 @@ if "set_higher_lower_tier" not in (PUBLIC/'assets/js/11-more-or-less-game.js').r
 if "EASY" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8') or "HARDCORE" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Difficulty-Auswahl fehlt')
 
 if "molCategoryRouletteLabel" not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Category-Roulette fehlt')
+
+theme_css=(PUBLIC/'assets/css/tournament-theme-runtime.css').read_text(encoding='utf-8')
+
+if 'assets/css/tournament-theme-runtime.css?v='+v not in h: fail('Tournament Theme Authority wird nicht geladen')
+
+if h.index('assets/css/tournament-theme-runtime.css?v='+v) < h.index('assets/css/app.css?v='+v): fail('Tournament Theme Authority muss nach app.css geladen werden')
+
+for _theme in ['theme.skielsen.core','theme.jga.night','theme.christmas.winter_clash','theme.summer.sunset_showdown','theme.girly.pink_chaos']:
+ if _theme not in theme_css: fail(f'Theme fehlt in Theme Authority: {_theme}')
+
+if 'data-theme-preview="theme.girly.pink_chaos"' not in h: fail('Match Detail Pink-Chaos QA-Snippet fehlt')
+
+if '--theme-accent' not in (PUBLIC/'assets/css/buzzer-time.css').read_text(encoding='utf-8'): fail('Buzzer erbt Tournament Theme nicht')
+
+if '--theme-accent' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less erbt Tournament Theme nicht')
+
+if "document.body.dataset.themePack=theme" not in engine_text: fail('Runtime setzt ausgewähltes Tournament Theme nicht')
