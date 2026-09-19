@@ -3,8 +3,9 @@
 
 const COLORS=['var(--core-red)','var(--core-blue)','var(--core-yellow)','var(--core-green)'];
 const START_WORDS=['HAUS','LAMPE','TISCH','GARTEN','NASE','ELEFANT','TASSE','APFEL','KAMERA','AUTO','RADIO','ORANGE','EIMER','ROSE','ESEL','LEITER','REGEN','NUDEL','LÖWE','EULE'];
+const EXAMPLE_WORDS={A:'APFEL',B:'BAUM',C:'COMPUTER',D:'DOSE',E:'EIMER',F:'FARBE',G:'GARTEN',H:'HAUS',I:'INSEL',J:'JACKE',K:'KAMERA',L:'LAMPE',M:'MAUS',N:'NASE',O:'ORANGE',P:'PIZZA',Q:'QUELLE',R:'RADIO',S:'SONNE',T:'TISCH',U:'UHR',V:'VOGEL',W:'WASSER',X:'XYLOPHON',Y:'YOGA',Z:'ZUCKER','Ä':'ÄRMEL','Ö':'ÖL','Ü':'ÜBUNG'};
 const LOCAL_WORDS=new Set([
-  'haus','sonne','elefant','tiger','radio','orange','eimer','rose','esel','lampe','ente','tasse','apfel','leiter','regen','nase','auto','ofen','nudel','löwe','eule','erde','engel','garten','nacht','tisch','hund','dose','energie','insel','luft','farbe','eis','salat','telefon','note','essen','stuhl','licht','traum','meer','reise','erde','dorf','fenster','regenbogen','nuss','schrank','kiste','erde','uhr','rad','dach','hase','igel','maus','stern','nebel','blume','ei','idee','echo','obst','tor','ring','gabel','löffel','kuchen','nest','tür','rucksack','kamera','arm','mond','decke','ecke','kissen','socke','hemd','mantel','hose','rock','kleid','jacke','bett','teppich','glas','schere','rasen','baum','wald','fluss','see','berg','straße','stadt','land','insel','wolke','wind','sturm','regen','schnee','hagel','feuer','wasser','erde','luft','brot','käse','milch','kaffee','tee','saft','wein','bier','reis','nudel','suppe','pizza','banane','birne','kirsche','beere','melone','gurke','tomate','kartoffel','zwiebel','pfeffer','salz','zucker','honig','butter','messer','gabel','teller','becher','topf','pfanne','küche','zimmer','treppe','tür','wand','boden','dach','garage','garten','schule','büro','laden','markt','kino','theater','museum','hotel','bank','post','arzt','lehrer','fahrer','bäcker','maler','musik','lied','film','buch','brief','bild','foto','spiel','ball','rad','boot','zug','bus','taxi','flugzeug','schiff','fahrrad','motor','straße','weg','brücke'
+  'haus','sonne','elefant','tiger','radio','orange','eimer','rose','esel','lampe','ente','tasse','apfel','leiter','regen','nase','auto','ofen','nudel','löwe','eule','erde','engel','garten','nacht','tisch','hund','dose','energie','insel','luft','farbe','eis','salat','telefon','note','essen','stuhl','licht','traum','meer','reise','erde','dorf','fenster','regenbogen','nuss','schrank','kiste','erde','uhr','rad','dach','hase','igel','maus','stern','nebel','blume','ei','idee','echo','obst','tor','ring','gabel','löffel','kuchen','nest','tür','rucksack','kamera','arm','mond','decke','ecke','kissen','socke','hemd','mantel','hose','rock','kleid','jacke','bett','teppich','glas','schere','rasen','baum','wald','fluss','see','berg','straße','stadt','land','insel','wolke','wind','sturm','regen','schnee','hagel','feuer','wasser','erde','luft','brot','käse','milch','kaffee','tee','saft','wein','bier','reis','nudel','suppe','pizza','banane','birne','kirsche','beere','melone','gurke','tomate','kartoffel','zwiebel','pfeffer','salz','zucker','honig','butter','messer','gabel','teller','becher','topf','pfanne','küche','zimmer','treppe','tür','wand','boden','dach','garage','garten','schule','büro','laden','markt','kino','theater','museum','hotel','bank','post','arzt','lehrer','fahrer','bäcker','maler','musik','lied','film','buch','brief','bild','foto','spiel','ball','rad','boot','zug','bus','taxi','flugzeug','schiff','fahrrad','motor','straße','weg','brücke','computer','quelle','vogel','xylophon','yoga','ärmel','öl','übung'
 ]);
 
 const screens=[...document.querySelectorAll('.wk-screen')];
@@ -15,7 +16,7 @@ const wikiCache=new Map();
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'auto'})}
 function titleCaseWord(value){
-  const cleaned=String(value||'').trim().replace(/s+/g,' ');
+  const cleaned=String(value||'').trim().replace(/\s+/g,' ');
   if(!cleaned)return '';
   return cleaned.charAt(0).toLocaleUpperCase('de-DE')+cleaned.slice(1);
 }
@@ -25,6 +26,13 @@ function lastLetter(word){const s=lettersOnly(word);let c=(s[s.length-1]||'').to
 function keyWord(word){return titleCaseWord(word).toLocaleLowerCase('de-DE')}
 function msLabel(ms){return (Math.max(0,ms)/1000).toFixed(1).replace('.',',')+' S'}
 function randomStart(){return START_WORDS[Math.floor(Math.random()*START_WORDS.length)]}
+function exampleFor(p){
+  const required=lastLetter(p.lastValid);
+  const preferred=EXAMPLE_WORDS[required];
+  if(preferred&&!p.used.has(keyWord(preferred)))return preferred;
+  const fallback=[...LOCAL_WORDS].find(w=>firstLetter(w)===required&&!p.used.has(keyWord(w)));
+  return fallback?titleCaseWord(fallback).toLocaleUpperCase('de-DE'):'';
+}
 
 function renderNames(){
   const host=q('#playerNames'),old=[...host.querySelectorAll('input')].map(x=>x.value);
@@ -47,7 +55,8 @@ function readPlayers(startWord){
 }
 function playerCard(p,i){
   const required=lastLetter(p.lastValid)||'—';
-  const reveal=phase==='REVEAL'&&p.result?'<div class="answer-reveal"><small>ANTWORT</small><strong>'+esc(p.answer||'—')+'</strong><span>'+esc(p.result.message)+'</span></div>':'';
+  const example=phase==='REVEAL'&&p.result&&!p.result.ok&&p.result.example?'<div class="correct-example"><small>MÖGLICHE RICHTIGE ANTWORT</small><b>'+esc(p.result.example)+'</b><span>'+esc(p.result.example)+' wäre für '+esc(lastLetter(p.lastValid))+' gültig gewesen.</span></div>':'';
+  const reveal=phase==='REVEAL'&&p.result?'<div class="answer-reveal"><small>ANTWORT</small><strong>'+esc(p.answer||'—')+'</strong><span>'+esc(p.result.message)+'</span>'+example+'</div>':'';
   const state=phase==='INPUT'
     ?(p.locked?'<div class="player-state wait">EINGELOGGT · WARTET AUF DIE ANDEREN</div>':'<div class="player-state">NOCH NICHT ABGESCHICKT</div>')
     :(p.result?.ok?'<div class="player-state ok">✓ GÜLTIG</div>':'<div class="player-state bad">✕ FEHLER</div>');
@@ -73,11 +82,15 @@ function renderBoard(){
   }
 }
 function updateTop(){
+  const timerOff=timeLimit<=0;
   q('#roundLabel').textContent=String(currentRound).padStart(2,'0')+' / '+String(rounds).padStart(2,'0');
   q('#phaseLabel').textContent=phase==='INPUT'?'EINGEBEN':'AUFLÖSUNG';
-  q('#timerValue').textContent=phase==='INPUT'?String(Math.ceil(timeLeft)):'—';
-  q('.timer-shell').classList.toggle('urgent',phase==='INPUT'&&timeLeft<=5);
-  q('#progressBar').style.width=phase==='INPUT'?Math.max(0,(timeLeft/timeLimit)*100)+'%':'0%';
+  q('#timerValue').textContent=phase==='INPUT'?(timerOff?'∞':String(Math.ceil(timeLeft))):'—';
+  q('.timer-shell').classList.toggle('urgent',!timerOff&&phase==='INPUT'&&timeLeft<=5);
+  q('.timer-shell').classList.toggle('off',timerOff&&phase==='INPUT');
+  q('.progress').classList.toggle('off',timerOff&&phase==='INPUT');
+  q('#progressBar').style.width=phase==='INPUT'?(timerOff?'100%':Math.max(0,(timeLeft/timeLimit)*100)+'%'):'0%';
+  q('#simulCopy').textContent=timerOff?'Kein Zeitlimit · die Runde endet, sobald alle eingeloggt haben.':'Antwort abschicken, bevor die Zeit abläuft.';
 }
 function startGame(){
   const custom=titleCaseWord(q('#startWordInput').value),start=custom||titleCaseWord(randomStart());
@@ -88,12 +101,15 @@ function startRound(){
   currentRound++;phase='INPUT';timeLeft=timeLimit;
   players.forEach(p=>{p.locked=false;p.answer='';p.result=null;p.submittedAt=0});
   q('#nextRoundBtn').hidden=true;renderBoard();updateTop();
-  const started=performance.now(),deadline=started+timeLimit*1000;
+  const started=performance.now();
   clearInterval(timer);
-  timer=setInterval(()=>{
-    const now=performance.now();timeLeft=Math.max(0,(deadline-now)/1000);updateTop();
-    if(timeLeft<=0){clearInterval(timer);players.forEach((p,i)=>{if(!p.locked)lockAnswer(i,true)});if(players.every(p=>p.locked))resolveRound(started)}
-  },100);
+  if(timeLimit>0){
+    const deadline=started+timeLimit*1000;
+    timer=setInterval(()=>{
+      const now=performance.now();timeLeft=Math.max(0,(deadline-now)/1000);updateTop();
+      if(timeLeft<=0){clearInterval(timer);players.forEach((p,i)=>{if(!p.locked)lockAnswer(i,true)});if(players.every(p=>p.locked))resolveRound(started)}
+    },100);
+  }
   q('#playScreen').dataset.roundStarted=String(started);
   setTimeout(()=>q('[data-answer="0"]')?.focus(),60);
 }
@@ -128,13 +144,14 @@ async function validatePlayer(p,roundStarted){
   const required=lastLetter(p.lastValid);
   const word=titleCaseWord(p.answer);
   const responseMs=Math.max(0,(p.submittedAt||performance.now())-roundStarted);
-  p.totalMs+=Math.min(responseMs,timeLimit*1000);
-  if(!word){return {ok:false,message:'ZEIT ABGELAUFEN · KEIN WORT ABGEGEBEN.'}}
-  if(firstLetter(word)!==required){return {ok:false,message:'MUSS MIT '+required+' BEGINNEN.'}}
-  if(p.used.has(keyWord(word))){return {ok:false,message:'DIESES WORT WAR SCHON IN DEINER KETTE.'}}
-  if(lettersOnly(word).length<2){return {ok:false,message:'ZU KURZ.'}}
+  p.totalMs+=timeLimit>0?Math.min(responseMs,timeLimit*1000):responseMs;
+  const fail=message=>({ok:false,message,example:exampleFor(p)});
+  if(!word)return fail(timeLimit>0?'ZEIT ABGELAUFEN · KEIN WORT ABGEGEBEN.':'KEIN WORT ABGEGEBEN.');
+  if(firstLetter(word)!==required)return fail('MUSS MIT '+required+' BEGINNEN.');
+  if(p.used.has(keyWord(word)))return fail('DIESES WORT WAR SCHON IN DEINER KETTE.');
+  if(lettersOnly(word).length<2)return fail('ZU KURZ.');
   const exists=await dictionaryExists(word);
-  if(!exists)return {ok:false,message:'NICHT IM DEUTSCHEN WIKTIONARY GEFUNDEN.'};
+  if(!exists)return fail('NICHT IM DEUTSCHEN WIKTIONARY GEFUNDEN.');
   return {ok:true,message:'GÜLTIG · NÄCHSTER BUCHSTABE: '+lastLetter(word)+'.'}
 }
 async function resolveRound(roundStarted){
