@@ -3999,8 +3999,8 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
   letter-spacing:1px;
 }
 .mvp-winner-badge.team-yellow{background:#FF2ED1;color:#050505}
-.mvp-winner-badge.team-blue{background:#2979FF;color:#fff}
-.mvp-winner-badge.team-red{background:#FF1744;color:#fff}
+.mvp-winner-badge.team-blue{background:#2979FF;color:#050505}
+.mvp-winner-badge.team-red{background:#FF1744;color:#050505}
 .mvp-winner-badge.team-green{background:#00F5D4;color:#050505}
 .mvp-winner-badge[data-award-type="LVP"]::after{content:"LVP"}
 .mvp-winner-badge[data-award-type="MVP"]::after{content:"MVP"}
