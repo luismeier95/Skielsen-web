@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.73';
+const VERSION=window.SKIELSEN_VERSION||'15.1.74';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
 let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='';

@@ -4544,18 +4544,17 @@ body.v15-inapp-fullscreen-open #v15InAppLayer .v15-inapp-topstrip{
   display:none!important;
 }
 @media(max-width:800px){
-  body.v15-inapp-fullscreen-open .mobile-nav{
-    display:grid!important;
-    z-index:26002!important;
+  body.v15-inapp-fullscreen-open{
+    padding-bottom:0!important;
+  }
+  body.v15-inapp-fullscreen-open .mobile-nav,
+  body.v15-inapp-fullscreen-open .mobile-profile-nav,
+  body.v15-inapp-fullscreen-open #mobileMoreBackdrop,
+  body.v15-inapp-fullscreen-open #mobileMoreMenu{
+    display:none!important;
   }
   body.v15-inapp-fullscreen-open #v15InAppLayer{
-    bottom:76px;
-  }
-  body.v15-inapp-fullscreen-open #mobileMoreBackdrop{
-    z-index:26003!important;
-  }
-  body.v15-inapp-fullscreen-open #mobileMoreMenu{
-    z-index:26004!important;
+    bottom:0!important;
   }
 }
 @media(max-width:700px){
