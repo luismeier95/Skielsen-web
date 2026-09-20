@@ -56,7 +56,8 @@ function clearTimers(){
 function showSetup(){
   clearTimers();
   game=null;
-  q('#wcxtSetup').hidden=false;
+  q('#wcxtSetupPage').hidden=false;
+  q('#wcxtShell').hidden=true;
   q('#wcxtPlayLayout').hidden=true;
   q('#wcxtResult').hidden=true;
   q('#wcxtProgress').style.width='0%';
@@ -80,7 +81,8 @@ function freshGame(){
     completed:false,
     locked:false
   };
-  q('#wcxtSetup').hidden=true;
+  q('#wcxtSetupPage').hidden=true;
+  q('#wcxtShell').hidden=false;
   q('#wcxtPlayLayout').hidden=false;
   renderPlay();
   startTimer(true);
