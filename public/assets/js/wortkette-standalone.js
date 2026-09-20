@@ -1,4 +1,4 @@
-/* Wortkette Solo V19 · mobile answer dock separator cleanup */
+/* Wortkette Solo V20 · fullversion design-contract alignment */
 (()=>{
 'use strict';
 

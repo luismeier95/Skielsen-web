@@ -101,6 +101,22 @@ if 'list_theme_pack_contracts' not in (PUBLIC/'assets/js/06-db-bootstrap.js').re
 if 'list_theme_pack_contracts' not in engine_text: fail('Tournament Engine lädt Theme-Katalog nicht dynamisch')
 if 'get_theme_pack_contract' not in engine_text: fail('Tournament Engine lädt Theme Contract nicht dynamisch')
 
+word_chain_js=PUBLIC/'assets/js/12-word-chain-game.js'
+word_chain_css=PUBLIC/'assets/css/wortkette-game.css'
+if not word_chain_js.exists() or not word_chain_css.exists(): fail('Wortkette Vollversion fehlt')
+_wc_js=word_chain_js.read_text(encoding='utf-8')
+_wc_css=word_chain_css.read_text(encoding='utf-8')
+for _rpc in ['start_word_chain_tournament_player','get_word_chain_tournament_state','submit_word_chain_tournament']:
+ if _rpc not in _wc_js: fail('Wortkette Server-Sync fehlt: '+_rpc)
+for _needle in ["WORD_CHAIN_MODULE='word-chain'","ensureWordChainAssets","renderWordChainSession","get_word_chain_game_result"]:
+ if _needle not in runtime_text: fail('Wortkette In-App Runtime unvollständig: '+_needle)
+if 'ingestWordChainResult' not in bridge_text or "result?.game_key==='word_chain'" not in bridge_text: fail('Wortkette Result-Handoff fehlt')
+for _needle in ['var(--ui)','var(--display)','var(--theme-surface)','var(--theme-on-surface)','var(--theme-primary-action)','var(--theme-on-primary-action)','var(--theme-input-bg)','var(--theme-on-input)','var(--theme-success-bg)','var(--theme-on-success)','var(--theme-danger-bg)','var(--theme-on-danger)']:
+ if _needle not in _wc_css: fail('Wortkette Design/Theme Contract fehlt: '+_needle)
+for _forbidden in ['Arial Black','Impact,','data-theme-pack="theme.']:
+ if _forbidden in _wc_css: fail('Wortkette Theme-/Typografie-Hardcoding gefunden: '+_forbidden)
+if 'docs/WORTKETTE_THEME_AUDIT.md' not in [str(p.relative_to(ROOT)).replace('\\','/') for p in ROOT.rglob('WORTKETTE_THEME_AUDIT.md')]: fail('Wortkette Pre-Merge Theme Audit fehlt')
+
 if 'assets/js/00-app-history.js?v='+v not in h: fail('App-History-Controller fehlt oder Cache-Version stimmt nicht')
 version_js=(PUBLIC/'assets/js/00-version.js').read_text(encoding='utf-8')
 if f"const VERSION='{v}';" not in version_js: fail('00-version.js stimmt nicht mit version.json überein')

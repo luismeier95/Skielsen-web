@@ -1,16 +1,18 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.27';
+const VERSION=window.SKIELSEN_VERSION||'15.1.47';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
 const MORE_LESS_MODULE='more-or-less';
 const MORE_LESS_GAME_KEY='higher_lower';
+const WORD_CHAIN_MODULE='word-chain';
+const WORD_CHAIN_GAME_KEY='word_chain';
 const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,wordChainAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
 let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -209,6 +211,29 @@ function ensureMoreLessAssets(){
   });
   return moreLessAssetsPromise;
 }
+function ensureWordChainAssets(){
+  if(window.skielsenWordChain)return Promise.resolve();
+  if(wordChainAssetsPromise)return wordChainAssetsPromise;
+  wordChainAssetsPromise=new Promise((resolve,reject)=>{
+    if(!document.querySelector('link[data-word-chain-css]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';link.href=`assets/css/wortkette-game.css?v=${VERSION}`;link.dataset.wordChainCss='1';
+      document.head.appendChild(link);
+    }
+    const existing=document.querySelector('script[data-word-chain-js]');
+    if(existing){
+      if(window.skielsenWordChain){resolve();return}
+      existing.addEventListener('load',()=>resolve(),{once:true});
+      existing.addEventListener('error',reject,{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src=`assets/js/12-word-chain-game.js?v=${VERSION}`;
+    script.defer=true;script.dataset.wordChainJs='1';
+    script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
+  });
+  return wordChainAssetsPromise;
+}
 function rosterHtml(s){
   const me=s?.me?.tournament_member_id;
   return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'var(--theme-muted)'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
@@ -216,7 +241,9 @@ function rosterHtml(s){
 function renderBuzzerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
   prepareInAppSurface(String(s.session_id||'buzzer'),s.game?.name||'BUZZER ZEIT STOPPEN',true);
+  layer.classList.remove('word-chain-mode');
   layer.classList.add('buzzer-mode');
+  window.skielsenWordChain?.unmount?.();
   let gameRoot=document.getElementById('v15BuzzerRoot');
   if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
     window.skielsenBuzzerTime?.unmount?.();
@@ -255,8 +282,9 @@ function renderBuzzerTest(g){
 function renderMoreLessSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
   prepareInAppSurface(String(s.session_id||'more-less'),s.game?.name||'MEHR ODER WENIGER',true);
-  layer.classList.remove('buzzer-mode');
+  layer.classList.remove('buzzer-mode','word-chain-mode');
   window.skielsenBuzzerTime?.unmount?.();
+  window.skielsenWordChain?.unmount?.();
   let gameRoot=document.getElementById('v15MoreLessRoot');
   if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
     window.skielsenMoreLess?.unmount?.();
@@ -275,12 +303,38 @@ function renderMoreLessSession(s){
   });
 }
 
+function renderWordChainSession(s){
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  prepareInAppSurface(String(s.session_id||'word-chain'),s.game?.name||'WORTKETTE',true);
+  layer.classList.remove('buzzer-mode');
+  layer.classList.add('word-chain-mode');
+  window.skielsenBuzzerTime?.unmount?.();
+  window.skielsenMoreLess?.unmount?.();
+  let gameRoot=document.getElementById('v15WordChainRoot');
+  if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
+    window.skielsenWordChain?.unmount?.();
+    host.innerHTML=`<div id="v15WordChainRoot" data-session="${esc(s.session_id)}"><div class="v15-inapp-message">WORTKETTE WIRD GELADEN …</div></div>`;
+    gameRoot=document.getElementById('v15WordChainRoot');
+  }
+  ensureWordChainAssets().then(()=>{
+    const rootNow=document.getElementById('v15WordChainRoot');
+    if(rootNow&&playerSession?.session_id===s.session_id){
+      window.skielsenWordChain?.mount?.(rootNow,s,db);
+      window.skielsenWordChain?.updateSession?.(s);
+    }
+  }).catch(err=>{
+    console.warn('Wortkette assets',err);
+    if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">WORTKETTE-MODUL KONNTE NICHT GELADEN WERDEN.</div>';
+  });
+}
+
 function renderPlayerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
   if(!s){
     window.skielsenBuzzerTime?.unmount?.();
     window.skielsenMoreLess?.unmount?.();
-    layer.classList.remove('buzzer-mode');
+    window.skielsenWordChain?.unmount?.();
+    layer.classList.remove('buzzer-mode','word-chain-mode');
     layer.hidden=true;
     host.innerHTML='';
     clearInAppSurface();
@@ -290,6 +344,7 @@ function renderPlayerSession(s){
   if(active&&!inAppManualMinimized)inAppMinimized=false;
   if(active&&s.game?.module_key===BUZZER_MODULE){
     window.skielsenMoreLess?.unmount?.();
+    window.skielsenWordChain?.unmount?.();
     renderBuzzerSession(s);
     return;
   }
@@ -297,10 +352,15 @@ function renderPlayerSession(s){
     renderMoreLessSession(s);
     return;
   }
+  if(active&&s.game?.module_key===WORD_CHAIN_MODULE){
+    renderWordChainSession(s);
+    return;
+  }
 
   window.skielsenBuzzerTime?.unmount?.();
   window.skielsenMoreLess?.unmount?.();
-  layer.classList.remove('buzzer-mode');
+  window.skielsenWordChain?.unmount?.();
+  layer.classList.remove('buzzer-mode','word-chain-mode');
   if(active)prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',true);
   else{
     inAppSurfaceLive=false;
@@ -321,7 +381,7 @@ function renderPlayerSession(s){
 async function recoverCompletedNativeGame(){
   const g=currentGame();
   if(!g?.tournament_game_id||!supportedNativeGame(g)||!db)return false;
-  const rpc=isBuzzerGame(g)?'get_buzzer_time_game_result':'get_higher_lower_game_result';
+  const rpc=isBuzzerGame(g)?'get_buzzer_time_game_result':(isMoreLessGame(g)?'get_higher_lower_game_result':'get_word_chain_game_result');
   try{
     const {data,error}=await db.rpc(rpc,{p_tournament_game_id:g.tournament_game_id});
     if(error||!data)return false;
@@ -381,6 +441,9 @@ function isBuzzerGame(g){
 function isMoreLessGame(g){
   return g?.game_id==='game.higher_lower'||/MEHR\s+ODER\s+WENIGER/i.test(String(g?.name||''));
 }
+function isWordChainGame(g){
+  return g?.game_id==='game.word_chain'||/WORTKETTE/i.test(String(g?.name||''));
+}
 function nativeGameIsLive(g){
   if(!g)return false;
   const serverActive=String(g.status||'').toUpperCase()==='ACTIVE';
@@ -388,9 +451,9 @@ function nativeGameIsLive(g){
   return serverActive||localActive;
 }
 function buzzerGameIsLive(g){return isBuzzerGame(g)&&nativeGameIsLive(g)}
-function supportedNativeGame(g){return isBuzzerGame(g)||isMoreLessGame(g)}
-function gameKeyFor(g){return isBuzzerGame(g)?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:null)}
-function moduleKeyFor(g){return isBuzzerGame(g)?BUZZER_MODULE:(isMoreLessGame(g)?MORE_LESS_MODULE:null)}
+function supportedNativeGame(g){return isBuzzerGame(g)||isMoreLessGame(g)||isWordChainGame(g)}
+function gameKeyFor(g){return isBuzzerGame(g)?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:(isWordChainGame(g)?WORD_CHAIN_GAME_KEY:null))}
+function moduleKeyFor(g){return isBuzzerGame(g)?BUZZER_MODULE:(isMoreLessGame(g)?MORE_LESS_MODULE:(isWordChainGame(g)?WORD_CHAIN_MODULE:null))}
 function inAppAdminRelevant(){
   const g=currentGame(),tracker=String(g?.tracker_type||'').toUpperCase(),play=String(g?.play_mode||g?.default_play_mode||'').toUpperCase();
   return tracker==='IN_APP_NATIVE'||play==='IN_APP';
@@ -419,17 +482,16 @@ function ensureAdminPanel(){
 async function createAdminSession(){
   const g=currentGame(),info=document.getElementById('v15InAppAdminInfo');
   if(!g?.tournament_game_id){if(info)info.textContent='AKTUELLES GAME HAT KEINE TOURNAMENT_GAME_ID.';return}
-  const buzzer=isBuzzerGame(g);
   const r=await db.rpc('create_in_app_game_session',{
     p_tournament_game_id:g.tournament_game_id,
-    p_game_key:buzzer?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:'in_app_shell_test'),
+    p_game_key:gameKeyFor(g)||'in_app_shell_test',
     p_match_id:null,
     p_public_state:{source:`V${VERSION}`,game_name:g.name||null,game_id:g.game_id||null}
   });
   if(r.error){if(info)info.textContent='SESSION-FEHLER: '+(r.error.message||'UNBEKANNT');return}
   adminGameId=g.tournament_game_id;
   await refreshAdmin(true);
-  if((buzzer||isMoreLessGame(g))&&adminSession){
+  if(supportedNativeGame(g)&&adminSession){
     await autoAssignNativePlayers();
   }
 }
@@ -575,6 +637,8 @@ async function ensureNativeLifecycle(g){
           game_name:g.name||null,
           game_id:g.game_id||null,
           familiarity_tier:String(g?.rules_json?.familiarityTier||g?.game_rules_snapshot?.familiarityTier||'NORMAL').toUpperCase(),
+          occurrence_threshold:Number(g?.rules_json?.occurrenceThreshold||g?.game_rules_snapshot?.occurrenceThreshold||35),
+          time_limit_seconds:Number(g?.rules_json?.timeLimitSeconds||g?.game_rules_snapshot?.timeLimitSeconds||15),
           auto_created:true
         }
       });
@@ -628,6 +692,7 @@ function finishInAppSurface(){
   layer.hidden=true;
   window.skielsenBuzzerTime?.unmount?.();
   window.skielsenMoreLess?.unmount?.();
+  window.skielsenWordChain?.unmount?.();
   const host=document.getElementById('v15InAppPlayerContent');if(host)host.innerHTML='';
   clearInAppSurface();
   return true;
@@ -662,7 +727,7 @@ window.addEventListener('popstate',()=>{
 });
 
 window.addEventListener('beforeunload',()=>{
-  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();window.skielsenMoreLess?.unmount?.();
+  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();window.skielsenMoreLess?.unmount?.();window.skielsenWordChain?.unmount?.();
 });
 window.skielsenInApp={
   start,

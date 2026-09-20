@@ -1,11 +1,11 @@
 # WORTKETTE · HANDOVER
 
-Stand: **V19**  
+Stand: **V20 · Vollversion App V15.1.47**  
 Repo: `luismeier95/Skielsen-web`  
 Branch: `main`  
 Supabase: `rlppuqjolkrwumrrjajq`  
 Stabile öffentliche Route: `https://luismeier95.github.io/Skielsen-web/wortkette/`  
-Aktueller Commit: `aa0940810cb215de1a8e9384dce43c6cd96c645d`
+Pre-Merge-Validierung: `265fede687cc9e5dad00de3f0cf87aed66bdb22a`
 
 ## 1. Produktziel
 
@@ -313,3 +313,21 @@ Vor GitHub-Writes immer aktuellen `main` SHA prüfen und Commit darauf aufbauen.
 - `review_status='rejected'` ist dagegen wirklich ausgeschlossen.
 - `is_active` soll für nicht abgelehnte Pool-Kanten grundsätzlich aktiv bleiben; der Threshold filtert zur Laufzeit.
 - Das Wiktionary wird zur Validierung manueller Fehlversuche genutzt, nicht zur automatischen Erzeugung des Wortgraphen.
+
+
+## 17. Fullversion-Integration V20 / App V15.1.47
+
+Vor dem Merge wurde ein eigener Theme-/Design-Audit in `docs/WORTKETTE_THEME_AUDIT.md` durchgeführt.
+
+Die Vollversion nutzt:
+- `public/assets/js/12-word-chain-game.js`
+- `public/assets/css/wortkette-game.css`
+- In-App module key `word-chain`
+- game key `word_chain`
+- catalog id `game.word_chain`
+
+Das integrierte Modul verwendet ausschließlich `var(--ui)` / `var(--display)` für Typografie und semantische Theme Contract v2 Tokens für Flächen, Texte, Buttons, Inputs und Statusfarben. Es enthält keine Theme-Pack-spezifischen Selektoren.
+
+Tournament-Player erhalten jeweils eine eigene 10-Schritt-Kette. In Teamturnieren werden die Player-Scores je Participant addiert. Ranking: Score absteigend, danach Dauer, danach serverseitiger Loswert.
+
+Der Fullversion-Timer ist serverautoritativ: ein abgelaufener Timer kann weder durch Enter-Spam noch durch verspätete Eingaben zurückgesetzt/umgangen werden.
