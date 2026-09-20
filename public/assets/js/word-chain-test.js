@@ -158,6 +158,7 @@ function applyWrong(timeout=false){
   if(game.locked||game.completed)return;
   game.locked=true;
   game.score-=1;
+  q('#wcxtInput').disabled=true;
   const target=current().next;
   game.revealed=Math.min(target.length,game.revealed+1);
   q('#wcxtScore').textContent=String(game.score);
