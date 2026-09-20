@@ -325,3 +325,25 @@ body.wcxt-show-data [data-source]::after{
   .wcxt-difficulty button span{font-size:5.5px}
   .wcxt-start{min-height:58px}
 }
+
+/* Compact setup hero */
+.wcxt-setup{
+  min-height:0;
+  grid-template-rows:auto auto auto;
+}
+.wcxt-setup-hero{
+  min-height:210px;
+  align-items:flex-start;
+  padding:34px 2px 18px;
+}
+@media(max-width:720px){
+  .wcxt-setup{
+    min-height:0;
+    grid-template-rows:auto auto auto;
+  }
+  .wcxt-setup-hero{
+    min-height:185px;
+    align-items:flex-start;
+    padding:26px 2px 14px;
+  }
+}
