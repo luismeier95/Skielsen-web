@@ -13,7 +13,7 @@
 <header class="gdc-topbar">
   <div>
     <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
-    <span>GAME DESIGN CONTRACT · V1.1</span>
+    <span>GAME DESIGN CONTRACT · V1.2</span>
   </div>
   <div class="gdc-controls">
     <label>THEME
@@ -33,7 +33,7 @@
   <section class="gdc-intro">
     <small>VISUELLE REFERENZ</small>
     <h1>GAME DESIGN<br>CONTRACT</h1>
-    <p>Theme Contract bestimmt Farben und Kontraste. Game Design Contract bestimmt Struktur, Maße und Komponenten. Das einzelne Game darf nur seine Mechanik gestalten.</p>
+    <p>Theme Contract bestimmt Farben und Kontraste. Game Design Contract bestimmt Struktur, Maße, Komponenten und Daten-Bindings. Das einzelne Game darf nur seine Mechanik gestalten. Dieser Contract gilt verbindlich für alle zukünftigen Games und bereits für deren Standalone-Phase.</p>
   </section>
 
   <section class="gdc-actual" aria-labelledby="gdcActualTitle">
@@ -179,7 +179,7 @@
   </section>
 
   <section class="gdc-docs">
-    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.1</h2></header>
+    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.2</h2></header>
 
     <div class="gdc-rule-grid">
       <article><b>01</b><h3>HIERARCHIE</h3><p><strong>Theme Contract</strong> = Farben und Kontraste. <strong>Game Design Contract</strong> = Layout und Komponenten. <strong>Game Module</strong> = Mechanik.</p></article>
@@ -203,6 +203,11 @@
       <article><b>19</b><h3>CSS ARCHITEKTUR</h3><p>Gemeinsame Klassen tragen Präfix <strong>skg-</strong>. Game-CSS enthält nur Mechanik-spezifische Komponenten.</p></article>
       <article><b>20</b><h3>NON-NEGOTIABLE</h3><p>Kein eigener Header, keine eigenen globalen Farben, keine eigene Content-Breite, kein eigener Result-Screen, keine Hardcoded Theme-Farben.</p></article>
       <article><b>21</b><h3>KEEP IT CLEAN</h3><p>Keine redundante Copy. Informationen, die bereits durch Header, Layout, Wert oder Action eindeutig sind, werden nicht zusätzlich beschriftet oder erklärt.</p></article>
+      <article><b>22</b><h3>STABLE GEOMETRY</h3><p>Header, Status, Player-Anzeigen und Action-Bereiche behalten innerhalb eines Play-Flows ihre Position und Höhe. Zustandswechsel dürfen das Seitenraster nicht springen lassen.</p></article>
+      <article><b>23</b><h3>ANIMATION BOUNDARY</h3><p>Animationen sind nur im game-spezifischen Mechanik-Bereich erlaubt. Shared Chrome, Status, Player-Cards und Actions bleiben unbewegt, sofern die Mechanik nicht zwingend etwas anderes erfordert.</p></article>
+      <article><b>24</b><h3>VARIABLE ORIGIN</h3><p>Jede variable UI-Information braucht bereits in der Standalone einen eindeutigen Source-Key, Datentyp, Null-/Fallback-Verhalten und ein definiertes UI-Ziel.</p></article>
+      <article><b>25</b><h3>STANDALONE → DB</h3><p>Standalone-Games trennen Static Layout, Theme Tokens, Content Variables, State Variables, Interaction State und Database Mapping. Beim Merge darf keine Variable erst nachträglich „erraten“ werden.</p></article>
+      <article><b>26</b><h3>IMPLEMENTATION GATE</h3><p>Eine Standalone gilt erst als integrationsbereit, wenn Layout-Contract, Theme-Contract, responsive Verhalten und Variable→Datenquelle-Mapping vollständig geprüft sind.</p></article>
     </div>
   </section>
 
