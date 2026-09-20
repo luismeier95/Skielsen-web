@@ -189,7 +189,25 @@ Hidden input capture:
 - no layout footprint
 - maintains native IME/system keyboard support
 
-## 13. Result Contract
+## 13. Live Result Contract
+
+As soon as the local player finishes, RESULT opens immediately and stays live while other players continue.
+
+The table always lists all assigned players:
+
+- completed players first
+- completed players receive consecutive live ranks 1, 2, 3, …
+- live ranking uses the same score-first logic as the game: score descending, then elapsed time ascending
+- unfinished players remain listed below completed players
+- unfinished players have no displayed rank
+- unfinished time = `–`
+- unfinished score = `–`
+- header meta shows `X / Y FERTIG`
+- the table is refreshed from server `live_standings`
+- when all players finish, the table switches to the finalized tournament result
+- `TURNIER ANSEHEN →` is shown only after finalization
+
+## 14. Result Contract
 
 RESULT is a separate page.
 
@@ -213,7 +231,7 @@ Ranking:
 2. duration ascending
 3. server random draw
 
-## 14. Theme Contract
+## 15. Theme Contract
 
 No hardcoded theme palette in the production game.
 
@@ -235,7 +253,7 @@ Player/Participant identity colors stay independent:
 - GREEN
 - YELLOW
 
-## 15. Database Variable Map
+## 16. Database Variable Map
 
 | UI / Rule | Source |
 |---|---|
@@ -256,7 +274,7 @@ Player/Participant identity colors stay independent:
 | result time | duration_ms |
 | result score | final score |
 
-## 16. Client-Only State
+## 17. Client-Only State
 
 Never persist:
 - inputBuffer
@@ -267,7 +285,7 @@ Never persist:
 - responsive mode
 - animation classes
 
-## 17. Security / Information Boundary
+## 18. Security / Information Boundary
 
 NORMAL/HARDCORE client must not receive:
 - hidden target
@@ -277,7 +295,7 @@ NORMAL/HARDCORE client must not receive:
 
 EASY may receive only target length, never the target itself.
 
-## 18. Workflow Compatibility
+## 19. Workflow Compatibility
 
 Must retain:
 - Ready page
@@ -293,7 +311,7 @@ Must retain:
 - placement points
 - ledger sync
 
-## 19. Acceptance
+## 20. Acceptance
 
 A build is contract-compliant only when:
 - DB rules and UI agree
