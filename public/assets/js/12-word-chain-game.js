@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.49';
+const VERSION=window.SKIELSEN_VERSION||'15.1.50';
 const POLL_MS=1600;
 let root=null,session=null,db=null,state=null,pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null,lastWordKey='',resultIngested=false,viewportRaf=0,baseViewportHeight=window.visualViewport?.height||window.innerHeight;
 

@@ -115,6 +115,7 @@ if "game.wortkette.compound_nouns" not in runtime_text: fail('Wortkette nutzt ni
 for _needle in ['wordChainReadyRulesHtml','force_start_without_ready','DIE WENIGSTEN MINUSPUNKTE GEWINNEN']:
  if _needle not in runtime_text: fail('Wortkette Ready/QA Contract fehlt: '+_needle)
 if 'RESET_NOT_ZERO' not in engine_text or 'runtime_rows_remaining' not in engine_text: fail('Admin Reset hat keinen Zero-State Guard')
+if "runtime.games||[]" not in engine_text or "game.status='PLANNED'" not in engine_text: fail('Admin Reset synchronisiert den lokalen Runtime-Snapshot nicht')
 if "Number(r.score||0)" not in bridge_text: fail('Wortkette Result-Handoff nutzt nicht die Minuspunkt-Wertung')
 for _needle in ['var(--ui)','var(--display)','var(--theme-surface)','var(--theme-on-surface)','var(--theme-primary-action)','var(--theme-on-primary-action)','var(--theme-input-bg)','var(--theme-on-input)','var(--theme-success-bg)','var(--theme-on-success)','var(--theme-danger-bg)','var(--theme-on-danger)']:
  if _needle not in _wc_css: fail('Wortkette Design/Theme Contract fehlt: '+_needle)

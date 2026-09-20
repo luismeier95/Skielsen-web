@@ -1,6 +1,6 @@
 # WORTKETTE · HANDOVER
 
-Stand: **V20 · Vollversion App V15.1.49**  
+Stand: **V20 · Vollversion App V15.1.50**  
 Repo: `luismeier95/Skielsen-web`  
 Branch: `main`  
 Supabase: `rlppuqjolkrwumrrjajq`  
@@ -365,3 +365,18 @@ Die Ready-Seite zeigt dieses Rule Set vor dem Button `ICH BIN BEREIT`.
 Der Admin-Reset wurde serverseitig erweitert. Zusätzlich zu den bisherigen Runtime-Daten werden nun auch `tournament_game_participants` sowie die zur gelöschten In-App-Session gehörenden `word_chain_solo_sessions` entfernt. Der RPC prüft anschließend, dass keine relevanten Runtime-Zeilen übrig sind. Der Client akzeptiert den Reset nur noch bei `runtime_rows_remaining = 0` und speichert danach den frischen Default-State sofort.
 
 Für das QA-Turnier `Wortkette` mit Tournament-ID `0f885906-f288-42b6-98e6-08adb518da10` ist ausschließlich in der Datenbank das Feature `feature.qa_force_start_without_ready` aktiviert. Dadurch kann der Admin dort eine zugewiesene Wortkette-Session starten, obwohl noch nicht alle Player Ready gedrückt haben. Es gibt **keine hartcodierte Tournament-ID im Fullversion-JavaScript**; der Client reagiert nur auf das serverseitige Session-Flag `public_state.force_start_without_ready`. In allen anderen Turnieren bleibt das normale Ready-Gate unverändert.
+
+
+## 20. V15.1.50 · Reset-UI-Synchronisierung
+
+Nach dem serverseitigen Zero-Reset blieb im bereits geöffneten Browser der alte Bootstrap-Snapshot in `runtime.games` erhalten. Der Backend-Status war korrekt `PLANNED`, aber `defaultState(runtime)` konnte aus dem veralteten In-Memory-Status wieder `ACTIVE` oder `COMPLETED` rekonstruieren. Dadurch zeigte die Match-Detail-Seite oben `GEPLANT`, während GAME CONTROL fälschlich `MATCH ABGESCHLOSSEN` anzeigte und den Startbutton ausblendete.
+
+Der Reset normalisiert jetzt vor dem Neuaufbau des lokalen States auch `runtime` selbst:
+- Tournament `LIVE`
+- `play_started_at = null`
+- `completed_at = null`
+- alle Games `PLANNED`
+- Game-Start-/Abschlusszeiten leer
+- Joker-Locks und akzeptierte Joker zurück auf Ausgangszustand
+
+Zusätzlich setzt die Match-Detail-Ansicht bei einem geplanten Scheduled-Match den lokalen `matchIndex` auf den tatsächlich geöffneten aktuellen Match. Damit kann ein geplanter aktueller Match nicht mehr allein durch einen veralteten Match-Kontext als abgeschlossen gerendert werden.

@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.49';
+const VERSION=window.SKIELSEN_VERSION||'15.1.50';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1318,7 +1318,9 @@ function v1536RenderEmbeddedResult(m,g,current){
 function renderMatchDetailControlEntry(m,g){
  const block=q('#v1536MatchControl'),title=q('#v1536MatchControlTitle'),phase=q('#v1536MatchControlPhase'),gate=q('#v1536MatchControlGate'),btn=q('#v1536MatchControlStart');if(!block||!title||!gate||!btn||!m||!g)return;
  block.hidden=false;block.classList.remove('is-waiting','is-live');gate.innerHTML='';btn.hidden=false;btn.disabled=true;btn.className='v1536-control-action';
- const found=matchContextById(m.id),current=!!found&&found.g===gameNow()&&found.m?.id===matchNow()?.id;if(phase)phase.textContent=g.phase==='PLANNED'?'PLANNED':g.phase==='PREPARING'?'PREPARING':m.status;
+ const found=matchContextById(m.id),current=!!found&&found.g===gameNow()&&found.m?.id===matchNow()?.id;
+ if(g.phase==='PLANNED'&&m.status==='SCHEDULED'&&found?.g===gameNow())g.matchIndex=found.mi;
+ if(phase)phase.textContent=g.phase==='PLANNED'?'PLANNED':g.phase==='PREPARING'?'PREPARING':m.status;
  if(!current){title.textContent=m.status==='CONCLUDED'?'MATCH ABGESCHLOSSEN':'MATCHKONTEXT · READ ONLY';btn.hidden=true;block.classList.add('is-waiting');v1536RenderEmbeddedResult(m,g,false);return}
  if(g.phase==='PLANNED'){
    title.innerHTML='<span class="v1536-loader">JOKERRUNDE...</span>';block.classList.add('is-waiting');btn.textContent=isAdmin()?'JOKER SCHLIESSEN → BETTING':'WARTET AUF ADMIN';btn.disabled=!isAdmin();btn.classList.toggle('waiting',!isAdmin())
@@ -1626,6 +1628,24 @@ function bind(){if(bound)return;bound=true;
    const {data,error}=await client.rpc('reset_tournament_runtime_state',{p_tournament_id:runtime.tournament_id});
    if(error)throw error;
    if(!data?.reset||Number(data?.runtime_rows_remaining||0)!==0)throw new Error('RESET_NOT_ZERO');
+
+   // The backend is now PLANNED again, but runtime.games is the bootstrap snapshot
+   // from before the reset. Normalize that in-memory snapshot before rebuilding
+   // state; otherwise defaultState() can recreate a COMPLETED/ACTIVE game locally.
+   runtime.status='LIVE';
+   runtime.play_started_at=null;
+   runtime.completed_at=null;
+   (runtime.games||[]).forEach(game=>{
+     game.status='PLANNED';
+     game.started_at=null;
+     game.completed_at=null;
+     game.accepted_joker_submission_id=null;
+     game.joker_resolution_state='OPEN';
+     game.joker_locked_at=null;
+     game.joker_resolved_at=null;
+     game.joker_pick_completed_at=null;
+   });
+
    state=defaultState(runtime);
    selectedBetParticipant=null;selectedMvpCandidate=null;selectedJokerType=null;selectedJokerGameIndex=null;selectedJokerTarget=null;selectedMatchDetailId=null;gameControlContext=null;serverJokerBoard=null;serverBettingState=null;serverVoteState=null;inlineResultMatchId=null;pendingUnifiedResult=null;matchResultContinuation=null;
    await refreshServerJokerBoard(false);primeJokerNotificationBaseline(serverJokerBoard);enforceGameLifecycleInvariant(state);startJokerBoardPolling();
