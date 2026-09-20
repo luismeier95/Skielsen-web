@@ -353,3 +353,43 @@ body.molc-body{
 .molc-compare-reveal .molc-compare-half{
   background:transparent!important;
 }
+
+/* Compact player score tiles */
+.molc-scoreboard{gap:7px;margin-bottom:10px}
+.molc-player{
+  position:relative;
+  min-width:0;
+  min-height:48px;
+  padding:0 12px 0 14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:10px;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+  border:1px solid var(--theme-border);
+  border-left:6px solid var(--player);
+  border-top:1px solid var(--theme-border);
+}
+.molc-player i{display:none}
+.molc-player span,
+.molc-player b{
+  display:block;
+  margin:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.molc-player span{font:900 8px/1 var(--ui);text-transform:uppercase}
+.molc-player b{font:900 13px/1 var(--display);text-align:right}
+.molc-player.out{opacity:.4}
+.molc-player.out:after{
+  content:"OUT";
+  position:absolute;
+  right:5px;
+  top:4px;
+  padding:2px 4px;
+  background:var(--theme-danger-bg);
+  color:var(--theme-on-danger);
+  font:900 5px/1 var(--ui);
+}
