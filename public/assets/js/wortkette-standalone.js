@@ -1,4 +1,4 @@
-/* Wortkette Solo V17 · mobile keyboard-aware play layout */
+/* Wortkette Solo V18 · corrected Android keyboard viewport layout */
 (()=>{
 'use strict';
 
@@ -128,20 +128,13 @@ function updateViewportState(){
   if(!inputFocused)maxVisualHeight=Math.max(maxVisualHeight,currentHeight);
 
   const shrink=Math.max(0,maxVisualHeight-currentHeight);
-  const layoutGap=Math.max(0,window.innerHeight-currentHeight-offsetTop);
-  const keyboardSize=Math.max(shrink,layoutGap);
-  const keyboardOpen=mobile&&inputFocused&&keyboardSize>100;
+  const keyboardOpen=mobile&&inputFocused&&shrink>100;
 
   document.documentElement.style.setProperty('--wk-visual-height',currentHeight+'px');
   document.documentElement.style.setProperty('--wk-visual-top',offsetTop+'px');
-  document.documentElement.style.setProperty('--wk-keyboard-offset',(keyboardOpen?keyboardSize:0)+'px');
   document.body.classList.toggle('wk-keyboard-open',keyboardOpen);
 
-  if(keyboardOpen){
-    setChainCollapsed(true,true);
-    const card=q('#puzzleCard');
-    if(card)requestAnimationFrame(()=>card.scrollIntoView({block:'start',behavior:'smooth'}));
-  }
+  if(keyboardOpen)setChainCollapsed(true,true);
 }
 function requestViewportUpdate(){
   if(viewportFrame)return;
@@ -284,6 +277,7 @@ q('#guessTail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefa
 q('#guessTail').addEventListener('focus',()=>{
   if(matchMedia('(max-width:720px)').matches)setChainCollapsed(true,true);
   setTimeout(requestViewportUpdate,40);
+  setTimeout(requestViewportUpdate,180);
 });
 q('#guessTail').addEventListener('blur',()=>setTimeout(requestViewportUpdate,80));
 q('#playScreen').addEventListener('click',e=>{if(!e.target.closest('.game-top')&&!e.target.closest('.stats-row')&&!e.target.closest('#chainToggle'))focusGuess()});

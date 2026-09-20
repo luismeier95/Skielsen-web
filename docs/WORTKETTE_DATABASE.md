@@ -241,3 +241,10 @@ Der aktive Play-Screen hat auf Smartphones einen eigenen kompakten Layoutmodus.
 - Desktop-Layout und Setup-Screen bleiben unverändert.
 
 Die stabile Veröffentlichungsroute bleibt `/wortkette/`; die sichtbare Versionskennung steht nur im Game-Header als `V17`.
+
+
+## Mobile Keyboard Fix V18
+
+Der V17-Anzeigefehler auf Android Chrome entstand durch eine doppelte Tastatur-Kompensation: Der Browser verkleinerte bereits den sichtbaren Viewport, während der Antwort-Dock zusätzlich um die berechnete Tastaturhöhe nach oben versetzt wurde. Dadurch konnte der Eingabebereich vollständig aus dem sichtbaren Bereich rutschen und die Puzzle-Card blieb als große leere Fläche stehen.
+
+V18 verwendet deshalb `interactive-widget=resizes-content` im Viewport-Meta-Tag. Bei geöffneter Tastatur wird der Antwort-Dock schlicht mit `bottom:0` an den vom Browser bereits verkleinerten Content-Viewport gebunden. Die künstliche `--wk-keyboard-offset`-Verschiebung und die große Mindesthöhe der Puzzle-Card wurden entfernt.
