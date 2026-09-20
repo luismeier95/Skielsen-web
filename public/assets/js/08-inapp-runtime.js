@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.48';
+const VERSION=window.SKIELSEN_VERSION||'15.1.49';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -328,6 +328,17 @@ function renderWordChainSession(s){
   });
 }
 
+function wordChainReadyRulesHtml(){
+  return `<section class="v15-wordchain-ready-rules" aria-label="Wortkette Regeln">
+    <small>RULE SET</small>
+    <h2>WORTKETTE</h2>
+    <div><b>01</b><span>ALLE SPIELER BEKOMMEN DIE GLEICHE WORTKETTE.</span></div>
+    <div><b>02</b><span>EIN FALSCHES EXISTIERENDES WORT GIBT <strong>−1 PUNKT</strong> UND DECKT EINEN HINWEIS AUF.</span></div>
+    <div><b>03</b><span>LÄUFT DIE ZEIT AB, GIBT ES <strong>−1 PUNKT</strong> UND EIN HINWEIS WIRD AUFGEDECKT.</span></div>
+    <div><b>04</b><span>DIE WENIGSTEN MINUSPUNKTE GEWINNEN.</span></div>
+  </section>`;
+}
+
 function renderPlayerSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
   if(!s){
@@ -341,6 +352,8 @@ function renderPlayerSession(s){
     return;
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
+  const isWordChain=s.game?.module_key===WORD_CHAIN_MODULE;
+  const forceStartWithoutReady=!!s.public_state?.force_start_without_ready;
   if(active&&!inAppManualMinimized)inAppMinimized=false;
   if(active&&s.game?.module_key===BUZZER_MODULE){
     window.skielsenMoreLess?.unmount?.();
@@ -368,7 +381,13 @@ function renderPlayerSession(s){
     layer.hidden=false;
     updateInAppChrome();
   }
-  host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div><section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${s.status==='READY'?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.':'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.'}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
+  const readyMessage=s.status==='READY'
+    ?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.'
+    :(isWordChain&&forceStartWithoutReady
+      ?'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. IN DIESEM QA-TURNIER DARF DER ADMIN DIE WORTKETTE AUCH STARTEN, WENN NOCH NICHT ALLE PLAYER READY SIND.'
+      :'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.');
+  const rules=isWordChain&&!active?wordChainReadyRulesHtml():'';
+  host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>${rules}<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
 
   document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
   document.getElementById('v15InAppTestAction')?.addEventListener('click',async()=>{
@@ -520,15 +539,21 @@ function renderAdmin(){
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
   const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
   const isAutoNative=isBuzzer||adminSession?.game?.module_key===MORE_LESS_MODULE;
+  const forceStartWithoutReady=!!adminSession?.public_state?.force_start_without_ready;
+  const assignedPlayers=adminSession?.players?.length||0;
+  const minPlayers=Number(adminSession?.game?.min_players||2);
+  const canForceStart=forceStartWithoutReady
+    &&assignedPlayers>=minPlayers
+    &&['WAITING_FOR_PLAYERS','READY'].includes(String(adminSession?.status||''));
   const startBtn=document.getElementById('v15InAppStart');
   const createBtn=document.getElementById('v15InAppCreate');
-  if(startBtn){startBtn.hidden=!!isAutoNative;startBtn.disabled=!adminSession||adminSession.status!=='READY'}
+  if(startBtn){startBtn.hidden=!!isAutoNative;startBtn.disabled=!adminSession||!(adminSession.status==='READY'||canForceStart)}
   if(createBtn){createBtn.hidden=!!isAutoNative;createBtn.disabled=!!adminSession}
   document.getElementById('v15InAppCancel').disabled=!adminSession;
   const completeBtn=document.getElementById('v15InAppComplete');
   if(completeBtn){completeBtn.hidden=!!isAutoNative;completeBtn.disabled=!!isAutoNative||!adminSession||adminSession.status!=='ACTIVE'}
   if(info&&adminSession){
-    const extra=isAutoNative?' · AUTO-FLOW · ABSCHLUSS AUTOMATISCH':'';
+    const extra=isAutoNative?' · AUTO-FLOW · ABSCHLUSS AUTOMATISCH':(forceStartWithoutReady?' · QA-OVERRIDE · ADMIN-START OHNE ALLE READYS ERLAUBT':'');
     info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}${extra}`;
   }else if(info&&isBuzzerGame(currentGame())&&buzzerGameIsLive(currentGame())){
     info.textContent='BUZZER SESSION WIRD AUTOMATISCH VORBEREITET …';

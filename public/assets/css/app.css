@@ -4365,3 +4365,54 @@ body[data-theme-pack] .dbb-profile-card,
 body[data-theme-pack] .dbb-join-user,
 body[data-theme-pack] .dbb-group-note,
 body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cff)!important}
+
+/* V15.1.49 · Wortkette Ready Rule Set */
+.v15-wordchain-ready-rules{
+  margin:0 0 14px;
+  padding:16px;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+  border:1px solid var(--theme-border);
+  box-shadow:var(--theme-shadow-soft);
+}
+.v15-wordchain-ready-rules>small{
+  display:block;
+  color:var(--theme-muted);
+  font:900 7px/1 var(--ui);
+  letter-spacing:1px;
+}
+.v15-wordchain-ready-rules>h2{
+  margin:7px 0 14px;
+  color:var(--theme-on-surface);
+  font:22px/1 var(--display);
+  text-transform:uppercase;
+}
+.v15-wordchain-ready-rules>div{
+  min-height:42px;
+  display:grid;
+  grid-template-columns:30px 1fr;
+  gap:10px;
+  align-items:center;
+  padding:9px 0;
+  border-top:1px solid var(--theme-border);
+}
+.v15-wordchain-ready-rules>div>b{
+  width:26px;height:26px;
+  display:grid;place-items:center;
+  background:var(--theme-secondary-action);
+  color:var(--theme-on-secondary-action);
+  border:1px solid var(--theme-secondary-border);
+  font:900 7px/1 var(--ui);
+}
+.v15-wordchain-ready-rules>div>span{
+  color:var(--theme-on-surface);
+  font:800 9px/1.45 var(--ui);
+  letter-spacing:.25px;
+}
+.v15-wordchain-ready-rules>div strong{font-weight:900}
+@media(max-width:620px){
+  .v15-wordchain-ready-rules{padding:13px;margin-bottom:10px}
+  .v15-wordchain-ready-rules>h2{font-size:19px}
+  .v15-wordchain-ready-rules>div{grid-template-columns:28px 1fr;gap:8px;padding:8px 0}
+  .v15-wordchain-ready-rules>div>span{font-size:8px}
+}

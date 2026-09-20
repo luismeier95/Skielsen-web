@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.48';
+const VERSION=window.SKIELSEN_VERSION||'15.1.49';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1615,21 +1615,23 @@ function bind(){if(bound)return;bound=true;
  });
  q('#prototypeReset')?.addEventListener('click',async()=>{
  if(!isAdmin()||!client||!runtime?.tournament_id)return;
- if(!confirm('TURNIER KOMPLETT ZURÜCKSETZEN?\n\nGelöscht werden laufende Matches, Ergebnisse, Betting, Wallets, Votes/Awards, Joker-Submissions, In-App-Sessions, News und Runtime-Daten.\n\nGames, Reihenfolge, Teilnehmer, Teams und Feature-Settings bleiben erhalten.'))return;
+ if(!confirm('TURNIER KOMPLETT ZURÜCKSETZEN?\n\nGelöscht werden laufende Matches, Ergebnisse, Game-Teilnahmen, Betting, Wallets, Votes/Awards, Joker-Submissions, In-App-Sessions, Wortketten-Sessions, News und Runtime-Daten.\n\nGames, Reihenfolge, Teilnehmer, Teams und Feature-Settings bleiben erhalten.'))return;
  const btn=q('#prototypeReset'),oldLabel=btn?.textContent||'TURNIER KOMPLETT RESETTEN';
  if(btn){btn.disabled=true;btn.textContent='TURNIER WIRD RESETTET…'}
  try{
    stopBettingPolling();stopVotePolling();
    if(jokerBoardPollTimer){clearInterval(jokerBoardPollTimer);jokerBoardPollTimer=0}
    if(jokerPollTimer){clearInterval(jokerPollTimer);jokerPollTimer=0}
+   window.skielsenInApp?.finishAndExit?.();
    const {data,error}=await client.rpc('reset_tournament_runtime_state',{p_tournament_id:runtime.tournament_id});
-   if(error)throw error;if(!data?.reset)throw new Error('RESET_NOT_CONFIRMED');
+   if(error)throw error;
+   if(!data?.reset||Number(data?.runtime_rows_remaining||0)!==0)throw new Error('RESET_NOT_ZERO');
    state=defaultState(runtime);
    selectedBetParticipant=null;selectedMvpCandidate=null;selectedJokerType=null;selectedJokerGameIndex=null;selectedJokerTarget=null;selectedMatchDetailId=null;gameControlContext=null;serverJokerBoard=null;serverBettingState=null;serverVoteState=null;inlineResultMatchId=null;pendingUnifiedResult=null;matchResultContinuation=null;
    await refreshServerJokerBoard(false);primeJokerNotificationBaseline(serverJokerBoard);enforceGameLifecycleInvariant(state);startJokerBoardPolling();
    addAudit('ADMIN RESET · TURNIERLAUF VOLLSTÄNDIG ZURÜCKGESETZT');
-   renderAll();show('home');saveSoon();
-   showFlowToast('ADMIN','TURNIER ZURÜCKGESETZT',`${Number(data.games_reset||0)} GAMES · ${Number(data.matches_deleted||0)} MATCHES · NEUER LAUF BEREIT`,2600);
+   renderAll();show('home');await saveState();
+   showFlowToast('ADMIN','TURNIER AUF 0 GESETZT',`${Number(data.games_reset||0)} GAMES · ${Number(data.in_app_sessions_deleted||0)} SESSIONS · ${Number(data.word_chain_sessions_deleted||0)} WORTKETTEN · 0 RUNTIME-RESTE`,3000);
  }catch(err){
    console.error('Tournament runtime reset failed',err);
    alert('TURNIER-RESET FEHLGESCHLAGEN. SERVERZUSTAND WURDE NICHT VOLLSTÄNDIG ZURÜCKGESETZT.\n\n'+String(err?.message||err));

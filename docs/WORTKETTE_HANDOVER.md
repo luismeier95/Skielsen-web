@@ -1,6 +1,6 @@
 # WORTKETTE · HANDOVER
 
-Stand: **V20 · Vollversion App V15.1.48**  
+Stand: **V20 · Vollversion App V15.1.49**  
 Repo: `luismeier95/Skielsen-web`  
 Branch: `main`  
 Supabase: `rlppuqjolkrwumrrjajq`  
@@ -349,3 +349,19 @@ Korrigiert:
 - Fullversion-Result-Handoff übergibt deshalb die Dauer statt des internen Fehler-Scores als Match-Metrik.
 
 Bereits gestartete Wortketten-Sessions behalten ihre beim Start erzeugten Ketten. Der gemeinsame-Chain-Vertrag greift bei neu erzeugten Runs/Sessions.
+
+
+## 19. V15.1.49 · Ready Rules, echter Zero-Reset, QA-Startoverride
+
+Wortkette wertet ab diesem Stand wieder ausdrücklich nach Minuspunkten:
+- falsches existierendes Wort: −1 + ein weiterer Hinweis
+- Timeout: −1 + ein weiterer Hinweis
+- alle Player derselben Session lösen dieselbe versteckte Kette
+- die wenigsten Minuspunkte gewinnen
+- Gleichstand wird serverseitig über die Dauer und erst danach per Los aufgelöst.
+
+Die Ready-Seite zeigt dieses Rule Set vor dem Button `ICH BIN BEREIT`.
+
+Der Admin-Reset wurde serverseitig erweitert. Zusätzlich zu den bisherigen Runtime-Daten werden nun auch `tournament_game_participants` sowie die zur gelöschten In-App-Session gehörenden `word_chain_solo_sessions` entfernt. Der RPC prüft anschließend, dass keine relevanten Runtime-Zeilen übrig sind. Der Client akzeptiert den Reset nur noch bei `runtime_rows_remaining = 0` und speichert danach den frischen Default-State sofort.
+
+Für das QA-Turnier `Wortkette` mit Tournament-ID `0f885906-f288-42b6-98e6-08adb518da10` ist ausschließlich in der Datenbank das Feature `feature.qa_force_start_without_ready` aktiviert. Dadurch kann der Admin dort eine zugewiesene Wortkette-Session starten, obwohl noch nicht alle Player Ready gedrückt haben. Es gibt **keine hartcodierte Tournament-ID im Fullversion-JavaScript**; der Client reagiert nur auf das serverseitige Session-Flag `public_state.force_start_without_ready`. In allen anderen Turnieren bleibt das normale Ready-Gate unverändert.
