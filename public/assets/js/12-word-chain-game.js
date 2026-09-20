@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.64';
+const VERSION=window.SKIELSEN_VERSION||'15.1.65';
 const POLL_MS=1600;
 let root=null,session=null,db=null,state=null,pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null,lastWordKey='',resultIngested=false,viewportRaf=0,baseViewportHeight=window.visualViewport?.height||window.innerHeight;
 
@@ -80,10 +80,7 @@ function shell(){
           <div><small>SCHRITT</small><strong data-wc-step>01 / 10</strong></div>
           <div><small>PUNKTE</small><strong data-wc-score>0</strong></div>
           <div><small>ZEIT</small><strong data-wc-time>—</strong></div>
-        </section>
-        <section class="wc-result-heading" data-wc-result-heading hidden>
-          <small>WORTKETTE</small>
-          <h1>ERGEBNIS</h1>
+          <div class="wc-stats-result">ERGEBNIS</div>
         </section>
 
         <section class="wc-chain collapsed" data-wc-chain>
@@ -174,8 +171,7 @@ function render(next,{clearInput=false}={}){
   const completed=!!state.completed;
   q('[data-wc-puzzle]').hidden=completed;
   q('[data-wc-complete]').hidden=!completed;
-  q('[data-wc-stats]').hidden=completed;
-  q('[data-wc-result-heading]').hidden=!completed;
+  q('[data-wc-stats]')?.classList.toggle('is-result',completed);
   q('[data-wc-chain]').hidden=completed;
 
   q('[data-wc-step]').textContent=String(state.step||1).padStart(2,'0')+' / '+String(state.total_steps||10).padStart(2,'0');
