@@ -114,9 +114,7 @@ function setup(){
   }[s.tier];
   content.innerHTML=`
     <section class="molc-hero">
-      <small>SPIELVORBEREITUNG</small>
       <h1>MEHR<br>ODER<br>WENIGER?</h1>
-      <p>Eine Kategorie wird gezogen. Gespielt wird reihum. Wer falsch liegt, scheidet für diese Kategorie aus. Last Man Standing gewinnt die Kategorie.</p>
     </section>
     <section class="skg-card molc-setup-card">
       <small class="skg-kicker">BEKANNTHEITSGRAD</small>
