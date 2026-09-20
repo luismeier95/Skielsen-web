@@ -2,12 +2,12 @@
 <html lang="de" data-theme-pack="theme.skielsen.core">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="theme-color" content="#e9e9e9">
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=5.5">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=6.0">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -133,12 +133,36 @@
         </section>
       </div>
 
-      <section class="wcxt-result" id="wcxtResult" hidden>
-        <header><strong>ERGEBNIS</strong><span data-source="finished_players + total_players">4 / 4 FERTIG</span></header>
-        <div class="wcxt-result-columns"><span>PLATZ</span><span>NAME</span><span>ZEIT</span><span>SCORE</span></div>
-        <div id="wcxtResultRows" data-source="tournament_result.standings[]"></div>
-      </section>
+
     </main>
+  </section>
+
+  <section class="wcxt-result-page" id="wcxtResultPage" hidden>
+    <section class="wcxt-result-shell">
+      <header class="wcxt-header" data-spec="FIXED · SHARED GAME HEADER" data-source="game_catalog.name + static chrome">
+        <div class="wcxt-brand">
+          <img src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
+          <strong data-source="game_catalog.name">WORTKETTE</strong>
+        </div>
+        <button class="wcxt-minimize" type="button" aria-label="Minimieren">⌄</button>
+      </header>
+      <div class="wcxt-progress wcxt-result-progress" aria-hidden="true"><i></i></div>
+      <main class="wcxt-result-content">
+        <section class="wcxt-result-status" data-spec="RESULT STATUS · ONLY ERGEBNIS">
+          <strong>ERGEBNIS</strong>
+        </section>
+        <section class="wcxt-result" id="wcxtResult">
+          <header><strong>FINALES ERGEBNIS</strong><span data-source="finished_players + total_players">4 PLAYER</span></header>
+          <div class="wcxt-result-columns">
+            <span>POSITION</span><span>NAME</span><span>ZEIT</span><span>SCORE</span>
+          </div>
+          <div id="wcxtResultRows" data-source="tournament_result.standings[]"></div>
+        </section>
+        <div class="wcxt-result-actions">
+          <button class="wcxt-result-primary" id="wcxtTournament" type="button">TURNIER ANSEHEN →</button>
+        </div>
+      </main>
+    </section>
   </section>
 
   <section class="wcxt-contract">
@@ -160,12 +184,16 @@
       <div><span>Worteingabe</span><code>p_guess</code><span>Physische oder native Mobile-Tastatur → lokaler Tastaturpuffer → erst bei ENTER an submit_word_chain_tournament; vorher keine Bewertung</span><strong>JA</strong></div>
       <div><span>Doppelter Anfangsbuchstabe</span><code>ignore_repeated_initial</code><span>Server + Client Rule: bereits sichtbaren Initialbuchstaben nur dann erneut werten, wenn der nächste echte Buchstabe identisch ist</span><strong>JA</strong></div>
       <div><span>Feedback</span><code>correct / timeout / accepted_attempt</code><span>submit_word_chain_tournament result</span><strong>JA</strong></div>
+      <div><span>Result Position</span><code>placement</code><span>tournament_result.standings[] · Score absteigend, danach Dauer</span><strong>JA</strong></div>
+      <div><span>Result Name</span><code>display_name + identity_color</code><span>tournament_game_participants / member profile + Player Identity</span><strong>JA</strong></div>
+      <div><span>Result Zeit</span><code>duration_seconds</code><span>serverseitige Session-Dauer</span><strong>JA</strong></div>
+      <div><span>Result Score</span><code>score</code><span>serverseitiger finaler Wortketten-Score</span><strong>JA</strong></div>
       <div><span>Theme</span><code>theme_pack_id</code><span>Tournament Theme Runtime</span><strong>JA</strong></div>
     </div>
     <p>* Ohne Timer darf <code>deadline_at</code> leer sein; die UI zeigt dann keinen Countdown.</p>
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=5.5"></script>
+<script src="../assets/js/word-chain-test.js?v=6.0"></script>
 </body>
 </html>
