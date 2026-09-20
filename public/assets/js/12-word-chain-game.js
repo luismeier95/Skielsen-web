@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.63';
+const VERSION=window.SKIELSEN_VERSION||'15.1.64';
 const POLL_MS=1600;
 let root=null,session=null,db=null,state=null,pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null,lastWordKey='',resultIngested=false,viewportRaf=0,baseViewportHeight=window.visualViewport?.height||window.innerHeight;
 
@@ -29,8 +29,8 @@ function formatElapsed(ms){
   const value=Math.max(0,Math.round(Number(ms)));
   const min=Math.floor(value/60000);
   const sec=Math.floor((value%60000)/1000);
-  const milli=value%1000;
-  return String(min).padStart(2,'0')+':'+String(sec).padStart(2,'0')+'.'+String(milli).padStart(3,'0');
+  const hundredths=Math.floor((value%1000)/10);
+  return String(min).padStart(2,'0')+':'+String(sec).padStart(2,'0')+':'+String(hundredths).padStart(2,'0');
 }
 function currentElapsed(r){
   if(!r?.started_at)return null;
