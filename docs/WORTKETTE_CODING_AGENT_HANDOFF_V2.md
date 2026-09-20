@@ -18,6 +18,7 @@ Referenz:
 - DB docs: `docs/WORTKETTE_DATABASE.md`
 - Integrationsplan: `docs/WORTKETTE_FULLVERSION_INTEGRATION_PLAN.md`
 - Game Contract: `docs/WORTKETTE_GAME_CONTRACT_V2.md`
+- Design Contract: `docs/WORTKETTE_DESIGN_CONTRACT_V2.md`
 - Global Contract: `docs/GAME_DESIGN_CONTRACT.md`
 
 ## Non-Negotiables
