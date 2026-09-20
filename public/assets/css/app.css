@@ -4510,3 +4510,20 @@ body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cf
   .v15-wordchain-ready-footer .v15-inapp-actions{margin:0}
   .v15-wordchain-ready-footer .v15-inapp-btn{flex:1 1 100%}
 }
+
+/* Wortkette V4 · keep canonical full-app header around the native game */
+body.v15-inapp-fullscreen-open.v15-word-chain-inapp-open .sk-header{
+  display:block!important;
+  position:relative!important;
+  z-index:26001!important;
+}
+body.v15-word-chain-inapp-open #v15InAppLayer{
+  top:calc(var(--sk-header-height) + var(--sk-strip-height));
+  bottom:0;
+  left:0;
+  right:0;
+  height:auto;
+}
+body.v15-word-chain-inapp-open #v15InAppLayer .v15-inapp-topstrip{
+  display:none!important;
+}
