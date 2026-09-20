@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.62';
+const VERSION=window.SKIELSEN_VERSION||'15.1.63';
 const POLL_MS=1600;
 let root=null,session=null,db=null,state=null,pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null,lastWordKey='',resultIngested=false,viewportRaf=0,baseViewportHeight=window.visualViewport?.height||window.innerHeight;
 
@@ -24,21 +24,48 @@ function chainHtml(words){
   const list=Array.isArray(words)?words:[];
   return list.map((w,i)=>'<span>'+esc(w)+'</span>'+(i<list.length-1?'<b>→</b>':'')).join('')||'—';
 }
+function formatElapsed(ms){
+  if(ms==null||!Number.isFinite(Number(ms)))return '–';
+  const value=Math.max(0,Math.round(Number(ms)));
+  const min=Math.floor(value/60000);
+  const sec=Math.floor((value%60000)/1000);
+  const milli=value%1000;
+  return String(min).padStart(2,'0')+':'+String(sec).padStart(2,'0')+'.'+String(milli).padStart(3,'0');
+}
+function currentElapsed(r){
+  if(!r?.started_at)return null;
+  if(r?.completed)return r?.elapsed_ms==null?null:Number(r.elapsed_ms);
+  const started=Date.parse(r.started_at);
+  if(!Number.isFinite(started))return r?.elapsed_ms==null?null:Number(r.elapsed_ms);
+  return Math.max(0,(Date.now()+serverOffsetMs)-started);
+}
 function liveStandingsHtml(rows){
   const list=Array.isArray(rows)?rows:[];
-  if(!list.length)return '<div class="wc-live-empty">NOCH KEIN PLAYER IM ZIEL.</div>';
+  if(!list.length)return '<div class="wc-live-empty">KEINE TEILNEHMER GEFUNDEN.</div>';
   return list.map(r=>{
-    const rank=String(Number(r?.rank||0)||'—').padStart(2,'0');
-    const finish=String(Number(r?.finish_order||0)||'—').padStart(2,'0');
     const color=String(r?.identity_color||'').toUpperCase();
-    const score=Number(r?.score??0);
-    return `<div class="wc-live-row">
-      <b>${esc(rank)}</b>
+    const completed=!!r?.completed;
+    const score=completed?Number(r?.score??0):null;
+    const time=currentElapsed(r);
+    return `<div class="wc-live-row ${completed?'is-finished':'is-running'}">
       <span class="wc-live-player"><i data-wc-live-color="${esc(color)}" aria-hidden="true"></i><strong>${esc(r?.display_name||'PLAYER')}</strong></span>
-      <strong class="wc-live-score">${score>0?'+':''}${esc(score)}</strong>
-      <small>#${esc(finish)}</small>
+      <strong class="wc-live-time" data-wc-live-time data-started-at="${esc(r?.started_at||'')}" data-completed="${completed?'true':'false'}" data-elapsed-ms="${r?.elapsed_ms==null?'':esc(r.elapsed_ms)}">${formatElapsed(time)}</strong>
+      <strong class="wc-live-score">${completed?((score>0?'+':'')+esc(score)):'–'}</strong>
     </div>`;
   }).join('');
+}
+function updateLiveTimes(){
+  if(!root||!state?.completed)return;
+  root.querySelectorAll('[data-wc-live-time]').forEach(el=>{
+    const frozen=el.dataset.completed==='true';
+    const raw=el.dataset.elapsedMs;
+    if(frozen){
+      el.textContent=formatElapsed(raw===''?null:Number(raw));
+      return;
+    }
+    const started=Date.parse(el.dataset.startedAt||'');
+    el.textContent=Number.isFinite(started)?formatElapsed(Math.max(0,(Date.now()+serverOffsetMs)-started)):'–';
+  });
 }
 function shell(){
   return `
@@ -49,10 +76,14 @@ function shell(){
       </header>
       <div class="wc-progress"><i data-wc-progress></i></div>
       <main class="wc-main">
-        <section class="wc-stats" aria-label="Spielstatus">
+        <section class="wc-stats" data-wc-stats aria-label="Spielstatus">
           <div><small>SCHRITT</small><strong data-wc-step>01 / 10</strong></div>
           <div><small>PUNKTE</small><strong data-wc-score>0</strong></div>
           <div><small>ZEIT</small><strong data-wc-time>—</strong></div>
+        </section>
+        <section class="wc-result-heading" data-wc-result-heading hidden>
+          <small>WORTKETTE</small>
+          <h1>ERGEBNIS</h1>
         </section>
 
         <section class="wc-chain collapsed" data-wc-chain>
@@ -80,19 +111,11 @@ function shell(){
         </section>
 
         <section class="wc-complete" data-wc-complete hidden>
-          <small>DEINE KETTE IST FERTIG</small>
-          <h2>GESCHAFFT.</h2>
-          <div class="wc-finish-grid">
-            <div><small>PUNKTE</small><strong data-wc-final-score>0</strong></div>
-            <div><small>FEHLVERSUCHE</small><strong data-wc-final-wrong>0</strong></div>
-          </div>
-          <p data-wc-waiting>ERGEBNIS WIRD SYNCHRONISIERT …</p>
-          <section class="wc-live-board" aria-label="Live Tabelle der fertigen Spieler">
-            <header><div><small>LIVE TABELLE</small><strong>FINISHER</strong></div><span data-wc-live-count>0 / 0</span></header>
-            <div class="wc-live-columns"><span>RANG</span><span>PLAYER</span><span>PUNKTE</span><span>ZIEL</span></div>
-            <div class="wc-live-rows" data-wc-live-rows><div class="wc-live-empty">NOCH KEIN PLAYER IM ZIEL.</div></div>
+          <section class="wc-live-board" aria-label="Live Ergebnis">
+            <header><strong>LIVE</strong><span data-wc-live-count>0 / 0 FERTIG</span></header>
+            <div class="wc-live-columns"><span>NAME</span><span>TIME</span><span>SCORE</span></div>
+            <div class="wc-live-rows" data-wc-live-rows><div class="wc-live-empty">ERGEBNIS WIRD GELADEN …</div></div>
           </section>
-          <div class="wc-final-chain" data-wc-final-chain></div>
           <button class="wc-primary" type="button" data-wc-minimize-finish>TURNIER ANSEHEN →</button>
         </section>
       </main>
@@ -151,6 +174,9 @@ function render(next,{clearInput=false}={}){
   const completed=!!state.completed;
   q('[data-wc-puzzle]').hidden=completed;
   q('[data-wc-complete]').hidden=!completed;
+  q('[data-wc-stats]').hidden=completed;
+  q('[data-wc-result-heading]').hidden=!completed;
+  q('[data-wc-chain]').hidden=completed;
 
   q('[data-wc-step]').textContent=String(state.step||1).padStart(2,'0')+' / '+String(state.total_steps||10).padStart(2,'0');
   q('[data-wc-score]').textContent=String(state.score??0);
@@ -160,16 +186,11 @@ function render(next,{clearInput=false}={}){
   q('[data-wc-chain-count]').textContent=String(solved.length)+' '+(solved.length===1?'WORT':'WÖRTER');
 
   if(completed){
-    q('[data-wc-final-score]').textContent=String(state.score??0);
-    q('[data-wc-final-wrong]').textContent=String(state.wrong_count??0);
-    q('[data-wc-final-chain]').innerHTML=chainHtml(state.full_chain||solved);
     const finished=Number(state.finished_players||0),total=Number(state.total_players||0);
     const live=Array.isArray(state.live_standings)?state.live_standings:[];
     const liveRows=q('[data-wc-live-rows]');if(liveRows)liveRows.innerHTML=liveStandingsHtml(live);
-    const liveCount=q('[data-wc-live-count]');if(liveCount)liveCount.textContent=`${finished} / ${total} IM ZIEL`;
-    q('[data-wc-waiting]').textContent=state.waiting_for_others
-      ?`DU BIST FERTIG · LIVE-TABELLE AKTUALISIERT SICH AUTOMATISCH · ${finished}/${total} IM ZIEL.`
-      :'ALLE PLAYER SIND FERTIG · FINALES ERGEBNIS WIRD ÜBERNOMMEN.';
+    const liveCount=q('[data-wc-live-count]');if(liveCount)liveCount.textContent=`${finished} / ${total} FERTIG`;
+    updateLiveTimes();
     return;
   }
 
@@ -188,6 +209,7 @@ function render(next,{clearInput=false}={}){
 }
 function tick(){
   if(!root||!state)return;
+  updateLiveTimes();
   const time=q('[data-wc-time]'),bar=q('[data-wc-progress]');
   if(state.completed||!state.deadline_at){
     if(time)time.textContent='—';
