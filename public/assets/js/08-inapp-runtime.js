@@ -134,7 +134,7 @@ function clearInAppSurface(){
   inAppManualMinimized=false;
   const strip=document.getElementById('v15InAppLiveStrip');
   if(strip)strip.hidden=true;
-  document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open');
+  document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open','v15-word-chain-inapp-open');
   if(wasLive&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
 }
 function ensureLayer(){
@@ -217,7 +217,7 @@ function ensureWordChainAssets(){
   wordChainAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-word-chain-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/wortkette-game.css?v=${VERSION}`;link.dataset.wordChainCss='1';
+      link.rel='stylesheet';link.href=`assets/css/wortkette-game.css?v=${VERSION}&fix=wcv4`;link.dataset.wordChainCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-word-chain-js]');
@@ -228,7 +228,7 @@ function ensureWordChainAssets(){
       return;
     }
     const script=document.createElement('script');
-    script.src=`assets/js/12-word-chain-game.js?v=${VERSION}`;
+    script.src=`assets/js/12-word-chain-game.js?v=${VERSION}&fix=wcv4`;
     script.defer=true;script.dataset.wordChainJs='1';
     script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
   });
@@ -384,6 +384,7 @@ function renderPlayerSession(s){
     window.skielsenMoreLess?.unmount?.();
     window.skielsenWordChain?.unmount?.();
     layer.classList.remove('buzzer-mode','word-chain-mode');
+    document.body.classList.remove('v15-word-chain-inapp-open');
     layer.hidden=true;
     host.innerHTML='';
     clearInAppSurface();
@@ -391,6 +392,7 @@ function renderPlayerSession(s){
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
   const isWordChain=s.game?.module_key===WORD_CHAIN_MODULE;
+  document.body.classList.toggle('v15-word-chain-inapp-open',isWordChain);
   const forceStartWithoutReady=!!s.public_state?.force_start_without_ready;
   if(active&&!inAppManualMinimized)inAppMinimized=false;
   if(active&&s.game?.module_key===BUZZER_MODULE){
@@ -573,11 +575,19 @@ function ensureAdminPanel(){
 async function createAdminSession(){
   const g=currentGame(),info=document.getElementById('v15InAppAdminInfo');
   if(!g?.tournament_game_id){if(info)info.textContent='AKTUELLES GAME HAT KEINE TOURNAMENT_GAME_ID.';return}
+  const manualWordChain=isWordChainGame(g);
   const r=await db.rpc('create_in_app_game_session',{
     p_tournament_game_id:g.tournament_game_id,
     p_game_key:gameKeyFor(g)||'in_app_shell_test',
     p_match_id:null,
-    p_public_state:{source:`V${VERSION}`,game_name:g.name||null,game_id:g.game_id||null}
+    p_public_state:{
+      source:`V${VERSION}`,
+      game_name:g.name||null,
+      game_id:g.game_id||null,
+      difficulty_required:manualWordChain,
+      word_chain_rules_version:manualWordChain?4:null,
+      time_limit_seconds:manualWordChain?15:null
+    }
   });
   if(r.error){if(info)info.textContent='SESSION-FEHLER: '+(r.error.message||'UNBEKANNT');return}
   adminGameId=g.tournament_game_id;
@@ -743,6 +753,8 @@ async function ensureNativeLifecycle(g){
           familiarity_tier:String(g?.rules_json?.familiarityTier||g?.game_rules_snapshot?.familiarityTier||'NORMAL').toUpperCase(),
           occurrence_threshold:Number(g?.rules_json?.occurrenceThreshold||g?.game_rules_snapshot?.occurrenceThreshold||35),
           time_limit_seconds:Number(g?.rules_json?.timeLimitSeconds||g?.game_rules_snapshot?.timeLimitSeconds||15),
+          difficulty_required:expectedModule===WORD_CHAIN_MODULE,
+          word_chain_rules_version:expectedModule===WORD_CHAIN_MODULE?4:null,
           auto_created:true
         }
       });
