@@ -581,3 +581,36 @@ body.molc-body{
     padding:10px 8px;
   }
 }
+
+/* Keep VS circle identical during count-up */
+.molc-feedback-card .molc-outcome{
+  width:68px!important;
+  height:68px!important;
+  border-radius:50%!important;
+  background:var(--theme-inverse-surface)!important;
+  color:var(--theme-on-inverse)!important;
+  font:900 10px/1 var(--ui)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.14)!important;
+  opacity:1!important;
+  transform:none!important;
+}
+.molc-feedback-card.is-resolved .molc-outcome{
+  font:900 36px/1 var(--ui)!important;
+}
+.molc-feedback-card.is-resolved.is-correct .molc-outcome{
+  background:var(--theme-success-bg,var(--theme-success))!important;
+  color:var(--theme-on-success)!important;
+}
+.molc-feedback-card.is-resolved.is-wrong .molc-outcome{
+  background:var(--theme-danger-bg,var(--theme-danger))!important;
+  color:var(--theme-on-danger)!important;
+}
+@media(max-width:720px){
+  .molc-feedback-card .molc-outcome{
+    width:58px!important;
+    height:58px!important;
+  }
+  .molc-feedback-card.is-resolved .molc-outcome{
+    font-size:32px!important;
+  }
+}
