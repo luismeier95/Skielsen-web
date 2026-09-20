@@ -236,8 +236,8 @@ function reveal(){
       <div class="molc-compare-half molc-compare-cur"><strong>${esc(r.cur[0])}</strong><div class="molc-metric"><b id="molcCountValue">${esc(countText(s.categoryKey,r.cur[1],0))}</b></div></div>
     </section>
     <div class="skg-choice-actions molc-choice-actions is-locked" aria-disabled="true">
-      <button class="skg-btn less molc-choice-btn" type="button" disabled><span class="molc-choice-icon">↓</span><b>WENIGER</b></button>
-      <button class="skg-btn more molc-choice-btn" type="button" disabled><span class="molc-choice-icon">↑</span><b>MEHR</b></button>
+      <button class="skg-btn less molc-choice-btn" type="button" tabindex="-1"><span class="molc-choice-icon">↓</span><b>WENIGER</b></button>
+      <button class="skg-btn more molc-choice-btn" type="button" tabindex="-1"><span class="molc-choice-icon">↑</span><b>MEHR</b></button>
     </div></div>`;
   fitCompareLabels();
   const countEl=document.getElementById('molcCountValue');
