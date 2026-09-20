@@ -536,3 +536,217 @@ body.wcxt-show-data [data-source]::after{
 .wcxt-action-slot{
   cursor:text;
 }
+
+/* Mobile minimal HUD + shared result page */
+.wcxt-result-page{
+  width:min(760px,100%);
+  margin:0 auto;
+  background:var(--theme-page);
+  color:var(--theme-on-page);
+}
+.wcxt-result-page[hidden]{
+  display:none!important;
+}
+.wcxt-result-shell{
+  width:100%;
+  background:var(--theme-page);
+  color:var(--theme-on-page);
+  box-shadow:var(--theme-shadow-soft);
+}
+.wcxt-result-progress i{
+  width:100%;
+}
+.wcxt-result-content{
+  padding:18px 12px 24px;
+}
+.wcxt-result-status{
+  width:min(680px,100%);
+  height:72px;
+  margin:0 auto 10px;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+  border:1px solid var(--theme-border);
+  border-left:6px solid var(--theme-accent);
+  box-shadow:var(--theme-shadow-soft);
+}
+.wcxt-result-status strong{
+  font:900 24px/1 var(--display);
+}
+.wcxt-result-page .wcxt-result{
+  width:min(680px,100%);
+  margin:0 auto;
+}
+.wcxt-result-columns,
+.wcxt-result-row{
+  grid-template-columns:82px minmax(0,1fr) 92px 64px;
+}
+.wcxt-result-row>span{
+  min-width:0;
+}
+.wcxt-result-row>span>i{
+  flex:0 0 6px;
+}
+.wcxt-result-row>span{
+  overflow:hidden;
+}
+.wcxt-result-row>span{
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.wcxt-result-row>span{
+  color:var(--theme-on-surface);
+}
+.wcxt-result-actions{
+  width:min(680px,100%);
+  margin:10px auto 0;
+}
+.wcxt-result-primary{
+  width:100%;
+  min-height:64px;
+  border:1px solid var(--theme-primary-action);
+  background:var(--theme-primary-action);
+  color:var(--theme-on-primary-action);
+  font:900 9px/1 var(--ui);
+  letter-spacing:.6px;
+  cursor:pointer;
+}
+
+@media(max-width:720px){
+  /* Test harness is not game UI and must not consume the keyboard viewport. */
+  .wcxt-testbar,
+  .wcxt-statebar,
+  .wcxt-contract{
+    display:none!important;
+  }
+
+  .wcxt-stage{
+    padding:0;
+  }
+  .wcxt-shell{
+    width:100%;
+    min-height:100dvh;
+    box-shadow:none;
+  }
+  .wcxt-header{
+    height:52px;
+  }
+  .wcxt-content{
+    padding:6px;
+  }
+
+  /* PLAY: only X/10, own score and time remain above the mechanic. */
+  .wcxt-scoreboard,
+  .wcxt-chain,
+  .wcxt-action-slot{
+    display:none!important;
+  }
+  .wcxt-play-layout{
+    width:100%;
+    height:calc(100dvh - 52px - 4px - 12px);
+    min-height:280px;
+    display:grid;
+    grid-template-rows:52px minmax(0,1fr);
+    gap:6px;
+  }
+  .wcxt-status{
+    height:52px;
+    border-left-width:4px;
+  }
+  .wcxt-status>div{
+    padding:0 10px;
+    align-items:center;
+    justify-content:center;
+    text-align:center!important;
+  }
+  .wcxt-status small{
+    display:none;
+  }
+  .wcxt-status strong{
+    margin:0;
+    font-size:20px;
+    line-height:1;
+  }
+  .wcxt-mainbody{
+    height:auto;
+    min-height:0;
+    overflow:hidden;
+  }
+  .wcxt-puzzle{
+    height:100%;
+    min-height:0;
+    padding:8px 8px 6px;
+    grid-template-rows:minmax(54px,.8fr) 36px minmax(96px,1.15fr) 34px;
+  }
+  .wcxt-base strong{
+    font-size:clamp(30px,11vw,44px);
+  }
+  .wcxt-plus{
+    width:34px;
+    height:34px;
+    font-size:20px;
+  }
+  .wcxt-answer{
+    grid-template-rows:18px minmax(58px,1fr);
+  }
+  .wcxt-slots{
+    height:auto;
+    min-height:54px;
+  }
+  .wcxt-feedback{
+    height:34px;
+    font-size:7px;
+  }
+
+  /* RESULT is its own page and follows the shared result contract. */
+  .wcxt-result-page{
+    width:100%;
+    min-height:100dvh;
+  }
+  .wcxt-result-shell{
+    min-height:100dvh;
+    box-shadow:none;
+  }
+  .wcxt-result-content{
+    padding:8px 6px 16px;
+  }
+  .wcxt-result-status{
+    width:100%;
+    height:60px;
+    margin-bottom:8px;
+    padding:0 12px;
+  }
+  .wcxt-result-status strong{
+    font-size:20px;
+  }
+  .wcxt-result-page .wcxt-result{
+    width:100%;
+  }
+  .wcxt-result-columns,
+  .wcxt-result-row{
+    grid-template-columns:62px minmax(0,1fr) 72px 54px;
+    padding:0 9px;
+  }
+  .wcxt-result-columns{
+    height:32px;
+  }
+  .wcxt-result-row{
+    height:58px;
+  }
+  .wcxt-result-row>span{
+    font-size:8px;
+  }
+  .wcxt-result-row strong,
+  .wcxt-result-row>b{
+    font-size:12px;
+  }
+  .wcxt-result-actions{
+    width:100%;
+    margin-top:8px;
+  }
+  .wcxt-result-primary{
+    min-height:58px;
+  }
+}
