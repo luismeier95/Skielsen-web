@@ -1,5 +1,28 @@
 # WORTKETTE · CODING AGENT HANDOFF V2
 
+## Database Status — Already Applied
+
+Do **not** recreate the V4 schema work from scratch.
+
+Already applied in Supabase:
+
+`20260920191432_prepare_word_chain_v4_integration`
+
+Already available:
+- `set_word_chain_difficulty(uuid,text)`
+- `word_chain_tournament_runs.difficulty`
+- `word_chain_tournament_runs.show_word_length`
+- `word_chain_tournament_runs.rules_version`
+- V4-aware `start_word_chain_tournament_player`
+- V4-aware `private.word_chain_tournament_state`
+- enriched V4 final result metadata and Participant-level display data
+
+Compatibility switch is intentionally still OFF:
+
+`in_app_game_definitions.config_json.require_difficulty_selection = false`
+
+The frontend integration must activate the V4 setup contract for **new sessions** only when the new Difficulty UI is deployed. Do not rewrite historical V3 runs.
+
 ## Mission
 
 Integriere die aktuelle Contract-Testversion von `/word-chain-test/` in die bestehende SKIELSEN-Vollversion.
