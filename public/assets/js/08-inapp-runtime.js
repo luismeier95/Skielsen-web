@@ -194,7 +194,7 @@ function ensureMoreLessAssets(){
   moreLessAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-more-less-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}&fix=molux5`;link.dataset.moreLessCss='1';
+      link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}&fix=molux6`;link.dataset.moreLessCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-more-less-js]');
@@ -205,7 +205,7 @@ function ensureMoreLessAssets(){
       return;
     }
     const script=document.createElement('script');
-    script.src=`assets/js/11-more-or-less-game.js?v=${VERSION}&fix=molux5`;
+    script.src=`assets/js/11-more-or-less-game.js?v=${VERSION}&fix=molux6`;
     script.defer=true;script.dataset.moreLessJs='1';
     script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
   });
