@@ -3,7 +3,9 @@
 Stand: 2026-09-20  
 Referenz-Standalone: `/word-chain-test/` · Deploy Run #556  
 Produktionsmodul: `public/assets/js/12-word-chain-game.js`  
-Produktionsstyles: `public/assets/css/wortkette-game.css`  
+Produktionsstyles: `public/assets/css/wortkette-game.css`
+Design Contract: `docs/WORTKETTE_DESIGN_CONTRACT_V2.md`
+Game Contract: `docs/WORTKETTE_GAME_CONTRACT_V2.md`  
 Runtime: `public/assets/js/08-inapp-runtime.js`  
 Kanonisches Game: `game.wortkette.compound_nouns`  
 In-App Module: `word-chain`  
