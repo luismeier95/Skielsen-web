@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.71';
+const VERSION=window.SKIELSEN_VERSION||'15.1.72';
 const POLL_MS=1600;
 const DIFFICULTIES={
   EASY:{threshold:50,showWordLength:true},
@@ -168,10 +168,11 @@ async function setDifficulty(){
     busy=false;
     await loadState(true);
     window.skielsenInApp?.poll?.();
-    return;
+    return true;
   }catch(err){
     console.warn('Wortkette difficulty',err);
     if(msg)msg.textContent='MODUS KONNTE NICHT GESPEICHERT WERDEN.';
+    return false;
   }finally{busy=false}
 }
 function chainHtml(words){
@@ -525,5 +526,5 @@ function unmount(){
   root=null;session=null;db=null;state=null;busy=false;
   finalResult=null;inputBuffer='';acceptedBuffer='';lastWordKey='';
 }
-window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll,get resultOpen(){return !!q('[data-wc-page="result"]')&&!q('[data-wc-page="result"]').hidden}};
+window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll,setDifficulty:async tier=>{const next=String(tier||'').toUpperCase();if(!DIFFICULTIES[next]||!isAdmin())return false;pendingTier=next;return !!(await setDifficulty())},get resultOpen(){return !!q('[data-wc-page="result"]')&&!q('[data-wc-page="result"]').hidden}};
 })();

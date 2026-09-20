@@ -4563,3 +4563,77 @@ body.v15-inapp-fullscreen-open #v15InAppLayer .v15-inapp-topstrip{
     bottom:calc(12px + env(safe-area-inset-bottom));
   }
 }
+
+
+/* V15.1.72 · Admin Command sticky workflow guide */
+#adminCommandBar[hidden]{display:none!important}
+body:not(.v15-tournament-active) #adminCommandBar,
+body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
+.admin-command-bar{
+  position:sticky;top:0;z-index:2200;width:100%;
+  background:var(--theme-inverse-surface,#050505);color:var(--theme-inverse-text,#fff);
+  border-bottom:1px solid color-mix(in srgb,var(--theme-border,#3a3a3a) 70%,transparent);
+  box-shadow:0 8px 24px rgba(0,0,0,.18)
+}
+.admin-command-inner{
+  width:min(1500px,100%);min-height:72px;margin:0 auto;padding:8px 22px;
+  display:grid;grid-template-columns:230px minmax(280px,1fr) auto 138px;align-items:center;gap:18px
+}
+.admin-command-brand{min-width:0;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:16px;padding-right:18px;border-right:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 20%,transparent)}
+.admin-command-brand>small{color:var(--theme-inverse-text,#fff);font:900 9px/1 var(--ui,Arial);letter-spacing:.8px;white-space:nowrap}
+.admin-command-state{min-width:0;display:flex;align-items:center;gap:8px;font:900 8px/1 var(--ui,Arial);letter-spacing:.45px;white-space:nowrap}
+.admin-command-state>i{width:10px;height:10px;flex:0 0 10px;border-radius:50%;background:var(--theme-warning,#c79a32)}
+.admin-command-bar[data-tone="danger"] .admin-command-state{color:var(--theme-danger,#d62828)}
+.admin-command-bar[data-tone="danger"] .admin-command-state>i{background:var(--theme-danger,#d62828)}
+.admin-command-bar[data-tone="warning"] .admin-command-state{color:var(--theme-warning,#c79a32)}
+.admin-command-bar[data-tone="warning"] .admin-command-state>i{background:var(--theme-warning,#c79a32)}
+.admin-command-bar[data-tone="wait"] .admin-command-state{color:var(--core-blue,#2979ff)}
+.admin-command-bar[data-tone="wait"] .admin-command-state>i{background:var(--core-blue,#2979ff)}
+.admin-command-bar[data-tone="live"] .admin-command-state,
+.admin-command-bar[data-tone="done"] .admin-command-state{color:var(--theme-success,#16864b)}
+.admin-command-bar[data-tone="live"] .admin-command-state>i,
+.admin-command-bar[data-tone="done"] .admin-command-state>i{background:var(--theme-success,#16864b)}
+.admin-command-copy{min-width:0}
+.admin-command-copy>strong{display:block;color:var(--theme-inverse-text,#fff);font:900 12px/1.1 var(--ui,Arial);letter-spacing:.15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-command-copy>span{display:block;margin-top:5px;color:color-mix(in srgb,var(--theme-inverse-text,#fff) 68%,transparent);font:700 8px/1.25 var(--ui,Arial);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-command-tools{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
+.admin-command-actions{display:flex;align-items:center;gap:8px}
+.admin-command-action{
+  min-height:42px;padding:0 14px;border:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 28%,transparent);
+  background:transparent;color:var(--theme-inverse-text,#fff);display:flex;align-items:center;justify-content:center;gap:10px;
+  position:relative;overflow:hidden;cursor:pointer;font:900 8px/1 var(--ui,Arial);letter-spacing:.35px;white-space:nowrap
+}
+.admin-command-action.primary{border-color:var(--theme-accent,#7c5cff);background:var(--theme-accent,#7c5cff);color:var(--theme-button-text,#fff)}
+.admin-command-action.secondary:hover{border-color:var(--theme-inverse-text,#fff)}
+.admin-command-action.primary:hover{filter:brightness(1.06)}
+.admin-command-action:disabled{cursor:default;opacity:.72}
+.admin-command-action.is-hold{--admin-command-hold:0%;background:color-mix(in srgb,var(--theme-accent,#7c5cff) 24%,var(--theme-inverse-surface,#050505))}
+.admin-command-hold-fill{position:absolute;inset:0 auto 0 0;width:var(--admin-command-hold);background:var(--theme-accent,#7c5cff);transition:width .06s linear;pointer-events:none}
+.admin-command-action-label,.admin-command-action>b{position:relative;z-index:1}
+.admin-command-action.is-confirmed .admin-command-action-label:after{content:" ✓"}
+.admin-command-progress{min-width:180px;display:grid;grid-template-columns:minmax(110px,1fr) auto;gap:9px;align-items:center}
+.admin-command-progress>span{height:7px;background:color-mix(in srgb,var(--theme-inverse-text,#fff) 14%,transparent);overflow:hidden}
+.admin-command-progress>span>i{display:block;height:100%;background:var(--core-blue,#2979ff)}
+.admin-command-progress>b{font:900 8px/1 var(--ui,Arial);color:var(--theme-inverse-text,#fff);white-space:nowrap}
+.admin-command-difficulty{display:grid;grid-template-columns:repeat(3,1fr);min-width:250px;border:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 24%,transparent)}
+.admin-command-difficulty button{min-height:40px;padding:0 11px;border:0;border-right:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 18%,transparent);background:transparent;color:var(--theme-inverse-text,#fff);font:900 8px/1 var(--ui,Arial);cursor:pointer}
+.admin-command-difficulty button:last-child{border-right:0}
+.admin-command-difficulty button.active{background:var(--theme-accent,#7c5cff);color:var(--theme-button-text,#fff)}
+.admin-command-context{min-height:42px;padding-left:14px;border-left:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 20%,transparent);display:flex;align-items:center;justify-content:flex-end;gap:10px;color:color-mix(in srgb,var(--theme-inverse-text,#fff) 78%,transparent);font:900 7px/1 var(--ui,Arial);letter-spacing:.45px;white-space:nowrap}
+.admin-command-context>b{font-size:14px;color:var(--theme-inverse-text,#fff)}
+@media(max-width:1100px){
+  .admin-command-inner{grid-template-columns:190px minmax(220px,1fr) auto 110px;gap:12px;padding-left:14px;padding-right:14px}
+  .admin-command-brand{gap:10px;padding-right:12px}.admin-command-action{padding:0 10px}.admin-command-difficulty{min-width:210px}.admin-command-progress{min-width:140px}
+}
+@media(max-width:800px){
+  .admin-command-bar{z-index:1200}
+  .admin-command-inner{min-height:0;padding:9px 12px 10px;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand context" "copy copy" "tools tools";gap:7px 10px}
+  .admin-command-brand{grid-area:brand;border-right:0;padding:0;display:flex;gap:10px}.admin-command-brand>small{font-size:6.5px}
+  .admin-command-state{font-size:6.5px;gap:6px}.admin-command-state>i{width:8px;height:8px;flex-basis:8px}
+  .admin-command-copy{grid-area:copy}.admin-command-copy>strong{font-size:10px}.admin-command-copy>span{font-size:7px;margin-top:3px;white-space:normal;line-height:1.3}
+  .admin-command-tools{grid-area:tools;justify-content:stretch;gap:8px;flex-wrap:wrap}.admin-command-actions{flex:1 1 auto}
+  .admin-command-action{min-height:38px;padding:0 10px;font-size:7px;flex:1 1 auto}
+  .admin-command-context{grid-area:context;min-height:0;padding:0;border:0;font-size:6px}.admin-command-context>b{display:none}
+  .admin-command-progress{flex:1 1 160px;min-width:0}.admin-command-difficulty{flex:1 1 210px;min-width:0}
+  .admin-command-difficulty button{min-height:38px;font-size:7px;padding:0 7px}
+}
