@@ -273,3 +273,127 @@ Der Button wird ausschließlich gerendert, wenn gleichzeitig:
 - und der Server `public_state.force_start_without_ready = true` liefert.
 
 Damit bleibt die Sonderlogik weiterhin auf das serverseitig markierte QA-Turnier „Wortkette“ begrenzt. Andere Turniere erhalten weder den Button noch eine clientseitige Ready-Umgehung.
+
+
+## V4 Integration Preparation · 2026-09-20
+
+Supabase-Migration:
+
+`20260920191432_prepare_word_chain_v4_integration`
+
+Die Datenbank ist für den neuen Difficulty-/Hangman-/Result-Flow vorbereitet, **ohne die aktuelle V3-Vollversion vorzeitig zu brechen**.
+
+### Neue Run-Snapshots
+
+`word_chain_tournament_runs` besitzt zusätzlich:
+
+- `difficulty text not null default 'NORMAL'`
+- `show_word_length boolean not null default false`
+- `rules_version integer not null default 3`
+
+Bestehende Runs wurden bewusst als `NORMAL / false / V3` markiert. Neue V4-Runs speichern die tatsächlich gewählte Difficulty unveränderlich pro Run.
+
+### Difficulty RPC
+
+Neu:
+
+`set_word_chain_difficulty(p_session_id uuid, p_tier text)`
+
+Nur Tournament Admin, nur ACTIVE Wortkette-Session, nur vor dem ersten Wortketten-Run.
+
+Mapping:
+
+- EASY → Threshold 50, `show_word_length=true`
+- NORMAL → Threshold 35, `show_word_length=false`
+- HARDCORE → Threshold 15, `show_word_length=false`
+
+Session Public State erhält:
+
+- `difficulty_required`
+- `word_chain_difficulty`
+- `occurrence_threshold`
+- `show_word_length`
+- `time_limit_seconds`
+- `difficulty_selected_by`
+- `difficulty_selected_at`
+- `word_chain_rules_version=4`
+
+Die gleiche Tier-Auswahl ist idempotent. Ein Wechsel auf ein anderes Tier nach bereits gespeicherter Auswahl wird abgewiesen. Sobald ein Run existiert, wird jede neue Difficulty-Auswahl abgewiesen.
+
+### V3/V4 Compatibility Gate
+
+`in_app_game_definitions.config_json` enthält jetzt die V4-Tiers und `difficulty_selection_supported=true`.
+
+Bis zum Frontend-Merge bleibt:
+
+`require_difficulty_selection=false`
+
+Dadurch starten bestehende Clients weiterhin im bisherigen NORMAL-/V3-Fallback. Beim UI-Merge muss die Runtime für neue Wortkette-Sessions `difficulty_required=true` setzen bzw. der globale Schalter gemeinsam mit dem Frontend aktiviert werden.
+
+### Start / State
+
+`start_word_chain_tournament_player()`:
+
+- erzeugt bei V4 keine Kette, solange Difficulty fehlt
+- liefert stattdessen `setup_phase='DIFFICULTY'`
+- übernimmt die sessionweite Difficulty in den Run-Snapshot
+- generiert weiterhin genau eine gemeinsame Kette je In-App-Session
+
+`private.word_chain_tournament_state()` liefert zusätzlich:
+
+- `difficulty`
+- `show_word_length`
+- `rules_version`
+- `initial_revealed_count`
+- `hint_revealed_count`
+
+Nur EASY erhält zusätzlich:
+
+- `target_length`
+
+NORMAL/HARDCORE erhalten keinen `target_length` Key.
+
+### Final Result
+
+Der Finalizer persistiert jetzt zusätzlich:
+
+- Rules Version
+- Difficulty
+- Threshold
+- Wortlängen-Freigabe
+- Time Limit
+
+`standings[]` enthält direkt:
+
+- `participant_id`
+- `participant_type`
+- `display_name`
+- `identity_color`
+- `placement`
+- `duration_ms`
+- `score`
+
+Damit kann die neue Result-Page ohne clientseitige Datenbank-Joins gerendert werden.
+
+Ranking bleibt serverautoritativ:
+
+1. Score absteigend / wenigste Minuspunkte
+2. Dauer aufsteigend
+3. serverseitiger Loswert
+
+### Verifikation
+
+Direkt in PostgreSQL mit Rollback-Tests geprüft:
+
+- V4 Setup-Gate erzeugt vor Difficulty keinen Run.
+- EASY → Threshold 50, Rules V4, `target_length` vorhanden.
+- HARDCORE → Threshold 15, Rules V4, kein `target_length`.
+- Legacy Run bleibt NORMAL / Rules V3.
+- Finalizer liefert Participant-Level Name + Identity Color + Zeit + Score.
+- Tournament Placement / Result / Joker-/Ledger-Handoff durchläuft den Test.
+- Alle temporären Testdaten wurden zurückgerollt bzw. explizit entfernt.
+
+Security:
+
+- `anon` darf `set_word_chain_difficulty` nicht ausführen.
+- `authenticated` darf die RPC aufrufen; die Funktion erzwingt intern Tournament-Admin-Rechte.
