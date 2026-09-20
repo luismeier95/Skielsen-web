@@ -148,11 +148,6 @@ body.wcxt-show-data [data-source]::after{
   background:var(--theme-warning-bg);
   color:var(--theme-on-warning);
 }
-#wcxtInput:disabled{
-  background:var(--theme-disabled-bg);
-  color:var(--theme-on-disabled);
-  border-color:var(--theme-disabled-border);
-}
 #wcxtResultRows{display:block}
 
 /* Hangman letter input */
@@ -302,9 +297,6 @@ body.wcxt-show-data [data-source]::after{
   font:900 9px/1 var(--ui);
   letter-spacing:.7px;
   cursor:pointer;
-}
-.wcxt-slot.is-next{
-  color:transparent;
 }
 @media(max-width:720px){
   .wcxt-setup{
