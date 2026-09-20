@@ -62,6 +62,9 @@ body{background:#e9e9e9;color:var(--black);font-family:var(--ui)}
 .panel-subtitle,.standings-subtitle{color:var(--g500);font-size:9px;font-weight:800;letter-spacing:.6px}
 
 .kpis{display:grid;grid-template-columns:repeat(4,1fr)}
+.kpis.without-mvp{grid-template-columns:repeat(3,1fr)}
+.kpis.without-mvp .kpi:not([hidden]){border-right:1px solid var(--g150)}
+.kpis.without-mvp .kpi:not([hidden]):last-child{border-right:0}
 .kpi{padding:22px 18px;border-right:1px solid var(--g150);text-align:center}
 .kpi:last-child{border-right:0}
 .kpi-label{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--g500);margin-bottom:8px;text-align:center}
@@ -136,6 +139,9 @@ body{background:#e9e9e9;color:var(--black);font-family:var(--ui)}
   .profile-nav{display:none}
   .dashboard{display:block}
   .kpis{grid-template-columns:1fr 1fr}.kpi:nth-child(2){border-right:0}.kpi:nth-child(-n+2){border-bottom:1px solid var(--g150)}
+  .kpis.without-mvp{grid-template-columns:repeat(3,1fr)}
+  .kpis.without-mvp .kpi:not([hidden]){border-bottom:0;border-right:1px solid var(--g150)}
+  .kpis.without-mvp .kpi:not([hidden]):last-child{border-right:0}
   .skills-columns{display:none}.skills-header{padding:0 14px}.skills-legend{gap:10px;font-size:8px}
   .skill-row{grid-template-columns:92px minmax(100px,1fr) 30px 40px 28px;gap:7px;min-height:67px;padding:9px 14px}
   .skill-community-value{display:none}.skill-name{font-size:9px}
@@ -305,6 +311,7 @@ body{background:#e9e9e9;color:var(--black);font-family:var(--ui)}
   align-items:center;min-height:64px;padding:0 18px;border-bottom:1px solid var(--g150);
 }
 .ranking-labels{min-height:31px;background:var(--g50);font-size:7px;font-weight:900;color:var(--g500);letter-spacing:.5px}
+.ranking-row.without-mvp{grid-template-columns:48px minmax(150px,1.8fr) 85px repeat(4,minmax(55px,.65fr))}
 .ranking-labels span:not(:nth-child(2)){text-align:center}
 .ranking-labels .gold{color:#9a7617}.ranking-labels .silver{color:#777}.ranking-labels .bronze{color:#9b633d}
 .team-row>span{text-align:center;font-family:var(--display);font-size:14px}
@@ -332,6 +339,7 @@ body{background:#e9e9e9;color:var(--black);font-family:var(--ui)}
  .ranking-section{margin-top:12px}.ranking-section-head{height:50px;padding:0 12px}
  .team-ranking-table{overflow-x:auto}
  .ranking-row{grid-template-columns:35px 100px 58px repeat(5,43px);min-width:450px;min-height:55px;padding:0 10px}
+ .ranking-row.without-mvp{grid-template-columns:35px 100px 58px repeat(4,43px);min-width:407px}
  .ranking-labels{min-height:29px;font-size:6px}
  .rank-pos{font-size:13px}.rank-team{grid-template-columns:5px 1fr;gap:5px}.rank-team i{width:5px;height:26px}
  .rank-team strong{font-size:8px}.rank-team small{font-size:5px}.rank-points{font-size:16px}.team-row>span{font-size:11px}

@@ -215,3 +215,15 @@ Vor Merge müssen geprüft sein:
 - Wortkette: `/word-chain-test/`
 
 Diese Testseiten sind Design-/Implementierungsreferenzen und keine Ersatzquelle für serverautoritatives Gameplay.
+
+
+## Feature gating
+
+Optional tournament systems are hard workflow gates, not cosmetic switches.
+
+- Betting UI, market creation, decisions, settlement and match gates exist only while `feature.betting` is enabled.
+- Joker UI, inventory, submission, resolution, reveal and Joker-specific preparation exist only while `feature.joker` is enabled.
+- MVP voting exists only in TEAM mode and while `feature.mvp_voting` is enabled.
+- LVP voting exists only in TEAM mode and while `feature.lvp_voting` is enabled.
+- In SOLO mode MVP/LVP settings are unavailable and server-side vote RPCs reject attempts to open or submit those votes.
+- Disabled features must not leave placeholder workflow steps such as a Joker round or Betting gate in Match Control.
