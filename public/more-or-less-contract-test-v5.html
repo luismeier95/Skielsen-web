@@ -8,7 +8,16 @@
 <link rel="stylesheet" href="assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="assets/css/tournament-theme-runtime.css?v=15.1.65">
 <link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.0">
-<link rel="stylesheet" href="assets/css/more-or-less-contract-test-v5.css?v=wrong2">
+<link rel="stylesheet" href="assets/css/more-or-less-contract-test-v5.css?v=wrongguard1">
+<style id="molcWrongGuard">
+.molc-wrong-flag{display:none!important}
+.molc-compare-reveal{
+  border:2px solid var(--theme-danger)!important;
+  background:color-mix(in srgb,var(--theme-danger) 8%,var(--theme-surface))!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-danger) 18%,transparent),var(--theme-shadow-soft)!important
+}
+.molc-compare-reveal .molc-compare-half{background:transparent!important}
+</style>
 </head>
 <body class="v15-tournament-active molc-body" data-theme-pack="theme.skielsen.core">
 <nav class="molc-testbar" aria-label="Standalone Test Controls">
@@ -47,6 +56,19 @@
   </section>
 </main>
 
-<script src="assets/js/more-or-less-contract-test-v5.js?v=wrong2"></script>
+<script src="assets/js/more-or-less-contract-test-v5.js?v=wrongguard1"></script>
+<script id="molcWrongGuardScript">
+(()=>{
+  const clean=()=>{
+    document.querySelectorAll('.molc-wrong-flag').forEach(el=>el.remove());
+    document.querySelectorAll('.molc-compare-reveal').forEach(el=>{
+      el.style.setProperty('border','2px solid var(--theme-danger)','important');
+      el.style.setProperty('background','color-mix(in srgb,var(--theme-danger) 8%,var(--theme-surface))','important');
+    });
+  };
+  clean();
+  new MutationObserver(clean).observe(document.getElementById('molcContent')||document.body,{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>
