@@ -187,7 +187,6 @@ function revealMarkup(){
     <main class="mol-full-content">
       <div class="mol-full-kicker">${esc(categoryLabel())}</div>
       <div class="mol-full-scoreboard">${scoreboard()}</div>
-      <div class="mol-full-result wrong">FALSCH</div>
       <section class="mol-full-compare is-reveal">
         <div class="mol-full-reference"><strong>${esc(refLabel)}</strong><b>${esc(refValue)}</b></div>
         <div class="mol-full-vs">VS</div>
