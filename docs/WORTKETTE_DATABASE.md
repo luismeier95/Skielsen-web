@@ -176,3 +176,21 @@ Nach Umstellung des Thresholds auf 35 bei 445 bewerteten Verbindungen:
 Die ersten Overrides sind: `BILDBUCH`, `OBJEKTIVDECKEL`, `STIFTHALTER`, `LANDUNGSPUNKT`, `WEITENREKORD`, `ZAUNTOR`, `SESSELBEIN`.
 
 Der Generator berücksichtigt weiterhin ausschließlich `is_active=true`, daher wirken Frequency-Cuts direkt auf neue Sessions. Bestehende bereits erzeugte Sessions werden nicht nachträglich verändert.
+
+
+## Threshold-Slider V14
+
+Der Frequency-Score deaktiviert keine Wörter mehr dauerhaft. Alle 445 nicht abgelehnten Verbindungen bleiben in `word_chain_edges` erhalten und `is_active=true`.
+
+Der Threshold wird pro neuer Solo-Session an `start_word_chain_solo(player_key, steps, occurrence_threshold)` übergeben. Die Standalone-Version bietet dafür einen Slider von 0 bis 50:
+
+- 0: kompletter Pool
+- 15: 429 Verbindungen
+- 25: 417 Verbindungen
+- 35: 380 Verbindungen
+- 45: 289 Verbindungen
+- 50: strenger Testbereich; 10-Schritt-Ketten wurden erfolgreich erzeugt
+
+`frequency_override_keep=true` bleibt unabhängig vom Slider zugelassen. Die RPC `get_word_chain_threshold_stats(threshold)` liefert die jeweils verfügbare Edge-Zahl live für die Testoberfläche.
+
+Ein Frequency-Audit aktualisiert nur Scores und Statusfelder; er löscht oder deaktiviert keine Kanten mehr.

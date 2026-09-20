@@ -32,3 +32,14 @@ main{width:min(820px,100%);margin:0 auto;padding:28px 18px 100px}.wk-screen{disp
 .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.stats-row>div{background:#fff;padding:13px 14px}.stats-row small,.stats-row strong{display:block}.stats-row small{color:#777;font:900 6px/1 var(--ui);letter-spacing:.8px}.stats-row strong{margin-top:5px;font:900 22px/1 var(--display)}
 .finish-score{margin:28px 0 18px;background:#fff;border-left:7px solid var(--accent);padding:20px}.finish-score small,.finish-score strong,.finish-score span{display:block}.finish-score small{color:#777;font:900 7px/1 var(--ui);letter-spacing:.8px}.finish-score strong{margin-top:5px;font:clamp(54px,12vw,92px)/1 var(--display);color:var(--accent)}.finish-score span{font:900 7px/1 var(--ui);letter-spacing:.8px}.winner-copy{color:#666;font:900 9px/1.5 var(--ui);letter-spacing:.55px}.full-chain{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:22px 0;padding:16px;background:#fff}.full-chain .word{padding:7px 9px;background:#f1f1f1;font:900 8px/1 var(--ui)}.full-chain .arrow{color:var(--accent);font-weight:900}
 @media(max-width:620px){main{padding:18px 10px 90px}.wk-header{height:64px}.wk-header img{width:88px}.wk-backend{display:none}.game-top{grid-template-columns:1fr 1fr 1fr}.game-title{display:none}.score-top{text-align:center}.timer-shell{text-align:right}.puzzle-card{padding:23px 12px 20px}.prefix-letter{width:36px;height:50px;font-size:25px}.guess-tail{height:50px;font-size:25px;min-width:90px}.setup-row{grid-template-columns:1fr}.backend-lock{text-align:left}}
+
+/* V14 · per-round occurrence threshold */
+.threshold-block{margin-top:18px;padding-top:18px;border-top:1px solid #e6e6e6}
+.threshold-head{display:flex;align-items:end;justify-content:space-between;gap:14px}
+.threshold-head small,.threshold-head strong{display:block}
+.threshold-head small{color:#777;font:900 7px/1 var(--ui);letter-spacing:.8px}
+.threshold-head strong{margin-top:7px;font:900 30px/1 var(--display);color:var(--accent)}
+.threshold-pool{text-align:right}.threshold-pool strong{font-size:15px;color:#050505}
+.threshold-slider{width:100%;margin:18px 0 7px;accent-color:var(--accent);cursor:pointer}
+.threshold-scale{display:flex;justify-content:space-between;color:#8a8a8a;font:900 6px/1 var(--ui);letter-spacing:.5px}
+.threshold-block p{margin:10px 0 0;color:#888;font-size:7px;font-weight:800;line-height:1.45}

@@ -1,4 +1,4 @@
-/* Wortkette Solo V11 · controlled connector suffixes are supplied by backend */
+/* Wortkette Solo V14 · per-session occurrence threshold slider */
 (()=>{
 'use strict';
 
@@ -26,6 +26,8 @@ function getPersistentPlayerKey(){
 }
 const PLAYER_KEY=getPersistentPlayerKey();
 let timeLimit=0,state=null,busy=false,timer=0,timeLeft=0,correctCount=0;
+let occurrenceThreshold=35;
+let thresholdStatsTimer=0;
 
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'auto'})}
 function cleanLetters(value){return String(value||'').normalize('NFC').replace(/[^A-Za-zÄÖÜäöüß]/g,'').toLocaleUpperCase('de-DE')}
@@ -43,6 +45,21 @@ async function rpc(name,payload={}){
 }
 function setBackendStatus(text,mode='live'){const el=q('#backendStatus');el.textContent=text;el.className='wk-backend '+mode}
 function setSegment(value){q('#timeLimit').querySelectorAll('button[data-time]').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.time)===value))}
+async function refreshThresholdStats(){
+  q('#thresholdValue').textContent=String(occurrenceThreshold);
+  try{
+    const stats=await rpc('get_word_chain_threshold_stats',{p_occurrence_threshold:occurrenceThreshold});
+    q('#thresholdEligible').textContent=String(stats.eligible_edges??'—')+' / 445';
+  }catch(err){
+    console.warn('Threshold stats',err);
+    q('#thresholdEligible').textContent='— / 445';
+  }
+}
+function scheduleThresholdStats(){
+  clearTimeout(thresholdStatsTimer);
+  q('#thresholdValue').textContent=String(occurrenceThreshold);
+  thresholdStatsTimer=setTimeout(refreshThresholdStats,140);
+}
 function chainMarkup(words,host){
   const list=Array.isArray(words)?words:[];
   host.innerHTML=list.map((word,i)=>'<span class="word">'+esc(word)+'</span>'+(i<list.length-1?'<span class="arrow">→</span>':'')).join('')||'—';
@@ -88,7 +105,7 @@ async function startGame(){
   if(busy)return;
   busy=true;const btn=q('#startBtn');btn.disabled=true;btn.textContent='KETTE WIRD IM BACKEND FESTGELEGT …';
   try{
-    state=await rpc('start_word_chain_solo',{p_player_key:PLAYER_KEY,p_steps:10});
+    state=await rpc('start_word_chain_solo',{p_player_key:PLAYER_KEY,p_steps:10,p_occurrence_threshold:occurrenceThreshold});
     correctCount=0;
     setBackendStatus('KETTE SERVERSEITIG GESPERRT','live');
     show('playScreen');renderState();feedback('');startTimer();setTimeout(focusGuess,80);
@@ -156,6 +173,11 @@ function resetToSetup(){
 }
 
 q('#timeLimit').addEventListener('click',e=>{const btn=e.target.closest('button[data-time]');if(!btn)return;timeLimit=Number(btn.dataset.time)||0;setSegment(timeLimit)});
+q('#occurrenceThreshold').addEventListener('input',e=>{
+  occurrenceThreshold=Math.max(0,Math.min(50,Number(e.target.value)||0));
+  try{localStorage.setItem('skielsen_word_chain_threshold_v1',String(occurrenceThreshold))}catch(_){}
+  scheduleThresholdStats();
+});
 q('#startBtn').addEventListener('click',startGame);
 q('#restartBtn').addEventListener('click',resetToSetup);
 q('#openWordInput').addEventListener('click',focusGuess);
@@ -163,5 +185,11 @@ q('#guessTail').addEventListener('input',e=>{e.target.value=cleanLetters(e.targe
 q('#guessTail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitGuess(false)}});
 q('#playScreen').addEventListener('click',e=>{if(!e.target.closest('.game-top')&&!e.target.closest('.stats-row'))focusGuess()});
 
+try{
+  const saved=Number(localStorage.getItem('skielsen_word_chain_threshold_v1'));
+  if(Number.isFinite(saved))occurrenceThreshold=Math.max(0,Math.min(50,saved));
+}catch(_){}
+q('#occurrenceThreshold').value=String(occurrenceThreshold);
+refreshThresholdStats();
 setBackendStatus('BACKEND BEREIT','live');
 })();
