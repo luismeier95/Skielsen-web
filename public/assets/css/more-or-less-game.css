@@ -207,12 +207,12 @@
 .mol-setup-content h1{
   margin:0;
   font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
-  font-size:clamp(96px,19vw,170px);
+  font-size:clamp(58px,9.5vw,86px);
   font-weight:900;
-  line-height:.68;
-  letter-spacing:-.035em;
+  line-height:.88;
+  letter-spacing:-.025em;
   text-transform:uppercase;
 }
 @media(max-width:560px){
-  .mol-setup-content h1{font-size:clamp(88px,25vw,145px)}
+  .mol-setup-content h1{font-size:clamp(56px,17vw,84px);line-height:.9}
 }
