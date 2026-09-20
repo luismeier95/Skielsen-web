@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.58';
+const VERSION=window.SKIELSEN_VERSION||'15.1.59';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -331,24 +331,20 @@ function renderWordChainSession(s){
 function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
   const players=Array.isArray(s?.players)?s.players:[];
   const me=String(s?.me?.tournament_member_id||'');
-  const readyCount=players.filter(p=>String(p?.status||'').toUpperCase()==='READY').length;
   const playerRows=players.map(p=>{
     const isReady=String(p?.status||'').toUpperCase()==='READY';
     const isMe=String(p?.tournament_member_id||'')===me;
+    const accent=colorHex[p?.identity_color]||'var(--theme-muted)';
     return `<div class="v15-wordchain-ready-player ${isReady?'is-ready':'is-waiting'}">
-      <span class="v15-wordchain-ready-dot" aria-hidden="true"></span>
-      <span class="v15-wordchain-ready-player-copy"><strong>${esc(p?.display_name||'PLAYER')}${isMe?'<small>DU</small>':''}</strong><small>SEAT ${esc(p?.seat||'—')}</small></span>
-      <b>${isReady?'BEREIT':'WARTET'}</b>
+      <i class="v15-wordchain-ready-accent" style="background:${accent}" aria-hidden="true"></i>
+      <span class="v15-wordchain-ready-player-copy"><strong>${esc(p?.display_name||'PLAYER')}${isMe?'<small>DU</small>':''}</strong></span>
+      <b class="v15-wordchain-ready-state ${isReady?'ready':'waiting'}">${isReady?'BEREIT':'WARTET'}</b>
     </div>`;
   }).join('')||'<div class="v15-wordchain-ready-empty">NOCH KEINE PLAYER ZUGEWIESEN.</div>';
   const forceButton=showForceStart
     ?'<button class="v15-inapp-btn force" id="v15InAppReadyForceStart" type="button">START ERZWINGEN</button>'
     :'';
   return `<section class="v15-wordchain-ready-page" aria-label="Wortkette Bereitschaft und Regeln">
-    <header class="v15-wordchain-ready-head">
-      <strong>${readyCount} / ${players.length} BEREIT</strong>
-    </header>
-
     <div class="v15-wordchain-ready-top">
       <section class="v15-wordchain-ready-card v15-wordchain-ready-players">
         <div class="v15-wordchain-ready-player-list">${playerRows}</div>
@@ -436,11 +432,11 @@ function renderPlayerSession(s){
       status:String(s.status||''),
       ready:!!ready,
       force:!!showReadyForceStart,
-      players:(s.players||[]).map(p=>[String(p.tournament_member_id||''),String(p.status||'')])
+      players:(s.players||[]).map(p=>[String(p.tournament_member_id||''),String(p.status||''),String(p.identity_color||'')])
     });
     const existingPage=host.querySelector('.v15-wordchain-ready-page');
     if(existingPage&&existingPage.dataset.readySignature===readySignature)return;
-    host.innerHTML=`<h1 class="v15-inapp-title v15-wordchain-ready-title">${esc(s.game?.name||'WORTKETTE')}</h1>`+wordChainReadyRulesHtml(s,readyMessage,ready,showReadyForceStart);
+    host.innerHTML=chrome+wordChainReadyRulesHtml(s,readyMessage,ready,showReadyForceStart);
     const readyPage=host.querySelector('.v15-wordchain-ready-page');
     if(readyPage)readyPage.dataset.readySignature=readySignature;
   }else{

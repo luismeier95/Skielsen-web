@@ -4366,30 +4366,11 @@ body[data-theme-pack] .dbb-join-user,
 body[data-theme-pack] .dbb-group-note,
 body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cff)!important}
 
-/* V15.1.57 · Wortkette Ready / Rule Page */
-.v15-wordchain-ready-title{margin-bottom:10px}
+/* V15.1.59 · Wortkette Ready / Rule Page */
 .v15-wordchain-ready-page{
   display:grid;
   gap:14px;
   color:var(--theme-on-page);
-}
-.v15-wordchain-ready-head{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  min-height:42px;
-}
-.v15-wordchain-ready-head>strong{
-  min-height:42px;
-  display:flex;
-  align-items:center;
-  padding:0 13px;
-  background:var(--theme-inverse-surface);
-  color:var(--theme-on-inverse);
-  border:1px solid var(--theme-border-strong);
-  font:900 8px/1 var(--ui);
-  letter-spacing:.7px;
-  white-space:nowrap;
 }
 .v15-wordchain-ready-top{
   display:grid;
@@ -4409,22 +4390,19 @@ body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cf
 .v15-wordchain-ready-player{
   min-height:54px;
   display:grid;
-  grid-template-columns:11px minmax(0,1fr) auto;
-  gap:10px;
+  grid-template-columns:6px minmax(0,1fr) auto;
+  gap:12px;
   align-items:center;
-  padding:9px 10px;
+  padding:10px 12px;
   background:var(--theme-surface-soft);
   color:var(--theme-on-surface-soft);
   border:1px solid var(--theme-border);
 }
-.v15-wordchain-ready-dot{
-  width:10px;
-  height:10px;
-  border-radius:999px;
-  background:var(--theme-warning-bg);
-  box-shadow:0 0 0 2px var(--theme-surface);
+.v15-wordchain-ready-accent{
+  align-self:stretch;
+  width:6px;
+  display:block;
 }
-.v15-wordchain-ready-player.is-ready .v15-wordchain-ready-dot{background:var(--theme-success-bg)}
 .v15-wordchain-ready-player-copy{min-width:0}
 .v15-wordchain-ready-player-copy>strong{
   display:flex;gap:7px;align-items:center;min-width:0;
@@ -4439,23 +4417,13 @@ body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cf
   font:900 5.5px/1 var(--ui);
   letter-spacing:.4px;
 }
-.v15-wordchain-ready-player-copy>small{
-  display:block;
-  margin-top:4px;
-  color:var(--theme-muted);
-  font:800 6.5px/1 var(--ui);
-  letter-spacing:.5px;
-}
-.v15-wordchain-ready-player>b{
-  color:var(--theme-muted);
-  font:900 7px/1 var(--ui);
+.v15-wordchain-ready-state{
+  font:900 8px/1 var(--ui);
   letter-spacing:.6px;
+  text-transform:uppercase;
 }
-.v15-wordchain-ready-player.is-ready>b{
-  color:var(--theme-on-success);
-  background:var(--theme-success-bg);
-  padding:6px 7px;
-}
+.v15-wordchain-ready-state.waiting{color:var(--theme-danger-bg)}
+.v15-wordchain-ready-state.ready{color:var(--theme-success-bg)}
 .v15-wordchain-ready-empty{padding:14px;color:var(--theme-muted);font:800 8px/1.4 var(--ui)}
 .v15-wordchain-ready-demo-card{display:flex;flex-direction:column}
 .v15-wordchain-ready-demo{
@@ -4521,8 +4489,6 @@ body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cf
 }
 .v15-wordchain-ready-footer .v15-inapp-actions{padding:0;margin-left:auto}
 @media(max-width:720px){
-  .v15-wordchain-ready-head{min-height:36px}
-  .v15-wordchain-ready-head>strong{min-height:36px;padding:0 9px;font-size:6.5px}
   .v15-wordchain-ready-top{grid-template-columns:1fr}
   .v15-wordchain-ready-rules-list{grid-template-columns:1fr}
   .v15-wordchain-ready-rules-list>div{min-height:50px}
