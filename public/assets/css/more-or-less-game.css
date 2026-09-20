@@ -324,7 +324,7 @@
 /* Fixed production play-stage geometry */
 .mol-full-play-layout{
   display:grid;
-  grid-template-rows:72px 48px 400px 88px;
+  grid-template-rows:72px 48px 460px 86px;
   gap:10px;
 }
 .mol-full-play-layout .mol-full-play-status{
@@ -344,18 +344,18 @@
   box-sizing:border-box;
 }
 .mol-full-play-layout .mol-full-compare{
-  height:400px;
-  min-height:400px;
+  height:460px;
+  min-height:460px;
   margin:0;
 }
 .mol-full-action-slot{
-  height:88px;
-  min-height:88px;
+  height:86px;
+  min-height:86px;
 }
 .mol-full-action-slot .mol-full-choice,
 .mol-full-action-slot .mol-full-wait{
-  height:88px;
-  min-height:88px;
+  height:86px;
+  min-height:86px;
   margin:0;
 }
 .mol-full-action-slot .mol-full-choice{
@@ -394,7 +394,7 @@
 
 @media(max-width:560px){
   .mol-full-play-layout{
-    grid-template-rows:60px 103px 365px 80px;
+    grid-template-rows:60px 103px 400px 78px;
     gap:8px;
   }
   .mol-full-play-layout .mol-full-play-status{height:60px}
@@ -405,20 +405,20 @@
     grid-auto-rows:48px;
   }
   .mol-full-play-layout .mol-full-compare{
-    height:365px;
-    min-height:365px;
+    height:400px;
+    min-height:400px;
   }
   .mol-full-action-slot,
   .mol-full-action-slot .mol-full-choice,
   .mol-full-action-slot .mol-full-wait{
-    height:80px;
-    min-height:80px;
+    height:78px;
+    min-height:78px;
   }
   .mol-full-action-slot .mol-full-choice{
     grid-template-columns:1fr 1fr!important;
     gap:8px;
   }
   .mol-full-action-slot .mol-full-choice button{
-    min-height:80px;
+    min-height:78px;
   }
 }
