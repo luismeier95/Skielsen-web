@@ -110,6 +110,11 @@ function assembledGuess(){
   const prefix=target.slice(0,Math.min(game.revealed,target.length));
   return prefix+normalizedInputBuffer();
 }
+function revealSlot(ch,index){
+  const cls=index===0?'is-initial':'is-hint-reveal';
+  const source=index===0?'Startbuchstabe':'Hinweis';
+  return '<span class="wcxt-slot '+cls+'" aria-label="'+source+' '+esc(ch)+'">'+esc(ch)+'</span>';
+}
 function renderSlots(){
   const target=current().next;
   const revealed=Math.min(game.revealed,target.length);
@@ -119,7 +124,7 @@ function renderSlots(){
   if(game.showWordLength){
     const chars=[...target];
     q('#wcxtSlots').innerHTML=chars.map((ch,i)=>{
-      if(i<revealed)return '<span class="wcxt-slot is-revealed" aria-label="Hinweis '+esc(ch)+'">'+esc(ch)+'</span>';
+      if(i<revealed)return revealSlot(ch,i);
       const typedIndex=i-revealed;
       const typedChar=typed.charAt(typedIndex);
       if(typedChar)return '<span class="wcxt-slot is-typed" aria-label="eingegeben '+esc(typedChar)+'">'+esc(typedChar)+'</span>';
@@ -127,10 +132,10 @@ function renderSlots(){
     }).join('');
   }else{
     const visible=[
-      ...[...prefix].map(ch=>'<span class="wcxt-slot is-revealed" aria-label="Hinweis '+esc(ch)+'">'+esc(ch)+'</span>'),
+      ...[...prefix].map((ch,i)=>revealSlot(ch,i)),
       ...[...typed].map(ch=>'<span class="wcxt-slot is-typed" aria-label="eingegeben '+esc(ch)+'">'+esc(ch)+'</span>')
     ];
-    if(!game.acceptedBuffer){
+    if(!game.acceptedBuffer&&typed.length===0&&revealed<target.length){
       visible.push('<span class="wcxt-slot is-next" aria-label="nächste Eingabeposition"></span>');
     }
     q('#wcxtSlots').innerHTML=visible.join('');
