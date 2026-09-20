@@ -224,3 +224,112 @@ body.wcxt-show-data [data-source]::after{
     min-width:94px;
   }
 }
+
+/* Difficulty setup */
+.wcxt-setup{
+  min-height:654px;
+  display:grid;
+  grid-template-rows:1fr auto auto;
+  gap:12px;
+}
+.wcxt-setup-hero{
+  min-height:330px;
+  display:flex;
+  align-items:center;
+  padding:18px 2px;
+}
+.wcxt-setup-hero h1{
+  margin:0;
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;
+  font-size:clamp(68px,11vw,96px);
+  line-height:.9;
+  letter-spacing:-.025em;
+  text-transform:uppercase;
+}
+.wcxt-setup-card{
+  padding:18px;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+  border:1px solid var(--theme-border);
+  box-shadow:var(--theme-shadow-soft);
+}
+.wcxt-setup-card>small{
+  display:block;
+  color:var(--theme-muted);
+  font:900 7px/1 var(--ui);
+  letter-spacing:.9px;
+}
+.wcxt-difficulty{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  margin-top:14px;
+}
+.wcxt-difficulty button{
+  min-height:70px;
+  padding:11px;
+  border:1px solid var(--theme-border);
+  background:var(--theme-surface-soft);
+  color:var(--theme-on-surface-soft);
+  text-align:left;
+  cursor:pointer;
+}
+.wcxt-difficulty button b,
+.wcxt-difficulty button span{display:block}
+.wcxt-difficulty button b{
+  font:900 10px/1 var(--ui);
+}
+.wcxt-difficulty button span{
+  margin-top:7px;
+  color:var(--theme-muted);
+  font:800 6px/1 var(--ui);
+  letter-spacing:.5px;
+}
+.wcxt-difficulty button.active{
+  background:var(--theme-primary-action);
+  color:var(--theme-on-primary-action);
+  border-color:var(--theme-primary-action);
+}
+.wcxt-difficulty button.active span{
+  color:color-mix(in srgb,var(--theme-on-primary-action) 70%,transparent);
+}
+.wcxt-start{
+  width:100%;
+  min-height:64px;
+  border:0;
+  background:var(--theme-primary-action);
+  color:var(--theme-on-primary-action);
+  font:900 9px/1 var(--ui);
+  letter-spacing:.7px;
+  cursor:pointer;
+}
+.wcxt-slot.is-next{
+  color:transparent;
+}
+@media(max-width:720px){
+  .wcxt-setup{
+    min-height:620px;
+    grid-template-rows:1fr auto auto;
+  }
+  .wcxt-setup-hero{
+    min-height:270px;
+    padding:10px 2px;
+  }
+  .wcxt-setup-hero h1{
+    font-size:clamp(62px,20vw,84px);
+  }
+  .wcxt-setup-card{
+    padding:12px;
+  }
+  .wcxt-difficulty{
+    gap:5px;
+    margin-top:10px;
+  }
+  .wcxt-difficulty button{
+    min-height:64px;
+    padding:9px 8px;
+  }
+  .wcxt-difficulty button b{font-size:8px}
+  .wcxt-difficulty button span{font-size:5.5px}
+  .wcxt-start{min-height:58px}
+}
