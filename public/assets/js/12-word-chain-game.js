@@ -370,6 +370,21 @@ function resultRowsHtml(rows){
     <strong>${Number(row.score??0)>0?'+':''}${esc(row.score??0)}</strong>
   </div>`).join('');
 }
+function liveResultRowsHtml(rows){
+  const list=Array.isArray(rows)?rows:[];
+  return list.map(row=>{
+    const done=!!row.completed;
+    const rank=done&&row.rank!=null?String(row.rank)+'.':'';
+    const time=done?formatDuration(row.elapsed_ms):'–';
+    const score=done?(Number(row.score??0)>0?'+':'')+String(row.score??0):'–';
+    return `<div class="wc-result-row ${done?'is-complete':'is-pending'}">
+      <b>${esc(rank)}</b>
+      <span><i style="--wc-player:${colorVar(row.identity_color)}"></i><strong>${esc(row.display_name||'PLAYER')}</strong></span>
+      <strong>${esc(time)}</strong>
+      <strong>${esc(score)}</strong>
+    </div>`;
+  }).join('');
+}
 function renderResult(result){
   finalResult=result||finalResult;
   showPage('result');
@@ -381,13 +396,19 @@ function renderResult(result){
   const finish=q('[data-wc-finish]');
   if(finish)finish.hidden=!rows.length;
 }
-function renderResultWaiting(){
+function renderResultWaiting(nextState=state){
+  state=nextState||state;
   showPage('result');
   const finished=Number(state?.finished_players||0),total=Number(state?.total_players||0);
+  const rows=Array.isArray(state?.live_standings)?state.live_standings:[];
   const meta=q('[data-wc-result-meta]');
   if(meta)meta.textContent=`${finished} / ${total} FERTIG`;
   const host=q('[data-wc-result-rows]');
-  if(host)host.innerHTML='<div class="wc-result-wait">WARTET AUF DIE ANDEREN PLAYER …</div>';
+  if(host){
+    host.innerHTML=rows.length
+      ?liveResultRowsHtml(rows)
+      :'<div class="wc-result-wait">LIVE-TABELLE WIRD GELADEN …</div>';
+  }
   const finish=q('[data-wc-finish]');
   if(finish)finish.hidden=true;
 }
@@ -398,7 +419,7 @@ function ingestResult(result){
 }
 async function loadResult(){
   if(!session?.tournament_game_id)return;
-  renderResultWaiting();
+  renderResultWaiting(state);
   try{
     const data=await rpc('get_word_chain_game_result',{p_tournament_game_id:session.tournament_game_id});
     const result=data?.result||null;
@@ -426,7 +447,10 @@ async function loadState(initial=false){
     syncClock(next);
     state=next;
     if(next?.completed){
-      await loadResult();
+      renderResultWaiting(next);
+      const finished=Number(next?.finished_players||0);
+      const total=Number(next?.total_players||0);
+      if(total>0&&finished>=total)await loadResult();
       return;
     }
     renderPlay(next);
@@ -457,7 +481,7 @@ function poll(){
     renderDifficulty();
     return;
   }
-  if(state?.completed){void loadResult();return}
+  if(finalResult)return;
   void loadState(!state);
 }
 function updateSession(next){
@@ -495,5 +519,5 @@ function unmount(){
   root=null;session=null;db=null;state=null;busy=false;
   finalResult=null;inputBuffer='';acceptedBuffer='';lastWordKey='';
 }
-window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll,get resultOpen(){return !!finalResult&&!!q('[data-wc-page="result"]')&&!q('[data-wc-page="result"]').hidden}};
+window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll,get resultOpen(){return !!q('[data-wc-page="result"]')&&!q('[data-wc-page="result"]').hidden}};
 })();
