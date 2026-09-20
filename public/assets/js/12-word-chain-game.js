@@ -3,9 +3,25 @@
 
 const VERSION=window.SKIELSEN_VERSION||'15.1.65';
 const POLL_MS=1600;
-let root=null,session=null,db=null,state=null,pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null,lastWordKey='',resultIngested=false,viewportRaf=0,baseViewportHeight=window.visualViewport?.height||window.innerHeight;
+const DIFFICULTIES={
+  EASY:{threshold:50,showWordLength:true},
+  NORMAL:{threshold:35,showWordLength:false},
+  HARDCORE:{threshold:15,showWordLength:false}
+};
+const COLOR_VAR={
+  RED:'var(--core-red)',
+  BLUE:'var(--core-blue)',
+  GREEN:'var(--core-green)',
+  YELLOW:'var(--core-yellow)'
+};
 
-const q=(sel)=>root?.querySelector(sel)||null;
+let root=null,session=null,db=null,state=null;
+let pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null;
+let resultIngested=false,finalResult=null,pendingTier='NORMAL';
+let inputBuffer='',acceptedBuffer='',lastWordKey='';
+
+const q=sel=>root?.querySelector(sel)||null;
+const qa=sel=>root?[...root.querySelectorAll(sel)]:[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean=s=>String(s||'').normalize('NFC').replace(/[^A-Za-zÄÖÜäöüß]/g,'').toLocaleUpperCase('de-DE');
 
@@ -15,239 +31,264 @@ async function rpc(name,args={}){
   if(error)throw error;
   return data;
 }
+function isAdmin(){
+  return !!(window.skielsenV15?.runtime?.is_admin||window.skielsenV15?.state?.is_admin);
+}
+function publicState(){
+  return session?.public_state||{};
+}
+function difficultyRequired(){
+  return publicState()?.difficulty_required===true;
+}
+function selectedDifficulty(){
+  const value=String(publicState()?.word_chain_difficulty||state?.difficulty||'').toUpperCase();
+  return DIFFICULTIES[value]?value:'';
+}
+function colorVar(value){
+  return COLOR_VAR[String(value||'').toUpperCase()]||'var(--theme-muted)';
+}
 function feedback(text,kind=''){
-  const el=q('[data-wc-feedback]');if(!el)return;
+  const el=q('[data-wc-feedback]');
+  if(!el)return;
   el.textContent=text||'';
   el.className='wc-feedback'+(kind?' '+kind:'');
+}
+function formatDuration(ms){
+  if(ms==null||!Number.isFinite(Number(ms)))return '–';
+  const sec=Math.max(0,Math.round(Number(ms)/1000));
+  const m=Math.floor(sec/60),s=sec%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function shell(){
+  return `<div class="wc-game">
+    <section class="wc-page wc-setup-page" data-wc-page="setup" hidden></section>
+
+    <section class="wc-page wc-play-page" data-wc-page="play" hidden>
+      <div class="wc-game-progress" aria-hidden="true"><i data-wc-game-progress></i></div>
+      <main class="wc-play-main">
+        <section class="wc-status" aria-label="Spielstatus">
+          <div><small>SCHRITT</small><strong data-wc-step>01 / 10</strong></div>
+          <div><small>PUNKTE</small><strong data-wc-score>0</strong></div>
+          <div><small>ZEIT</small><strong data-wc-time>—</strong></div>
+        </section>
+        <div class="wc-word-timer" aria-hidden="true"><i data-wc-word-timer></i></div>
+
+        <section class="wc-chain" data-wc-chain>
+          <small>DEINE KETTE</small>
+          <div data-wc-chain-content>—</div>
+        </section>
+
+        <section class="wc-puzzle">
+          <div class="wc-base">
+            <small>AUSGANGSWORT</small>
+            <strong data-wc-base>—</strong>
+          </div>
+          <div class="wc-plus" aria-hidden="true">+</div>
+          <div class="wc-answer">
+            <small>GESUCHTES NOMEN</small>
+            <input class="wc-native-input" data-wc-input type="text" inputmode="text" enterkeyhint="done"
+              autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Worteingabe">
+            <div class="wc-slots" data-wc-slots></div>
+          </div>
+          <div class="wc-feedback" data-wc-feedback aria-live="polite"></div>
+        </section>
+      </main>
+    </section>
+
+    <section class="wc-page wc-result-page" data-wc-page="result" hidden>
+      <div class="wc-game-progress is-complete" aria-hidden="true"><i></i></div>
+      <main class="wc-result-main">
+        <section class="wc-result-status"><strong>ERGEBNIS</strong></section>
+        <section class="wc-result-card">
+          <header><strong data-wc-result-title>FINALES ERGEBNIS</strong><span data-wc-result-meta>—</span></header>
+          <div class="wc-result-columns"><span>POSITION</span><span>NAME</span><span>ZEIT</span><span>SCORE</span></div>
+          <div class="wc-result-rows" data-wc-result-rows></div>
+        </section>
+        <button class="wc-result-primary" type="button" data-wc-finish>TURNIER ANSEHEN →</button>
+      </main>
+    </section>
+  </div>`;
+}
+function showPage(name){
+  qa('[data-wc-page]').forEach(el=>{el.hidden=el.dataset.wcPage!==name});
+  root?.classList.toggle('wc-result-open',name==='result');
+  root?.classList.toggle('wc-setup-open',name==='setup');
+}
+function difficultyMarkup(){
+  const admin=isAdmin();
+  return `<main class="wc-setup-main">
+    <section class="wc-setup-hero"><h1>WORT<br>KETTE.</h1></section>
+    <section class="wc-setup-card">
+      <small>MODUS</small>
+      <div class="wc-difficulty" data-wc-difficulty>
+        ${['EASY','NORMAL','HARDCORE'].map(t=>`<button type="button" data-wc-tier="${t}" class="${pendingTier===t?'active':''}" ${admin?'':'disabled'}>
+          <b>${t}</b><span>THRESHOLD ${DIFFICULTIES[t].threshold}</span>
+        </button>`).join('')}
+      </div>
+    </section>
+    ${admin
+      ?'<button class="wc-start" type="button" data-wc-start>SPIEL STARTEN →</button>'
+      :'<div class="wc-setup-wait"><strong>ADMIN WÄHLT DEN SCHWIERIGKEITSGRAD</strong><span>Das Spiel startet danach automatisch auf diesem Gerät.</span></div>'}
+    <div class="wc-setup-feedback" data-wc-setup-feedback></div>
+  </main>`;
+}
+function renderDifficulty(){
+  showPage('setup');
+  const page=q('[data-wc-page="setup"]');
+  if(!page)return;
+  page.innerHTML=difficultyMarkup();
+  page.querySelectorAll('[data-wc-tier]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!isAdmin()||busy)return;
+    pendingTier=btn.dataset.wcTier;
+    page.querySelectorAll('[data-wc-tier]').forEach(other=>other.classList.toggle('active',other===btn));
+  }));
+  page.querySelector('[data-wc-start]')?.addEventListener('click',()=>void setDifficulty());
+}
+async function setDifficulty(){
+  if(!isAdmin()||busy||!session?.session_id)return;
+  busy=true;
+  const msg=q('[data-wc-setup-feedback]');
+  if(msg)msg.textContent='MODUS WIRD GESPEICHERT …';
+  try{
+    const data=await rpc('set_word_chain_difficulty',{p_session_id:session.session_id,p_tier:pendingTier});
+    session.public_state={
+      ...(session.public_state||{}),
+      difficulty_required:true,
+      word_chain_difficulty:data?.difficulty||pendingTier,
+      occurrence_threshold:data?.occurrence_threshold??DIFFICULTIES[pendingTier].threshold,
+      show_word_length:data?.show_word_length??DIFFICULTIES[pendingTier].showWordLength,
+      word_chain_rules_version:data?.rules_version||4
+    };
+    await loadState(true);
+    window.skielsenInApp?.poll?.();
+  }catch(err){
+    console.warn('Wortkette difficulty',err);
+    if(msg)msg.textContent='MODUS KONNTE NICHT GESPEICHERT WERDEN.';
+  }finally{busy=false}
 }
 function chainHtml(words){
   const list=Array.isArray(words)?words:[];
   return list.map((w,i)=>'<span>'+esc(w)+'</span>'+(i<list.length-1?'<b>→</b>':'')).join('')||'—';
 }
-function formatElapsed(ms){
-  if(ms==null||!Number.isFinite(Number(ms)))return '–';
-  const value=Math.max(0,Math.round(Number(ms)));
-  const min=Math.floor(value/60000);
-  const sec=Math.floor((value%60000)/1000);
-  const hundredths=Math.floor((value%1000)/10);
-  return String(min).padStart(2,'0')+':'+String(sec).padStart(2,'0')+':'+String(hundredths).padStart(2,'0');
+function normalizedInput(){
+  let value=clean(inputBuffer);
+  const prefix=clean(state?.revealed_prefix||'');
+  if(state?.ignore_repeated_initial&&prefix.length===1&&value.startsWith(prefix))value=value.slice(1);
+  return value;
 }
-function currentElapsed(r){
-  if(!r?.started_at)return null;
-  if(r?.completed)return r?.elapsed_ms==null?null:Number(r.elapsed_ms);
-  const started=Date.parse(r.started_at);
-  if(!Number.isFinite(started))return r?.elapsed_ms==null?null:Number(r.elapsed_ms);
-  return Math.max(0,(Date.now()+serverOffsetMs)-started);
+function slotHtml(ch,cls,label){
+  return `<span class="wc-slot ${cls}" aria-label="${esc(label)}">${ch?esc(ch):''}</span>`;
 }
-function liveStandingsHtml(rows){
-  const list=Array.isArray(rows)?rows:[];
-  if(!list.length)return '<div class="wc-live-empty">KEINE TEILNEHMER GEFUNDEN.</div>';
-  return list.map(r=>{
-    const color=String(r?.identity_color||'').toUpperCase();
-    const completed=!!r?.completed;
-    const score=completed?Number(r?.score??0):null;
-    const time=currentElapsed(r);
-    return `<div class="wc-live-row ${completed?'is-finished':'is-running'}">
-      <span class="wc-live-player"><i data-wc-live-color="${esc(color)}" aria-hidden="true"></i><strong>${esc(r?.display_name||'PLAYER')}</strong></span>
-      <strong class="wc-live-time" data-wc-live-time data-started-at="${esc(r?.started_at||'')}" data-completed="${completed?'true':'false'}" data-elapsed-ms="${r?.elapsed_ms==null?'':esc(r.elapsed_ms)}">${formatElapsed(time)}</strong>
-      <strong class="wc-live-score">${completed?((score>0?'+':'')+esc(score)):'–'}</strong>
-    </div>`;
-  }).join('');
-}
-function updateLiveTimes(){
-  if(!root||!state?.completed)return;
-  root.querySelectorAll('[data-wc-live-time]').forEach(el=>{
-    const frozen=el.dataset.completed==='true';
-    const raw=el.dataset.elapsedMs;
-    if(frozen){
-      el.textContent=formatElapsed(raw===''?null:Number(raw));
-      return;
-    }
-    const started=Date.parse(el.dataset.startedAt||'');
-    el.textContent=Number.isFinite(started)?formatElapsed(Math.max(0,(Date.now()+serverOffsetMs)-started)):'–';
-  });
-}
-function shell(){
-  return `
-    <div class="wc-app">
-      <header class="wc-header">
-        <div class="wc-brand"><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><div><strong>WORTKETTE</strong><small>V${esc(VERSION)}</small></div></div>
-        <button class="wc-minimize" type="button" data-wc-minimize>MINIMIEREN</button>
-      </header>
-      <div class="wc-progress"><i data-wc-progress></i></div>
-      <main class="wc-main">
-        <section class="wc-stats" data-wc-stats aria-label="Spielstatus">
-          <div><small>SCHRITT</small><strong data-wc-step>01 / 10</strong></div>
-          <div><small>PUNKTE</small><strong data-wc-score>0</strong></div>
-          <div><small>ZEIT</small><strong data-wc-time>—</strong></div>
-          <div class="wc-stats-result">ERGEBNIS</div>
-        </section>
+function renderSlots(){
+  const wrap=q('[data-wc-slots]');
+  if(!wrap||!state||state.completed)return;
+  const prefix=clean(state.revealed_prefix||'');
+  const initialCount=Math.max(0,Number(state.initial_revealed_count??1));
+  const typed=String(acceptedBuffer||normalizedInput());
+  const showLength=!!state.show_word_length;
+  const targetLength=Number(state.target_length||0);
+  const parts=[];
 
-        <section class="wc-chain collapsed" data-wc-chain>
-          <button type="button" class="wc-chain-toggle" data-wc-chain-toggle aria-expanded="false">
-            <span>DEINE KETTE</span><b data-wc-chain-count>1 WORT</b><i>⌄</i>
-          </button>
-          <div class="wc-chain-content" data-wc-chain-content>—</div>
-        </section>
+  [...prefix].forEach((ch,i)=>{
+    parts.push(slotHtml(ch,i<initialCount?'is-initial':'is-hint',''+(i<initialCount?'Startbuchstabe ':'Hinweis ')+ch));
+  });
+  [...typed].forEach(ch=>parts.push(slotHtml(ch,'is-typed','Eingegeben '+ch)));
 
-        <section class="wc-puzzle" data-wc-puzzle>
-          <div class="wc-context">
-            <small>AKTUELLES AUSGANGSWORT</small>
-            <h1 data-wc-base>—</h1>
-            <div class="wc-plus">+</div>
-          </div>
-          <div class="wc-answer" data-wc-answer>
-            <small class="wc-answer-label">GESUCHTES NOMEN</small>
-            <div class="wc-input-row">
-              <div class="wc-prefix" data-wc-prefix></div>
-              <input data-wc-input type="text" autocomplete="off" autocapitalize="characters" enterkeyhint="go" spellcheck="false" aria-label="Rest des gesuchten Nomens" placeholder="WEITERSCHREIBEN …">
-            </div>
-            <div class="wc-enter"><span>WORT ERGÄNZEN</span><b>ENTER ↵</b></div>
-            <div class="wc-feedback" data-wc-feedback aria-live="polite"></div>
-          </div>
-        </section>
+  if(showLength&&targetLength>0){
+    const empty=Math.max(0,targetLength-prefix.length-typed.length);
+    for(let i=0;i<empty;i++)parts.push(slotHtml('','is-empty','Verborgen'));
+  }else if(!typed&&!acceptedBuffer){
+    parts.push(slotHtml('','is-next','Nächste Eingabeposition'));
+  }
 
-        <section class="wc-complete" data-wc-complete hidden>
-          <section class="wc-live-board" aria-label="Live Ergebnis">
-            <header><strong>LIVE</strong><span data-wc-live-count>0 / 0 FERTIG</span></header>
-            <div class="wc-live-columns"><span>NAME</span><span>TIME</span><span>SCORE</span></div>
-            <div class="wc-live-rows" data-wc-live-rows><div class="wc-live-empty">ERGEBNIS WIRD GELADEN …</div></div>
-          </section>
-          <button class="wc-primary" type="button" data-wc-minimize-finish>TURNIER ANSEHEN →</button>
-        </section>
-      </main>
-    </div>`;
+  wrap.innerHTML=parts.join('');
+  fitSlots();
 }
-function bind(){
-  q('[data-wc-minimize]')?.addEventListener('click',()=>window.skielsenInApp?.minimize?.());
-  q('[data-wc-minimize-finish]')?.addEventListener('click',()=>window.skielsenInApp?.minimize?.());
-  q('[data-wc-chain-toggle]')?.addEventListener('click',()=>{
-    if(root?.classList.contains('wc-keyboard-open'))return;
-    const box=q('[data-wc-chain]');if(!box)return;
-    const collapsed=box.classList.toggle('collapsed');
-    q('[data-wc-chain-toggle]')?.setAttribute('aria-expanded',String(!collapsed));
-  });
-  q('[data-wc-input]')?.addEventListener('input',e=>{
-    let value=clean(e.target.value);
-    const prefix=clean(state?.revealed_prefix||'');
-    if(state?.ignore_repeated_initial&&prefix.length===1&&value.startsWith(prefix))value=value.slice(1);
-    e.target.value=value;
-  });
-  q('[data-wc-input]')?.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();void submit(false)}
-  });
-  q('[data-wc-input]')?.addEventListener('focus',()=>{q('[data-wc-chain]')?.classList.add('collapsed');setTimeout(requestViewport,40);setTimeout(requestViewport,180)});
-  q('[data-wc-input]')?.addEventListener('blur',()=>setTimeout(requestViewport,80));
+function fitSlots(){
+  const wrap=q('[data-wc-slots]');
+  if(!wrap)return;
+  const count=Math.max(1,wrap.children.length);
+  const width=Math.max(1,wrap.clientWidth||560);
+  const gap=window.matchMedia('(max-width:720px)').matches?4:6;
+  const max=window.matchMedia('(max-width:720px)').matches?30:38;
+  const size=Math.max(15,Math.min(max,Math.floor((width-gap*(count-1))/count)));
+  wrap.style.setProperty('--wc-slot-size',size+'px');
+  wrap.style.setProperty('--wc-slot-font',Math.max(12,Math.floor(size*.68))+'px');
 }
-function updateViewport(){
-  viewportRaf=0;
-  if(!root)return;
-  const vv=window.visualViewport;
-  const h=vv?.height||window.innerHeight;
-  const top=vv?.offsetTop||0;
-  const inputFocused=document.activeElement===q('[data-wc-input]');
-  if(!inputFocused)baseViewportHeight=Math.max(baseViewportHeight,h);
-  const gap=Math.max(0,window.innerHeight-h-top);
-  const open=inputFocused&&(baseViewportHeight-h>100||gap>100);
-  root.style.setProperty('--wc-visible-height',h+'px');
-  root.style.setProperty('--wc-keyboard-bottom',(open?gap:0)+'px');
-  root.classList.toggle('wc-keyboard-open',open);
-  if(open)q('[data-wc-chain]')?.classList.add('collapsed');
+function fitBase(){
+  const el=q('[data-wc-base]');
+  if(!el)return;
+  const max=window.matchMedia('(max-width:720px)').matches?44:58;
+  const min=22;
+  let size=max;
+  el.style.fontSize=size+'px';
+  while(el.scrollWidth>el.clientWidth&&size>min){
+    size--;
+    el.style.fontSize=size+'px';
+  }
 }
-function requestViewport(){
-  if(viewportRaf)return;
-  viewportRaf=requestAnimationFrame(updateViewport);
+function renderPlay(next,{clearInput=false}={}){
+  state=next;
+  showPage('play');
+  if(clearInput){inputBuffer='';acceptedBuffer='';syncInput()}
+  const step=Math.max(1,Number(state.step||1));
+  const total=Math.max(1,Number(state.total_steps||10));
+  q('[data-wc-step]').textContent=String(step).padStart(2,'0')+' / '+String(total).padStart(2,'0');
+  q('[data-wc-score]').textContent=String(state.score??0);
+  q('[data-wc-base]').textContent=state.base_word||'—';
+  q('[data-wc-chain-content]').innerHTML=chainHtml(state.solved_words);
+  const progress=q('[data-wc-game-progress]');
+  if(progress)progress.style.width=Math.max(0,Math.min(100,(step/total)*100))+'%';
+
+  const wordKey=String(state.step)+'|'+String(state.revealed_prefix||'');
+  if(wordKey!==lastWordKey&&lastWordKey){inputBuffer='';acceptedBuffer='';syncInput()}
+  lastWordKey=wordKey;
+  renderSlots();
+  requestAnimationFrame(()=>{fitBase();fitSlots()});
+  tick();
 }
 function syncClock(next){
   const server=Date.parse(next?.server_now||'');
   if(Number.isFinite(server))serverOffsetMs=server-Date.now();
   if(next?.deadline_at!==state?.deadline_at)lastTimeoutDeadline=null;
 }
-function render(next,{clearInput=false}={}){
-  if(!root||!next)return;
-  syncClock(next);
-  state=next;
-
-  const completed=!!state.completed;
-  q('[data-wc-puzzle]').hidden=completed;
-  q('[data-wc-complete]').hidden=!completed;
-  q('[data-wc-stats]')?.classList.toggle('is-result',completed);
-  q('[data-wc-chain]').hidden=completed;
-
-  q('[data-wc-step]').textContent=String(state.step||1).padStart(2,'0')+' / '+String(state.total_steps||10).padStart(2,'0');
-  q('[data-wc-score]').textContent=String(state.score??0);
-
-  const solved=Array.isArray(state.solved_words)?state.solved_words:[];
-  q('[data-wc-chain-content]').innerHTML=chainHtml(solved);
-  q('[data-wc-chain-count]').textContent=String(solved.length)+' '+(solved.length===1?'WORT':'WÖRTER');
-
-  if(completed){
-    const finished=Number(state.finished_players||0),total=Number(state.total_players||0);
-    const live=Array.isArray(state.live_standings)?state.live_standings:[];
-    const liveRows=q('[data-wc-live-rows]');if(liveRows)liveRows.innerHTML=liveStandingsHtml(live);
-    const liveCount=q('[data-wc-live-count]');if(liveCount)liveCount.textContent=`${finished} / ${total} FERTIG`;
-    updateLiveTimes();
-    return;
-  }
-
-  q('[data-wc-base]').textContent=state.base_word||'—';
-  const prefix=clean(state.revealed_prefix||'');
-  q('[data-wc-prefix]').innerHTML=prefix.split('').map(ch=>'<span>'+esc(ch)+'</span>').join('');
-
-  const key=String(state.step)+'|'+prefix;
-  if(clearInput||key!==lastWordKey){
-    const input=q('[data-wc-input]');if(input)input.value='';
-  }
-  lastWordKey=key;
+function syncInput(){
   const input=q('[data-wc-input]');
-  if(input)input.placeholder=prefix?'WEITERSCHREIBEN …':'WORT EINGEBEN …';
-  tick();
+  if(input&&input.value!==inputBuffer)input.value=inputBuffer;
 }
-function tick(){
-  if(!root||!state)return;
-  updateLiveTimes();
-  const time=q('[data-wc-time]'),bar=q('[data-wc-progress]');
-  if(state.completed||!state.deadline_at){
-    if(time)time.textContent='—';
-    if(bar)bar.style.width='100%';
-    return;
-  }
-  const end=Date.parse(state.deadline_at);
-  const now=Date.now()+serverOffsetMs;
-  const ms=Math.max(0,end-now);
-  const limit=Math.max(1,Number(state.time_limit_seconds||15))*1000;
-  if(time)time.textContent=String(Math.max(0,Math.ceil(ms/1000)));
-  if(bar)bar.style.width=Math.max(0,Math.min(100,ms/limit*100))+'%';
-  q('[data-wc-time]')?.classList.toggle('urgent',ms>0&&ms<=5000);
-  if(ms<=0&&!busy&&lastTimeoutDeadline!==state.deadline_at){
-    lastTimeoutDeadline=state.deadline_at;
-    void submit(true);
-  }
-}
-async function loadState(initial=false){
-  if(!session?.session_id||busy)return;
+function focusInput(){
+  const input=q('[data-wc-input]');
+  if(!input||state?.completed)return;
   try{
-    const next=await rpc(initial?'start_word_chain_tournament_player':'get_word_chain_tournament_state',{
-      p_in_app_session_id:session.session_id
-    });
-    render(next);
-  }catch(err){
-    console.warn('Wortkette state',err);
-    feedback('SPIELSTAND KONNTE NICHT GELADEN WERDEN.','bad');
-  }
+    input.focus({preventScroll:true});
+    const n=input.value.length;
+    input.setSelectionRange?.(n,n);
+  }catch(_){}
+}
+function onInput(){
+  if(!state||state.completed||busy)return;
+  const input=q('[data-wc-input]');
+  let value=clean(input?.value||'').slice(0,32);
+  const prefix=clean(state.revealed_prefix||'');
+  if(state.ignore_repeated_initial&&prefix.length===1&&value.startsWith(prefix))value=value.slice(1);
+  inputBuffer=value;
+  acceptedBuffer='';
+  if(input&&input.value!==value)input.value=value;
+  renderSlots();
+  feedback('');
 }
 async function submit(timeout=false){
   if(!state||state.completed||busy)return;
-  const input=q('[data-wc-input]');
   const prefix=clean(state.revealed_prefix||'');
-  const tail=clean(input?.value||'');
+  const tail=normalizedInput();
   if(!timeout&&!tail){
-    feedback('BITTE DAS WORT VERVOLLSTÄNDIGEN.','bad');
-    input?.focus({preventScroll:true});
+    feedback('WORT EINGEBEN · MIT ENTER BESTÄTIGEN','hint');
+    focusInput();
     return;
   }
 
   busy=true;
+  const input=q('[data-wc-input]');
   if(input)input.disabled=true;
   const guess=timeout?'':prefix+tail;
   try{
@@ -256,27 +297,37 @@ async function submit(timeout=false){
       p_guess:guess,
       p_timeout:!!timeout
     });
+    syncClock(next);
 
     if(next?.accepted_attempt===false){
-      render(next,{clearInput:true});
-      feedback(next.validation_unavailable?'WORTPRÜFUNG NICHT VERFÜGBAR · VERSUCH NICHT GEWERTET.':'KEIN GÜLTIGES WORT · VERSUCH NICHT GEWERTET.','bad');
+      inputBuffer='';acceptedBuffer='';syncInput();
+      renderPlay(next,{clearInput:true});
+      feedback(next.validation_unavailable?'WORTPRÜFUNG NICHT VERFÜGBAR · VERSUCH NICHT GEWERTET.':'KEIN GÜLTIGES WORT · VERSUCH NICHT GEWERTET.','hint');
     }else if(next?.correct){
-      render(next,{clearInput:true});
+      inputBuffer='';acceptedBuffer='';
+      renderPlay(next,{clearInput:true});
       feedback('RICHTIG'+(next.compound?' · '+String(next.compound).toLocaleUpperCase('de-DE'):'')+'.','good');
     }else if(next?.auto_completed){
-      render(next,{clearInput:true});
+      inputBuffer='';acceptedBuffer='';
+      renderPlay(next,{clearInput:true});
       feedback('WORT VOLLSTÄNDIG AUFGEDECKT · WEITER.','hint');
     }else if(next?.timeout||next?.timeout_applied){
-      render(next,{clearInput:true});
-      feedback('ZEIT ABGELAUFEN · −1 PUNKT · NÄCHSTER BUCHSTABE.','bad');
+      inputBuffer='';acceptedBuffer='';
+      renderPlay(next,{clearInput:true});
+      feedback('ZEIT ABGELAUFEN · −1 · NÄCHSTER HINWEIS.','bad');
     }else{
-      render(next,{clearInput:true});
-      feedback('FALSCH · −1 PUNKT · NÄCHSTER BUCHSTABE.','bad');
+      inputBuffer='';acceptedBuffer='';
+      renderPlay(next,{clearInput:true});
+      feedback('FALSCH · −1 · NÄCHSTER HINWEIS.','bad');
     }
 
-    if(next?.tournament_complete&&next?.tournament_result&&!resultIngested){
-      resultIngested=true;
-      window.skielsenV15?.ingestInAppGameResult?.(session.tournament_game_id,next.tournament_result);
+    if(next?.tournament_complete&&next?.tournament_result){
+      finalResult=next.tournament_result;
+      ingestResult(finalResult);
+      renderResult(finalResult);
+    }else if(next?.completed){
+      state=next;
+      await loadResult();
     }
   }catch(err){
     console.warn('Wortkette submit',err);
@@ -284,13 +335,133 @@ async function submit(timeout=false){
   }finally{
     busy=false;
     if(input)input.disabled=false;
-    if(!state?.completed)setTimeout(()=>input?.focus({preventScroll:true}),40);
+    if(!state?.completed)setTimeout(focusInput,40);
   }
 }
-function updateSession(next){session=next||session}
+function tick(){
+  if(!root||!state||state.completed)return;
+  const end=Date.parse(state.deadline_at||'');
+  if(!Number.isFinite(end))return;
+  const now=Date.now()+serverOffsetMs;
+  const ms=Math.max(0,end-now);
+  const limit=Math.max(1,Number(state.time_limit_seconds||15))*1000;
+  const seconds=Math.max(0,Math.ceil(ms/1000));
+  const time=q('[data-wc-time]');
+  if(time)time.textContent=String(seconds);
+  time?.classList.toggle('urgent',ms>0&&ms<=5000);
+  const timer=q('[data-wc-word-timer]');
+  if(timer)timer.style.width=Math.max(0,Math.min(100,ms/limit*100))+'%';
+  timer?.parentElement?.classList.toggle('urgent',ms>0&&ms<=5000);
+  if(ms<=0&&!busy&&lastTimeoutDeadline!==state.deadline_at){
+    lastTimeoutDeadline=state.deadline_at;
+    void submit(true);
+  }
+}
+function resultRowsHtml(rows){
+  const list=Array.isArray(rows)?rows:[];
+  return list.map(row=>`<div class="wc-result-row">
+    <b>${esc(row.placement||'—')}.</b>
+    <span><i style="--wc-player:${colorVar(row.identity_color)}"></i><strong>${esc(row.display_name||'PLAYER')}</strong></span>
+    <strong>${formatDuration(row.duration_ms)}</strong>
+    <strong>${Number(row.score??0)>0?'+':''}${esc(row.score??0)}</strong>
+  </div>`).join('');
+}
+function renderResult(result){
+  finalResult=result||finalResult;
+  showPage('result');
+  const rows=Array.isArray(finalResult?.standings)?finalResult.standings:[];
+  const meta=q('[data-wc-result-meta]');
+  if(meta)meta.textContent=rows.length?rows.length+' PARTICIPANTS':'ERGEBNIS WIRD GELADEN';
+  const host=q('[data-wc-result-rows]');
+  if(host)host.innerHTML=rows.length?resultRowsHtml(rows):'<div class="wc-result-wait">ERGEBNIS WIRD GELADEN …</div>';
+}
+function renderResultWaiting(){
+  showPage('result');
+  const finished=Number(state?.finished_players||0),total=Number(state?.total_players||0);
+  const meta=q('[data-wc-result-meta]');
+  if(meta)meta.textContent=`${finished} / ${total} FERTIG`;
+  const host=q('[data-wc-result-rows]');
+  if(host)host.innerHTML='<div class="wc-result-wait">WARTET AUF DIE ANDEREN PLAYER …</div>';
+}
+function ingestResult(result){
+  if(resultIngested||!result)return;
+  resultIngested=true;
+  window.skielsenV15?.ingestInAppGameResult?.(session?.tournament_game_id,result);
+}
+async function loadResult(){
+  if(!session?.tournament_game_id)return;
+  renderResultWaiting();
+  try{
+    const data=await rpc('get_word_chain_game_result',{p_tournament_game_id:session.tournament_game_id});
+    const result=data?.result||null;
+    if(result){
+      finalResult=result;
+      ingestResult(result);
+      renderResult(result);
+    }
+  }catch(err){console.warn('Wortkette result',err)}
+}
+async function loadState(initial=false){
+  if(!session?.session_id||busy)return;
+  if(difficultyRequired()&&!selectedDifficulty()){
+    renderDifficulty();
+    return;
+  }
+  try{
+    const next=await rpc(initial?'start_word_chain_tournament_player':'get_word_chain_tournament_state',{
+      p_in_app_session_id:session.session_id
+    });
+    if(next?.requires_difficulty){
+      renderDifficulty();
+      return;
+    }
+    syncClock(next);
+    state=next;
+    if(next?.completed){
+      await loadResult();
+      return;
+    }
+    renderPlay(next);
+  }catch(err){
+    console.warn('Wortkette state',err);
+    feedback('SPIELSTAND KONNTE NICHT GELADEN WERDEN.','bad');
+  }
+}
+function bind(){
+  q('[data-wc-input]')?.addEventListener('input',onInput);
+  q('[data-wc-input]')?.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();void submit(false)}
+  });
+  q('.wc-puzzle')?.addEventListener('pointerdown',e=>{
+    if(e.target.closest('button'))return;
+    setTimeout(focusInput,0);
+  });
+  q('[data-wc-finish]')?.addEventListener('click',()=>window.skielsenInApp?.minimize?.());
+  window.addEventListener('resize',onResize);
+}
+function onResize(){
+  if(!root)return;
+  requestAnimationFrame(()=>{fitBase();fitSlots()});
+}
 function poll(){
   if(!root||!session?.session_id)return;
-  void loadState(false);
+  if(difficultyRequired()&&!selectedDifficulty()){
+    renderDifficulty();
+    return;
+  }
+  if(state?.completed){void loadResult();return}
+  void loadState(!state);
+}
+function updateSession(next){
+  const before=selectedDifficulty();
+  session=next||session;
+  const after=selectedDifficulty();
+  if(root&&difficultyRequired()&&!after){
+    renderDifficulty();
+    return;
+  }
+  if(root&&!state&&(!difficultyRequired()||after))void loadState(true);
+  else if(root&&!before&&after)void loadState(true);
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession||!nextDb)return false;
@@ -298,31 +469,23 @@ function mount(nextRoot,nextSession,nextDb){
   root=nextRoot;session=nextSession;db=nextDb;
   if(changed){
     clearInterval(pollTimer);clearInterval(tickTimer);
-    state=null;lastWordKey='';lastTimeoutDeadline=null;resultIngested=false;
+    state=null;finalResult=null;resultIngested=false;busy=false;lastTimeoutDeadline=null;
+    inputBuffer='';acceptedBuffer='';lastWordKey='';pendingTier='NORMAL';
     root.innerHTML=shell();
     bind();
-    if(window.visualViewport){
-      window.visualViewport.addEventListener('resize',requestViewport);
-      window.visualViewport.addEventListener('scroll',requestViewport);
-    }
-    window.addEventListener('resize',requestViewport);
-    void loadState(true);
+    if(difficultyRequired()&&!selectedDifficulty())renderDifficulty();
+    else void loadState(true);
     pollTimer=setInterval(poll,POLL_MS);
     tickTimer=setInterval(tick,100);
-    requestViewport();
   }
   return true;
 }
 function unmount(){
   clearInterval(pollTimer);clearInterval(tickTimer);
   pollTimer=0;tickTimer=0;
-  if(window.visualViewport){
-    window.visualViewport.removeEventListener('resize',requestViewport);
-    window.visualViewport.removeEventListener('scroll',requestViewport);
-  }
-  window.removeEventListener('resize',requestViewport);
-  if(root)root.classList.remove('wc-keyboard-open');
-  root=null;session=null;db=null;state=null;busy=false;lastWordKey='';lastTimeoutDeadline=null;
+  window.removeEventListener('resize',onResize);
+  root=null;session=null;db=null;state=null;busy=false;
+  finalResult=null;inputBuffer='';acceptedBuffer='';lastWordKey='';
 }
 window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll};
 })();
