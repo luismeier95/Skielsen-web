@@ -7,7 +7,7 @@
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=2.0">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -23,6 +23,7 @@
     </select>
   </label>
   <div class="wcxt-dev-actions">
+    <button id="wcxtReset" type="button">RESET RUN</button>
     <button id="wcxtLayoutMap" type="button">LAYOUT MAP</button>
     <button id="wcxtDataMap" type="button">DATA MAP</button>
   </div>
@@ -50,13 +51,13 @@
     <main class="wcxt-content">
       <div class="wcxt-play-layout" id="wcxtPlayLayout">
         <section class="wcxt-status" data-spec="FIXED · 72 PX DESKTOP / 60 PX MOBILE">
-          <div data-source="get_word_chain_tournament_state.step + total_steps"><small>SCHRITT</small><strong id="wcxtStep">04 / 10</strong></div>
-          <div data-source="get_word_chain_tournament_state.score"><small>PUNKTE</small><strong id="wcxtScore">-2</strong></div>
-          <div data-source="deadline_at + time_limit_seconds + server_now"><small>ZEIT</small><strong id="wcxtTime">12</strong></div>
+          <div data-source="get_word_chain_tournament_state.step + total_steps"><small>SCHRITT</small><strong id="wcxtStep">01 / 10</strong></div>
+          <div data-source="get_word_chain_tournament_state.score"><small>PUNKTE</small><strong id="wcxtScore">0</strong></div>
+          <div data-source="deadline_at + time_limit_seconds + server_now"><small>ZEIT</small><strong id="wcxtTime">15</strong></div>
         </section>
 
         <section class="wcxt-scoreboard" data-spec="FIXED · 48 PX DESKTOP / 103 PX MOBILE" data-source="tournament_game_participants + runtime/live standings">
-          <article class="wcxt-player" style="--player:var(--core-red)" data-source="participant.display_name + identity_color + state.score"><span>DJEELOI</span><b>-2</b></article>
+          <article class="wcxt-player" id="wcxtPlayerSelf" style="--player:var(--core-red)" data-source="participant.display_name + identity_color + state.score"><span>DJEELOI</span><b>0</b></article>
           <article class="wcxt-player" style="--player:var(--core-blue)" data-source="participant.display_name + identity_color + state.score"><span>SOFYA</span><b>-1</b></article>
           <article class="wcxt-player" style="--player:var(--core-green)" data-source="participant.display_name + identity_color + state.score"><span>HANNES</span><b>0</b></article>
           <article class="wcxt-player" style="--player:var(--core-yellow)" data-source="participant.display_name + identity_color + state.score"><span>PIA</span><b>-3</b></article>
@@ -65,19 +66,19 @@
         <section class="wcxt-mainbody" id="wcxtMainBody" data-spec="FIXED OUTER SIZE · 460 PX DESKTOP / 400 PX MOBILE · ONLY ANIMATION ZONE">
           <div class="wcxt-chain" data-source="get_word_chain_tournament_state.solved_words[]">
             <small>DEINE KETTE</small>
-            <div id="wcxtChain"><span>TASCHE(N)</span><b>→</b><span>GELD</span><b>→</b><span>SCHEIN</span></div>
+            <div id="wcxtChain"><span>AUTO</span></div>
           </div>
 
           <div class="wcxt-puzzle" id="wcxtPuzzle">
             <div class="wcxt-base" data-source="get_word_chain_tournament_state.base_word">
               <small>AUSGANGSWORT</small>
-              <strong id="wcxtBase">TASCHE(N)</strong>
+              <strong id="wcxtBase">AUTO</strong>
             </div>
             <div class="wcxt-plus" aria-hidden="true">+</div>
             <div class="wcxt-answer">
               <small>GESUCHTES NOMEN</small>
               <div class="wcxt-inputline">
-                <div class="wcxt-prefix" id="wcxtPrefix" data-source="get_word_chain_tournament_state.revealed_prefix"><span>G</span></div>
+                <div class="wcxt-prefix" id="wcxtPrefix" data-source="get_word_chain_tournament_state.revealed_prefix"><span>B</span></div>
                 <input id="wcxtInput" type="text" value="" placeholder="WEITERSCHREIBEN …" autocomplete="off" spellcheck="false" data-source="CLIENT INPUT → submit_word_chain_tournament(p_guess)">
               </div>
               <div class="wcxt-enter"><span>WORT ERGÄNZEN</span><b>ENTER ↵</b></div>
@@ -94,10 +95,7 @@
       <section class="wcxt-result" id="wcxtResult" hidden>
         <header><strong>ERGEBNIS</strong><span data-source="finished_players + total_players">4 / 4 FERTIG</span></header>
         <div class="wcxt-result-columns"><span>PLATZ</span><span>NAME</span><span>ZEIT</span><span>SCORE</span></div>
-        <div class="wcxt-result-row"><b>1.</b><span><i style="--player:var(--core-green)"></i>HANNES</span><strong>01:24</strong><strong>0</strong></div>
-        <div class="wcxt-result-row"><b>2.</b><span><i style="--player:var(--core-blue)"></i>SOFYA</span><strong>01:31</strong><strong>-1</strong></div>
-        <div class="wcxt-result-row"><b>3.</b><span><i style="--player:var(--core-red)"></i>DJEELOI</span><strong>01:46</strong><strong>-2</strong></div>
-        <div class="wcxt-result-row"><b>4.</b><span><i style="--player:var(--core-yellow)"></i>PIA</span><strong>02:02</strong><strong>-3</strong></div>
+        <div id="wcxtResultRows" data-source="tournament_result.standings[]"></div>
       </section>
     </main>
   </section>
@@ -121,6 +119,6 @@
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=1.0"></script>
+<script src="../assets/js/word-chain-test.js?v=2.0"></script>
 </body>
 </html>
