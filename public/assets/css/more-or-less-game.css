@@ -320,3 +320,105 @@
   .mol-full-final-head,
   .mol-full-final-row{grid-template-columns:46px 8px minmax(0,1fr) 54px}
 }
+
+/* Fixed production play-stage geometry */
+.mol-full-play-layout{
+  display:grid;
+  grid-template-rows:72px 48px 400px 88px;
+  gap:10px;
+}
+.mol-full-play-layout .mol-full-play-status{
+  height:72px;
+  margin:0;
+}
+.mol-full-play-layout .mol-full-scoreboard{
+  height:48px;
+  min-height:48px;
+  margin:0;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-auto-rows:48px;
+}
+.mol-full-play-layout .mol-full-score{
+  height:48px;
+  min-height:48px;
+  box-sizing:border-box;
+}
+.mol-full-play-layout .mol-full-compare{
+  height:400px;
+  min-height:400px;
+  margin:0;
+}
+.mol-full-action-slot{
+  height:88px;
+  min-height:88px;
+}
+.mol-full-action-slot .mol-full-choice,
+.mol-full-action-slot .mol-full-wait{
+  height:88px;
+  min-height:88px;
+  margin:0;
+}
+.mol-full-action-slot .mol-full-choice{
+  grid-template-columns:1fr 1fr!important;
+}
+.mol-full-choice.is-locked{pointer-events:none}
+
+.mol-full-play-layout :where(.mol-full-play-status,.mol-full-scoreboard,.mol-full-score,.mol-full-action-slot,.mol-full-choice,.mol-full-choice button,.mol-full-wait,.mol-full-vs){
+  transition:none!important;
+  animation:none!important;
+}
+.mol-full-compare.is-feedback .mol-full-outcome{
+  background:var(--theme-button)!important;
+  color:var(--theme-button-text)!important;
+  transition:none!important;
+  animation:none!important;
+  opacity:1!important;
+  transform:none!important;
+}
+.mol-full-compare.is-feedback.is-resolved.is-correct .mol-full-outcome{
+  background:var(--theme-success-bg,var(--theme-success))!important;
+  color:var(--theme-on-success)!important;
+}
+.mol-full-compare.is-feedback.is-resolved.is-wrong .mol-full-outcome{
+  background:var(--theme-danger-bg,var(--theme-danger))!important;
+  color:var(--theme-on-danger)!important;
+}
+.mol-full-compare.is-feedback .mol-full-reference,
+.mol-full-compare.is-feedback .mol-full-current{
+  transition:transform .46s cubic-bezier(.2,.75,.2,1),opacity .3s ease!important;
+}
+.mol-full-compare.is-feedback.is-promoting .mol-full-outcome{
+  opacity:1!important;
+  transform:none!important;
+}
+
+@media(max-width:560px){
+  .mol-full-play-layout{
+    grid-template-rows:60px 103px 365px 80px;
+    gap:8px;
+  }
+  .mol-full-play-layout .mol-full-play-status{height:60px}
+  .mol-full-play-layout .mol-full-scoreboard{
+    height:103px;
+    min-height:103px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-auto-rows:48px;
+  }
+  .mol-full-play-layout .mol-full-compare{
+    height:365px;
+    min-height:365px;
+  }
+  .mol-full-action-slot,
+  .mol-full-action-slot .mol-full-choice,
+  .mol-full-action-slot .mol-full-wait{
+    height:80px;
+    min-height:80px;
+  }
+  .mol-full-action-slot .mol-full-choice{
+    grid-template-columns:1fr 1fr!important;
+    gap:8px;
+  }
+  .mol-full-action-slot .mol-full-choice button{
+    min-height:80px;
+  }
+}
