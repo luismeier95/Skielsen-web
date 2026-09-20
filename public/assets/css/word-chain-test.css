@@ -164,7 +164,7 @@ body.wcxt-show-data [data-source]::after{
   min-width:0;
   align-self:stretch;
   display:grid;
-  grid-template-rows:18px 64px 112px;
+  grid-template-rows:18px 92px;
   align-content:start;
 }
 .wcxt-slots{
@@ -192,48 +192,6 @@ body.wcxt-show-data [data-source]::after{
   color:var(--theme-on-input);
   border-bottom-color:var(--theme-accent);
 }
-.wcxt-keyboard{
-  width:min(620px,100%);
-  margin:4px auto 0;
-  display:grid;
-  grid-template-columns:repeat(10,minmax(0,1fr));
-  gap:5px;
-  align-content:start;
-}
-.wcxt-key{
-  min-width:0;
-  height:32px;
-  padding:0;
-  border:1px solid var(--theme-secondary-border);
-  background:var(--theme-secondary-action);
-  color:var(--theme-on-secondary-action);
-  font:900 9px/1 var(--ui);
-  cursor:pointer;
-}
-.wcxt-key:focus-visible{
-  outline:2px solid var(--theme-focus);
-  outline-offset:1px;
-}
-.wcxt-key:disabled{
-  background:var(--theme-disabled-bg);
-  color:var(--theme-on-disabled);
-  border-color:var(--theme-disabled-border);
-}
-.wcxt-key.is-hit{
-  background:var(--theme-success-bg);
-  color:var(--theme-on-success);
-  border-color:var(--theme-success-bg);
-}
-.wcxt-key.is-miss{
-  background:var(--theme-danger-bg);
-  color:var(--theme-on-danger);
-  border-color:var(--theme-danger-bg);
-}
-.wcxt-key.is-ignored{
-  background:var(--theme-warning-bg);
-  color:var(--theme-on-warning);
-  border-color:var(--theme-warning-bg);
-}
 .wcxt-mainbody.is-hint .wcxt-slot.is-revealed:last-child{
   animation:wcxtHint .38s ease both;
 }
@@ -248,7 +206,7 @@ body.wcxt-show-data [data-source]::after{
     grid-template-rows:68px 28px 194px 32px;
   }
   .wcxt-answer{
-    grid-template-rows:16px 58px 120px;
+    grid-template-rows:16px 88px;
   }
   .wcxt-slots{
     height:58px;
@@ -262,16 +220,7 @@ body.wcxt-show-data [data-source]::after{
     border-bottom-width:3px;
     font-size:21px;
   }
-  .wcxt-keyboard{
-    grid-template-columns:repeat(10,minmax(0,1fr));
-    gap:4px;
-    margin-top:2px;
-  }
-  .wcxt-key{
-    height:34px;
-    font-size:8px;
-  }
-  .wcxt-action-copy b{
+      .wcxt-action-copy b{
     min-width:94px;
   }
 }
