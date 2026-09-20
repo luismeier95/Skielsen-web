@@ -244,7 +244,7 @@ function reveal(){
     setTimeout(()=>{
       const btn=document.getElementById('molcContinue');
       if(btn){btn.hidden=false;btn.addEventListener('click',continueGame,{once:true})}
-    },2000);
+    },1050);
   });
 }
 function advanceTurn(){
