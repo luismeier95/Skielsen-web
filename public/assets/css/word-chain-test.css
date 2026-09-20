@@ -362,3 +362,102 @@ body.wcxt-show-data [data-source]::after{
 .wcxt-setup-page .wcxt-setup{
   width:100%;
 }
+
+/* Centered collision-safe play surface */
+.wcxt-content{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.wcxt-play-layout,
+.wcxt-result{
+  width:min(680px,100%);
+  margin-inline:auto;
+}
+.wcxt-play-layout > *,
+.wcxt-status > div,
+.wcxt-player,
+.wcxt-mainbody,
+.wcxt-puzzle,
+.wcxt-base,
+.wcxt-answer,
+.wcxt-action-copy{
+  min-width:0;
+}
+.wcxt-status strong,
+.wcxt-player span,
+.wcxt-player b,
+.wcxt-action-copy span,
+.wcxt-action-copy b{
+  line-height:1.05;
+}
+.wcxt-base{
+  width:100%;
+  overflow:hidden;
+}
+.wcxt-base strong{
+  width:100%;
+  max-width:100%;
+  margin-inline:auto;
+  white-space:nowrap;
+  overflow:hidden;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.wcxt-answer{
+  width:100%;
+  overflow:hidden;
+}
+.wcxt-slots{
+  width:min(620px,100%);
+  max-width:100%;
+  margin-inline:auto;
+  overflow:hidden;
+}
+.wcxt-slot{
+  width:var(--slot-size,38px);
+  height:var(--slot-size,38px);
+  flex:0 0 var(--slot-size,38px);
+  min-width:0;
+  font-size:var(--slot-font,25px);
+  line-height:1;
+}
+.wcxt-feedback{
+  padding-inline:10px;
+  line-height:1.2;
+  white-space:normal;
+  overflow:hidden;
+  text-wrap:balance;
+}
+.wcxt-action-copy{
+  max-width:100%;
+  padding-inline:10px;
+  justify-content:center;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.wcxt-action-copy span,
+.wcxt-action-copy b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.wcxt-setup-hero h1{
+  line-height:1;
+}
+@media(max-width:720px){
+  .wcxt-play-layout,
+  .wcxt-result{
+    width:100%;
+  }
+  .wcxt-slot{
+    width:var(--slot-size,30px);
+    height:var(--slot-size,30px);
+    flex-basis:var(--slot-size,30px);
+    font-size:var(--slot-font,21px);
+  }
+  .wcxt-action-copy{
+    white-space:normal;
+    line-height:1.15;
+  }
+}
