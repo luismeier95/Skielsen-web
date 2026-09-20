@@ -100,7 +100,7 @@ function statusHtml(a,b,c){
   </section>`;
 }
 function scoreboard(){
-  return `<div class="molc-scoreboard">${s.players.map(p=>`<div class="molc-player ${p.active?'':'out'}" style="--player:${color(p)}"><i></i><span>${esc(p.name)}</span><b>${p.wins} SIEGE</b></div>`).join('')}</div>`;
+  return `<div class="molc-scoreboard">${s.players.map(p=>`<div class="molc-player ${p.active?'':'out'}" style="--player:${color(p)}"><i></i><span>${esc(p.name)}</span><b>${p.wins}</b></div>`).join('')}</div>`;
 }
 function playStatus(p){
   return `<section class="skg-status molc-play-status"><div><small>KATEGORIE</small><strong>${esc(META[s.categoryKey][0])}</strong></div><div><small>ZUG</small><strong>${esc(p.name)}</strong></div></section>`;
