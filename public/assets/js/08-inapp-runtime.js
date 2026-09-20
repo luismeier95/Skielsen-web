@@ -505,6 +505,10 @@ async function pollPlayer(){
       playerSession=r.data;playerSessionMisses=0;
       renderPlayerSession(playerSession);
     }else{
+      if(window.skielsenWordChain?.resultOpen){
+        playerSessionMisses=0;
+        return;
+      }
       playerSessionMisses++;
       if(playerSession&&playerSessionMisses<3){
         console.warn('In-App session poll returned empty; keeping last session snapshot',playerSessionMisses);
