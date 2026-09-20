@@ -13,7 +13,7 @@
 <header class="gdc-topbar">
   <div>
     <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
-    <span>GAME DESIGN CONTRACT · V1.2</span>
+    <span>GAME DESIGN CONTRACT · V1.3</span>
   </div>
   <div class="gdc-controls">
     <label>THEME
@@ -179,7 +179,7 @@
   </section>
 
   <section class="gdc-docs">
-    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.2</h2></header>
+    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.3</h2></header>
 
     <div class="gdc-rule-grid">
       <article><b>01</b><h3>HIERARCHIE</h3><p><strong>Theme Contract</strong> = Farben und Kontraste. <strong>Game Design Contract</strong> = Layout und Komponenten. <strong>Game Module</strong> = Mechanik.</p></article>
@@ -208,6 +208,13 @@
       <article><b>24</b><h3>VARIABLE ORIGIN</h3><p>Jede variable UI-Information braucht bereits in der Standalone einen eindeutigen Source-Key, Datentyp, Null-/Fallback-Verhalten und ein definiertes UI-Ziel.</p></article>
       <article><b>25</b><h3>STANDALONE → DB</h3><p>Standalone-Games trennen Static Layout, Theme Tokens, Content Variables, State Variables, Interaction State und Database Mapping. Beim Merge darf keine Variable erst nachträglich „erraten“ werden.</p></article>
       <article><b>26</b><h3>IMPLEMENTATION GATE</h3><p>Eine Standalone gilt erst als integrationsbereit, wenn Layout-Contract, Theme-Contract, responsive Verhalten und Variable→Datenquelle-Mapping vollständig geprüft sind.</p></article>
+      <article><b>27</b><h3>MOBILE KEYBOARD VIEWPORT</h3><p>Text-Games nutzen den nativen System-Keyboard-Viewport. Kein doppelter Keyboard-Offset. Essenzielle Mechanik muss oberhalb der Tastatur vollständig sichtbar bleiben.</p></article>
+      <article><b>28</b><h3>MOBILE MINIMAL HUD</h3><p>Bei Keyboard-Games darf Mobile auf Game Progress, eigenen KPI/Score, Zeit, Mechanik und Feedback reduziert werden. Sekundäre Historie, Roster und Zusatzinfos verschwinden.</p></article>
+      <article><b>29</b><h3>PROGRESS ≠ TIMER</h3><p>Shared Progress zeigt Gesamtfortschritt. Runden-/Wort-/Turn-Timer erhalten eine eigene Anzeige. Ein Balken darf nicht beide Bedeutungen gleichzeitig tragen.</p></article>
+      <article><b>30</b><h3>SETUP PAGE</h3><p>Konfiguration ist eine eigene Page/State, kein Overlay über dem Game Body. Shared Session-Optionen werden genau einmal serverseitig gewählt und persistiert.</p></article>
+      <article><b>31</b><h3>RESULT PAGE</h3><p>Result ist eine eigene Page: Header → 100 % Progress → ERGEBNIS → Tabelle → Primary Action. Standardreihenfolge: POSITION → Identity Accent + NAME → Game-Metriken.</p></article>
+      <article><b>32</b><h3>ENTITY LEVEL</h3><p>Result-Zeilen müssen auf derselben Ebene liegen wie Placements. Keine Player-Zeilen mit Participant-/Team-Placements mischen.</p></article>
+      <article><b>33</b><h3>HIDDEN INFORMATION</h3><p>Standalone-Mockdaten definieren explizit, was Production sehen darf. Verdeckte Lösungen, zukünftige Antworten oder nicht freigegebene Metadaten bleiben serverseitig.</p></article>
     </div>
   </section>
 
