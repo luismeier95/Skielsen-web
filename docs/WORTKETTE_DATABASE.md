@@ -194,3 +194,13 @@ Der Threshold wird pro neuer Solo-Session an `start_word_chain_solo(player_key, 
 `frequency_override_keep=true` bleibt unabhängig vom Slider zugelassen. Die RPC `get_word_chain_threshold_stats(threshold)` liefert die jeweils verfügbare Edge-Zahl live für die Testoberfläche.
 
 Ein Frequency-Audit aktualisiert nur Scores und Statusfelder; er löscht oder deaktiviert keine Kanten mehr.
+
+
+## Input UX V15
+
+Zwei Komfortregeln sind jetzt serverseitig abgesichert und im Standalone-Client umgesetzt:
+
+1. Wenn ein Fehlversuch oder Timeout den letzten noch fehlenden Buchstaben automatisch aufdeckt, wird das aktuelle Wort sofort als abgeschlossen behandelt. Die Session rückt direkt zum nächsten Kettenwort weiter; ein zusätzliches ENTER ist nicht nötig. Der Fehlversuch kostet weiterhin −1 Punkt.
+2. Wenn nur der erste Buchstabe vorgegeben ist und der Spieler diesen Buchstaben reflexartig erneut eingibt, wird die wiederholte Eingabe ignoriert, sofern das echte Lösungswort nicht mit demselben Doppelbuchstaben beginnt. Die Prüfung erfolgt anhand der serverseitig gesperrten Lösung; echte Doppelanfänge bleiben dadurch unverändert spielbar.
+
+Die Submit-RPC normalisiert die doppelte Initiale zusätzlich serverseitig, damit auch schnelle Eingaben oder ältere Clients nicht fälschlich als falsch gewertet werden.

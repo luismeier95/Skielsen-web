@@ -1,4 +1,4 @@
-/* Wortkette Solo V14 · per-session occurrence threshold slider */
+/* Wortkette Solo V15 · auto-complete hints + duplicate-initial input guard */
 (()=>{
 'use strict';
 
@@ -28,6 +28,7 @@ const PLAYER_KEY=getPersistentPlayerKey();
 let timeLimit=0,state=null,busy=false,timer=0,timeLeft=0,correctCount=0;
 let occurrenceThreshold=35;
 let thresholdStatsTimer=0;
+let inputRules={ignore_repeated_initial:false};
 
 function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'auto'})}
 function cleanLetters(value){return String(value||'').normalize('NFC').replace(/[^A-Za-zÄÖÜäöüß]/g,'').toLocaleUpperCase('de-DE')}
@@ -63,6 +64,17 @@ function scheduleThresholdStats(){
 function chainMarkup(words,host){
   const list=Array.isArray(words)?words:[];
   host.innerHTML=list.map((word,i)=>'<span class="word">'+esc(word)+'</span>'+(i<list.length-1?'<span class="arrow">→</span>':'')).join('')||'—';
+}
+async function refreshInputRules(){
+  inputRules={ignore_repeated_initial:false};
+  if(!state||state.completed)return;
+  const prefix=cleanLetters(state.revealed_prefix||'');
+  if(prefix.length!==1)return;
+  try{
+    inputRules=await rpc('get_word_chain_input_rules',{p_session_id:state.session_id})||inputRules;
+  }catch(err){
+    console.warn('Wortkette input rules',err);
+  }
 }
 function renderPrefix(){
   const prefix=cleanLetters(state?.revealed_prefix||'');
@@ -107,6 +119,7 @@ async function startGame(){
   try{
     state=await rpc('start_word_chain_solo',{p_player_key:PLAYER_KEY,p_steps:10,p_occurrence_threshold:occurrenceThreshold});
     correctCount=0;
+    await refreshInputRules();
     setBackendStatus('KETTE SERVERSEITIG GESPERRT','live');
     show('playScreen');renderState();feedback('');startTimer();setTimeout(focusGuess,80);
   }catch(err){
@@ -131,23 +144,29 @@ async function submitGuess(timeout=false){
   try{
     const next=await rpc('submit_word_chain_solo',{p_session_id:state.session_id,p_guess:guess});
 
-    if(next.correct){
-      correctCount++;
-      feedback('RICHTIG · '+String(next.compound||'').toLocaleUpperCase('de-DE'),'good');
-      animateCard('flash-good');state=next;
+    if(next.correct||next.auto_completed){
+      if(next.correct)correctCount++;
+      const automatic=!!next.auto_completed;
+      feedback(
+        (automatic?'AUFGEDECKT · ':'RICHTIG · ')+String(next.compound||'').toLocaleUpperCase('de-DE')+(automatic?' · WORT ABGESCHLOSSEN':''),
+        automatic?'hint':'good'
+      );
+      animateCard(automatic?'flash-hint':'flash-good');state=next;
       q('#scoreValue').textContent=String(state.score??0);
       q('#wrongValue').textContent=String(state.wrong_count??0);
       q('#correctValue').textContent=String(correctCount);
 
-      if(state.completed){setTimeout(()=>finishGame(state),480);return}
+      if(state.completed){setTimeout(()=>finishGame(state),automatic?700:480);return}
 
-      setTimeout(()=>{
+      setTimeout(async()=>{
+        await refreshInputRules();
         feedback('');q('#phaseLabel').textContent='WORT FINDEN';renderState();startTimer();busy=false;focusGuess();
-      },500);
+      },automatic?700:500);
       return;
     }
 
     state=next;
+    inputRules={ignore_repeated_initial:false};
     const newPrefix=cleanLetters(state.revealed_prefix||'');
     const revealed=newPrefix.slice(previousPrefix.length) || '—';
     feedback((timeout?'ZEIT ABGELAUFEN':'FALSCH')+' · −1 PUNKT · NÄCHSTER BUCHSTABE: '+revealed,'bad');
@@ -181,7 +200,14 @@ q('#occurrenceThreshold').addEventListener('input',e=>{
 q('#startBtn').addEventListener('click',startGame);
 q('#restartBtn').addEventListener('click',resetToSetup);
 q('#openWordInput').addEventListener('click',focusGuess);
-q('#guessTail').addEventListener('input',e=>{e.target.value=cleanLetters(e.target.value)});
+q('#guessTail').addEventListener('input',e=>{
+  let value=cleanLetters(e.target.value);
+  const prefix=cleanLetters(state?.revealed_prefix||'');
+  if(inputRules?.ignore_repeated_initial&&prefix.length===1&&value.startsWith(prefix)){
+    value=value.slice(1);
+  }
+  e.target.value=value;
+});
 q('#guessTail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitGuess(false)}});
 q('#playScreen').addEventListener('click',e=>{if(!e.target.closest('.game-top')&&!e.target.closest('.stats-row'))focusGuess()});
 
