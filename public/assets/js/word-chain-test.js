@@ -95,6 +95,24 @@ function current(){
 function setDebugState(name){
   stateButtons.forEach(b=>b.classList.toggle('active',b.dataset.state===name));
 }
+function mobileCapture(){
+  return q('#wcxtMobileCapture');
+}
+function syncMobileCapture(){
+  const input=mobileCapture();
+  if(!input)return;
+  const value=String(game?.inputBuffer||'');
+  if(input.value!==value)input.value=value;
+}
+function focusWordInput(){
+  const input=mobileCapture();
+  if(!input||!game||game.completed)return;
+  try{
+    input.focus({preventScroll:true});
+    const n=input.value.length;
+    input.setSelectionRange?.(n,n);
+  }catch(_){}
+}
 function normalizedInputBuffer(){
   const target=current().next;
   const revealedPrefix=target.slice(0,Math.min(game.revealed,target.length));
@@ -182,6 +200,7 @@ function renderPlay(){
   renderSlots();
   renderChain();
   renderPlayerScore();
+  syncMobileCapture();
   requestAnimationFrame(()=>fitSingleLine(q('#wcxtBase'),52,22));
 }
 function feedback(text,kind=''){
@@ -231,6 +250,7 @@ function typeLetter(letter){
   if(game.inputBuffer.length>=maxInput)return;
   game.acceptedBuffer='';
   game.inputBuffer+=chosen;
+  syncMobileCapture();
   renderSlots();
   feedback('');
 }
@@ -238,6 +258,7 @@ function eraseLetter(){
   if(!game||game.locked||game.completed||!game.inputBuffer)return;
   game.acceptedBuffer='';
   game.inputBuffer=game.inputBuffer.slice(0,-1);
+  syncMobileCapture();
   renderSlots();
   feedback('');
 }
@@ -256,6 +277,7 @@ function applyCorrect(){
   game.locked=true;
   game.acceptedBuffer=normalizedInputBuffer();
   game.inputBuffer='';
+  syncMobileCapture();
   clearInterval(timerId);timerId=0;
   renderSlots();
   feedback('RICHTIG · '+current().compound,'good');
@@ -268,6 +290,7 @@ function applyWrong(timeout=false){
   game.score-=1;
   game.inputBuffer='';
   game.acceptedBuffer='';
+  syncMobileCapture();
   const target=current().next;
   game.revealed=Math.min(target.length,game.revealed+1);
   q('#wcxtScore').textContent=String(game.score);
@@ -292,6 +315,7 @@ function applyWrong(timeout=false){
     setDebugState('PLAY');
     if(timeout)startTimer(true);
     else startTimer(false);
+    focusWordInput();
   },520);
 }
 function advanceStep(){
@@ -305,6 +329,7 @@ function advanceStep(){
   game.revealed=1;
   game.inputBuffer='';
   game.acceptedBuffer='';
+  syncMobileCapture();
   game.locked=false;
   feedback('');
   setDebugState('PLAY');
@@ -374,7 +399,10 @@ qa('[data-tier]').forEach(btn=>btn.addEventListener('click',()=>{
   selectedTier=btn.dataset.tier;
   qa('[data-tier]').forEach(other=>other.classList.toggle('active',other===btn));
 }));
-q('#wcxtStart').addEventListener('click',freshGame);
+q('#wcxtStart').addEventListener('click',()=>{
+  freshGame();
+  focusWordInput();
+});
 
 stateButtons.forEach(btn=>btn.addEventListener('click',()=>{
   const state=btn.dataset.state;
@@ -384,6 +412,42 @@ stateButtons.forEach(btn=>btn.addEventListener('click',()=>{
   else if(state==='RESULT')finishGame(true);
 }));
 
+
+const capture=mobileCapture();
+capture?.addEventListener('input',()=>{
+  if(!game||game.completed)return;
+  if(game.locked){
+    syncMobileCapture();
+    return;
+  }
+  game.acceptedBuffer='';
+  game.inputBuffer=String(capture.value||'')
+    .normalize('NFC')
+    .replace(/[^A-Za-zÄÖÜäöüß]/g,'')
+    .toLocaleUpperCase('de-DE')
+    .slice(0,32);
+  if(capture.value!==game.inputBuffer)capture.value=game.inputBuffer;
+  renderSlots();
+  feedback('');
+});
+capture?.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    submitWord();
+    return;
+  }
+});
+capture?.addEventListener('blur',()=>{
+  // Do not steal focus from setup/debug controls; tapping the game restores it.
+});
+q('#wcxtMainBody')?.addEventListener('pointerdown',e=>{
+  if(e.target.closest('button,select'))return;
+  focusWordInput();
+});
+q('#wcxtInputFocus')?.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  focusWordInput();
+});
 
 window.addEventListener('resize',()=>{
   if(!game||game.completed)return;
@@ -395,6 +459,7 @@ window.addEventListener('resize',()=>{
 
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.target===mobileCapture())return;
   if(e.target?.matches?.('select'))return;
   if(e.key==='Enter'){
     e.preventDefault();
