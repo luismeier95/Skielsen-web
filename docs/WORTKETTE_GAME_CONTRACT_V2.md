@@ -25,7 +25,7 @@ Difficulty is selected exactly once per In-App Session by the Tournament Admin.
 
 The selection must happen before any player run / chain generation.
 
-## 3. Page Contract
+## 3. Fullversion Frame\n\nWortkette is mounted inside the existing fullversion frame. The global `.sk-header` with navigation remains visible. **Wortkette must not render a second header, logo bar or duplicate menu.**\n\n## 4. Page Contract
 
 Wortkette has distinct pages/states:
 
@@ -36,7 +36,7 @@ Wortkette has distinct pages/states:
 
 Setup and Result are never overlays on the PLAY body.
 
-## 4. PLAY Layout
+## 5. PLAY Layout
 
 ### Desktop
 May show:
@@ -64,7 +64,7 @@ Hidden on Mobile:
 - secondary stats
 - extra action instructions
 
-## 5. Puzzle Contract
+## 6. Puzzle Contract
 
 Visual order:
 1. Ausgangswort
@@ -79,7 +79,7 @@ Text must never overlap adjacent zones.
 
 Long base words shrink to fit one line.
 
-## 6. Input Contract
+## 7. Input Contract
 
 Input source:
 - physical desktop keyboard
@@ -96,7 +96,7 @@ Keys:
 
 No correct/wrong judgement before Enter.
 
-## 7. Slot Contract
+## 8. Slot Contract
 
 ### Provenance
 - initial first letter → Theme Accent
@@ -118,7 +118,7 @@ Render all target-length slots.
 
 The backend may expose target length only for EASY.
 
-## 8. Duplicate Initial Rule
+## 9. Duplicate Initial Rule
 
 If exactly one initial is revealed:
 - `G` visible + user types `GELD` → repeated G ignored
@@ -126,7 +126,7 @@ If exactly one initial is revealed:
 
 Enforce client and server side.
 
-## 9. Guess Result Contract
+## 10. Guess Result Contract
 
 ### Correct
 - accepted
@@ -154,7 +154,7 @@ Enforce client and server side.
 - automatic advance
 - no extra Enter
 
-## 10. Timer Contract
+## 11. Timer Contract
 
 Text time:
 - integer countdown
@@ -174,7 +174,7 @@ Overall game progress:
 
 Do not reuse one bar for both meanings.
 
-## 11. Mobile Keyboard Contract
+## 12. Mobile Keyboard Contract
 
 Viewport:
 `interactive-widget=resizes-content`
@@ -189,7 +189,7 @@ Hidden input capture:
 - no layout footprint
 - maintains native IME/system keyboard support
 
-## 12. Result Contract
+## 13. Result Contract
 
 RESULT is a separate page.
 
@@ -213,7 +213,7 @@ Ranking:
 2. duration ascending
 3. server random draw
 
-## 13. Theme Contract
+## 14. Theme Contract
 
 No hardcoded theme palette in the production game.
 
@@ -235,7 +235,7 @@ Player/Participant identity colors stay independent:
 - GREEN
 - YELLOW
 
-## 14. Database Variable Map
+## 15. Database Variable Map
 
 | UI / Rule | Source |
 |---|---|
@@ -256,7 +256,7 @@ Player/Participant identity colors stay independent:
 | result time | duration_ms |
 | result score | final score |
 
-## 15. Client-Only State
+## 16. Client-Only State
 
 Never persist:
 - inputBuffer
@@ -267,7 +267,7 @@ Never persist:
 - responsive mode
 - animation classes
 
-## 16. Security / Information Boundary
+## 17. Security / Information Boundary
 
 NORMAL/HARDCORE client must not receive:
 - hidden target
@@ -277,7 +277,7 @@ NORMAL/HARDCORE client must not receive:
 
 EASY may receive only target length, never the target itself.
 
-## 17. Workflow Compatibility
+## 18. Workflow Compatibility
 
 Must retain:
 - Ready page
@@ -293,7 +293,7 @@ Must retain:
 - placement points
 - ledger sync
 
-## 18. Acceptance
+## 19. Acceptance
 
 A build is contract-compliant only when:
 - DB rules and UI agree
