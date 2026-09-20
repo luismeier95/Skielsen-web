@@ -114,7 +114,6 @@ main{width:min(820px,100%);margin:0 auto;padding:28px 18px 100px}.wk-screen{disp
     width:100%;
     padding:9px 12px calc(10px + env(safe-area-inset-bottom));
     background:#fff;
-    border-top:4px solid var(--accent);
     box-shadow:0 -12px 30px #00000018;
     transform:none
   }
@@ -157,3 +156,5 @@ main{width:min(820px,100%);margin:0 auto;padding:28px 18px 100px}.wk-screen{disp
    interactive-widget=resizes-content makes the CSS viewport end above the IME.
    The answer dock therefore anchors to bottom:0 instead of adding a second
    keyboard-height offset. */
+
+/* V19 · remove separator above mobile answer dock */

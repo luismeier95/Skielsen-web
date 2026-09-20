@@ -248,3 +248,8 @@ Die stabile Veröffentlichungsroute bleibt `/wortkette/`; die sichtbare Versions
 Der V17-Anzeigefehler auf Android Chrome entstand durch eine doppelte Tastatur-Kompensation: Der Browser verkleinerte bereits den sichtbaren Viewport, während der Antwort-Dock zusätzlich um die berechnete Tastaturhöhe nach oben versetzt wurde. Dadurch konnte der Eingabebereich vollständig aus dem sichtbaren Bereich rutschen und die Puzzle-Card blieb als große leere Fläche stehen.
 
 V18 verwendet deshalb `interactive-widget=resizes-content` im Viewport-Meta-Tag. Bei geöffneter Tastatur wird der Antwort-Dock schlicht mit `bottom:0` an den vom Browser bereits verkleinerten Content-Viewport gebunden. Die künstliche `--wk-keyboard-offset`-Verschiebung und die große Mindesthöhe der Puzzle-Card wurden entfernt.
+
+
+## Mobile Answer Dock V19
+
+Der dicke lilafarbene Trenner zwischen Ausgangswort und Eingabebereich wurde im Mobile-Keyboard-Modus entfernt. Der Antwort-Dock bleibt weiß und wird nur noch über Abstand und einen dezenten Schatten vom restlichen Puzzle-Bereich getrennt.

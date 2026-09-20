@@ -1,4 +1,4 @@
-/* Wortkette Solo V18 · corrected Android keyboard viewport layout */
+/* Wortkette Solo V19 · mobile answer dock separator cleanup */
 (()=>{
 'use strict';
 
