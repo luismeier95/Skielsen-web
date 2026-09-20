@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="de" data-theme-pack="theme.skielsen.core">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e9">
+<title>SKIELSEN · Game Design Contract</title>
+<link rel="stylesheet" href="assets/css/app.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/tournament-theme-runtime.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.0">
+</head>
+<body class="v15-tournament-active gdc-body" data-theme-pack="theme.skielsen.core">
+<header class="gdc-topbar">
+  <div>
+    <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
+    <span>GAME DESIGN CONTRACT · V1.0</span>
+  </div>
+  <div class="gdc-controls">
+    <label>THEME
+      <select id="gdcTheme">
+        <option value="theme.skielsen.core">SKIELSEN CORE</option>
+        <option value="theme.skielsen.core2">SKIELSEN CORE 2</option>
+        <option value="theme.jga.night">JGA NIGHTS</option>
+        <option value="theme.christmas.winter_clash">WINTER CLASH</option>
+        <option value="theme.summer.sunset_showdown">SUNSET SHOWDOWN</option>
+        <option value="theme.girly.pink_chaos">PINK CHAOS</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<main class="gdc-page">
+  <section class="gdc-intro">
+    <small>VISUELLE REFERENZ</small>
+    <h1>GAME DESIGN<br>CONTRACT</h1>
+    <p>Theme Contract bestimmt Farben und Kontraste. Game Design Contract bestimmt Struktur, Maße und Komponenten. Das einzelne Game darf nur seine Mechanik gestalten.</p>
+  </section>
+
+  <section class="gdc-statebar" aria-label="Game State auswählen">
+    <button class="active" data-gdc-state="SETUP">SETUP</button>
+    <button data-gdc-state="READY">READY</button>
+    <button data-gdc-state="PLAY">PLAY</button>
+    <button data-gdc-state="REVEAL">REVEAL</button>
+    <button data-gdc-state="RESULT">RESULT</button>
+  </section>
+
+  <section class="skg-shell" id="gdcDemo">
+    <header class="skg-header">
+      <div class="skg-header-brand">
+        <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
+        <span>DEMO GAME</span>
+      </div>
+      <div class="skg-header-right">
+        <div class="skg-header-meta">
+          <b id="gdcHeaderMetaStrong">SETUP</b>
+          <span id="gdcHeaderMetaSmall">GAME STATE</span>
+        </div>
+        <button class="skg-icon-btn" type="button" aria-label="Minimieren">⌄</button>
+      </div>
+    </header>
+
+    <div class="skg-progress" aria-hidden="true"><i id="gdcProgress"></i></div>
+
+    <main class="skg-content">
+      <section class="skg-status" id="gdcStatus">
+        <div><small>SCHRITT</small><strong>04 / 10</strong></div>
+        <div><small>PUNKTE</small><strong>-3</strong></div>
+        <div><small>ZEIT</small><strong>00:42</strong></div>
+      </section>
+
+      <section class="gdc-demo-state active" data-gdc-panel="SETUP">
+        <section class="skg-card">
+          <small class="skg-kicker">SPIELVORBEREITUNG</small>
+          <h2>DEMO GAME</h2>
+          <p class="skg-copy">Spielmechanik erklären, optionale Spielparameter wählen und anschließend mit einer eindeutigen Primary Action starten.</p>
+          <div class="skg-choice-set">
+            <button type="button">EASY</button>
+            <button type="button" class="active">NORMAL</button>
+            <button type="button">HARDCORE</button>
+          </div>
+        </section>
+        <div class="skg-actions"><button class="skg-btn primary" type="button">SPIEL STARTEN →</button></div>
+      </section>
+
+      <section class="gdc-demo-state" data-gdc-panel="READY">
+        <section class="skg-card">
+          <small class="skg-kicker">PLAYER STATUS</small>
+          <div class="skg-player-list">
+            <div class="skg-player"><i class="red"></i><strong>DJEELOI</strong><b class="state-ready">BEREIT</b></div>
+            <div class="skg-player"><i class="blue"></i><strong>SOFYA</strong><b class="state-waiting">WARTET</b></div>
+            <div class="skg-player"><i class="green"></i><strong>HANNES</strong><b class="state-ready">BEREIT</b></div>
+            <div class="skg-player"><i class="yellow"></i><strong>PIA</strong><b class="state-waiting">WARTET</b></div>
+          </div>
+        </section>
+        <div class="skg-actions"><button class="skg-btn primary" type="button">ICH BIN BEREIT</button><button class="skg-btn secondary" type="button">MINIMIEREN</button></div>
+      </section>
+
+      <section class="gdc-demo-state" data-gdc-panel="PLAY">
+        <div class="skg-scoreboard">
+          <div class="skg-score-player" style="--player:var(--core-red)"><i></i><span>DJEELOI</span><b>2</b></div>
+          <div class="skg-score-player" style="--player:var(--core-blue)"><i></i><span>SOFYA</span><b>1</b></div>
+          <div class="skg-score-player" style="--player:var(--core-green)"><i></i><span>HANNES</span><b>0</b></div>
+          <div class="skg-score-player" style="--player:var(--core-yellow)"><i></i><span>PIA</span><b>0</b></div>
+        </div>
+        <section class="skg-card skg-mechanic">
+          <small class="skg-kicker">GAME-SPECIFIC MECHANIC AREA</small>
+          <div class="skg-mechanic-display">
+            <span>REFERENZ</span>
+            <strong>42</strong>
+            <b>VS</b>
+            <strong>?</strong>
+          </div>
+        </section>
+        <div class="skg-choice-actions">
+          <button class="skg-btn less" type="button">↓ WENIGER</button>
+          <button class="skg-btn more" type="button">↑ MEHR</button>
+        </div>
+      </section>
+
+      <section class="gdc-demo-state" data-gdc-panel="REVEAL">
+        <section class="skg-feedback success"><strong>RICHTIG</strong><span>Die spielrelevante Auflösung nutzt immer die semantischen Feedback-Tokens.</span></section>
+        <section class="skg-card">
+          <small class="skg-kicker">AUFLÖSUNG</small>
+          <h2>58</h2>
+          <p class="skg-copy">Nur die Game-Mechanik ist individuell. Card, Typografie, Feedback und Action bleiben Contract-Komponenten.</p>
+        </section>
+        <div class="skg-actions"><button class="skg-btn primary" type="button">NÄCHSTER ZUG →</button></div>
+      </section>
+
+      <section class="gdc-demo-state" data-gdc-panel="RESULT">
+        <section class="skg-result-table">
+          <header><strong>FINALES ERGEBNIS</strong><span>4 PLAYER</span></header>
+          <div class="skg-result-columns"><span>NAME</span><span>TIME</span><span>SCORE</span></div>
+          <div class="skg-result-row"><span class="skg-result-player"><i class="red"></i><strong>DJEELOI</strong></span><b>01:24:38</b><b>-3</b></div>
+          <div class="skg-result-row"><span class="skg-result-player"><i class="blue"></i><strong>SOFYA</strong></span><b>01:31:04</b><b>-3</b></div>
+          <div class="skg-result-row"><span class="skg-result-player"><i class="green"></i><strong>HANNES</strong></span><b>01:46:12</b><b>-5</b></div>
+          <div class="skg-result-row"><span class="skg-result-player"><i class="yellow"></i><strong>PIA</strong></span><b>02:02:71</b><b>-7</b></div>
+        </section>
+        <div class="skg-actions"><button class="skg-btn primary" type="button">TURNIER ANSEHEN →</button></div>
+      </section>
+    </main>
+  </section>
+
+  <section class="gdc-docs">
+    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.0</h2></header>
+
+    <div class="gdc-rule-grid">
+      <article><b>01</b><h3>HIERARCHIE</h3><p><strong>Theme Contract</strong> = Farben und Kontraste. <strong>Game Design Contract</strong> = Layout und Komponenten. <strong>Game Module</strong> = Mechanik.</p></article>
+      <article><b>02</b><h3>CANVAS</h3><p>Alle Games verwenden denselben Canvas: Desktop max. <strong>760 px</strong>, Mobile <strong>100 %</strong>. Keine eigene App-Breite pro Game.</p></article>
+      <article><b>03</b><h3>HEADER</h3><p>72 px Desktop, 52 px Mobile. Links Logo + Game Name, rechts Meta + Minimieren. Kein Game baut einen eigenen Header.</p></article>
+      <article><b>04</b><h3>PROGRESS</h3><p>Direkt unter dem Header, <strong>4 px</strong> hoch. Zeigt Game Progress, nicht verbleibende Zeit.</p></article>
+      <article><b>05</b><h3>STATUS BANNER</h3><p>Maximal drei Werte. Im Result-State verschwinden alle Werte und der Banner zeigt ausschließlich <strong>ERGEBNIS</strong>.</p></article>
+      <article><b>06</b><h3>TYPOGRAFIE</h3><p><strong>Display</strong> für Hauptbegriffe, Zahlen und Resultate. <strong>UI</strong> für Labels, Namen, Buttons, Tabellen und Copy.</p></article>
+      <article><b>07</b><h3>TYPE SCALE</h3><p>Micro 6–7 px, UI 8–10 px, Copy 12 px, Werte 18–26 px, Hauptobjekte 34–58 px, Result 40–68 px.</p></article>
+      <article><b>08</b><h3>SURFACES</h3><p>Cards nutzen nur Theme Surface, On-Surface, Border und Shadow. Standardmäßig <strong>keine Border-Radii</strong>.</p></article>
+      <article><b>09</b><h3>PLAYER IDENTITY</h3><p>Rot, Blau, Grün und Gelb bleiben semantische Identitätsfarben. Sie dürfen das Theme nicht ersetzen.</p></article>
+      <article><b>10</b><h3>BUTTONS</h3><p>Nur Primary, Secondary, Gameplay Choice und Danger. Keine Game-eigenen Buttonfarben oder zufällige Varianten.</p></article>
+      <article><b>11</b><h3>FEEDBACK</h3><p>Nur Success, Warning und Error. Farben kommen immer aus Theme-Tokens.</p></article>
+      <article><b>12</b><h3>SCOREBOARD</h3><p>Player Rows folgen einem gemeinsamen Pattern: Farbmarker, Name, Game-Wert. Keine separate Darstellung je Game.</p></article>
+      <article><b>13</b><h3>RESULT PAGE</h3><p>Jedes Game endet gleich: <strong>ERGEBNIS</strong> → Result Table → <strong>TURNIER ANSEHEN</strong>.</p></article>
+      <article><b>14</b><h3>RESULT TABLE</h3><p>Ein gemeinsames Tabellen-Component. Nur Spalten und Werte sind Game-spezifisch.</p></article>
+      <article><b>15</b><h3>GAME STATES</h3><p>Jedes Game mappt auf <strong>SETUP, READY, PLAY, REVEAL, RESULT</strong>.</p></article>
+      <article><b>16</b><h3>GAME-SPEZIFISCH</h3><p>Nur der zentrale Mechanik-Bereich darf einzigartig sein, z. B. 7-Segment-Timer, Wortfelder oder Kategorie-Vergleich.</p></article>
+      <article><b>17</b><h3>ANIMATION</h3><p>Standard 180–280 ms. Keine eigene Animationssprache je Game. Ausnahmen nur für spielrelevante Mechaniken.</p></article>
+      <article><b>18</b><h3>RESPONSIVE</h3><p>Primärer Breakpoint <strong>720 px</strong>. Weitere Breakpoints nur bei zwingender Mechanik-Notwendigkeit.</p></article>
+      <article><b>19</b><h3>CSS ARCHITEKTUR</h3><p>Gemeinsame Klassen tragen Präfix <strong>skg-</strong>. Game-CSS enthält nur Mechanik-spezifische Komponenten.</p></article>
+      <article><b>20</b><h3>NON-NEGOTIABLE</h3><p>Kein eigener Header, keine eigenen globalen Farben, keine eigene Content-Breite, kein eigener Result-Screen, keine Hardcoded Theme-Farben.</p></article>
+    </div>
+  </section>
+
+  <section class="gdc-nonneg">
+    <small>ARCHITEKTUR</small>
+    <h2>THEME → CONTRACT → GAME</h2>
+    <div><span>THEME CONTRACT</span><b>↓</b><span>GAME DESIGN CONTRACT</span><b>↓</b><span>GAME MECHANIC</span></div>
+  </section>
+</main>
+
+<script src="assets/js/game-design-contract.js?v=1.0"></script>
+</body>
+</html>
