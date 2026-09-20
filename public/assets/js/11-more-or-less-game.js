@@ -63,7 +63,7 @@ function countFrame(finalValue,target,progress){
   const number=current.toLocaleString('de-DE',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
   return number+(suffix?' '+suffix:'');
 }
-function animateRevealCount(el,finalValue,target,duration=950){
+function animateRevealCount(el,finalValue,target,duration=2000){
   return new Promise(resolve=>{
     if(!el){resolve();return}
     const start=performance.now();
@@ -221,7 +221,6 @@ function revealMarkup(){
         <div class="mol-full-vs mol-full-outcome" aria-label="${ok?'Richtig':'Falsch'}">${ok?'✓':'✕'}</div>
         <div class="mol-full-current"><strong>${esc(curLabel)}</strong><b id="molFullCount" data-target="${Number.isFinite(curNumeric)?curNumeric:''}" data-final="${esc(curValue)}">0</b></div>
       </section>
-      ${!ok&&mine?`<button class="mol-full-continue is-delayed" id="molFullContinue" type="button" hidden>${categoryOver?'KATEGORIE ABSCHLIESSEN →':'WEITER →'}</button>`:!ok?`<div class="mol-full-wait is-delayed" id="molFullWait" hidden>WARTEN</div>`:''}
     </main>
   </section>`;
 }
@@ -286,13 +285,8 @@ function render(){
           if(mine)feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},500);
         },250);
       }else{
-        feedbackTimer=setTimeout(()=>{
-          if(feedbackKey!==key)return;
-          const btn=document.getElementById('molFullContinue');
-          const waitEl=document.getElementById('molFullWait');
-          if(btn){btn.hidden=false;btn.addEventListener('click',()=>act('CONTINUE'),{once:true})}
-          if(waitEl)waitEl.hidden=false;
-        },1050);
+        const mine=state?.viewer?.member_id===lr.answer_member_id;
+        if(mine&&feedbackKey===key)void act('CONTINUE');
       }
     });
     return;
