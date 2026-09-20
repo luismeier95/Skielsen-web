@@ -245,7 +245,7 @@ function reveal(){
       setTimeout(advanceTurn,520);
       return;
     }
-    continueGame();
+    requestAnimationFrame(()=>continueGame());
   });
 }
 function advanceTurn(){
