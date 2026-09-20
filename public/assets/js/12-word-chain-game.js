@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.61';
+const VERSION=window.SKIELSEN_VERSION||'15.1.62';
 const POLL_MS=1600;
 let root=null,session=null,db=null,state=null,pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null,lastWordKey='',resultIngested=false,viewportRaf=0,baseViewportHeight=window.visualViewport?.height||window.innerHeight;
 
@@ -23,6 +23,22 @@ function feedback(text,kind=''){
 function chainHtml(words){
   const list=Array.isArray(words)?words:[];
   return list.map((w,i)=>'<span>'+esc(w)+'</span>'+(i<list.length-1?'<b>→</b>':'')).join('')||'—';
+}
+function liveStandingsHtml(rows){
+  const list=Array.isArray(rows)?rows:[];
+  if(!list.length)return '<div class="wc-live-empty">NOCH KEIN PLAYER IM ZIEL.</div>';
+  return list.map(r=>{
+    const rank=String(Number(r?.rank||0)||'—').padStart(2,'0');
+    const finish=String(Number(r?.finish_order||0)||'—').padStart(2,'0');
+    const color=String(r?.identity_color||'').toUpperCase();
+    const score=Number(r?.score??0);
+    return `<div class="wc-live-row">
+      <b>${esc(rank)}</b>
+      <span class="wc-live-player"><i data-wc-live-color="${esc(color)}" aria-hidden="true"></i><strong>${esc(r?.display_name||'PLAYER')}</strong></span>
+      <strong class="wc-live-score">${score>0?'+':''}${esc(score)}</strong>
+      <small>#${esc(finish)}</small>
+    </div>`;
+  }).join('');
 }
 function shell(){
   return `
@@ -71,6 +87,11 @@ function shell(){
             <div><small>FEHLVERSUCHE</small><strong data-wc-final-wrong>0</strong></div>
           </div>
           <p data-wc-waiting>ERGEBNIS WIRD SYNCHRONISIERT …</p>
+          <section class="wc-live-board" aria-label="Live Tabelle der fertigen Spieler">
+            <header><div><small>LIVE TABELLE</small><strong>FINISHER</strong></div><span data-wc-live-count>0 / 0</span></header>
+            <div class="wc-live-columns"><span>RANG</span><span>PLAYER</span><span>PUNKTE</span><span>ZIEL</span></div>
+            <div class="wc-live-rows" data-wc-live-rows><div class="wc-live-empty">NOCH KEIN PLAYER IM ZIEL.</div></div>
+          </section>
           <div class="wc-final-chain" data-wc-final-chain></div>
           <button class="wc-primary" type="button" data-wc-minimize-finish>TURNIER ANSEHEN →</button>
         </section>
@@ -143,9 +164,12 @@ function render(next,{clearInput=false}={}){
     q('[data-wc-final-wrong]').textContent=String(state.wrong_count??0);
     q('[data-wc-final-chain]').innerHTML=chainHtml(state.full_chain||solved);
     const finished=Number(state.finished_players||0),total=Number(state.total_players||0);
+    const live=Array.isArray(state.live_standings)?state.live_standings:[];
+    const liveRows=q('[data-wc-live-rows]');if(liveRows)liveRows.innerHTML=liveStandingsHtml(live);
+    const liveCount=q('[data-wc-live-count]');if(liveCount)liveCount.textContent=`${finished} / ${total} IM ZIEL`;
     q('[data-wc-waiting]').textContent=state.waiting_for_others
-      ?`DU BIST FERTIG · ${finished}/${total} PLAYER ABGESCHLOSSEN · WARTET AUF DIE ANDEREN.`
-      :'ALLE PLAYER SIND FERTIG · AUSWERTUNG LÄUFT.';
+      ?`DU BIST FERTIG · LIVE-TABELLE AKTUALISIERT SICH AUTOMATISCH · ${finished}/${total} IM ZIEL.`
+      :'ALLE PLAYER SIND FERTIG · FINALES ERGEBNIS WIRD ÜBERNOMMEN.';
     return;
   }
 
