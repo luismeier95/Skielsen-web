@@ -219,3 +219,10 @@ Manuelle Fehlversuche werden jetzt gegen das deutsche Wiktionary validiert.
 Die Prüfung läuft serverseitig über die MediaWiki-API des deutschen Wiktionary und wird in `word_chain_lexicon_cache` zwischengespeichert. Fällt die externe Wortprüfung aus, wird die Eingabe vorsichtshalber nicht als Fehlversuch gewertet.
 
 Damit kann der Spieler den Countdown nicht mehr durch Enter-Spam oder Zufallszeichen künstlich zurücksetzen.
+
+
+## Veröffentlichungsroute
+
+Ab V16 wird die jeweils aktuellste Wortkette-Version immer unter der stabilen Route `/wortkette/` veröffentlicht. Es werden für neue Builds keine versionsabhängigen öffentlichen URLs mehr benötigt.
+
+Die sichtbare Versionsangabe steht ausschließlich als kurzer String im Game-Header, z. B. `V16`. Zusätze wie `SOLO PLAYTEST ·` oder Versionsnummern im sichtbaren Seitentitel entfallen.
