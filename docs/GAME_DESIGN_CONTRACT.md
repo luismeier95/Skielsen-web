@@ -1,6 +1,6 @@
 # SKIELSEN · GLOBAL GAME DESIGN & IMPLEMENTATION CONTRACT
 
-Stand: V1.2  
+Stand: V1.3  
 Geltung: **alle zukünftigen SKIELSEN Games ab der ersten Standalone-Version**
 
 ## 1. Hierarchie
@@ -112,7 +112,76 @@ Game-spezifisch sind nur:
 
 Für jede Result-Spalte muss die Datenquelle vor der Integration feststehen.
 
-## 10. Standalone Implementation Gate
+## 10. Mobile Keyboard / Visual Viewport Contract
+
+Games that require text input must be designed around the **browser-resized visual viewport** while the native keyboard is open.
+
+Required:
+- `interactive-widget=resizes-content`
+- no double keyboard-offset compensation
+- no custom onscreen keyboard unless the mechanic explicitly requires one
+- native input capture may be visually hidden, but must remain focusable
+- all essential gameplay information must remain visible above the keyboard
+
+For keyboard-heavy games, Mobile may use a **Minimal HUD**:
+- game progress / step
+- own score or own required KPI
+- time
+- core mechanic
+- feedback
+
+Secondary information such as full rosters, history, extra stats and explanatory action copy must be removed from the keyboard viewport.
+
+## 11. Progress vs Timer Contract
+
+Progress and time are different semantics and must never share one UI channel.
+
+- Shared Progress directly below the Game Header = overall game progress.
+- Round/word/turn timer = separate mechanic-specific indicator.
+- Timer danger states change semantic color; they must not create unnecessary layout-changing boxes.
+- Timer calculations use server-authoritative deadline/time data where available.
+
+## 12. Setup Page Contract
+
+A configuration/setup state is a **separate page/state**, not an overlay positioned on top of the gameplay body.
+
+If a setting affects shared server state or a common random seed/chain:
+- select it exactly once at session level
+- persist it before gameplay state is created
+- non-authorized clients wait instead of selecting their own variant
+
+## 13. Result Page Contract
+
+Result is a separate page/state, never an inline replacement inside the active gameplay mechanic.
+
+Shared order:
+1. Shared Header
+2. Progress = complete
+3. Status = ERGEBNIS only
+4. Result Table
+5. Primary exit/continue action
+
+Default result column order:
+1. POSITION
+2. [Identity Accent] NAME
+3. game-specific metrics, e.g. ZEIT
+4. game-specific SCORE/value
+
+Final result rows must use the same entity level as Tournament Placements. Do not mix Player-level rows with Participant-/Team-level placements.
+
+## 14. Hidden Information Contract
+
+Standalone mock data must explicitly mark which information is allowed to reach the production client.
+
+A production client must not receive hidden solution information only because the Standalone needs it locally.
+
+Examples:
+- hidden target word: server only
+- future chain/answers: server only
+- target length: only when the game mode explicitly allows it
+- input buffer / animation state: client only, never persisted
+
+## 15. Standalone Implementation Gate
 
 Vor Merge müssen geprüft sein:
 
@@ -139,7 +208,7 @@ Vor Merge müssen geprüft sein:
 - Produktionsmodul auf dieselben Contract-Regeln gemappt
 - GitHub Validation/Deploy erfolgreich
 
-## 11. Referenz-Testseiten
+## 16. Referenz-Testseiten
 
 - Game Design Contract: `/game-design-contract.html`
 - Mehr oder Weniger: `/more-or-less-contract-test/`
