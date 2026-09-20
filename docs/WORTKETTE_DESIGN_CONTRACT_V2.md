@@ -32,22 +32,19 @@ Mobile:
 Primary breakpoint:
 - 720 px
 
-## 3. Shared Header
+## 3. Fullversion Frame / Global Header
 
-Desktop:
-- height: 72 px
+The production game does **not** render its own header.
 
-Mobile:
-- height: 52 px
+The existing fullversion `.sk-header` is the canonical frame above Wortkette and contains the global SKIELSEN navigation/menu. It remains visible while Wortkette is open.
 
-Fixed geometry within a page.
+Wortkette starts below:
+- global fullversion header
+- global four-color strip
 
-Contains:
-- Skielsen Logo
-- Game Name
-- shared minimize control / shared chrome
+Standalone-only mock headers are reference chrome and must never be copied into Production.
 
-No game-specific color hardcoding.
+Desktop and Mobile both use this same fullversion frame; the game layout below it is responsive and differs by breakpoint.
 
 ## 4. Overall Game Progress
 
@@ -102,7 +99,7 @@ Only the Mechanic Body may contain game-specific animation/morph behavior.
 Mobile is keyboard-first.
 
 Visible while playing:
-- Shared Header: 52 px
+- Existing Fullversion Header: outside the game module
 - Overall Progress: 4 px
 - Status: 52 px
 - Word Timer: 4 px directly under Status
@@ -238,7 +235,7 @@ No global header/status/button animation.
 Own page.
 
 Order:
-1. Shared Header
+1. Existing Fullversion Header / Runtime Frame
 2. Progress = 100 %
 3. Result Status
 4. Result Table
