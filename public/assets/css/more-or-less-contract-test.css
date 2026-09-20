@@ -417,3 +417,66 @@ body.molc-body{
   .molc-hero{min-height:220px}
   .molc-hero h1{font-size:clamp(56px,17vw,84px);line-height:.9}
 }
+
+/* Interactive decision feedback */
+.molc-play-status{
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface)!important;
+  border-left:6px solid var(--theme-accent);
+  border-top:1px solid var(--theme-border);
+  border-right:1px solid var(--theme-border);
+  border-bottom:1px solid var(--theme-border);
+  box-shadow:var(--theme-shadow-soft);
+}
+.molc-play-status small{color:var(--theme-muted)!important}
+.molc-play-status strong{color:var(--theme-on-surface)!important}
+
+.molc-pending-value{visibility:hidden}
+.molc-feedback-card{
+  border:1px solid var(--theme-border)!important;
+  background:var(--theme-surface)!important;
+  box-shadow:var(--theme-shadow-soft)!important;
+}
+.molc-feedback-card .molc-compare-half{background:transparent!important}
+.molc-feedback-card .molc-outcome{
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font:900 38px/1 var(--ui);
+  color:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.14);
+}
+.molc-feedback-card.is-correct .molc-outcome{background:var(--theme-success-bg,var(--theme-success))}
+.molc-feedback-card.is-wrong .molc-outcome{background:var(--theme-danger-bg,var(--theme-danger))}
+.molc-feedback-actions{min-height:54px}
+.molc-feedback-actions button[hidden]{display:none!important}
+
+.molc-feedback-card .molc-compare-ref,
+.molc-feedback-card .molc-compare-cur{
+  transition:transform .46s cubic-bezier(.2,.75,.2,1),opacity .3s ease;
+}
+.molc-feedback-card .molc-outcome{
+  transition:opacity .25s ease,transform .35s ease;
+}
+.molc-feedback-card.is-promoting .molc-compare-ref{
+  opacity:0;
+  transform:translateY(-28px);
+}
+.molc-feedback-card.is-promoting .molc-compare-cur{
+  transform:translateY(calc(-100% - 72px));
+}
+.molc-feedback-card.is-promoting .molc-outcome{
+  opacity:0;
+  transform:scale(.75);
+}
+
+.molc-result-columns,
+.molc-result-row{
+  grid-template-columns:80px minmax(0,1fr) 110px!important;
+}
+.molc-result-columns span:first-child,
+.molc-result-row .molc-place{text-align:left!important}
+.molc-result-columns span:last-child,
+.molc-result-row .molc-wins{text-align:right!important}
