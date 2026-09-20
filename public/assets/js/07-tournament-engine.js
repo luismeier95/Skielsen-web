@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.50';
+const VERSION=window.SKIELSEN_VERSION||'15.1.51';
 const PAGE_IDS={home:'homePage',profile:'profilePage',matches:'matchesPage',matchDetail:'matchDetailPage',games:'gamesPage',ranking:'rankingPage',bets:'betsPage',news:'newsPage',mvpVote:'mvpVotePage',joker:'jokerPage',admin:'adminPage',gameControl:'gameControlPage'};
 const TEAM_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const SOLO_ORDER=['RED','BLUE','YELLOW','GREEN'];
@@ -1144,8 +1144,18 @@ async function startMatch(){
  if(!isAdmin()){showFlowToast('MATCH','ADMIN ERFORDERLICH','NUR DER TURNIER-ADMIN KANN DEN MATCH STARTEN.',2600);return false}
  if(client&&g.tournament_game_id){
    const {data,error}=await client.rpc('activate_tournament_game',{p_tournament_game_id:g.tournament_game_id});
-   if(error){console.warn('Server game activation failed',error);showFlowToast('MATCH','START FEHLGESCHLAGEN',String(error.message||error),3600);return false}
-   if(data?.status!=='ACTIVE'){showFlowToast('MATCH','START NICHT BESTÄTIGT','SERVERSTATUS · '+String(data?.status||'UNBEKANNT'),3200);return false}
+   if(error){
+     console.warn('Server game activation failed',error);
+     let alreadyActive=false;
+     try{
+       const check=await client.from('tournament_games').select('status').eq('tournament_game_id',g.tournament_game_id).maybeSingle();
+       alreadyActive=!check.error&&String(check.data?.status||'').toUpperCase()==='ACTIVE';
+     }catch(_){}
+     if(!alreadyActive){showFlowToast('MATCH','START FEHLGESCHLAGEN',String(error.message||error),3600);return false}
+   }else if(data?.status!=='ACTIVE'){
+     showFlowToast('MATCH','START NICHT BESTÄTIGT','SERVERSTATUS · '+String(data?.status||'UNBEKANNT'),3200);
+     return false
+   }
  }
  m.status='LIVE';g.phase='ACTIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon();showFlowToast('MATCH','MATCH GESTARTET',String(g.name||'GAME').toUpperCase(),2200);setTimeout(()=>{window.skielsenInApp?.start?.(runtime);window.skielsenInApp?.poll?.()},0);return true
 }

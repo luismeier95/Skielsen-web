@@ -114,6 +114,8 @@ if 'ingestWordChainResult' not in bridge_text or "result?.game_key==='word_chain
 if "game.wortkette.compound_nouns" not in runtime_text: fail('Wortkette nutzt nicht die kanonische Catalog-ID')
 for _needle in ['wordChainReadyRulesHtml','force_start_without_ready','DIE WENIGSTEN MINUSPUNKTE GEWINNEN']:
  if _needle not in runtime_text: fail('Wortkette Ready/QA Contract fehlt: '+_needle)
+if "expectedModule!==WORD_CHAIN_MODULE" not in runtime_text: fail('Wortkette Ready-Seite wird durch Auto-Start übersprungen')
+if "alreadyActive" not in engine_text or "START FEHLGESCHLAGEN" not in engine_text: fail('Matchstart Race-Recovery fehlt')
 if 'RESET_NOT_ZERO' not in engine_text or 'runtime_rows_remaining' not in engine_text: fail('Admin Reset hat keinen Zero-State Guard')
 if "runtime.games||[]" not in engine_text or "game.status='PLANNED'" not in engine_text: fail('Admin Reset synchronisiert den lokalen Runtime-Snapshot nicht')
 if "Number(r.score||0)" not in bridge_text: fail('Wortkette Result-Handoff nutzt nicht die Minuspunkt-Wertung')

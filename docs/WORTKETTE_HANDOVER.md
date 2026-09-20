@@ -1,6 +1,6 @@
 # WORTKETTE · HANDOVER
 
-Stand: **V20 · Vollversion App V15.1.50**  
+Stand: **V20 · Vollversion App V15.1.51**  
 Repo: `luismeier95/Skielsen-web`  
 Branch: `main`  
 Supabase: `rlppuqjolkrwumrrjajq`  
@@ -380,3 +380,14 @@ Der Reset normalisiert jetzt vor dem Neuaufbau des lokalen States auch `runtime`
 - Joker-Locks und akzeptierte Joker zurück auf Ausgangszustand
 
 Zusätzlich setzt die Match-Detail-Ansicht bei einem geplanten Scheduled-Match den lokalen `matchIndex` auf den tatsächlich geöffneten aktuellen Match. Damit kann ein geplanter aktueller Match nicht mehr allein durch einen veralteten Match-Kontext als abgeschlossen gerendert werden.
+
+
+## 21. V15.1.51 · Ready-Seite wieder sichtbar + falsches Startfehler-Popup beseitigt
+
+Zwei Ursachen wurden getrennt korrigiert:
+
+1. `private.ensure_native_in_app_session()` hat native Sessions bisher nach der automatischen Player-Zuweisung sofort auf READY gesetzt und direkt gestartet. Dadurch wurde bei Wortkette die vorgesehene `ICH BIN BEREIT`-/Rule-Set-Seite übersprungen. Wortkette stoppt jetzt nach Session-Erzeugung und Player-Zuweisung bewusst bei `WAITING_FOR_PLAYERS`. Die Player sehen damit zuerst das Rule Set und können Ready drücken. Der tatsächliche Session-Start bleibt eine explizite Admin-Aktion. Der nur im QA-Turnier gesetzte Feature-Override erlaubt diese Admin-Aktion weiterhin auch bei 0/2 oder 1/2 Readys.
+
+2. Der kurze `START FEHLGESCHLAGEN`-Hinweis entstand durch einen doppelten Aktivierungsaufruf: der erste Call hatte Game und Session bereits erfolgreich aktiviert, ein unmittelbar folgender Native-Lifecycle-Call versuchte dieselbe bereits aktive Session erneut zu starten. `ensure_native_in_app_session()` ist jetzt für bereits aktive Sessions idempotent und kehrt sofort zurück. Zusätzlich prüft `startMatch()` bei einem Aktivierungsfehler, ob der Serverstatus bereits `ACTIVE` ist; in diesem Fall wird kein falsches Fehler-Popup mehr gezeigt.
+
+Für Wortkette wurde außerdem der Client-Auto-Start bei `READY` deaktiviert. Auch wenn alle Player Ready sind, startet erst der Admin. Buzzer und Mehr oder Weniger behalten ihr bisheriges Auto-Start-Verhalten.

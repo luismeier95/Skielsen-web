@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.50';
+const VERSION=window.SKIELSEN_VERSION||'15.1.51';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -675,7 +675,10 @@ async function ensureNativeLifecycle(g){
     if(!adminSession||adminSession.game?.module_key!==expectedModule)return;
     await autoAssignNativePlayers();
     const min=Number(adminSession.game?.min_players||2),players=adminSession.players?.length||0;
-    if(adminSession.status==='READY'&&players>=min){
+    // Wortkette deliberately waits for an explicit admin session start so every
+    // player gets the Ready / Rule-Set screen. Other native games keep the
+    // existing auto-start behaviour when everybody is ready.
+    if(expectedModule!==WORD_CHAIN_MODULE&&adminSession.status==='READY'&&players>=min){
       const started=await db.rpc('start_in_app_game_session',{p_session_id:adminSession.session_id});
       if(started.error){console.warn('Native In-App auto start',started.error)}
       else{
