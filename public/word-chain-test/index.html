@@ -7,7 +7,7 @@
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=2.0">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=3.0">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -77,18 +77,22 @@
             <div class="wcxt-plus" aria-hidden="true">+</div>
             <div class="wcxt-answer">
               <small>GESUCHTES NOMEN</small>
-              <div class="wcxt-inputline">
-                <div class="wcxt-prefix" id="wcxtPrefix" data-source="get_word_chain_tournament_state.revealed_prefix"><span>B</span></div>
-                <input id="wcxtInput" type="text" value="" placeholder="WEITERSCHREIBEN …" autocomplete="off" spellcheck="false" data-source="CLIENT INPUT → submit_word_chain_tournament(p_guess)">
+              <div class="wcxt-slots" id="wcxtSlots"
+                   data-source="revealed_prefix + target_length">
+                <span class="wcxt-slot is-revealed">B</span>
+                <span class="wcxt-slot"></span>
+                <span class="wcxt-slot"></span>
+                <span class="wcxt-slot"></span>
               </div>
-              <div class="wcxt-enter"><span>WORT ERGÄNZEN</span><b>ENTER ↵</b></div>
+              <div class="wcxt-keyboard" id="wcxtKeyboard"
+                   data-source="CLIENT LETTER ACTION → server-authoritative letter check"></div>
             </div>
             <div class="wcxt-feedback" id="wcxtFeedback" data-source="submit_word_chain_tournament result"></div>
           </div>
         </section>
 
         <section class="wcxt-action-slot" data-spec="FIXED · 64 PX DESKTOP / 60 PX MOBILE">
-          <div class="wcxt-action-copy"><span>ENTER BESTÄTIGT DIE EINGABE</span><b data-source="STATIC COPY">ENTER ↵</b></div>
+          <div class="wcxt-action-copy"><span>BUCHSTABEN ANTIPPEN ODER TASTATUR NUTZEN</span><b data-source="STATIC COPY">A–Z · ÄÖÜ</b></div>
         </section>
       </div>
 
@@ -111,8 +115,9 @@
       <div><span>Kette</span><code>solved_words[]</code><span>word-chain session state</span><strong>JA</strong></div>
       <div><span>Ausgangswort</span><code>base_word</code><span>word-chain session state</span><strong>JA</strong></div>
       <div><span>Hinweis</span><code>revealed_prefix</code><span>word-chain session state</span><strong>JA</strong></div>
-      <div><span>Eingabe</span><code>p_guess</code><span>Client → submit_word_chain_tournament</span><strong>JA</strong></div>
-      <div><span>Doppelter Anfangsbuchstabe</span><code>ignore_repeated_initial</code><span>Input Rule: sichtbaren Initialbuchstaben nur dann erneut werten, wenn das Zielwort tatsächlich doppelt beginnt</span><strong>JA</strong></div>
+      <div><span>Wortlänge</span><code>target_length</code><span>Server-State; nur Länge, niemals verborgenes Zielwort an den Client senden</span><strong>JA</strong></div>
+      <div><span>Buchstabenwahl</span><code>guessed_letter</code><span>Client → server-autoritatives Letter-Action-RPC; produktive Integration muss den bisherigen Whole-Word-Submit erweitern</span><strong>JA</strong></div>
+      <div><span>Doppelter Anfangsbuchstabe</span><code>ignore_repeated_initial</code><span>Server + Client Rule: bereits sichtbaren Initialbuchstaben nur dann erneut werten, wenn der nächste echte Buchstabe identisch ist</span><strong>JA</strong></div>
       <div><span>Feedback</span><code>correct / timeout / accepted_attempt</code><span>submit_word_chain_tournament result</span><strong>JA</strong></div>
       <div><span>Theme</span><code>theme_pack_id</code><span>Tournament Theme Runtime</span><strong>JA</strong></div>
     </div>
@@ -120,6 +125,6 @@
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=2.1"></script>
+<script src="../assets/js/word-chain-test.js?v=3.0"></script>
 </body>
 </html>
