@@ -444,7 +444,7 @@ function bind(){
     if(e.target.closest('button'))return;
     setTimeout(focusInput,0);
   });
-  q('[data-wc-finish]')?.addEventListener('click',()=>window.skielsenInApp?.minimize?.());
+  q('[data-wc-finish]')?.addEventListener('click',()=>window.skielsenInApp?.finishAndExit?.());
   window.addEventListener('resize',onResize);
 }
 function onResize(){
@@ -495,5 +495,5 @@ function unmount(){
   root=null;session=null;db=null;state=null;busy=false;
   finalResult=null;inputBuffer='';acceptedBuffer='';lastWordKey='';
 }
-window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll};
+window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll,get resultOpen(){return !!finalResult&&!!q('[data-wc-page="result"]')&&!q('[data-wc-page="result"]').hidden}};
 })();
