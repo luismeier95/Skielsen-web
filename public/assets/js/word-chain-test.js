@@ -237,6 +237,7 @@ function submitWord(){
 function applyCorrect(){
   if(game.locked||game.completed)return;
   game.locked=true;
+  game.revealed=current().next.length;
   game.inputBuffer='';
   clearInterval(timerId);timerId=0;
   renderSlots();
