@@ -159,8 +159,10 @@ async function setDifficulty(){
       show_word_length:data?.show_word_length??DIFFICULTIES[pendingTier].showWordLength,
       word_chain_rules_version:data?.rules_version||4
     };
+    busy=false;
     await loadState(true);
     window.skielsenInApp?.poll?.();
+    return;
   }catch(err){
     console.warn('Wortkette difficulty',err);
     if(msg)msg.textContent='MODUS KONNTE NICHT GESPEICHERT WERDEN.';
