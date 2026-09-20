@@ -349,7 +349,7 @@
 /* ---------------- RESULT PAGE ---------------- */
 .wc-result-page{min-height:100%}
 .wc-result-main{
-  width:min(680px,100%);
+  width:min(760px,100%);
   margin:0 auto;
   padding:18px 0 72px;
 }
@@ -385,9 +385,10 @@
 .wc-result-columns,
 .wc-result-row{
   display:grid;
-  grid-template-columns:82px minmax(0,1fr) 92px 64px;
+  grid-template-columns:86px minmax(0,1fr) 130px 90px;
+  column-gap:12px;
   align-items:center;
-  padding:0 14px;
+  padding:0 18px;
 }
 .wc-result-columns{
   height:34px;
@@ -605,8 +606,9 @@
   .wc-result-status strong{font-size:20px}
   .wc-result-columns,
   .wc-result-row{
-    grid-template-columns:62px minmax(0,1fr) 72px 54px;
-    padding:0 9px;
+    grid-template-columns:52px minmax(0,1fr) 86px 58px;
+    column-gap:8px;
+    padding:0 10px;
   }
   .wc-result-columns{height:32px}
   .wc-result-row{height:58px}
