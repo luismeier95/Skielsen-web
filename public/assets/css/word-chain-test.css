@@ -491,3 +491,22 @@ body.wcxt-show-data [data-source]::after{
     align-content:center;
   }
 }
+
+/* Slot provenance colors */
+.wcxt-slot{
+  color:var(--theme-on-input);
+  border-bottom-color:var(--theme-input-border);
+}
+.wcxt-slot.is-revealed{
+  color:var(--theme-on-input);
+  border-bottom-color:var(--theme-danger-bg,var(--theme-danger,#ff1717));
+}
+.wcxt-slot.is-typed{
+  color:var(--theme-on-input);
+  border-bottom-color:var(--theme-accent);
+}
+.wcxt-slot.is-empty,
+.wcxt-slot.is-next{
+  color:transparent;
+  border-bottom-color:var(--theme-input-border);
+}
