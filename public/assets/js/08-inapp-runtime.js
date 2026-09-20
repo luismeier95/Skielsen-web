@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.56';
+const VERSION=window.SKIELSEN_VERSION||'15.1.57';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -346,18 +346,15 @@ function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
     :'';
   return `<section class="v15-wordchain-ready-page" aria-label="Wortkette Bereitschaft und Regeln">
     <header class="v15-wordchain-ready-head">
-      <div><small>WORTKETTE · PRE-GAME</small><h2>ICH BIN BEREIT</h2></div>
       <strong>${readyCount} / ${players.length} BEREIT</strong>
     </header>
 
     <div class="v15-wordchain-ready-top">
       <section class="v15-wordchain-ready-card v15-wordchain-ready-players">
-        <div class="v15-wordchain-ready-card-head"><small>01 · SPIELERSTATUS</small><strong>WER IST BEREIT?</strong></div>
         <div class="v15-wordchain-ready-player-list">${playerRows}</div>
       </section>
 
       <section class="v15-wordchain-ready-card v15-wordchain-ready-demo-card">
-        <div class="v15-wordchain-ready-card-head"><small>02 · BEISPIEL</small><strong>SO LÄUFT DIE RUNDE</strong></div>
         <div class="v15-wordchain-ready-demo" aria-label="Wortkette Spielbeispiel">
           <img class="v15-wordchain-ready-demo-image" src="assets/images/wortkette-rule-page.gif?v=${VERSION}" width="914" height="638" alt="Wortkette Spielbeispiel">
         </div>
@@ -365,7 +362,6 @@ function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
     </div>
 
     <section class="v15-wordchain-ready-card v15-wordchain-ready-rules-card">
-      <div class="v15-wordchain-ready-card-head"><small>03 · REGELN</small><strong>SO FUNKTIONIERT WORTKETTE</strong></div>
       <div class="v15-wordchain-ready-rules-list">
         <div><b>01</b><span>VERVOLLSTÄNDIGE DAS ZUSAMMENGESETZTE NOMEN.</span></div>
         <div><b>02</b><span>EIN FALSCHES WORT GIBT <strong>−1 PUNKT</strong> UND DECKT EINEN HINWEIS AUF.</span></div>
@@ -376,7 +372,7 @@ function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
     </section>
 
     <footer class="v15-wordchain-ready-footer">
-      <div class="v15-wordchain-ready-message" id="v15InAppReadyMessage">${esc(readyMessage)}</div>
+      <div class="v15-wordchain-ready-message" id="v15InAppReadyMessage" aria-live="polite" hidden>${esc(readyMessage)}</div>
       <div class="v15-inapp-actions">
         <button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button>
         ${forceButton}
@@ -435,7 +431,7 @@ function renderPlayerSession(s){
   const showReadyForceStart=!!(rt?.is_admin&&isWordChain&&forceStartWithoutReady&&String(s.status||'')==='WAITING_FOR_PLAYERS');
   const chrome=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>`;
   if(isWordChain&&!active){
-    host.innerHTML=chrome+wordChainReadyRulesHtml(s,readyMessage,ready,showReadyForceStart);
+    host.innerHTML=`<h1 class="v15-inapp-title v15-wordchain-ready-title">${esc(s.game?.name||'WORTKETTE')}</h1>`+wordChainReadyRulesHtml(s,readyMessage,ready,showReadyForceStart);
   }else{
     host.innerHTML=chrome+`<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message" id="v15InAppReadyMessage">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
   }
@@ -478,12 +474,12 @@ async function forceStartFromReadyPage(s){
   const btn=document.getElementById('v15InAppReadyForceStart');
   const msg=document.getElementById('v15InAppReadyMessage');
   if(btn){btn.disabled=true;btn.textContent='STARTET …'}
-  if(msg)msg.textContent='ADMIN-START WIRD ERZWUNGEN …';
+  if(msg){msg.hidden=false;msg.textContent='ADMIN-START WIRD ERZWUNGEN …';}
   const r=await db.rpc('start_in_app_game_session',{p_session_id:s.session_id});
   if(r.error){
     console.warn('Wortkette force start',r.error);
     if(btn){btn.disabled=false;btn.textContent='START ERZWINGEN'}
-    if(msg)msg.textContent='STARTFEHLER · '+String(r.error.message||'UNBEKANNT');
+    if(msg){msg.hidden=false;msg.textContent='STARTFEHLER · '+String(r.error.message||'UNBEKANNT');}
     return;
   }
   await pollPlayer();
