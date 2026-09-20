@@ -194,7 +194,7 @@ function ensureMoreLessAssets(){
   moreLessAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-more-less-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}-flow2`;link.dataset.moreLessCss='1';
+      link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}-layout3`;link.dataset.moreLessCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-more-less-js]');
