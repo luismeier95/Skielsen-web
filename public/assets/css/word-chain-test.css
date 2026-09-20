@@ -509,3 +509,30 @@ body.wcxt-show-data [data-source]::after{
   color:transparent;
   border-bottom-color:var(--theme-input-border);
 }
+
+/* Native mobile keyboard capture */
+.wcxt-answer{
+  position:relative;
+}
+.wcxt-mobile-capture{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:1px;
+  height:1px;
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+  opacity:.001;
+  color:transparent;
+  background:transparent;
+  caret-color:transparent;
+  pointer-events:none;
+  transform:translateX(-50%);
+  font-size:16px;
+}
+.wcxt-slots,
+.wcxt-action-slot{
+  cursor:text;
+}
