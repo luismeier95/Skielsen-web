@@ -461,3 +461,33 @@ body.wcxt-show-data [data-source]::after{
     line-height:1.15;
   }
 }
+
+/* Guaranteed vertical text separation */
+.wcxt-puzzle{
+  grid-template-rows:86px 50px 178px 42px;
+  align-items:center;
+}
+.wcxt-answer{
+  align-self:stretch;
+  grid-template-rows:20px 74px;
+  align-content:center;
+}
+.wcxt-answer>small{
+  align-self:end;
+  line-height:1;
+}
+.wcxt-plus{
+  align-self:center;
+}
+.wcxt-slots{
+  align-self:center;
+}
+@media(max-width:720px){
+  .wcxt-puzzle{
+    grid-template-rows:68px 40px 168px 34px;
+  }
+  .wcxt-answer{
+    grid-template-rows:18px 68px;
+    align-content:center;
+  }
+}
