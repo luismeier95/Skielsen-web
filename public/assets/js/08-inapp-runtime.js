@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.51';
+const VERSION=window.SKIELSEN_VERSION||'15.1.52';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -488,12 +488,13 @@ function ensureAdminPanel(){
   }
   panel=document.createElement('section');
   panel.id='v15InAppAdminPanel';
-  panel.innerHTML=`<div class="head"><div><small>V${VERSION} · MATCH DETAIL ADAPTER</small><h2>IN-APP GAME SESSION</h2></div><b id="v15InAppAdminStatus">KEINE SESSION</b></div><div class="v15-inapp-admin-body"><div class="v15-inapp-admin-toolbar"><button class="v15-inapp-admin-btn" id="v15InAppCreate" type="button">SESSION FÜR AKTUELLES GAME ERSTELLEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppReload" type="button">AKTUALISIEREN</button><button class="v15-inapp-admin-btn alt" id="v15InAppStart" type="button" disabled>SESSION STARTEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppComplete" type="button" disabled>ABSCHLIESSEN</button><button class="v15-inapp-admin-btn danger" id="v15InAppCancel" type="button" disabled>ABBRECHEN</button></div><div class="v15-inapp-admin-info" id="v15InAppAdminInfo">SERVERSEITIGE SESSION · JEDER PLAYER SPIELT AUF DEM EIGENEN GERÄT.</div><div id="v15InAppCandidateWrap" hidden><div class="v15-inapp-candidates" id="v15InAppCandidates"></div><div class="v15-inapp-admin-toolbar" style="margin-top:10px"><button class="v15-inapp-admin-btn" id="v15InAppAssign" type="button">AUSWAHL ZUWEISEN</button></div></div><div class="v15-inapp-admin-session" id="v15InAppAdminRoster" hidden></div></div>`;
+  panel.innerHTML=`<div class="head"><div><small>V${VERSION} · MATCH DETAIL ADAPTER</small><h2>IN-APP GAME SESSION</h2></div><b id="v15InAppAdminStatus">KEINE SESSION</b></div><div class="v15-inapp-admin-body"><div class="v15-inapp-admin-toolbar"><button class="v15-inapp-admin-btn" id="v15InAppCreate" type="button">SESSION FÜR AKTUELLES GAME ERSTELLEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppReload" type="button">AKTUALISIEREN</button><button class="v15-inapp-admin-btn alt" id="v15InAppStart" type="button" disabled>SESSION STARTEN</button><button class="v15-inapp-admin-btn danger" id="v15InAppForceStart" type="button" hidden disabled>START ERZWINGEN</button><button class="v15-inapp-admin-btn alt" id="v15InAppComplete" type="button" disabled>ABSCHLIESSEN</button><button class="v15-inapp-admin-btn danger" id="v15InAppCancel" type="button" disabled>ABBRECHEN</button></div><div class="v15-inapp-admin-info" id="v15InAppAdminInfo">SERVERSEITIGE SESSION · JEDER PLAYER SPIELT AUF DEM EIGENEN GERÄT.</div><div id="v15InAppCandidateWrap" hidden><div class="v15-inapp-candidates" id="v15InAppCandidates"></div><div class="v15-inapp-admin-toolbar" style="margin-top:10px"><button class="v15-inapp-admin-btn" id="v15InAppAssign" type="button">AUSWAHL ZUWEISEN</button></div></div><div class="v15-inapp-admin-session" id="v15InAppAdminRoster" hidden></div></div>`;
   page.appendChild(panel);
   document.getElementById('v15InAppCreate').addEventListener('click',createAdminSession);
   document.getElementById('v15InAppReload').addEventListener('click',()=>refreshAdmin(true));
   document.getElementById('v15InAppAssign').addEventListener('click',assignSelected);
   document.getElementById('v15InAppStart').addEventListener('click',startAdminSession);
+  document.getElementById('v15InAppForceStart').addEventListener('click',startAdminSession);
   document.getElementById('v15InAppCancel').addEventListener('click',cancelAdminSession);
   document.getElementById('v15InAppComplete').addEventListener('click',completeAdminSession);
   return panel;
@@ -538,16 +539,23 @@ function renderAdmin(){
   if(!st)return;
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
   const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
+  const isWordChain=adminSession?.game?.module_key===WORD_CHAIN_MODULE;
   const isAutoNative=isBuzzer||adminSession?.game?.module_key===MORE_LESS_MODULE;
   const forceStartWithoutReady=!!adminSession?.public_state?.force_start_without_ready;
   const assignedPlayers=adminSession?.players?.length||0;
   const minPlayers=Number(adminSession?.game?.min_players||2);
-  const canForceStart=forceStartWithoutReady
+  const canForceStart=isWordChain
+    &&forceStartWithoutReady
     &&assignedPlayers>=minPlayers
-    &&['WAITING_FOR_PLAYERS','READY'].includes(String(adminSession?.status||''));
+    &&String(adminSession?.status||'')==='WAITING_FOR_PLAYERS';
   const startBtn=document.getElementById('v15InAppStart');
+  const forceStartBtn=document.getElementById('v15InAppForceStart');
   const createBtn=document.getElementById('v15InAppCreate');
-  if(startBtn){startBtn.hidden=!!isAutoNative;startBtn.disabled=!adminSession||!(adminSession.status==='READY'||canForceStart)}
+  if(startBtn){startBtn.hidden=!!isAutoNative;startBtn.disabled=!adminSession||adminSession.status!=='READY'}
+  if(forceStartBtn){
+    forceStartBtn.hidden=!(isWordChain&&forceStartWithoutReady&&String(adminSession?.status||'')==='WAITING_FOR_PLAYERS');
+    forceStartBtn.disabled=!canForceStart;
+  }
   if(createBtn){createBtn.hidden=!!isAutoNative;createBtn.disabled=!!adminSession}
   document.getElementById('v15InAppCancel').disabled=!adminSession;
   const completeBtn=document.getElementById('v15InAppComplete');

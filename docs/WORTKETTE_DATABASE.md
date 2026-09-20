@@ -253,3 +253,11 @@ V18 verwendet deshalb `interactive-widget=resizes-content` im Viewport-Meta-Tag.
 ## Mobile Answer Dock V19
 
 Der dicke lilafarbene Trenner zwischen Ausgangswort und Eingabebereich wurde im Mobile-Keyboard-Modus entfernt. Der Antwort-Dock bleibt weiß und wird nur noch über Abstand und einen dezenten Schatten vom restlichen Puzzle-Bereich getrennt.
+
+
+## 20. V15.1.52 · Expliziter „START ERZWINGEN“-Button
+
+Im Admin-Control der In-App-Session besitzt Wortkette jetzt einen separaten Button `START ERZWINGEN`.
+Er wird nur angezeigt, wenn die aktuelle Session das serverseitige Flag `public_state.force_start_without_ready` trägt und das geladene Modul `word-chain` ist. Damit bleibt der Sonderfall auf das QA-Turnier „Wortkette“ begrenzt; im Fullversion-JavaScript wird weder eine Tournament-ID noch ein Tournament-Name hartcodiert.
+
+Der normale Button `SESSION STARTEN` bleibt unverändert an den Status `READY` gebunden. `START ERZWINGEN` erscheint nur im Status `WAITING_FOR_PLAYERS` und wird erst aktiv, wenn mindestens die für das Spiel erforderliche Zahl an Playern zugewiesen ist.
