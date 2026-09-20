@@ -1,5 +1,7 @@
 # WORTKETTE · FULLVERSION INTEGRATION PLAN
 
+> **DB STATUS · 2026-09-20:** Migration `20260920191432_prepare_word_chain_v4_integration` ist auf Supabase angewendet und per Rollback-Integrationstest validiert. Difficulty-RPC, Run-Snapshots, V4-State-Shape und Result-Metadaten sind vorhanden. `require_difficulty_selection` bleibt bis zum Frontend-Merge absichtlich `false`, damit die aktuelle Vollversion rückwärtskompatibel bleibt.
+
 Stand: 2026-09-20  
 Referenz-Standalone: `/word-chain-test/` · Deploy Run #556  
 Produktionsmodul: `public/assets/js/12-word-chain-game.js`  
