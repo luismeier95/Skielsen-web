@@ -7,7 +7,7 @@
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=6.1">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=6.2">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -81,6 +81,10 @@
           <div data-source="get_word_chain_tournament_state.score"><small>PUNKTE</small><strong id="wcxtScore">0</strong></div>
           <div data-source="deadline_at + time_limit_seconds + server_now"><small>ZEIT</small><strong id="wcxtTime">15</strong></div>
         </section>
+
+        <div class="wcxt-word-timer" id="wcxtWordTimer" aria-hidden="true">
+          <i id="wcxtWordTimerFill"></i>
+        </div>
 
         <section class="wcxt-scoreboard" data-spec="FIXED · 48 PX DESKTOP / 103 PX MOBILE" data-source="tournament_game_participants + runtime/live standings">
           <article class="wcxt-player" id="wcxtPlayerSelf" style="--player:var(--core-red)" data-source="participant.display_name + identity_color + state.score"><span>DJEELOI</span><b>0</b></article>
@@ -194,6 +198,6 @@
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=6.1"></script>
+<script src="../assets/js/word-chain-test.js?v=6.2"></script>
 </body>
 </html>
