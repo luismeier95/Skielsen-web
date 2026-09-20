@@ -55,9 +55,11 @@ function feedback(text,kind=''){
 }
 function formatDuration(ms){
   if(ms==null||!Number.isFinite(Number(ms)))return '–';
-  const sec=Math.max(0,Math.round(Number(ms)/1000));
-  const m=Math.floor(sec/60),s=sec%60;
-  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const totalCs=Math.max(0,Math.floor(Number(ms)/10));
+  const m=Math.floor(totalCs/6000);
+  const s=Math.floor((totalCs%6000)/100);
+  const cs=totalCs%100;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+':'+String(cs).padStart(2,'0');
 }
 function shell(){
   return `<div class="wc-game">
