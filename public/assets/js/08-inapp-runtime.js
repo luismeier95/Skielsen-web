@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.65';
+const VERSION=window.SKIELSEN_VERSION||'15.1.66';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -17,6 +17,29 @@ let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSu
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
+
+function inAppRouteLocked(){
+  const layer=document.getElementById('v15InAppLayer');
+  return !!(playerSession&&layer&&!layer.hidden&&!inAppMinimized);
+}
+function inAppExitLocked(){
+  return !!playerSession||!!inAppSurfaceLive;
+}
+function syncInAppRouteIsolation(){
+  const routeLocked=inAppRouteLocked(),exitLocked=inAppExitLocked();
+  document.querySelectorAll('.app-page').forEach(page=>{page.inert=routeLocked});
+  const nav=document.querySelector('.sk-header__nav');
+  if(nav){
+    nav.inert=routeLocked;
+    if(routeLocked)nav.setAttribute('aria-disabled','true');
+    else nav.removeAttribute('aria-disabled');
+  }
+  document.querySelectorAll('[data-skielsen-account-home]').forEach(el=>{
+    el.inert=exitLocked;
+    if(exitLocked)el.setAttribute('aria-disabled','true');
+    else el.removeAttribute('aria-disabled');
+  });
+}
 
 function syncVisibleVersion(){
   document.title=`SKIELSEN V${VERSION}`;
@@ -47,6 +70,7 @@ function updateInAppChrome(){
   if(meta)meta.textContent='ANTIPPEN · SOFORT ZURÜCK INS VOLLBILD';
   if(layer&&inAppSurfaceLive)layer.hidden=inAppMinimized;
   document.body.classList.toggle('v15-inapp-fullscreen-open',!!(layer&&!layer.hidden&&!inAppMinimized));
+  syncInAppRouteIsolation();
 }
 function ensureInAppHistory(){
   if(!inAppSurfaceLive||inAppMinimized)return;
@@ -135,6 +159,7 @@ function clearInAppSurface(){
   const strip=document.getElementById('v15InAppLiveStrip');
   if(strip)strip.hidden=true;
   document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open','v15-word-chain-inapp-open');
+  syncInAppRouteIsolation();
   if(wasLive&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
 }
 function ensureLayer(){
@@ -846,7 +871,7 @@ window.skielsenHistory?.register('inapp',()=>{
 });
 window.addEventListener('popstate',()=>{
   const nav=window.skielsenHistory?.current();
-  if(nav?.area!=='inapp'&&inAppSurfaceLive&&!inAppMinimized)minimizeInApp(false);
+  if(nav?.area!=='inapp'&&inAppSurfaceLive&&!inAppMinimized)openInAppFullscreen('replace');
 });
 
 window.addEventListener('beforeunload',()=>{
@@ -859,6 +884,8 @@ window.skielsenInApp={
   openFullscreen:()=>forceOpenActiveInApp('push'),
   openActive:()=>forceOpenActiveInApp('push'),
   finishAndExit:finishInAppSurface,
+  get routeLocked(){return inAppRouteLocked()},
+  get exitLocked(){return inAppExitLocked()},
   get minimized(){return inAppMinimized},
   get live(){return inAppSurfaceLive},
   get session(){return playerSession},

@@ -4303,6 +4303,7 @@ body.v15-tournament-active .team-blue,body.v15-tournament-active [class*="team-b
 #v15InAppLayer[hidden]{display:none!important}
 #v15InAppLayer{position:fixed;inset:0;z-index:25000;background:#f2f2f2;color:#050505;overflow:auto;font-family:var(--ui,Arial,sans-serif);overscroll-behavior:contain;isolation:isolate;contain:paint;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0);-webkit-transform:translateZ(0)}
 body.v15-inapp-fullscreen-open{overflow:hidden!important;overscroll-behavior:none}
+body.v15-inapp-fullscreen-open .app-page{visibility:hidden!important;pointer-events:none!important}
 body.v15-inapp-fullscreen-open .mobile-nav,
 body.v15-inapp-fullscreen-open .mobile-profile-nav,
 body.v15-inapp-fullscreen-open .sk-header,
@@ -4511,11 +4512,20 @@ body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cf
   .v15-wordchain-ready-footer .v15-inapp-btn{flex:1 1 100%}
 }
 
-/* Wortkette V4 · keep canonical full-app header around the native game */
+/* Native In-App route · keep the canonical header visible without exposing global navigation. */
 body.v15-inapp-fullscreen-open.v15-word-chain-inapp-open .sk-header{
   display:block!important;
-  position:relative!important;
+  position:fixed!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  max-width:100%!important;
   z-index:26001!important;
+}
+body.v15-inapp-fullscreen-open.v15-word-chain-inapp-open .sk-header__nav,
+body.v15-inapp-fullscreen-open.v15-word-chain-inapp-open [data-skielsen-account-home]{
+  pointer-events:none!important;
 }
 body.v15-word-chain-inapp-open #v15InAppLayer{
   top:calc(var(--sk-header-height) + var(--sk-strip-height));
