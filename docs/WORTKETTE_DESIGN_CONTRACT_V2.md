@@ -230,7 +230,21 @@ No layout jump when feedback changes.
 
 No global header/status/button animation.
 
-## 14. Result Page
+## 14. Live Result Table
+
+The Result Page is also the live waiting surface after a player finishes.
+
+Rows:
+- every assigned player remains visible
+- finished rows are sorted above unfinished rows
+- finished rows show live rank, time and score
+- unfinished rows show empty POSITION and `–` for ZEIT/SCORE
+- player identity accent remains visible for all rows
+- `X / Y FERTIG` updates without replacing the table with a waiting message
+
+No row height or column geometry changes when a player changes from pending to completed.
+
+## 15. Result Page
 
 Own page.
 
@@ -269,7 +283,7 @@ Mobile example grid:
 
 Result table is theme-surface based.
 
-## 15. Identity vs Theme
+## 16. Identity vs Theme
 
 Theme controls:
 - backgrounds
@@ -287,7 +301,7 @@ Participant Identity controls only:
 
 Do not recolor Player Identity per Theme.
 
-## 16. Animation Boundary
+## 17. Animation Boundary
 
 Allowed:
 - mechanic-specific slot/hint feedback
@@ -301,7 +315,7 @@ Forbidden:
 - Result table jumping/reordering before final data
 - page-width/height animations
 
-## 17. Responsive Acceptance
+## 18. Responsive Acceptance
 
 Must test:
 - 760 px desktop
