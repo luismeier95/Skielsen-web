@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.53';
+const VERSION=window.SKIELSEN_VERSION||'15.1.54';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -328,14 +328,64 @@ function renderWordChainSession(s){
   });
 }
 
-function wordChainReadyRulesHtml(){
-  return `<section class="v15-wordchain-ready-rules" aria-label="Wortkette Regeln">
-    <small>RULE SET</small>
-    <h2>WORTKETTE</h2>
-    <div><b>01</b><span>ALLE SPIELER BEKOMMEN DIE GLEICHE WORTKETTE.</span></div>
-    <div><b>02</b><span>EIN FALSCHES EXISTIERENDES WORT GIBT <strong>−1 PUNKT</strong> UND DECKT EINEN HINWEIS AUF.</span></div>
-    <div><b>03</b><span>LÄUFT DIE ZEIT AB, GIBT ES <strong>−1 PUNKT</strong> UND EIN HINWEIS WIRD AUFGEDECKT.</span></div>
-    <div><b>04</b><span>DIE WENIGSTEN MINUSPUNKTE GEWINNEN.</span></div>
+function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
+  const players=Array.isArray(s?.players)?s.players:[];
+  const me=String(s?.me?.tournament_member_id||'');
+  const readyCount=players.filter(p=>String(p?.status||'').toUpperCase()==='READY').length;
+  const playerRows=players.map(p=>{
+    const isReady=String(p?.status||'').toUpperCase()==='READY';
+    const isMe=String(p?.tournament_member_id||'')===me;
+    return `<div class="v15-wordchain-ready-player ${isReady?'is-ready':'is-waiting'}">
+      <span class="v15-wordchain-ready-dot" aria-hidden="true"></span>
+      <span class="v15-wordchain-ready-player-copy"><strong>${esc(p?.display_name||'PLAYER')}${isMe?'<small>DU</small>':''}</strong><small>SEAT ${esc(p?.seat||'—')}</small></span>
+      <b>${isReady?'BEREIT':'WARTET'}</b>
+    </div>`;
+  }).join('')||'<div class="v15-wordchain-ready-empty">NOCH KEINE PLAYER ZUGEWIESEN.</div>';
+  const forceButton=showForceStart
+    ?'<button class="v15-inapp-btn force" id="v15InAppReadyForceStart" type="button">START ERZWINGEN</button>'
+    :'';
+  return `<section class="v15-wordchain-ready-page" aria-label="Wortkette Bereitschaft und Regeln">
+    <header class="v15-wordchain-ready-head">
+      <div><small>WORTKETTE · PRE-GAME</small><h2>ICH BIN BEREIT</h2></div>
+      <strong>${readyCount} / ${players.length} BEREIT</strong>
+    </header>
+
+    <div class="v15-wordchain-ready-top">
+      <section class="v15-wordchain-ready-card v15-wordchain-ready-players">
+        <div class="v15-wordchain-ready-card-head"><small>01 · SPIELERSTATUS</small><strong>WER IST BEREIT?</strong></div>
+        <div class="v15-wordchain-ready-player-list">${playerRows}</div>
+      </section>
+
+      <section class="v15-wordchain-ready-card v15-wordchain-ready-demo-card">
+        <div class="v15-wordchain-ready-card-head"><small>02 · BEISPIEL</small><strong>SO LÄUFT DIE RUNDE</strong></div>
+        <div class="v15-wordchain-ready-demo" aria-label="Animiertes Wortkette Beispiel">
+          <div class="v15-wordchain-ready-demo-stats"><span>SCHRITT 01 / 10</span><b>−1</b><span>ZEIT 11</span></div>
+          <small>AKTUELLES AUSGANGSWORT</small>
+          <div class="v15-wordchain-ready-demo-word"><strong>HAUS</strong><b>+</b></div>
+          <div class="v15-wordchain-ready-demo-boxes" aria-hidden="true"><i>T</i><i>Ü</i><i></i><i></i></div>
+          <div class="v15-wordchain-ready-demo-feedback"><b>−1 PUNKT</b><span>HINWEIS AUFGEDECKT</span></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="v15-wordchain-ready-card v15-wordchain-ready-rules-card">
+      <div class="v15-wordchain-ready-card-head"><small>03 · REGELN</small><strong>SO FUNKTIONIERT WORTKETTE</strong></div>
+      <div class="v15-wordchain-ready-rules-list">
+        <div><b>01</b><span>VERVOLLSTÄNDIGE DAS ZUSAMMENGESETZTE NOMEN.</span></div>
+        <div><b>02</b><span>EIN FALSCHES WORT GIBT <strong>−1 PUNKT</strong> UND DECKT EINEN HINWEIS AUF.</span></div>
+        <div><b>03</b><span>LÄUFT DIE ZEIT AB, GIBT ES <strong>−1 PUNKT</strong> UND EIN HINWEIS WIRD AUFGEDECKT.</span></div>
+        <div><b>04</b><span>DIE WENIGSTEN MINUSPUNKTE GEWINNEN.</span></div>
+        <div><b>05</b><span>ALLE SPIELER BEKOMMEN DIE GLEICHE WORTKETTE.</span></div>
+      </div>
+    </section>
+
+    <footer class="v15-wordchain-ready-footer">
+      <div class="v15-wordchain-ready-message" id="v15InAppReadyMessage">${esc(readyMessage)}</div>
+      <div class="v15-inapp-actions">
+        <button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button>
+        ${forceButton}
+      </div>
+    </footer>
   </section>`;
 }
 
@@ -386,12 +436,13 @@ function renderPlayerSession(s){
     :(isWordChain&&forceStartWithoutReady
       ?'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. IN DIESEM QA-TURNIER DARF DER ADMIN DIE WORTKETTE AUCH STARTEN, WENN NOCH NICHT ALLE PLAYER READY SIND.'
       :'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.');
-  const rules=isWordChain&&!active?wordChainReadyRulesHtml():'';
   const showReadyForceStart=!!(rt?.is_admin&&isWordChain&&forceStartWithoutReady&&String(s.status||'')==='WAITING_FOR_PLAYERS');
-  const readyForceStartButton=showReadyForceStart
-    ?'<button class="v15-inapp-btn force" id="v15InAppReadyForceStart" type="button">START ERZWINGEN</button>'
-    :'';
-  host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>${rules}<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message" id="v15InAppReadyMessage">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button>${readyForceStartButton}</div>`}</section>`;
+  const chrome=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>`;
+  if(isWordChain&&!active){
+    host.innerHTML=chrome+wordChainReadyRulesHtml(s,readyMessage,ready,showReadyForceStart);
+  }else{
+    host.innerHTML=chrome+`<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message" id="v15InAppReadyMessage">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
+  }
 
   document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
   document.getElementById('v15InAppReadyForceStart')?.addEventListener('click',()=>forceStartFromReadyPage(s));
