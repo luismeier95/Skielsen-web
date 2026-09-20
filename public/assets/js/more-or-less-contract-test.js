@@ -79,7 +79,7 @@ function countText(key,value,progress){
   if(key==='WIKIPEDIA_VIEWS')return current.toLocaleString('de-DE')+' / Monat';
   return current.toLocaleString('de-DE')+' '+META[key][1];
 }
-function animateCount(el,key,value,duration=2000){
+function animateCount(el,key,value,duration=1000){
   return new Promise(resolve=>{
     const start=performance.now();
     const step=now=>{
@@ -203,16 +203,16 @@ function nextActive(from){
 function question(){
   chrome('PLAY',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
   const ref=s.facts[s.factIndex%s.facts.length],cur=s.facts[(s.factIndex+1)%s.facts.length],p=s.players[s.currentSeat];
-  content.innerHTML=`${playStatus(p)}${scoreboard()}
-    <section class="molc-compare molc-compare-stacked">
+  content.innerHTML=`<div class="molc-play-layout">${playStatus(p)}${scoreboard()}
+    <section class="molc-compare molc-compare-stacked" id="molcCompare">
       <div class="molc-compare-half molc-compare-ref"><strong>${esc(ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,ref[1]))}</b></div></div>
-      <div class="molc-vs">VS</div>
+      <div class="molc-vs" id="molcCenterCircle">VS</div>
       <div class="molc-compare-half molc-compare-cur"><strong>${esc(cur[0])}</strong><div class="molc-metric molc-pending-value" aria-hidden="true"><b>&nbsp;</b></div></div>
     </section>
     <div class="skg-choice-actions molc-choice-actions">
       <button class="skg-btn less molc-choice-btn" data-choice="LESS" type="button"><span class="molc-choice-icon">↓</span><b>WENIGER</b></button>
       <button class="skg-btn more molc-choice-btn" data-choice="MORE" type="button"><span class="molc-choice-icon">↑</span><b>MEHR</b></button>
-    </div>`;
+    </div></div>`;
   fitCompareLabels();
   content.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>answer(btn.dataset.choice)));
 }
@@ -228,24 +228,29 @@ function answer(choice){
 }
 function reveal(){
   chrome('PLAY',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
-  const r=s.lastResult,p=r.player,survivors=s.players.filter(x=>x.active),categoryOver=survivors.length===1;
-  const outcome=r.ok?'✓':'✕';
-  content.innerHTML=`${playStatus(p)}${scoreboard()}
-    <section class="molc-compare molc-compare-stacked molc-feedback-card ${r.ok?'is-correct':'is-wrong'}">
+  const r=s.lastResult,p=r.player;
+  content.innerHTML=`<div class="molc-play-layout">${playStatus(p)}${scoreboard()}
+    <section class="molc-compare molc-compare-stacked molc-feedback-card ${r.ok?'is-correct':'is-wrong'}" id="molcCompare">
       <div class="molc-compare-half molc-compare-ref"><strong>${esc(r.ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.ref[1]))}</b></div></div>
-      <div class="molc-vs molc-outcome" aria-label="${r.ok?'Richtig':'Falsch'}">${outcome}</div>
+      <div class="molc-vs molc-outcome" id="molcCenterCircle">VS</div>
       <div class="molc-compare-half molc-compare-cur"><strong>${esc(r.cur[0])}</strong><div class="molc-metric"><b id="molcCountValue">${esc(countText(s.categoryKey,r.cur[1],0))}</b></div></div>
-    </section>`;
+    </section>
+    <div class="skg-choice-actions molc-choice-actions is-locked" aria-disabled="true">
+      <button class="skg-btn less molc-choice-btn" type="button" disabled><span class="molc-choice-icon">↓</span><b>WENIGER</b></button>
+      <button class="skg-btn more molc-choice-btn" type="button" disabled><span class="molc-choice-icon">↑</span><b>MEHR</b></button>
+    </div></div>`;
   fitCompareLabels();
   const countEl=document.getElementById('molcCountValue');
-  animateCount(countEl,s.categoryKey,r.cur[1]).then(()=>{
-    if(r.ok){
-      const card=content.querySelector('.molc-feedback-card');
-      requestAnimationFrame(()=>card?.classList.add('is-promoting'));
-      setTimeout(advanceTurn,520);
-      return;
-    }
-    requestAnimationFrame(()=>continueGame());
+  const circle=document.getElementById('molcCenterCircle');
+  const card=document.getElementById('molcCompare');
+  animateCount(countEl,s.categoryKey,r.cur[1],1000).then(()=>{
+    circle.textContent=r.ok?'✓':'✕';
+    circle.setAttribute('aria-label',r.ok?'Richtig':'Falsch');
+    card.classList.add('is-resolved');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      card.classList.add('is-promoting');
+      setTimeout(()=>{r.ok?advanceTurn():continueGame()},480);
+    }));
   });
 }
 function advanceTurn(){
