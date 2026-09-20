@@ -88,6 +88,9 @@ function statusHtml(a,b,c){
 function scoreboard(){
   return `<div class="molc-scoreboard">${s.players.map(p=>`<div class="molc-player ${p.active?'':'out'}" style="--player:${color(p)}"><i></i><span>${esc(p.name)}</span><b>${p.wins} SIEGE</b></div>`).join('')}</div>`;
 }
+function playStatus(p){
+  return `<section class="skg-status molc-play-status"><div><small>KATEGORIE</small><strong>${esc(META[s.categoryKey][0])}</strong></div><div><small>ZUG</small><strong>${esc(p.name)}</strong></div></section>`;
+}
 function setup(){
   chrome('SETUP','5 KATEGORIEN');
   const copy={
@@ -163,78 +166,52 @@ function nextActive(from){
 function question(){
   chrome('PLAY',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
   const ref=s.facts[s.factIndex%s.facts.length],cur=s.facts[(s.factIndex+1)%s.facts.length],p=s.players[s.currentSeat];
-  content.innerHTML=`
-    ${statusHtml(['KATEGORIE',META[s.categoryKey][0]],['ZUG',p.name],['AKTIV',s.players.filter(x=>x.active).length+' / '+s.players.length])}
-    ${scoreboard()}
+  content.innerHTML=`${playStatus(p)}${scoreboard()}
     <section class="molc-compare molc-compare-stacked">
-      <div class="molc-compare-half molc-compare-ref">
-        <strong>${esc(ref[0])}</strong>
-        <div class="molc-metric">
-          <b>${esc(format(s.categoryKey,ref[1]))}</b>
-        </div>
-      </div>
-
+      <div class="molc-compare-half molc-compare-ref"><strong>${esc(ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,ref[1]))}</b></div></div>
       <div class="molc-vs">VS</div>
-
-      <div class="molc-compare-half molc-compare-cur">
-        <strong>${esc(cur[0])}</strong>
-      </div>
+      <div class="molc-compare-half molc-compare-cur"><strong>${esc(cur[0])}</strong></div>
     </section>
-
     <div class="skg-choice-actions molc-choice-actions">
-      <button class="skg-btn less molc-choice-btn" data-choice="LESS" type="button">
-        <span class="molc-choice-icon">↓</span>
-        <b>WENIGER</b>
-      </button>
-      <button class="skg-btn more molc-choice-btn" data-choice="MORE" type="button">
-        <span class="molc-choice-icon">↑</span>
-        <b>MEHR</b>
-      </button>
+      <button class="skg-btn less molc-choice-btn" data-choice="LESS" type="button"><span class="molc-choice-icon">↓</span><b>WENIGER</b></button>
+      <button class="skg-btn more molc-choice-btn" data-choice="MORE" type="button"><span class="molc-choice-icon">↑</span><b>MEHR</b></button>
     </div>`;
   content.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>answer(btn.dataset.choice)));
 }
 function answer(choice){
   const ref=s.facts[s.factIndex%s.facts.length],cur=s.facts[(s.factIndex+1)%s.facts.length],p=s.players[s.currentSeat];
   const correct=Number(cur[1])>Number(ref[1])?'MORE':'LESS';
-  const ok=choice===correct;
-  if(!ok)p.active=false;
   s.lastSeat=s.currentSeat;
-  s.lastResult={player:p,ok,correct,ref,cur};
-  s.screen='REVEAL';
-  render();
+  if(choice===correct){advanceTurn();return}
+  p.active=false;
+  s.lastResult={player:p,ok:false,correct,ref,cur};
+  s.screen='REVEAL';render();
 }
 function reveal(){
-  chrome('REVEAL',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
-  const r=s.lastResult;
-  const survivors=s.players.filter(p=>p.active);
-  const categoryOver=survivors.length===1;
-  content.innerHTML=`
-    ${statusHtml(['KATEGORIE',META[s.categoryKey][0]],['PLAYER',r.player.name],['AKTIV',survivors.length+' / '+s.players.length])}
-    <section class="skg-feedback molc-feedback ${r.ok?'success':'error'}"><strong>${r.ok?'RICHTIG':'FALSCH'}</strong><span>${r.ok?'Der Player bleibt in dieser Kategorie.':'Der Player scheidet für diese Kategorie aus.'}</span></section>
-    <section class="skg-card molc-reveal-card" style="--player:${color(r.player)}">
-      <small class="skg-kicker">AUFLÖSUNG</small>
-      <h2>${esc(r.cur[0])}</h2>
-      <b class="molc-reveal-value">${esc(format(s.categoryKey,r.cur[1]))}</b>
-      <p>KORREKTE ANTWORT: ${r.correct==='MORE'?'MEHR ↑':'WENIGER ↓'} ALS ${esc(r.ref[0])}.</p>
+  chrome('PLAY',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
+  const r=s.lastResult,p=r.player,survivors=s.players.filter(x=>x.active),categoryOver=survivors.length===1;
+  content.innerHTML=`${playStatus(p)}${scoreboard()}<div class="molc-wrong-flag">FALSCH</div>
+    <section class="molc-compare molc-compare-stacked molc-compare-reveal">
+      <div class="molc-compare-half molc-compare-ref"><strong>${esc(r.ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.ref[1]))}</b></div></div>
+      <div class="molc-vs">VS</div>
+      <div class="molc-compare-half molc-compare-cur"><strong>${esc(r.cur[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.cur[1]))}</b></div></div>
     </section>
-    ${scoreboard()}
-    ${categoryOver?`<div class="molc-winner">${esc(survivors[0].name)} IST LAST MAN STANDING UND GEWINNT DIE KATEGORIE.</div>`:''}
-    <div class="skg-actions"><button class="skg-btn primary" id="molcContinue" type="button">${categoryOver?(s.categoryNo>=s.categoryCount?'ERGEBNIS →':'NÄCHSTE KATEGORIE →'):'NÄCHSTER ZUG →'}</button></div>`;
+    <div class="skg-actions"><button class="skg-btn primary" id="molcContinue" type="button">${categoryOver?(s.categoryNo>=s.categoryCount?'ERGEBNIS →':'NÄCHSTE KATEGORIE →'):'WEITER →'}</button></div>`;
   document.getElementById('molcContinue').addEventListener('click',continueGame);
+}
+function advanceTurn(){
+  s.factIndex=(s.factIndex+1)%Math.max(1,s.facts.length-1);
+  s.currentSeat=nextActive(s.lastSeat);
+  s.lastResult=null;s.screen='QUESTION';render();
 }
 function continueGame(){
   const survivors=s.players.filter(p=>p.active);
   if(survivors.length===1){
     survivors[0].wins++;
     if(s.categoryNo>=s.categoryCount){s.screen='RESULT';render();return}
-    startCategory();
-    return;
+    startCategory();return;
   }
-  s.factIndex=(s.factIndex+1)%Math.max(1,s.facts.length-1);
-  s.currentSeat=nextActive(s.lastSeat);
-  s.lastResult=null;
-  s.screen='QUESTION';
-  render();
+  advanceTurn();
 }
 function result(){
   chrome('RESULT','FINAL');
