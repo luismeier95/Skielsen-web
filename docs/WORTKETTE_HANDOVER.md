@@ -1,6 +1,6 @@
 # WORTKETTE · HANDOVER
 
-> **Neue Integrationsreferenz (2026-09-20):** Für die Integration der aktuellen `/word-chain-test/`-Version in die Vollversion gelten vorrangig `WORTKETTE_FULLVERSION_INTEGRATION_PLAN.md`, `WORTKETTE_CODING_AGENT_HANDOFF_V2.md` und `WORTKETTE_GAME_CONTRACT_V2.md`. Dieses Dokument bleibt als historische Backend-/Versionsdokumentation erhalten.
+> **Neue Integrationsreferenz (2026-09-20):** Für die Integration der aktuellen `/word-chain-test/`-Version in die Vollversion gelten vorrangig `WORTKETTE_FULLVERSION_INTEGRATION_PLAN.md`, `WORTKETTE_CODING_AGENT_HANDOFF_V2.md`, `WORTKETTE_DESIGN_CONTRACT_V2.md` und `WORTKETTE_GAME_CONTRACT_V2.md`. Dieses Dokument bleibt als historische Backend-/Versionsdokumentation erhalten.
 
 Stand: **V20 · Vollversion App V15.1.51**  
 Repo: `luismeier95/Skielsen-web`  
