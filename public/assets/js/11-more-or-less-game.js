@@ -75,9 +75,7 @@ function difficultyMarkup(){
   return `<section class="mol-full-app mol-setup-app">
     ${setupHeader()}
     <main class="mol-full-content mol-setup-content">
-      <div class="mol-full-kicker">SPIELVORBEREITUNG</div>
       <h1>MEHR<br>ODER<br>WENIGER?</h1>
-      <p class="mol-setup-lead">Eine Kategorie wird zufällig gezogen. Wer falsch liegt, scheidet für diese Kategorie aus. Last Man Standing gewinnt die Kategorie.</p>
       <section class="mol-setup-card">
         <small>BEKANNTHEITSGRAD</small>
         <div class="mol-difficulty-picker">
