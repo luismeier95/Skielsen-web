@@ -57,8 +57,9 @@ function playStatusMarkup(player){
 function countFrame(finalValue,target,progress){
   const n=Number(target);
   if(!Number.isFinite(n))return progress>=1?String(finalValue||'—'):'0';
-  const decimals=Math.abs(n%1)>0.0001?1:0;
-  const current=n*progress;
+  if(progress>=1)return String(finalValue||target||'—');
+  const decimals=Math.abs(n%1)>0.0001?1:0,step=decimals?0.1:1;
+  const current=Math.max(0,Math.min(n-step,Math.floor(n*progress/step)*step));
   const suffix=String(finalValue||'').replace(/^[\d\s.,+-]+/,'').trim();
   const number=current.toLocaleString('de-DE',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
   return number+(suffix?' '+suffix:'');
