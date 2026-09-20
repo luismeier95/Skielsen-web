@@ -74,7 +74,7 @@ function countText(key,value,progress){
   if(key==='WIKIPEDIA_VIEWS')return Math.round(current).toLocaleString('de-DE')+' / Monat';
   return Math.round(current).toLocaleString('de-DE')+' '+META[key][1];
 }
-function animateCount(el,key,value,duration=900){
+function animateCount(el,key,value,duration=2000){
   return new Promise(resolve=>{
     const start=performance.now();
     const step=now=>{
@@ -230,8 +230,7 @@ function reveal(){
       <div class="molc-compare-half molc-compare-ref"><strong>${esc(r.ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.ref[1]))}</b></div></div>
       <div class="molc-vs molc-outcome" aria-label="${r.ok?'Richtig':'Falsch'}">${outcome}</div>
       <div class="molc-compare-half molc-compare-cur"><strong>${esc(r.cur[0])}</strong><div class="molc-metric"><b id="molcCountValue">${esc(countText(s.categoryKey,r.cur[1],0))}</b></div></div>
-    </section>
-    <div class="skg-actions molc-feedback-actions"><button class="skg-btn primary" id="molcContinue" type="button" hidden>${categoryOver?(s.categoryNo>=s.categoryCount?'ERGEBNIS →':'NÄCHSTE KATEGORIE →'):'WEITER →'}</button></div>`;
+    </section>`;
   fitCompareLabels();
   const countEl=document.getElementById('molcCountValue');
   animateCount(countEl,s.categoryKey,r.cur[1]).then(()=>{
@@ -241,10 +240,7 @@ function reveal(){
       setTimeout(advanceTurn,520);
       return;
     }
-    setTimeout(()=>{
-      const btn=document.getElementById('molcContinue');
-      if(btn){btn.hidden=false;btn.addEventListener('click',continueGame,{once:true})}
-    },1050);
+    continueGame();
   });
 }
 function advanceTurn(){
