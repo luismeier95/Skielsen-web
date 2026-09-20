@@ -7,7 +7,7 @@
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=4.3">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=5.0">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -117,7 +117,7 @@
         </section>
 
         <section class="wcxt-action-slot" data-spec="FIXED · 64 PX DESKTOP / 60 PX MOBILE">
-          <div class="wcxt-action-copy"><span>BUCHSTABEN ÜBER TASTATUR EINGEBEN</span><b data-source="STATIC COPY">A–Z · ÄÖÜ</b></div>
+          <div class="wcxt-action-copy"><span>WORT EINGEBEN</span><b data-source="STATIC COPY">ENTER ↵ BESTÄTIGEN</b></div>
         </section>
       </div>
 
@@ -144,7 +144,7 @@
       <div><span>Ausgangswort</span><code>base_word</code><span>word-chain session state</span><strong>JA</strong></div>
       <div><span>Hinweis</span><code>revealed_prefix</code><span>word-chain session state</span><strong>JA</strong></div>
       <div><span>Wortlänge</span><code>target_length</code><span>Server-State; nur Länge, niemals verborgenes Zielwort an den Client senden</span><strong>JA</strong></div>
-      <div><span>Buchstabenwahl</span><code>guessed_letter</code><span>Physische Tastatur → server-autoritatives Letter-Action-RPC; keine Onscreen-Tastatur</span><strong>JA</strong></div>
+      <div><span>Worteingabe</span><code>p_guess</code><span>Lokaler Tastaturpuffer → erst bei ENTER an submit_word_chain_tournament; vorher keine Bewertung</span><strong>JA</strong></div>
       <div><span>Doppelter Anfangsbuchstabe</span><code>ignore_repeated_initial</code><span>Server + Client Rule: bereits sichtbaren Initialbuchstaben nur dann erneut werten, wenn der nächste echte Buchstabe identisch ist</span><strong>JA</strong></div>
       <div><span>Feedback</span><code>correct / timeout / accepted_attempt</code><span>submit_word_chain_tournament result</span><strong>JA</strong></div>
       <div><span>Theme</span><code>theme_pack_id</code><span>Tournament Theme Runtime</span><strong>JA</strong></div>
@@ -153,6 +153,6 @@
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=4.3"></script>
+<script src="../assets/js/word-chain-test.js?v=5.0"></script>
 </body>
 </html>
