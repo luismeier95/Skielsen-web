@@ -7,7 +7,7 @@
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=3.1">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=4.0">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -49,7 +49,31 @@
     <div class="wcxt-progress" data-spec="FIXED · 4 PX" data-source="state.step / state.total_steps"><i id="wcxtProgress"></i></div>
 
     <main class="wcxt-content">
-      <div class="wcxt-play-layout" id="wcxtPlayLayout">
+      <section class="wcxt-setup" id="wcxtSetup">
+        <section class="wcxt-setup-hero">
+          <h1>WORT<br>KETTE.</h1>
+        </section>
+        <section class="wcxt-setup-card" data-source="difficulty → occurrence_threshold + show_word_length">
+          <small>MODUS</small>
+          <div class="wcxt-difficulty">
+            <button type="button" data-tier="EASY">
+              <b>EASY</b>
+              <span>THRESHOLD 50</span>
+            </button>
+            <button type="button" data-tier="NORMAL" class="active">
+              <b>NORMAL</b>
+              <span>THRESHOLD 35</span>
+            </button>
+            <button type="button" data-tier="HARDCORE">
+              <b>HARDCORE</b>
+              <span>THRESHOLD 15</span>
+            </button>
+          </div>
+        </section>
+        <button class="wcxt-start" id="wcxtStart" type="button">SPIEL STARTEN →</button>
+      </section>
+
+      <div class="wcxt-play-layout" id="wcxtPlayLayout" hidden>
         <section class="wcxt-status" data-spec="FIXED · 72 PX DESKTOP / 60 PX MOBILE">
           <div data-source="get_word_chain_tournament_state.step + total_steps"><small>SCHRITT</small><strong id="wcxtStep">01 / 10</strong></div>
           <div data-source="get_word_chain_tournament_state.score"><small>PUNKTE</small><strong id="wcxtScore">0</strong></div>
@@ -107,6 +131,9 @@
     <header><small>STANDALONE → DATABASE</small><h2>VARIABLE MAP</h2></header>
     <div class="wcxt-map-table">
       <div><b>UI</b><b>VARIABLE</b><b>HERKUNFT</b><b>PFLICHT</b></div>
+      <div><span>Schwierigkeit</span><code>difficulty</code><span>Standalone Setup → Session-Erzeugung</span><strong>JA</strong></div>
+      <div><span>Frequency Threshold</span><code>occurrence_threshold</code><span>EASY 50 · NORMAL 35 · HARDCORE 15; serverseitiger Edge-Pool-Filter</span><strong>JA</strong></div>
+      <div><span>Wortlänge sichtbar</span><code>show_word_length</code><span>EASY=true · NORMAL/HARDCORE=false</span><strong>JA</strong></div>
       <div><span>Schritt</span><code>step / total_steps</code><span>get_word_chain_tournament_state</span><strong>JA</strong></div>
       <div><span>Punkte</span><code>score</code><span>get_word_chain_tournament_state</span><strong>JA</strong></div>
       <div><span>Zeit</span><code>deadline_at</code><span>RPC state + server_now</span><strong>JA*</strong></div>
@@ -124,6 +151,6 @@
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=3.1"></script>
+<script src="../assets/js/word-chain-test.js?v=4.0"></script>
 </body>
 </html>
