@@ -347,3 +347,18 @@ body.wcxt-show-data [data-source]::after{
     padding:26px 2px 14px;
   }
 }
+
+/* Separate setup page */
+.wcxt-setup-page{
+  width:min(760px,100%);
+  margin:0 auto;
+  background:var(--theme-page);
+  color:var(--theme-on-page);
+}
+.wcxt-setup-page[hidden],
+.wcxt-shell[hidden]{
+  display:none!important;
+}
+.wcxt-setup-page .wcxt-setup{
+  width:100%;
+}
