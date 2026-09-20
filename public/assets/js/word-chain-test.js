@@ -102,13 +102,9 @@ function renderSlots(){
     ).join('');
     return;
   }
-  const visible=[...target.slice(0,revealed)].map(ch=>
+  q('#wcxtSlots').innerHTML=[...target.slice(0,revealed)].map(ch=>
     '<span class="wcxt-slot is-revealed" aria-label="'+esc(ch)+'">'+esc(ch)+'</span>'
-  );
-  if(revealed<target.length){
-    visible.push('<span class="wcxt-slot is-next" aria-label="nächster Buchstabe"></span>');
-  }
-  q('#wcxtSlots').innerHTML=visible.join('');
+  ).join('');
 }
 function renderChain(){
   q('#wcxtChain').innerHTML=game.solved.map((word,i)=>
