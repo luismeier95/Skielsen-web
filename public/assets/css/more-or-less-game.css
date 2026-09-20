@@ -161,3 +161,41 @@
 #v15MoreLessRoot .mol-full-compare.is-reveal :where(.mol-full-reference,.mol-full-current){
   background:transparent!important;
 }
+
+/* Compact production player score tiles */
+.mol-full-scoreboard{gap:7px;margin-bottom:10px}
+.mol-full-score{
+  position:relative;
+  min-width:0;
+  min-height:48px;
+  padding:0 12px 0 14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:10px;
+  border:1px solid var(--theme-border)!important;
+  border-left:6px solid var(--mol-player)!important;
+  border-top:1px solid var(--theme-border)!important;
+}
+.mol-full-score i{display:none}
+.mol-full-score span,
+.mol-full-score b{
+  display:block;
+  margin:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.mol-full-score span{font:900 8px/1 var(--mol-ui);text-transform:uppercase}
+.mol-full-score b{font:900 13px/1 var(--mol-display);text-align:right}
+.mol-full-score.out{opacity:.4}
+.mol-full-score.out:after{
+  content:"OUT";
+  position:absolute;
+  right:5px;
+  top:4px;
+  padding:2px 4px;
+  background:var(--theme-danger-bg);
+  color:var(--theme-on-danger);
+  font:900 5px/1 var(--mol-ui);
+}
