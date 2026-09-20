@@ -1,4 +1,4 @@
-/* Wortkette Solo V15 · auto-complete hints + duplicate-initial input guard */
+/* Wortkette Solo V16 · dictionary-valid wrong guesses + non-resetting timer */
 (()=>{
 'use strict';
 
@@ -110,7 +110,7 @@ function startTimer(){
   timeLeft=timeLimit;const deadline=performance.now()+timeLimit*1000;updateTimerChrome();
   timer=setInterval(()=>{
     timeLeft=Math.max(0,(deadline-performance.now())/1000);updateTimerChrome();
-    if(timeLeft<=0){stopTimer();submitGuess(true)}
+    if(timeLeft<=0){if(busy)return;stopTimer();submitGuess(true)}
   },100);
 }
 async function startGame(){
@@ -137,14 +137,29 @@ async function submitGuess(timeout=false){
     feedback('BITTE EIN WORT EINGEBEN.','bad');animateCard('shake');focusGuess();return;
   }
 
-  busy=true;stopTimer();q('#phaseLabel').textContent='PRÜFEN …';
+  busy=true;if(timeout)stopTimer();q('#phaseLabel').textContent='PRÜFEN …';
   const guess=timeout?'':prefix+tail;
   const previousPrefix=prefix;
 
   try{
     const next=await rpc('submit_word_chain_solo',{p_session_id:state.session_id,p_guess:guess});
 
+    if(next.accepted_attempt===false){
+      state=next;
+      const unavailable=!!next.validation_unavailable;
+      feedback(
+        unavailable?'WORTPRÜFUNG NICHT VERFÜGBAR · VERSUCH NICHT GEWERTET.':'KEIN GÜLTIGES WORT · VERSUCH NICHT GEWERTET.',
+        'bad'
+      );
+      q('#guessTail').value='';
+      q('#phaseLabel').textContent='WORT FINDEN';
+      busy=false;
+      focusGuess();
+      return;
+    }
+
     if(next.correct||next.auto_completed){
+      stopTimer();
       if(next.correct)correctCount++;
       const automatic=!!next.auto_completed;
       feedback(
@@ -173,11 +188,13 @@ async function submitGuess(timeout=false){
     animateCard('shake');renderState();
 
     setTimeout(()=>{
-      feedback('');q('#phaseLabel').textContent='WORT FINDEN';startTimer();busy=false;focusGuess();
+      feedback('');q('#phaseLabel').textContent='WORT FINDEN';
+      if(timeout)startTimer();
+      busy=false;focusGuess();
     },700);
   }catch(err){
     console.warn('Wortkette submit',err);feedback('BACKEND-FEHLER · BITTE ERNEUT BESTÄTIGEN.','bad');
-    setBackendStatus('BACKEND FEHLER','error');busy=false;startTimer();focusGuess();
+    setBackendStatus('BACKEND FEHLER','error');busy=false;if(timeout)startTimer();focusGuess();
   }
 }
 function finishGame(finalState){

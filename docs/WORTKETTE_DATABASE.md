@@ -204,3 +204,18 @@ Zwei Komfortregeln sind jetzt serverseitig abgesichert und im Standalone-Client 
 2. Wenn nur der erste Buchstabe vorgegeben ist und der Spieler diesen Buchstaben reflexartig erneut eingibt, wird die wiederholte Eingabe ignoriert, sofern das echte Lösungswort nicht mit demselben Doppelbuchstaben beginnt. Die Prüfung erfolgt anhand der serverseitig gesperrten Lösung; echte Doppelanfänge bleiben dadurch unverändert spielbar.
 
 Die Submit-RPC normalisiert die doppelte Initiale zusätzlich serverseitig, damit auch schnelle Eingaben oder ältere Clients nicht fälschlich als falsch gewertet werden.
+
+
+## Guess Validation V16
+
+Manuelle Fehlversuche werden jetzt gegen das deutsche Wiktionary validiert.
+
+- korrektes Zielwort: Wort abgeschlossen, nächste Runde startet mit neuem Timer
+- existierendes, aber falsches Wort: −1 Punkt + nächster Buchstabe; **der laufende Timer bleibt unverändert**
+- nicht existierendes/zufälliges Wort: Versuch wird nicht gewertet; kein Punktabzug, kein Hinweis und **kein Timer-Reset**
+- Timeout: −1 Punkt + nächster Buchstabe; danach startet für dasselbe Wort ein neues Zeitfenster
+- vervollständigt ein Hinweis das gesamte Wort, wird automatisch zum nächsten Wort gewechselt
+
+Die Prüfung läuft serverseitig über die MediaWiki-API des deutschen Wiktionary und wird in `word_chain_lexicon_cache` zwischengespeichert. Fällt die externe Wortprüfung aus, wird die Eingabe vorsichtshalber nicht als Fehlversuch gewertet.
+
+Damit kann der Spieler den Countdown nicht mehr durch Enter-Spam oder Zufallszeichen künstlich zurücksetzen.
