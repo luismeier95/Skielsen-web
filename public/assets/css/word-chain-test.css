@@ -245,7 +245,7 @@ body.wcxt-show-data [data-source]::after{
   .wcxt-puzzle{
     height:342px;
     padding:10px 8px 8px;
-    grid-template-rows:72px 30px 198px 34px;
+    grid-template-rows:68px 28px 194px 32px;
   }
   .wcxt-answer{
     grid-template-rows:16px 58px 120px;
