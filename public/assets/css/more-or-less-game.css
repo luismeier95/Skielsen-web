@@ -422,3 +422,30 @@
     min-height:78px;
   }
 }
+
+/* Keep production VS circle identical during count-up */
+.mol-full-compare.is-feedback .mol-full-outcome{
+  width:54px!important;
+  height:54px!important;
+  border-radius:50%!important;
+  margin:auto!important;
+  display:grid!important;
+  place-items:center!important;
+  background:var(--theme-button)!important;
+  color:var(--theme-button-text)!important;
+  font:900 10px/1 var(--mol-ui)!important;
+  box-shadow:none;
+  opacity:1!important;
+  transform:none!important;
+}
+.mol-full-compare.is-feedback.is-resolved .mol-full-outcome{
+  font:900 32px/1 var(--mol-ui)!important;
+}
+.mol-full-compare.is-feedback.is-resolved.is-correct .mol-full-outcome{
+  background:var(--theme-success-bg,var(--theme-success))!important;
+  color:var(--theme-on-success)!important;
+}
+.mol-full-compare.is-feedback.is-resolved.is-wrong .mol-full-outcome{
+  background:var(--theme-danger-bg,var(--theme-danger))!important;
+  color:var(--theme-on-danger)!important;
+}
