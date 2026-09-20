@@ -9,6 +9,11 @@ const body=document.body;
 
 const TIME_LIMIT=15;
 const LETTERS=[...'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ'];
+const DIFFICULTIES={
+  EASY:{threshold:50,showWordLength:true},
+  NORMAL:{threshold:35,showWordLength:false},
+  HARDCORE:{threshold:15,showWordLength:false}
+};
 const CHAIN=[
   {base:'AUTO',next:'BAHN',compound:'AUTOBAHN'},
   {base:'BAHN',next:'HOF',compound:'BAHNHOF'},
@@ -29,6 +34,7 @@ const OTHER_PLAYERS=[
 ];
 
 let game=null;
+let selectedTier='NORMAL';
 let timerId=0;
 let transitionId=0;
 
@@ -47,18 +53,35 @@ function clearTimers(){
   clearInterval(timerId);timerId=0;
   clearTimeout(transitionId);transitionId=0;
 }
+function showSetup(){
+  clearTimers();
+  game=null;
+  q('#wcxtSetup').hidden=false;
+  q('#wcxtPlayLayout').hidden=true;
+  q('#wcxtResult').hidden=true;
+  q('#wcxtProgress').style.width='0%';
+  q('#wcxtTime').classList.remove('urgent');
+  setDebugState('PLAY');
+  qa('[data-tier]').forEach(btn=>btn.classList.toggle('active',btn.dataset.tier===selectedTier));
+}
 function freshGame(){
   clearTimers();
+  const config=DIFFICULTIES[selectedTier]||DIFFICULTIES.NORMAL;
   game={
     step:0,
     score:0,
     revealed:1,
     solved:['AUTO'],
+    difficulty:selectedTier,
+    occurrenceThreshold:config.threshold,
+    showWordLength:config.showWordLength,
     startedAt:performance.now(),
     deadline:performance.now()+TIME_LIMIT*1000,
     completed:false,
     locked:false
   };
+  q('#wcxtSetup').hidden=true;
+  q('#wcxtPlayLayout').hidden=false;
   renderPlay();
   startTimer(true);
 }
@@ -70,11 +93,22 @@ function setDebugState(name){
 }
 function renderSlots(){
   const target=current().next;
-  q('#wcxtSlots').innerHTML=[...target].map((ch,i)=>
-    '<span class="wcxt-slot '+(i<game.revealed?'is-revealed':'')+'" aria-label="'+(i<game.revealed?esc(ch):'verborgen')+'">'+
-      (i<game.revealed?esc(ch):'')+
-    '</span>'
-  ).join('');
+  const revealed=Math.min(game.revealed,target.length);
+  if(game.showWordLength){
+    q('#wcxtSlots').innerHTML=[...target].map((ch,i)=>
+      '<span class="wcxt-slot '+(i<revealed?'is-revealed':'')+'" aria-label="'+(i<revealed?esc(ch):'verborgen')+'">'+
+        (i<revealed?esc(ch):'')+
+      '</span>'
+    ).join('');
+    return;
+  }
+  const visible=[...target.slice(0,revealed)].map(ch=>
+    '<span class="wcxt-slot is-revealed" aria-label="'+esc(ch)+'">'+esc(ch)+'</span>'
+  );
+  if(revealed<target.length){
+    visible.push('<span class="wcxt-slot is-next" aria-label="nächster Buchstabe"></span>');
+  }
+  q('#wcxtSlots').innerHTML=visible.join('');
 }
 function renderChain(){
   q('#wcxtChain').innerHTML=game.solved.map((word,i)=>
@@ -171,7 +205,6 @@ function applyWrong(timeout=false){
   if(game.locked||game.completed)return;
   game.locked=true;
   game.score-=1;
-  setKeyboardLocked(true);
   const target=current().next;
   game.revealed=Math.min(target.length,game.revealed+1);
   q('#wcxtScore').textContent=String(game.score);
@@ -219,6 +252,7 @@ function formatTime(seconds){
   return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
 function finishGame(force=false){
+  if(!game){freshGame();return}
   clearTimers();
   if(!force){
     game.completed=true;
@@ -245,6 +279,7 @@ function finishGame(force=false){
   setDebugState('RESULT');
 }
 function resumePlay(){
+  if(!game){freshGame();return}
   if(game.completed){freshGame();return}
   q('#wcxtPlayLayout').hidden=false;
   q('#wcxtResult').hidden=true;
@@ -252,11 +287,13 @@ function resumePlay(){
   renderPlay();
 }
 function debugHint(){
+  if(!game){freshGame();return}
   if(game.completed)freshGame();
   q('#wcxtPlayLayout').hidden=false;q('#wcxtResult').hidden=true;
   applyWrong(false);
 }
 function debugCorrect(){
+  if(!game){freshGame();return}
   if(game.completed)freshGame();
   q('#wcxtPlayLayout').hidden=false;q('#wcxtResult').hidden=true;
   game.revealed=current().next.length;
@@ -267,7 +304,13 @@ function debugCorrect(){
 theme.addEventListener('change',()=>setTheme(theme.value));
 q('#wcxtLayoutMap').addEventListener('click',()=>body.classList.toggle('wcxt-show-layout'));
 q('#wcxtDataMap').addEventListener('click',()=>body.classList.toggle('wcxt-show-data'));
-q('#wcxtReset').addEventListener('click',freshGame);
+q('#wcxtReset').addEventListener('click',showSetup);
+
+qa('[data-tier]').forEach(btn=>btn.addEventListener('click',()=>{
+  selectedTier=btn.dataset.tier;
+  qa('[data-tier]').forEach(other=>other.classList.toggle('active',other===btn));
+}));
+q('#wcxtStart').addEventListener('click',freshGame);
 
 stateButtons.forEach(btn=>btn.addEventListener('click',()=>{
   const state=btn.dataset.state;
@@ -290,5 +333,5 @@ document.addEventListener('keydown',e=>{
 
 setTheme(theme.value);
 if(!repeatedInitialRuleSelfTest())console.warn('Wortkette repeated-initial rule self-test failed');
-freshGame();
+showSetup();
 })();
