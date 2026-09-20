@@ -17,7 +17,7 @@ const CHAIN=[
   {base:'GRIFF',next:'BRETT',compound:'GRIFFBRETT'},
   {base:'BRETT',next:'SPIEL',compound:'BRETTSPIEL'},
   {base:'SPIEL',next:'PLATZ',compound:'SPIELPLATZ'},
-  {base:'PLATZ',next:'REGEN',compound:'SPIELPLATZREGEN'},
+  {base:'PLATZ',next:'REGEN',compound:'PLATZREGEN'},
   {base:'REGEN',next:'BOGEN',compound:'REGENBOGEN'},
   {base:'BOGEN',next:'LAMPE',compound:'BOGENLAMPE'}
 ];
@@ -305,7 +305,7 @@ q('#wcxtKeyboard').addEventListener('click',e=>{
 
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey)return;
-  if(e.target?.matches?.('select,button'))return;
+  if(e.target?.matches?.('select'))return;
   const letter=cleanLetter(e.key);
   if(letter){
     e.preventDefault();
