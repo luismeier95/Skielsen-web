@@ -750,3 +750,36 @@ body.wcxt-show-data [data-source]::after{
     min-height:58px;
   }
 }
+
+/* Mobile word countdown bar */
+.wcxt-word-timer{
+  display:none;
+}
+@media(max-width:720px){
+  .wcxt-play-layout{
+    position:relative;
+  }
+  .wcxt-word-timer{
+    display:block;
+    position:absolute;
+    top:52px;
+    left:0;
+    width:100%;
+    height:4px;
+    z-index:4;
+    overflow:hidden;
+    background:var(--theme-surface-muted);
+    pointer-events:none;
+  }
+  .wcxt-word-timer>i{
+    display:block;
+    width:100%;
+    height:100%;
+    background:var(--theme-accent);
+    transition:width .1s linear,background-color .12s linear;
+    transform-origin:left center;
+  }
+  .wcxt-word-timer.urgent>i{
+    background:var(--theme-danger-bg,var(--theme-danger));
+  }
+}
