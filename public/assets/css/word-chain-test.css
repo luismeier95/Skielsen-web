@@ -128,3 +128,29 @@ body.wcxt-show-data [data-source]::after{
   .wcxt-result-columns,.wcxt-result-row{grid-template-columns:48px minmax(0,1fr) 70px 50px;padding:0 9px}
   .wcxt-map-table{overflow:auto}.wcxt-map-table>div{min-width:650px}
 }
+/* Playable local simulation states */
+#wcxtTime.urgent{
+  display:inline-block;
+  align-self:flex-end;
+  padding:4px 6px;
+  background:var(--theme-danger-bg);
+  color:var(--theme-on-danger);
+}
+.wcxt-feedback.good{
+  background:var(--theme-success-bg);
+  color:var(--theme-on-success);
+}
+.wcxt-feedback.bad{
+  background:var(--theme-danger-bg);
+  color:var(--theme-on-danger);
+}
+.wcxt-feedback.hint{
+  background:var(--theme-warning-bg);
+  color:var(--theme-on-warning);
+}
+#wcxtInput:disabled{
+  background:var(--theme-disabled-bg);
+  color:var(--theme-on-disabled);
+  border-color:var(--theme-disabled-border);
+}
+#wcxtResultRows{display:block}
