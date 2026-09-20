@@ -55,11 +55,12 @@ function clearTimers(){
 }
 function showSetup(){
   clearTimers();
+  mobileCapture()?.blur();
   game=null;
   q('#wcxtSetupPage').hidden=false;
   q('#wcxtShell').hidden=true;
+  q('#wcxtResultPage').hidden=true;
   q('#wcxtPlayLayout').hidden=true;
-  q('#wcxtResult').hidden=true;
   q('#wcxtProgress').style.width='0%';
   q('#wcxtTime').classList.remove('urgent');
   setDebugState('PLAY');
@@ -84,6 +85,7 @@ function freshGame(){
     locked:false
   };
   q('#wcxtSetupPage').hidden=true;
+  q('#wcxtResultPage').hidden=true;
   q('#wcxtShell').hidden=false;
   q('#wcxtPlayLayout').hidden=false;
   renderPlay();
@@ -191,7 +193,7 @@ function fitSlotText(){
 }
 function renderPlay(){
   q('#wcxtPlayLayout').hidden=false;
-  q('#wcxtResult').hidden=true;
+  q('#wcxtResultPage').hidden=true;
   const stepNo=Math.min(game.step+1,CHAIN.length);
   q('#wcxtStep').textContent=String(stepNo).padStart(2,'0')+' / '+String(CHAIN.length).padStart(2,'0');
   q('#wcxtScore').textContent=String(game.score);
@@ -363,29 +365,35 @@ function finishGame(force=false){
     '</div>'
   ).join('');
 
+  mobileCapture()?.blur();
   q('#wcxtPlayLayout').hidden=true;
-  q('#wcxtResult').hidden=false;
+  q('#wcxtShell').hidden=true;
+  q('#wcxtSetupPage').hidden=true;
+  q('#wcxtResultPage').hidden=false;
   q('#wcxtProgress').style.width='100%';
+  const resultMeta=q('#wcxtResultPage .wcxt-result>header span');
+  if(resultMeta)resultMeta.textContent=rows.length+' PLAYER';
   setDebugState('RESULT');
 }
 function resumePlay(){
   if(!game){freshGame();return}
   if(game.completed){freshGame();return}
+  q('#wcxtResultPage').hidden=true;
+  q('#wcxtShell').hidden=false;
   q('#wcxtPlayLayout').hidden=false;
-  q('#wcxtResult').hidden=true;
   setDebugState('PLAY');
   renderPlay();
 }
 function debugHint(){
   if(!game){freshGame();return}
   if(game.completed)freshGame();
-  q('#wcxtPlayLayout').hidden=false;q('#wcxtResult').hidden=true;
+  q('#wcxtResultPage').hidden=true;q('#wcxtShell').hidden=false;q('#wcxtPlayLayout').hidden=false;
   applyWrong(false);
 }
 function debugCorrect(){
   if(!game){freshGame();return}
   if(game.completed)freshGame();
-  q('#wcxtPlayLayout').hidden=false;q('#wcxtResult').hidden=true;
+  q('#wcxtResultPage').hidden=true;q('#wcxtShell').hidden=false;q('#wcxtPlayLayout').hidden=false;
   game.inputBuffer=current().next.slice(game.revealed);
   submitWord();
 }
@@ -394,6 +402,7 @@ theme.addEventListener('change',()=>setTheme(theme.value));
 q('#wcxtLayoutMap').addEventListener('click',()=>body.classList.toggle('wcxt-show-layout'));
 q('#wcxtDataMap').addEventListener('click',()=>body.classList.toggle('wcxt-show-data'));
 q('#wcxtReset').addEventListener('click',showSetup);
+q('#wcxtTournament')?.addEventListener('click',showSetup);
 
 qa('[data-tier]').forEach(btn=>btn.addEventListener('click',()=>{
   selectedTier=btn.dataset.tier;
