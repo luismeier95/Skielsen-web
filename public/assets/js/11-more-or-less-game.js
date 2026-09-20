@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,autoContinueKey='';
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -175,22 +175,25 @@ function questionMarkup(){
   </section>`;
 }
 function revealMarkup(){
-  const lr=state?.last_result||{},p=playerById(lr.participant_id),mine=state?.viewer?.member_id===lr.answer_member_id;
-  const survivors=(state?.players||[]).filter(x=>x.active);
-  const categoryOver=survivors.length===1;
+  const lr=state?.last_result||{},mine=state?.viewer?.member_id===lr.answer_member_id;
+  const survivors=(state?.players||[]).filter(x=>x.active),categoryOver=survivors.length===1;
+  const ref=state?.reference||{},cur=state?.current||{};
+  const refLabel=lr.reference_label||ref.label||'—';
+  const refValue=lr.reference_display_value||lr.reference_value||ref.display_value||ref.value||'—';
+  const curLabel=lr.current_label||cur.label||'—';
+  const curValue=lr.current_display_value||lr.current_value||cur.display_value||cur.value||'—';
   return `<section class="mol-full-app">
     ${header()}
-    <main class="mol-full-content reveal">
-      <div class="mol-full-kicker">${esc(categoryLabel())} · AUFLÖSUNG</div>
-      <div class="mol-full-result ${lr.ok?'correct':'wrong'}">${lr.ok?'RICHTIG':'FALSCH'}</div>
-      <section class="mol-full-reveal-card" style="--mol-player:${colorOf(p)}">
-        <small>${esc(String(p?.display_name||'PLAYER').toUpperCase())}</small>
-        <strong>${esc(lr.current_label||state?.current?.label||'—')}</strong>
-        <b>${esc(lr.current_display_value||state?.current?.display_value||'—')}</b>
-        <p>${esc(String(lr.correct_choice||'').toUpperCase())} ALS ${esc(String(lr.reference_label||'REFERENZ').toUpperCase())}</p>
-      </section>
+    <main class="mol-full-content">
+      <div class="mol-full-kicker">${esc(categoryLabel())}</div>
       <div class="mol-full-scoreboard">${scoreboard()}</div>
-      ${mine?`<button class="mol-full-continue" id="molFullContinue" type="button">${categoryOver?'KATEGORIE ABSCHLIESSEN →':'NÄCHSTER ZUG →'}</button>`:`<div class="mol-full-wait">AUFLÖSUNG · WARTET AUF WEITER</div>`}
+      <div class="mol-full-result wrong">FALSCH</div>
+      <section class="mol-full-compare is-reveal">
+        <div class="mol-full-reference"><strong>${esc(refLabel)}</strong><b>${esc(refValue)}</b></div>
+        <div class="mol-full-vs">VS</div>
+        <div class="mol-full-current"><strong>${esc(curLabel)}</strong><b>${esc(curValue)}</b></div>
+      </section>
+      ${mine?`<button class="mol-full-continue" id="molFullContinue" type="button">${categoryOver?'KATEGORIE ABSCHLIESSEN →':'WEITER →'}</button>`:`<div class="mol-full-wait">WARTEN</div>`}
     </main>
   </section>`;
 }
@@ -228,6 +231,14 @@ function render(){
     return;
   }
   if(categoryAnimating)return;
+  if(state.phase==='REVEAL'&&state?.last_result?.ok){
+    const lr=state.last_result||{},mine=state?.viewer?.member_id===lr.answer_member_id;
+    const key=[state.category_no,lr.answer_member_id,lr.current_label,lr.current_display_value].join('|');
+    if(mine&&autoContinueKey!==key){autoContinueKey=key;queueMicrotask(()=>void act('CONTINUE'))}
+    bindChrome();
+    return;
+  }
+  autoContinueKey='';
   if(state.phase==='COMPLETE'||state.status==='FINISHED')root.innerHTML=completeMarkup();
   else if(state.phase==='REVEAL')root.innerHTML=revealMarkup();
   else root.innerHTML=questionMarkup();
@@ -245,8 +256,8 @@ async function act(type){
     if(r.data?.result&&!resultIngested){
       resultIngested=!!window.skielsenV15?.ingestInAppGameResult?.(session.tournament_game_id,r.data.result);
     }
-    await poll();
   }finally{busy=false}
+  await poll();
 }
 async function poll(){
   if(!db||!session?.session_id||busy)return;
