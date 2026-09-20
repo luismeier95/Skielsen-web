@@ -217,7 +217,7 @@ function ensureWordChainAssets(){
   wordChainAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-word-chain-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/wortkette-game.css?v=${VERSION}&fix=wcv4`;link.dataset.wordChainCss='1';
+      link.rel='stylesheet';link.href=`assets/css/wortkette-game.css?v=${VERSION}&fix=wcv4r590`;link.dataset.wordChainCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-word-chain-js]');
@@ -228,7 +228,7 @@ function ensureWordChainAssets(){
       return;
     }
     const script=document.createElement('script');
-    script.src=`assets/js/12-word-chain-game.js?v=${VERSION}&fix=wcv4`;
+    script.src=`assets/js/12-word-chain-game.js?v=${VERSION}&fix=wcv4r590`;
     script.defer=true;script.dataset.wordChainJs='1';
     script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
   });
