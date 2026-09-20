@@ -73,6 +73,7 @@ function freshGame(){
     score:0,
     revealed:1,
     inputBuffer:'',
+    acceptedBuffer:'',
     solved:['AUTO'],
     difficulty:selectedTier,
     occurrenceThreshold:config.threshold,
@@ -113,22 +114,25 @@ function renderSlots(){
   const target=current().next;
   const revealed=Math.min(game.revealed,target.length);
   const prefix=target.slice(0,revealed);
-  const typed=normalizedInputBuffer();
+  const typed=String(game.acceptedBuffer||normalizedInputBuffer());
 
   if(game.showWordLength){
     const chars=[...target];
     q('#wcxtSlots').innerHTML=chars.map((ch,i)=>{
-      if(i<revealed)return '<span class="wcxt-slot is-revealed" aria-label="'+esc(ch)+'">'+esc(ch)+'</span>';
+      if(i<revealed)return '<span class="wcxt-slot is-revealed" aria-label="Hinweis '+esc(ch)+'">'+esc(ch)+'</span>';
       const typedIndex=i-revealed;
       const typedChar=typed.charAt(typedIndex);
       if(typedChar)return '<span class="wcxt-slot is-typed" aria-label="eingegeben '+esc(typedChar)+'">'+esc(typedChar)+'</span>';
-      return '<span class="wcxt-slot" aria-label="verborgen"></span>';
+      return '<span class="wcxt-slot is-empty" aria-label="verborgen"></span>';
     }).join('');
   }else{
     const visible=[
-      ...[...prefix].map(ch=>'<span class="wcxt-slot is-revealed" aria-label="'+esc(ch)+'">'+esc(ch)+'</span>'),
+      ...[...prefix].map(ch=>'<span class="wcxt-slot is-revealed" aria-label="Hinweis '+esc(ch)+'">'+esc(ch)+'</span>'),
       ...[...typed].map(ch=>'<span class="wcxt-slot is-typed" aria-label="eingegeben '+esc(ch)+'">'+esc(ch)+'</span>')
     ];
+    if(!game.acceptedBuffer){
+      visible.push('<span class="wcxt-slot is-next" aria-label="nächste Eingabeposition"></span>');
+    }
     q('#wcxtSlots').innerHTML=visible.join('');
   }
   fitSlotText();
@@ -220,12 +224,14 @@ function typeLetter(letter){
   if(!chosen)return;
   const maxInput=32;
   if(game.inputBuffer.length>=maxInput)return;
+  game.acceptedBuffer='';
   game.inputBuffer+=chosen;
   renderSlots();
   feedback('');
 }
 function eraseLetter(){
   if(!game||game.locked||game.completed||!game.inputBuffer)return;
+  game.acceptedBuffer='';
   game.inputBuffer=game.inputBuffer.slice(0,-1);
   renderSlots();
   feedback('');
@@ -243,7 +249,7 @@ function submitWord(){
 function applyCorrect(){
   if(game.locked||game.completed)return;
   game.locked=true;
-  game.revealed=current().next.length;
+  game.acceptedBuffer=normalizedInputBuffer();
   game.inputBuffer='';
   clearInterval(timerId);timerId=0;
   renderSlots();
@@ -256,6 +262,7 @@ function applyWrong(timeout=false){
   game.locked=true;
   game.score-=1;
   game.inputBuffer='';
+  game.acceptedBuffer='';
   const target=current().next;
   game.revealed=Math.min(target.length,game.revealed+1);
   q('#wcxtScore').textContent=String(game.score);
@@ -292,6 +299,7 @@ function advanceStep(){
   }
   game.revealed=1;
   game.inputBuffer='';
+  game.acceptedBuffer='';
   game.locked=false;
   feedback('');
   setDebugState('PLAY');
