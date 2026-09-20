@@ -226,3 +226,18 @@ Damit kann der Spieler den Countdown nicht mehr durch Enter-Spam oder Zufallszei
 Ab V16 wird die jeweils aktuellste Wortkette-Version immer unter der stabilen Route `/wortkette/` veröffentlicht. Es werden für neue Builds keine versionsabhängigen öffentlichen URLs mehr benötigt.
 
 Die sichtbare Versionsangabe steht ausschließlich als kurzer String im Game-Header, z. B. `V16`. Zusätze wie `SOLO PLAYTEST ·` oder Versionsnummern im sichtbaren Seitentitel entfallen.
+
+
+## Mobile Play Layout V17
+
+Der aktive Play-Screen hat auf Smartphones einen eigenen kompakten Layoutmodus.
+
+- Game-Header und Statusleiste werden im Spiel niedriger dargestellt.
+- `DEINE KETTE` ist auf Mobile ein Akkordeon und standardmäßig eingeklappt.
+- Beim Öffnen der Bildschirmtastatur wird die Kette automatisch geschlossen.
+- `visualViewport` überwacht die tatsächlich sichtbare Bildschirmhöhe und die Tastaturhöhe.
+- Während der Tastatur geöffnet ist, wird der Antwortbereich als kompakter Dock direkt oberhalb der Tastatur positioniert.
+- Ausgangswort und Plus bleiben im sichtbaren Restbereich; sekundäre Statistiken werden bei geöffneter Tastatur ausgeblendet.
+- Desktop-Layout und Setup-Screen bleiben unverändert.
+
+Die stabile Veröffentlichungsroute bleibt `/wortkette/`; die sichtbare Versionskennung steht nur im Game-Header als `V17`.

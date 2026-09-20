@@ -6,13 +6,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050505">
 <title>SKIELSEN · Wortkette</title>
-<link rel="stylesheet" href="assets/css/wortkette-standalone.css?v=16">
+<link rel="stylesheet" href="assets/css/wortkette-standalone.css?v=17">
 </head>
 <body>
 <div class="wk-app">
   <header class="wk-header">
     <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
-    <div><strong>WORTKETTE</strong><small>V16</small></div>
+    <div><strong>WORTKETTE</strong><small>V17</small></div>
     <span class="wk-backend live" id="backendStatus">BACKEND BEREIT</span>
   </header>
   <div class="wk-strip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -76,24 +76,31 @@
 
       <div class="progress"><i id="progressBar"></i></div>
 
-      <section class="chain-progress">
-        <small>DEINE KETTE</small>
-        <div id="solvedChain">—</div>
+      <section class="chain-progress" id="chainPanel">
+        <button class="chain-toggle" id="chainToggle" type="button" aria-expanded="true">
+          <span>DEINE KETTE</span>
+          <b id="chainCount">1 WORT</b>
+          <i aria-hidden="true">⌄</i>
+        </button>
+        <div class="chain-content" id="solvedChain">—</div>
       </section>
 
       <section class="puzzle-card" id="puzzleCard">
-        <div class="puzzle-label">AKTUELLES AUSGANGSWORT</div>
-        <div class="base-word" id="baseWord">—</div>
-        <div class="plus">+</div>
-        <div class="puzzle-label">GESUCHTES NOMEN</div>
-
-        <div class="open-word-input" id="openWordInput">
-          <div class="revealed-prefix" id="revealedPrefix" aria-label="Aufgedeckte Buchstaben"></div>
-          <input id="guessTail" class="guess-tail" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Rest des gesuchten Nomens" placeholder="WEITERSCHREIBEN …">
+        <div class="puzzle-context">
+          <div class="puzzle-label">AKTUELLES AUSGANGSWORT</div>
+          <div class="base-word" id="baseWord">—</div>
+          <div class="plus">+</div>
         </div>
 
-        <div class="enter-hint"><span>WORT ERGÄNZEN</span><b>ENTER ↵</b></div>
-        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <div class="answer-dock" id="answerDock">
+          <div class="puzzle-label answer-label">GESUCHTES NOMEN</div>
+          <div class="open-word-input" id="openWordInput">
+            <div class="revealed-prefix" id="revealedPrefix" aria-label="Aufgedeckte Buchstaben"></div>
+            <input id="guessTail" class="guess-tail" type="text" autocomplete="off" autocapitalize="characters" enterkeyhint="go" spellcheck="false" aria-label="Rest des gesuchten Nomens" placeholder="WEITERSCHREIBEN …">
+          </div>
+          <div class="enter-hint"><span>WORT ERGÄNZEN</span><b>ENTER ↵</b></div>
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="stats-row">
@@ -112,6 +119,6 @@
     </section>
   </main>
 </div>
-<script src="assets/js/wortkette-standalone.js?v=16"></script>
+<script src="assets/js/wortkette-standalone.js?v=17"></script>
 </body>
 </html>

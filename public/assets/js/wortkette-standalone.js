@@ -1,4 +1,4 @@
-/* Wortkette Solo V16 · dictionary-valid wrong guesses + non-resetting timer */
+/* Wortkette Solo V17 · mobile keyboard-aware play layout */
 (()=>{
 'use strict';
 
@@ -29,8 +29,18 @@ let timeLimit=0,state=null,busy=false,timer=0,timeLeft=0,correctCount=0;
 let occurrenceThreshold=35;
 let thresholdStatsTimer=0;
 let inputRules={ignore_repeated_initial:false};
+let chainCollapsed=false;
+let maxVisualHeight=window.visualViewport?.height||window.innerHeight;
+let viewportFrame=0;
 
-function show(id){screens.forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo({top:0,behavior:'auto'})}
+function show(id){
+  screens.forEach(s=>s.classList.toggle('active',s.id===id));
+  document.body.classList.toggle('wk-playing',id==='playScreen');
+  if(id==='playScreen'&&matchMedia('(max-width:720px)').matches)setChainCollapsed(true);
+  if(id!=='playScreen')document.body.classList.remove('wk-keyboard-open');
+  window.scrollTo({top:0,behavior:'auto'});
+  requestViewportUpdate();
+}
 function cleanLetters(value){return String(value||'').normalize('NFC').replace(/[^A-Za-zÄÖÜäöüß]/g,'').toLocaleUpperCase('de-DE')}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function rpc(name,payload={}){
@@ -61,9 +71,20 @@ function scheduleThresholdStats(){
   q('#thresholdValue').textContent=String(occurrenceThreshold);
   thresholdStatsTimer=setTimeout(refreshThresholdStats,140);
 }
+function setChainCollapsed(value,forced=false){
+  chainCollapsed=!!value;
+  const panel=q('#chainPanel');
+  const toggle=q('#chainToggle');
+  if(!panel||!toggle)return;
+  panel.classList.toggle('collapsed',chainCollapsed);
+  toggle.setAttribute('aria-expanded',String(!chainCollapsed));
+  toggle.dataset.forced=forced?'1':'0';
+}
 function chainMarkup(words,host){
   const list=Array.isArray(words)?words:[];
   host.innerHTML=list.map((word,i)=>'<span class="word">'+esc(word)+'</span>'+(i<list.length-1?'<span class="arrow">→</span>':'')).join('')||'—';
+  const count=q('#chainCount');
+  if(count)count.textContent=String(list.length)+' '+(list.length===1?'WORT':'WÖRTER');
 }
 async function refreshInputRules(){
   inputRules={ignore_repeated_initial:false};
@@ -96,6 +117,36 @@ function renderState(){
 function feedback(text,kind=''){const el=q('#feedback');el.textContent=text||'';el.className='feedback'+(kind?' '+kind:'')}
 function animateCard(cls){const card=q('#puzzleCard');card.classList.remove('shake','flash-good');void card.offsetWidth;card.classList.add(cls);setTimeout(()=>card.classList.remove(cls),500)}
 function focusGuess(){if(!state||state.completed||busy)return;q('#guessTail').focus({preventScroll:true})}
+function updateViewportState(){
+  viewportFrame=0;
+  const vv=window.visualViewport;
+  const currentHeight=vv?.height||window.innerHeight;
+  const offsetTop=vv?.offsetTop||0;
+  const inputFocused=document.activeElement===q('#guessTail');
+  const mobile=matchMedia('(max-width:720px)').matches;
+
+  if(!inputFocused)maxVisualHeight=Math.max(maxVisualHeight,currentHeight);
+
+  const shrink=Math.max(0,maxVisualHeight-currentHeight);
+  const layoutGap=Math.max(0,window.innerHeight-currentHeight-offsetTop);
+  const keyboardSize=Math.max(shrink,layoutGap);
+  const keyboardOpen=mobile&&inputFocused&&keyboardSize>100;
+
+  document.documentElement.style.setProperty('--wk-visual-height',currentHeight+'px');
+  document.documentElement.style.setProperty('--wk-visual-top',offsetTop+'px');
+  document.documentElement.style.setProperty('--wk-keyboard-offset',(keyboardOpen?keyboardSize:0)+'px');
+  document.body.classList.toggle('wk-keyboard-open',keyboardOpen);
+
+  if(keyboardOpen){
+    setChainCollapsed(true,true);
+    const card=q('#puzzleCard');
+    if(card)requestAnimationFrame(()=>card.scrollIntoView({block:'start',behavior:'smooth'}));
+  }
+}
+function requestViewportUpdate(){
+  if(viewportFrame)return;
+  viewportFrame=requestAnimationFrame(updateViewportState);
+}
 function updateTimerChrome(){
   const off=timeLimit<=0,shell=q('.timer-shell'),progress=q('.progress');
   shell.classList.toggle('urgent',!off&&timeLeft<=5&&timeLeft>0);
@@ -216,6 +267,10 @@ q('#occurrenceThreshold').addEventListener('input',e=>{
 });
 q('#startBtn').addEventListener('click',startGame);
 q('#restartBtn').addEventListener('click',resetToSetup);
+q('#chainToggle').addEventListener('click',()=>{
+  if(document.body.classList.contains('wk-keyboard-open'))return;
+  setChainCollapsed(!chainCollapsed);
+});
 q('#openWordInput').addEventListener('click',focusGuess);
 q('#guessTail').addEventListener('input',e=>{
   let value=cleanLetters(e.target.value);
@@ -226,7 +281,18 @@ q('#guessTail').addEventListener('input',e=>{
   e.target.value=value;
 });
 q('#guessTail').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitGuess(false)}});
-q('#playScreen').addEventListener('click',e=>{if(!e.target.closest('.game-top')&&!e.target.closest('.stats-row'))focusGuess()});
+q('#guessTail').addEventListener('focus',()=>{
+  if(matchMedia('(max-width:720px)').matches)setChainCollapsed(true,true);
+  setTimeout(requestViewportUpdate,40);
+});
+q('#guessTail').addEventListener('blur',()=>setTimeout(requestViewportUpdate,80));
+q('#playScreen').addEventListener('click',e=>{if(!e.target.closest('.game-top')&&!e.target.closest('.stats-row')&&!e.target.closest('#chainToggle'))focusGuess()});
+
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',requestViewportUpdate);
+  window.visualViewport.addEventListener('scroll',requestViewportUpdate);
+}
+window.addEventListener('resize',requestViewportUpdate);
 
 try{
   const saved=Number(localStorage.getItem('skielsen_word_chain_threshold_v1'));
@@ -235,4 +301,5 @@ try{
 q('#occurrenceThreshold').value=String(occurrenceThreshold);
 refreshThresholdStats();
 setBackendStatus('BACKEND BEREIT','live');
+requestViewportUpdate();
 })();
