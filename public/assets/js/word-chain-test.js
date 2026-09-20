@@ -59,7 +59,6 @@ function freshGame(){
     completed:false,
     locked:false
   };
-  renderKeyboard();
   renderPlay();
   startTimer(true);
 }
@@ -77,11 +76,6 @@ function renderSlots(){
     '</span>'
   ).join('');
 }
-function renderKeyboard(){
-  q('#wcxtKeyboard').innerHTML=LETTERS.map(letter=>
-    '<button type="button" class="wcxt-key" data-letter="'+letter+'" aria-label="Buchstabe '+letter+'">'+letter+'</button>'
-  ).join('');
-}
 function renderChain(){
   q('#wcxtChain').innerHTML=game.solved.map((word,i)=>
     '<span>'+esc(word)+'</span>'+(i<game.solved.length-1?'<b>→</b>':'')
@@ -89,9 +83,6 @@ function renderChain(){
 }
 function renderPlayerScore(){
   q('#wcxtPlayerSelf b').textContent=String(game.score);
-}
-function setKeyboardLocked(locked){
-  qa('.wcxt-key').forEach(btn=>btn.disabled=!!locked);
 }
 function renderPlay(){
   q('#wcxtPlayLayout').hidden=false;
@@ -104,7 +95,6 @@ function renderPlay(){
   renderSlots();
   renderChain();
   renderPlayerScore();
-  setKeyboardLocked(game.locked||game.completed);
 }
 function feedback(text,kind=''){
   const el=q('#wcxtFeedback');
@@ -152,18 +142,12 @@ function chooseLetter(letter){
 
   if(result==='repeat-ignore'){
     feedback('ANFANGSBUCHSTABE IST BEREITS SICHTBAR','hint');
-    const btn=q('.wcxt-key[data-letter="'+chosen+'"]');
-    btn?.classList.add('is-ignored');
-    setTimeout(()=>btn?.classList.remove('is-ignored'),260);
     return;
   }
 
   if(result==='correct'){
     game.revealed+=1;
     renderSlots();
-    const btn=q('.wcxt-key[data-letter="'+chosen+'"]');
-    btn?.classList.add('is-hit');
-    setTimeout(()=>btn?.classList.remove('is-hit'),260);
     if(game.revealed>=current().next.length){
       applyCorrect();
     }else{
@@ -172,16 +156,12 @@ function chooseLetter(letter){
     return;
   }
 
-  const btn=q('.wcxt-key[data-letter="'+chosen+'"]');
-  btn?.classList.add('is-miss');
-  setTimeout(()=>btn?.classList.remove('is-miss'),260);
   applyWrong(false);
 }
 function applyCorrect(){
   if(game.locked||game.completed)return;
   game.locked=true;
   clearInterval(timerId);timerId=0;
-  setKeyboardLocked(true);
   renderSlots();
   feedback('RICHTIG · '+current().compound,'good');
   setDebugState('CORRECT');
@@ -212,8 +192,7 @@ function applyWrong(timeout=false){
 
   transitionId=setTimeout(()=>{
     game.locked=false;
-    setKeyboardLocked(false);
-    feedback('');
+      feedback('');
     setDebugState('PLAY');
     if(timeout)startTimer(true);
     else startTimer(false);
@@ -298,10 +277,6 @@ stateButtons.forEach(btn=>btn.addEventListener('click',()=>{
   else if(state==='RESULT')finishGame(true);
 }));
 
-q('#wcxtKeyboard').addEventListener('click',e=>{
-  const btn=e.target.closest('[data-letter]');
-  if(btn)chooseLetter(btn.dataset.letter);
-});
 
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey)return;
