@@ -7,7 +7,7 @@
 <title>SKIELSEN · Wortkette · Contract Test</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=4.1">
+<link rel="stylesheet" href="../assets/css/word-chain-test.css?v=4.2">
 </head>
 <body class="v15-tournament-active wcxt-body" data-theme-pack="theme.skielsen.core">
 <header class="wcxt-testbar">
@@ -37,7 +37,33 @@
     <button data-state="RESULT" type="button">RESULT</button>
   </section>
 
-  <section class="wcxt-shell" id="wcxtShell">
+  <section class="wcxt-setup-page" id="wcxtSetupPage">
+    <section class="wcxt-setup" id="wcxtSetup">
+      <section class="wcxt-setup-hero">
+        <h1>WORT<br>KETTE.</h1>
+      </section>
+      <section class="wcxt-setup-card" data-source="difficulty → occurrence_threshold + show_word_length">
+        <small>MODUS</small>
+        <div class="wcxt-difficulty">
+          <button type="button" data-tier="EASY">
+            <b>EASY</b>
+            <span>THRESHOLD 50</span>
+          </button>
+          <button type="button" data-tier="NORMAL" class="active">
+            <b>NORMAL</b>
+            <span>THRESHOLD 35</span>
+          </button>
+          <button type="button" data-tier="HARDCORE">
+            <b>HARDCORE</b>
+            <span>THRESHOLD 15</span>
+          </button>
+        </div>
+      </section>
+      <button class="wcxt-start" id="wcxtStart" type="button">SPIEL STARTEN →</button>
+    </section>
+  </section>
+
+  <section class="wcxt-shell" id="wcxtShell" hidden>
     <header class="wcxt-header" data-spec="FIXED · 72 PX DESKTOP / 52 PX MOBILE" data-source="game_catalog.name + static chrome">
       <div class="wcxt-brand">
         <img src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
@@ -49,30 +75,6 @@
     <div class="wcxt-progress" data-spec="FIXED · 4 PX" data-source="state.step / state.total_steps"><i id="wcxtProgress"></i></div>
 
     <main class="wcxt-content">
-      <section class="wcxt-setup" id="wcxtSetup">
-        <section class="wcxt-setup-hero">
-          <h1>WORT<br>KETTE.</h1>
-        </section>
-        <section class="wcxt-setup-card" data-source="difficulty → occurrence_threshold + show_word_length">
-          <small>MODUS</small>
-          <div class="wcxt-difficulty">
-            <button type="button" data-tier="EASY">
-              <b>EASY</b>
-              <span>THRESHOLD 50</span>
-            </button>
-            <button type="button" data-tier="NORMAL" class="active">
-              <b>NORMAL</b>
-              <span>THRESHOLD 35</span>
-            </button>
-            <button type="button" data-tier="HARDCORE">
-              <b>HARDCORE</b>
-              <span>THRESHOLD 15</span>
-            </button>
-          </div>
-        </section>
-        <button class="wcxt-start" id="wcxtStart" type="button">SPIEL STARTEN →</button>
-      </section>
-
       <div class="wcxt-play-layout" id="wcxtPlayLayout" hidden>
         <section class="wcxt-status" data-spec="FIXED · 72 PX DESKTOP / 60 PX MOBILE">
           <div data-source="get_word_chain_tournament_state.step + total_steps"><small>SCHRITT</small><strong id="wcxtStep">01 / 10</strong></div>
@@ -151,6 +153,6 @@
   </section>
 </main>
 
-<script src="../assets/js/word-chain-test.js?v=4.0"></script>
+<script src="../assets/js/word-chain-test.js?v=4.2"></script>
 </body>
 </html>
