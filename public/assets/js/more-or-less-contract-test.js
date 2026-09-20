@@ -168,10 +168,8 @@ function question(){
     ${scoreboard()}
     <section class="molc-compare molc-compare-stacked">
       <div class="molc-compare-half molc-compare-ref">
-        <small>REFERENZ</small>
         <strong>${esc(ref[0])}</strong>
         <div class="molc-metric">
-          <span>${esc(META[s.categoryKey][0])}</span>
           <b>${esc(format(s.categoryKey,ref[1]))}</b>
         </div>
       </div>
@@ -179,26 +177,18 @@ function question(){
       <div class="molc-vs">VS</div>
 
       <div class="molc-compare-half molc-compare-cur">
-        <small>${esc(p.name)} IST DRAN</small>
         <strong>${esc(cur[0])}</strong>
-        <div class="molc-question-line">IST DER WERT HÖHER ODER NIEDRIGER?</div>
       </div>
     </section>
 
     <div class="skg-choice-actions molc-choice-actions">
       <button class="skg-btn less molc-choice-btn" data-choice="LESS" type="button">
         <span class="molc-choice-icon">↓</span>
-        <span class="molc-choice-copy">
-          <b>WENIGER</b>
-          <small>NIEDRIGER ALS DIE REFERENZ</small>
-        </span>
+        <b>WENIGER</b>
       </button>
       <button class="skg-btn more molc-choice-btn" data-choice="MORE" type="button">
         <span class="molc-choice-icon">↑</span>
-        <span class="molc-choice-copy">
-          <b>MEHR</b>
-          <small>HÖHER ALS DIE REFERENZ</small>
-        </span>
+        <b>MEHR</b>
       </button>
     </div>`;
   content.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>answer(btn.dataset.choice)));
