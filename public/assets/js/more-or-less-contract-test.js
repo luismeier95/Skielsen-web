@@ -69,10 +69,15 @@ function format(key,value){
 }
 function countText(key,value,progress){
   const target=Number(value)||0;
-  const current=target*progress;
-  if(key==='POPULATION')return current.toLocaleString('de-DE',{minimumFractionDigits:target%1?1:0,maximumFractionDigits:1})+' Mio.';
-  if(key==='WIKIPEDIA_VIEWS')return Math.round(current).toLocaleString('de-DE')+' / Monat';
-  return Math.round(current).toLocaleString('de-DE')+' '+META[key][1];
+  if(progress>=1)return format(key,target);
+  if(key==='POPULATION'){
+    const decimals=target%1?1:0,step=decimals?0.1:1;
+    const current=Math.max(0,Math.min(target-step,Math.floor(target*progress/step)*step));
+    return current.toLocaleString('de-DE',{minimumFractionDigits:decimals,maximumFractionDigits:decimals})+' Mio.';
+  }
+  const current=Math.max(0,Math.min(target-1,Math.floor(target*progress)));
+  if(key==='WIKIPEDIA_VIEWS')return current.toLocaleString('de-DE')+' / Monat';
+  return current.toLocaleString('de-DE')+' '+META[key][1];
 }
 function animateCount(el,key,value,duration=2000){
   return new Promise(resolve=>{
