@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.57';
+const VERSION=window.SKIELSEN_VERSION||'15.1.58';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -356,7 +356,7 @@ function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
 
       <section class="v15-wordchain-ready-card v15-wordchain-ready-demo-card">
         <div class="v15-wordchain-ready-demo" aria-label="Wortkette Spielbeispiel">
-          <img class="v15-wordchain-ready-demo-image" src="assets/images/wortkette-rule-page.gif?v=${VERSION}" width="914" height="638" alt="Wortkette Spielbeispiel">
+          <img class="v15-wordchain-ready-demo-image" src="assets/images/RulePage.gif?v=${VERSION}" width="914" height="638" alt="Wortkette Spielbeispiel">
         </div>
       </section>
     </div>
