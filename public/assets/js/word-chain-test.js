@@ -217,15 +217,30 @@ function feedback(text,kind=''){
 function startTimer(resetDeadline=false){
   clearInterval(timerId);
   if(game.completed)return;
-  if(resetDeadline)game.deadline=performance.now()+TIME_LIMIT*1000;
+  if(resetDeadline){
+    game.deadline=performance.now()+TIME_LIMIT*1000;
+    const fill=q('#wcxtWordTimerFill');
+    if(fill)fill.style.width='100%';
+    q('#wcxtWordTimer')?.classList.remove('urgent');
+  }
   updateTimer();
   timerId=setInterval(updateTimer,100);
 }
 function updateTimer(){
   if(game.completed)return;
   const ms=Math.max(0,game.deadline-performance.now());
-  q('#wcxtTime').textContent=String(Math.max(0,Math.ceil(ms/1000)));
+  const seconds=Math.max(0,Math.ceil(ms/1000));
+  q('#wcxtTime').textContent=String(seconds);
   q('#wcxtTime').classList.toggle('urgent',ms>0&&ms<=5000);
+
+  const fill=q('#wcxtWordTimerFill');
+  const timerBar=q('#wcxtWordTimer');
+  if(fill){
+    const pct=Math.max(0,Math.min(100,(ms/(TIME_LIMIT*1000))*100));
+    fill.style.width=pct+'%';
+  }
+  timerBar?.classList.toggle('urgent',ms>0&&ms<=5000);
+
   if(ms<=0&&!game.locked){
     clearInterval(timerId);timerId=0;
     applyWrong(true);
