@@ -228,3 +228,9 @@ body.molc-body{
   .molc-choice-btn{min-height:78px}
   .molc-roulette{min-height:360px}
 }
+
+.molc-play-status{grid-template-columns:repeat(2,1fr)}
+.molc-play-status>div:nth-child(2){text-align:right}
+.molc-wrong-flag{min-height:52px;margin-bottom:10px;display:grid;place-items:center;background:var(--theme-danger-bg);color:var(--theme-on-danger);font:clamp(30px,6vw,44px)/1 var(--display)}
+.molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(42px,7vw,64px)}
+@media(max-width:720px){.molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(34px,11vw,50px)}}
