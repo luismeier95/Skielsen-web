@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.52';
+const VERSION=window.SKIELSEN_VERSION||'15.1.53';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -387,9 +387,14 @@ function renderPlayerSession(s){
       ?'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. IN DIESEM QA-TURNIER DARF DER ADMIN DIE WORTKETTE AUCH STARTEN, WENN NOCH NICHT ALLE PLAYER READY SIND.'
       :'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.');
   const rules=isWordChain&&!active?wordChainReadyRulesHtml():'';
-  host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>${rules}<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
+  const showReadyForceStart=!!(rt?.is_admin&&isWordChain&&forceStartWithoutReady&&String(s.status||'')==='WAITING_FOR_PLAYERS');
+  const readyForceStartButton=showReadyForceStart
+    ?'<button class="v15-inapp-btn force" id="v15InAppReadyForceStart" type="button">START ERZWINGEN</button>'
+    :'';
+  host.innerHTML=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>${rules}<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message" id="v15InAppReadyMessage">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button>${readyForceStartButton}</div>`}</section>`;
 
   document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
+  document.getElementById('v15InAppReadyForceStart')?.addEventListener('click',()=>forceStartFromReadyPage(s));
   document.getElementById('v15InAppTestAction')?.addEventListener('click',async()=>{
     const fb=document.getElementById('v15InAppFeedback');
     if(fb)fb.textContent='WIRD GESENDET …';
@@ -418,6 +423,22 @@ async function setReady(v){
   if(!playerSession||!db)return;
   const r=await db.rpc('set_in_app_game_ready',{p_session_id:playerSession.session_id,p_ready:!!v});
   if(r.error){console.warn('In-App ready',r.error);return}
+  await pollPlayer();
+}
+async function forceStartFromReadyPage(s){
+  const allowed=!!(rt?.is_admin&&s?.game?.module_key===WORD_CHAIN_MODULE&&s?.public_state?.force_start_without_ready&&String(s?.status||'')==='WAITING_FOR_PLAYERS');
+  if(!allowed||!db||!s?.session_id)return;
+  const btn=document.getElementById('v15InAppReadyForceStart');
+  const msg=document.getElementById('v15InAppReadyMessage');
+  if(btn){btn.disabled=true;btn.textContent='STARTET …'}
+  if(msg)msg.textContent='ADMIN-START WIRD ERZWUNGEN …';
+  const r=await db.rpc('start_in_app_game_session',{p_session_id:s.session_id});
+  if(r.error){
+    console.warn('Wortkette force start',r.error);
+    if(btn){btn.disabled=false;btn.textContent='START ERZWINGEN'}
+    if(msg)msg.textContent='STARTFEHLER · '+String(r.error.message||'UNBEKANNT');
+    return;
+  }
   await pollPlayer();
 }
 async function pollPlayer(){

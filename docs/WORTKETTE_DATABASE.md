@@ -261,3 +261,15 @@ Im Admin-Control der In-App-Session besitzt Wortkette jetzt einen separaten Butt
 Er wird nur angezeigt, wenn die aktuelle Session das serverseitige Flag `public_state.force_start_without_ready` trägt und das geladene Modul `word-chain` ist. Damit bleibt der Sonderfall auf das QA-Turnier „Wortkette“ begrenzt; im Fullversion-JavaScript wird weder eine Tournament-ID noch ein Tournament-Name hartcodiert.
 
 Der normale Button `SESSION STARTEN` bleibt unverändert an den Status `READY` gebunden. `START ERZWINGEN` erscheint nur im Status `WAITING_FOR_PLAYERS` und wird erst aktiv, wenn mindestens die für das Spiel erforderliche Zahl an Playern zugewiesen ist.
+
+
+## 21. V15.1.53 · Force-Start direkt auf der Wortkette-Ready-Seite
+
+Der QA-Override ist jetzt direkt auf dem vorgeschalteten Wortkette-Ready-Screen bedienbar. Für Admins erscheint neben `ICH BIN BEREIT` ein eigener Button `START ERZWINGEN`, solange die Session noch `WAITING_FOR_PLAYERS` ist.
+
+Der Button wird ausschließlich gerendert, wenn gleichzeitig:
+- der eingeloggte Nutzer Admin ist,
+- das Session-Modul `word-chain` ist,
+- und der Server `public_state.force_start_without_ready = true` liefert.
+
+Damit bleibt die Sonderlogik weiterhin auf das serverseitig markierte QA-Turnier „Wortkette“ begrenzt. Andere Turniere erhalten weder den Button noch eine clientseitige Ready-Umgehung.
