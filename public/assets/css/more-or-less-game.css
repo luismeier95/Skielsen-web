@@ -151,3 +151,13 @@
     font-size:clamp(24px,7vw,38px);
   }
 }
+
+/* Wrong answer state on production comparison container */
+#v15MoreLessRoot .mol-full-compare.is-reveal{
+  border:2px solid var(--theme-danger)!important;
+  background:color-mix(in srgb,var(--theme-danger) 8%,var(--theme-surface))!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-danger) 18%,transparent),var(--theme-shadow-soft)!important;
+}
+#v15MoreLessRoot .mol-full-compare.is-reveal :where(.mol-full-reference,.mol-full-current){
+  background:transparent!important;
+}
