@@ -64,7 +64,7 @@ function countFrame(finalValue,target,progress){
   const number=current.toLocaleString('de-DE',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
   return number+(suffix?' '+suffix:'');
 }
-function animateRevealCount(el,finalValue,target,duration=2000){
+function animateRevealCount(el,finalValue,target,duration=1000){
   return new Promise(resolve=>{
     if(!el){resolve();return}
     const start=performance.now();
@@ -191,20 +191,23 @@ function questionMarkup(){
   return `<section class="mol-full-app">
     ${header()}
     <main class="mol-full-content">
-      ${playStatusMarkup(current)}
-      <div class="mol-full-scoreboard">${scoreboard()}</div>
-      <section class="mol-full-compare">
-        <div class="mol-full-reference"><strong>${esc(ref.label||'—')}</strong><b>${esc(ref.display_value||ref.value||'—')}</b></div>
-        <div class="mol-full-vs">VS</div>
-        <div class="mol-full-current"><strong>${esc(cur.label||'—')}</strong><b class="mol-full-pending-value">&nbsp;</b></div>
-      </section>
-      ${mine?`<div class="mol-full-choice"><button data-mol-choice="LESS" class="less"><span>↓</span>WENIGER</button><button data-mol-choice="MORE" class="more"><span>↑</span>MEHR</button></div>`:`<div class="mol-full-wait">WARTEN · ${esc(String(who).toUpperCase())} ENTSCHEIDET</div>`}
+      <div class="mol-full-play-layout">
+        ${playStatusMarkup(current)}
+        <div class="mol-full-scoreboard">${scoreboard()}</div>
+        <section class="mol-full-compare" id="molFullCompare">
+          <div class="mol-full-reference"><strong>${esc(ref.label||'—')}</strong><b>${esc(ref.display_value||ref.value||'—')}</b></div>
+          <div class="mol-full-vs" id="molFullCenterCircle">VS</div>
+          <div class="mol-full-current"><strong>${esc(cur.label||'—')}</strong><b class="mol-full-pending-value">&nbsp;</b></div>
+        </section>
+        <div class="mol-full-action-slot">
+          ${mine?`<div class="mol-full-choice"><button data-mol-choice="LESS" class="less"><span>↓</span>WENIGER</button><button data-mol-choice="MORE" class="more"><span>↑</span>MEHR</button></div>`:`<div class="mol-full-wait">WARTEN · ${esc(String(who).toUpperCase())} ENTSCHEIDET</div>`}
+        </div>
+      </div>
     </main>
   </section>`;
 }
 function revealMarkup(){
   const lr=state?.last_result||{},ok=!!lr.ok,mine=state?.viewer?.member_id===lr.answer_member_id;
-  const survivors=(state?.players||[]).filter(x=>x.active),categoryOver=survivors.length===1;
   const ref=state?.reference||{},cur=state?.current||{};
   const actor=playerByMemberId(lr.answer_member_id)||state?.current_player||{};
   const refLabel=lr.reference_label||ref.label||'—';
@@ -215,13 +218,18 @@ function revealMarkup(){
   return `<section class="mol-full-app">
     ${header()}
     <main class="mol-full-content">
-      ${playStatusMarkup(actor)}
-      <div class="mol-full-scoreboard">${scoreboard()}</div>
-      <section class="mol-full-compare is-feedback ${ok?'is-correct':'is-wrong'}">
-        <div class="mol-full-reference"><strong>${esc(refLabel)}</strong><b>${esc(refValue)}</b></div>
-        <div class="mol-full-vs mol-full-outcome" aria-label="${ok?'Richtig':'Falsch'}">${ok?'✓':'✕'}</div>
-        <div class="mol-full-current"><strong>${esc(curLabel)}</strong><b id="molFullCount" data-target="${Number.isFinite(curNumeric)?curNumeric:''}" data-final="${esc(curValue)}">0</b></div>
-      </section>
+      <div class="mol-full-play-layout">
+        ${playStatusMarkup(actor)}
+        <div class="mol-full-scoreboard">${scoreboard()}</div>
+        <section class="mol-full-compare is-feedback ${ok?'is-correct':'is-wrong'}" id="molFullCompare">
+          <div class="mol-full-reference"><strong>${esc(refLabel)}</strong><b>${esc(refValue)}</b></div>
+          <div class="mol-full-vs mol-full-outcome" id="molFullCenterCircle">VS</div>
+          <div class="mol-full-current"><strong>${esc(curLabel)}</strong><b id="molFullCount" data-target="${Number.isFinite(curNumeric)?curNumeric:''}" data-final="${esc(curValue)}">0</b></div>
+        </section>
+        <div class="mol-full-action-slot">
+          ${mine?`<div class="mol-full-choice is-locked" aria-disabled="true"><button class="less" type="button" tabindex="-1"><span>↓</span>WENIGER</button><button class="more" type="button" tabindex="-1"><span>↑</span>MEHR</button></div>`:`<div class="mol-full-wait">WARTEN</div>`}
+        </div>
+      </div>
     </main>
   </section>`;
 }
@@ -275,20 +283,21 @@ function render(){
     const countEl=document.getElementById('molFullCount');
     const finalValue=countEl?.dataset.final||'—';
     const target=countEl?.dataset.target;
-    animateRevealCount(countEl,finalValue,target).then(()=>{
-      const currentKey=feedbackKey;
-      if(currentKey!==key)return;
-      if(lr.ok){
-        feedbackTimer=setTimeout(()=>{
-          if(feedbackKey!==key)return;
-          root.querySelector('.mol-full-compare.is-feedback')?.classList.add('is-promoting');
-          const mine=state?.viewer?.member_id===lr.answer_member_id;
-          if(mine)feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},500);
-        },250);
-      }else{
-        const mine=state?.viewer?.member_id===lr.answer_member_id;
-        if(mine&&feedbackKey===key)requestAnimationFrame(()=>void act('CONTINUE'));
+    animateRevealCount(countEl,finalValue,target,1000).then(()=>{
+      if(feedbackKey!==key)return;
+      const circle=document.getElementById('molFullCenterCircle');
+      const card=document.getElementById('molFullCompare');
+      if(circle){
+        circle.textContent=lr.ok?'✓':'✕';
+        circle.setAttribute('aria-label',lr.ok?'Richtig':'Falsch');
       }
+      card?.classList.add('is-resolved');
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        if(feedbackKey!==key)return;
+        card?.classList.add('is-promoting');
+        const mine=state?.viewer?.member_id===lr.answer_member_id;
+        if(mine)feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},480);
+      }));
     });
     return;
   }
