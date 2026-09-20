@@ -62,7 +62,7 @@ Aktueller Ablauf:
 
 Dieser Workflow bleibt die Grundlage.
 
-## 3. Neuer Ziel-Workflow
+### Fullversion Frame\n\nThe global fullversion `.sk-header` remains visible while Wortkette is open. The game module renders no second header. Setup, Play and Result are states inside the existing In-App layer below the fullversion header. Mobile and Desktop use different layouts within this same frame.\n\n## 3. Neuer Ziel-Workflow
 
 ### Phase A · READY
 
