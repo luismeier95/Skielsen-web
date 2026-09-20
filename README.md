@@ -2,7 +2,7 @@
 
 SKIELSEN is a modular tournament web application. The production frontend is a static app under `public/`; game state and tournament authority live in the connected backend.
 
-**Current app version:** `15.1.74`
+**Current app version:** `15.1.75`
 
 ## Repository layout
 

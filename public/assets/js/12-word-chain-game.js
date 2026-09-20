@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.74';
+const VERSION=window.SKIELSEN_VERSION||'15.1.75';
 const POLL_MS=1600;
 const DIFFICULTIES={
   EASY:{threshold:50,showWordLength:true},
@@ -92,7 +92,7 @@ function shell(){
           <div class="wc-plus" aria-hidden="true">+</div>
           <div class="wc-answer">
             <small>GESUCHTES NOMEN</small>
-            <input class="wc-native-input" data-wc-input type="text" inputmode="text" enterkeyhint="done"
+            <input class="wc-native-input" data-wc-input type="text" inputmode="text" enterkeyhint="go"
               autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Worteingabe">
             <div class="wc-slots" data-wc-slots></div>
           </div>
@@ -299,8 +299,6 @@ async function submit(timeout=false){
   }
 
   busy=true;
-  const input=q('[data-wc-input]');
-  if(input)input.disabled=true;
   const guess=timeout?'':prefix+tail;
   try{
     const next=await rpc('submit_word_chain_tournament',{
@@ -317,19 +315,19 @@ async function submit(timeout=false){
     }else if(next?.correct){
       inputBuffer='';acceptedBuffer='';
       renderPlay(next,{clearInput:true});
-      feedback('RICHTIG'+(next.compound?' · '+String(next.compound).toLocaleUpperCase('de-DE'):'')+'.','good');
+      feedback('');
     }else if(next?.auto_completed){
       inputBuffer='';acceptedBuffer='';
       renderPlay(next,{clearInput:true});
-      feedback('WORT VOLLSTÄNDIG AUFGEDECKT · WEITER.','hint');
+      feedback('');
     }else if(next?.timeout||next?.timeout_applied){
       inputBuffer='';acceptedBuffer='';
       renderPlay(next,{clearInput:true});
-      feedback('ZEIT ABGELAUFEN · −1 · NÄCHSTER HINWEIS.','bad');
+      feedback('');
     }else{
       inputBuffer='';acceptedBuffer='';
       renderPlay(next,{clearInput:true});
-      feedback('FALSCH · −1 · NÄCHSTER HINWEIS.','bad');
+      feedback('');
     }
 
     if(next?.tournament_complete&&next?.tournament_result){
@@ -345,8 +343,6 @@ async function submit(timeout=false){
     feedback('EINGABE KONNTE NICHT VERARBEITET WERDEN.','bad');
   }finally{
     busy=false;
-    if(input)input.disabled=false;
-    if(!state?.completed)setTimeout(focusInput,40);
   }
 }
 function tick(){
@@ -467,6 +463,7 @@ async function loadState(initial=false){
   }
 }
 function bind(){
+  q('[data-wc-input]')?.addEventListener('beforeinput',e=>{if(busy)e.preventDefault()});
   q('[data-wc-input]')?.addEventListener('input',onInput);
   q('[data-wc-input]')?.addEventListener('keydown',e=>{
     if(e.key==='Enter'){e.preventDefault();void submit(false)}
