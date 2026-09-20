@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.66';
+const VERSION=window.SKIELSEN_VERSION||'15.1.67';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -18,27 +18,12 @@ let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSu
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
 
-function inAppRouteLocked(){
+function hasInAppSurface(){
+  return !!(playerSession||inAppSurfaceKey||inAppSurfaceLive);
+}
+function inAppFullscreen(){
   const layer=document.getElementById('v15InAppLayer');
-  return !!(playerSession&&layer&&!layer.hidden&&!inAppMinimized);
-}
-function inAppExitLocked(){
-  return !!playerSession||!!inAppSurfaceLive;
-}
-function syncInAppRouteIsolation(){
-  const routeLocked=inAppRouteLocked(),exitLocked=inAppExitLocked();
-  document.querySelectorAll('.app-page').forEach(page=>{page.inert=routeLocked});
-  const nav=document.querySelector('.sk-header__nav');
-  if(nav){
-    nav.inert=routeLocked;
-    if(routeLocked)nav.setAttribute('aria-disabled','true');
-    else nav.removeAttribute('aria-disabled');
-  }
-  document.querySelectorAll('[data-skielsen-account-home]').forEach(el=>{
-    el.inert=exitLocked;
-    if(exitLocked)el.setAttribute('aria-disabled','true');
-    else el.removeAttribute('aria-disabled');
-  });
+  return !!(hasInAppSurface()&&layer&&!layer.hidden&&!inAppMinimized);
 }
 
 function syncVisibleVersion(){
@@ -54,23 +39,24 @@ function ensureLiveStrip(){
   strip.hidden=true;
   strip.setAttribute('aria-label','Live In-App-Spiel wieder im Vollbild öffnen');
   strip.innerHTML='<span class="v15-inapp-live-main"><i aria-hidden="true"></i><span><b id="v15InAppLiveTitle">IN-APP GAME LIVE</b><small id="v15InAppLiveMeta">ZURÜCK INS VOLLBILD</small></span></span><strong>ÖFFNEN →</strong>';
-  strip.addEventListener('click',()=>{void forceOpenActiveInApp('push')});
+  strip.addEventListener('click',()=>{if(!openInAppFullscreen('push'))void forceOpenActiveInApp('push')});
   document.body.appendChild(strip);
   return strip;
 }
 function updateInAppChrome(){
   const layer=document.getElementById('v15InAppLayer');
   const strip=ensureLiveStrip();
-  const showStrip=!!(inAppSurfaceLive&&inAppMinimized);
+  const hasSurface=hasInAppSurface();
+  const showStrip=!!(hasSurface&&inAppMinimized);
   strip.hidden=!showStrip;
   document.body.classList.toggle('v15-inapp-minimized-live',showStrip);
   const title=document.getElementById('v15InAppLiveTitle');
   const meta=document.getElementById('v15InAppLiveMeta');
-  if(title)title.textContent=(inAppSurfaceLabel||'IN-APP GAME').toUpperCase()+' · LIVE';
-  if(meta)meta.textContent='ANTIPPEN · SOFORT ZURÜCK INS VOLLBILD';
-  if(layer&&inAppSurfaceLive)layer.hidden=inAppMinimized;
-  document.body.classList.toggle('v15-inapp-fullscreen-open',!!(layer&&!layer.hidden&&!inAppMinimized));
-  syncInAppRouteIsolation();
+  const status=inAppSurfaceLive?'LIVE':statusDE(playerSession?.status||'OFFEN');
+  if(title)title.textContent=(inAppSurfaceLabel||playerSession?.game?.name||'IN-APP GAME').toUpperCase()+' · '+status;
+  if(meta)meta.textContent=inAppSurfaceLive?'SPIEL LÄUFT WEITER · ZURÜCK INS SPIEL':'SESSION GEÖFFNET · ZURÜCK INS SPIEL';
+  if(layer&&hasSurface)layer.hidden=inAppMinimized;
+  document.body.classList.toggle('v15-inapp-fullscreen-open',!!(hasSurface&&layer&&!layer.hidden&&!inAppMinimized));
 }
 function ensureInAppHistory(){
   if(!inAppSurfaceLive||inAppMinimized)return;
@@ -79,7 +65,8 @@ function ensureInAppHistory(){
   window.skielsenHistory?.push('inapp','game',{tournamentId:rt?.tournament_id||null,surfaceKey:inAppSurfaceKey||null});
 }
 function openInAppFullscreen(historyMode='push'){
-  if(!inAppSurfaceLive)return false;
+  if(!hasInAppSurface())return false;
+  window.skielsenV15?.restorePresentationForInApp?.();
   inAppManualMinimized=false;
   inAppMinimized=false;
   const layer=ensureLayer();
@@ -128,7 +115,7 @@ async function forceOpenActiveInApp(historyMode='push'){
   }
 }
 function minimizeInApp(useHistory=true){
-  if(!inAppSurfaceLive)return false;
+  if(!hasInAppSurface())return false;
   inAppManualMinimized=true;
   inAppMinimized=true;
   const layer=ensureLayer();
@@ -159,7 +146,6 @@ function clearInAppSurface(){
   const strip=document.getElementById('v15InAppLiveStrip');
   if(strip)strip.hidden=true;
   document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open','v15-word-chain-inapp-open');
-  syncInAppRouteIsolation();
   if(wasLive&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
 }
 function ensureLayer(){
@@ -440,12 +426,7 @@ function renderPlayerSession(s){
   window.skielsenWordChain?.unmount?.();
   layer.classList.remove('buzzer-mode','word-chain-mode');
   if(active)prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',true);
-  else{
-    inAppSurfaceLive=false;
-    inAppMinimized=false;
-    layer.hidden=false;
-    updateInAppChrome();
-  }
+  else prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',false);
   const readyMessage=s.status==='READY'
     ?'ALLE AUSGEWÄHLTEN GERÄTE SIND BEREIT. DER ADMIN KANN DIE SESSION JETZT STARTEN.'
     :(isWordChain&&forceStartWithoutReady
@@ -871,7 +852,7 @@ window.skielsenHistory?.register('inapp',()=>{
 });
 window.addEventListener('popstate',()=>{
   const nav=window.skielsenHistory?.current();
-  if(nav?.area!=='inapp'&&inAppSurfaceLive&&!inAppMinimized)openInAppFullscreen('replace');
+  if(nav?.area!=='inapp'&&hasInAppSurface()&&!inAppMinimized)minimizeInApp(false);
 });
 
 window.addEventListener('beforeunload',()=>{
@@ -881,11 +862,11 @@ window.skielsenInApp={
   start,
   poll:pollPlayer,
   minimize:()=>minimizeInApp(true),
-  openFullscreen:()=>forceOpenActiveInApp('push'),
+  minimizeForNavigation:()=>minimizeInApp(false),
+  openFullscreen:()=>openInAppFullscreen('push')||forceOpenActiveInApp('push'),
   openActive:()=>forceOpenActiveInApp('push'),
   finishAndExit:finishInAppSurface,
-  get routeLocked(){return inAppRouteLocked()},
-  get exitLocked(){return inAppExitLocked()},
+  get fullscreen(){return inAppFullscreen()},
   get minimized(){return inAppMinimized},
   get live(){return inAppSurfaceLive},
   get session(){return playerSession},
