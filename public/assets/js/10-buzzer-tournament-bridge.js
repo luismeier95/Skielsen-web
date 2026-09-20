@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.47';
+const VERSION=window.SKIELSEN_VERSION||'15.1.48';
 const GAME_ID='game.buzzer_time_stop';
 const RESULT_RPC='get_buzzer_time_game_result';
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
@@ -109,7 +109,7 @@ function ingestWordChainResult(tournamentGameId,result){
   if(m){
     m.participantIds=Array.isArray(m.participantIds)&&m.participantIds.length?m.participantIds:[...placements];
     m.placements=[...placements];
-    m.values=Object.fromEntries(rows.map(r=>[r.participant_id,Number(r.score||0)]));
+    m.values=Object.fromEntries(rows.map(r=>[r.participant_id,Number(r.duration_ms||0)]));
     m.status='CONCLUDED';
   }
   if(!g.resultsCommitted){
@@ -118,7 +118,7 @@ function ingestWordChainResult(tournamentGameId,result){
     st.matchHistory=Array.isArray(st.matchHistory)?st.matchHistory:[];
     st.matchHistory.unshift({gameIndex:gi,game:g.name,stage:m?.stage||'MULTI_PARTICIPANT',participantIds:[...placements],placements:[...placements],values:m?.values?{...m.values}:null,winner:placements[0],at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),source:'IN_APP_WORD_CHAIN'});
     addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));
-    addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'WORTKETTE').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${Number(r.score||0)} P · ${Number(r.wrong_count||0)} FEHLER`).join(' · '));
+    addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'WORTKETTE').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${fmtMs(r.duration_ms)} · ${Number(r.wrong_count||0)} FEHLER`).join(' · '));
   }
   engine.render();persistLocalState();
   if(gi===Number(st.currentGameIndex||0)&&!g.postGameServerComplete){

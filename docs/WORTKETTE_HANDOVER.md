@@ -1,6 +1,6 @@
 # WORTKETTE · HANDOVER
 
-Stand: **V20 · Vollversion App V15.1.47**  
+Stand: **V20 · Vollversion App V15.1.48**  
 Repo: `luismeier95/Skielsen-web`  
 Branch: `main`  
 Supabase: `rlppuqjolkrwumrrjajq`  
@@ -331,3 +331,21 @@ Das integrierte Modul verwendet ausschließlich `var(--ui)` / `var(--display)` f
 Tournament-Player erhalten jeweils eine eigene 10-Schritt-Kette. In Teamturnieren werden die Player-Scores je Participant addiert. Ranking: Score absteigend, danach Dauer, danach serverseitiger Loswert.
 
 Der Fullversion-Timer ist serverautoritativ: ein abgelaufener Timer kann weder durch Enter-Spam noch durch verspätete Eingaben zurückgesetzt/umgangen werden.
+
+
+## 18. V15.1.48 · gemeinsamer Tournament-Chain + Abschlussfix
+
+Fehlerursache des nicht abschließbaren zehnten Wortes war eine falsche Game-ID-Prüfung im Tournament-Finalizer. Der bestehende Katalogeintrag verwendet `game.wortkette.compound_nouns`; die erste Fullversion-Integration prüfte irrtümlich nur auf den neu angelegten Alias `game.word_chain`. Dadurch lief die Wortkette bis Schritt 10, scheiterte aber exakt beim Finalisieren.
+
+Korrigiert:
+- kanonische Catalog-ID ist wieder ausschließlich `game.wortkette.compound_nouns`
+- der versehentlich doppelt angelegte Katalogeintrag `game.word_chain` wurde entfernt
+- die In-App-Definition `word_chain` zeigt auf den kanonischen Katalogeintrag
+- alle Player derselben In-App-Session erhalten dieselbe serverseitig generierte Wortkette
+- jeder Player besitzt weiterhin eigenen Fortschritt, Timer und Fehlversuche
+- die gemeinsame Kette wird genau einmal pro Session erzeugt; weitere Player erhalten unabhängige Session-Kopien derselben `chain` und `edge_ids`
+- der Start wird über einen Lock auf der In-App-Session serialisiert, damit auch nahezu gleichzeitiges Öffnen auf mehreren Geräten nicht zwei verschiedene Ketten erzeugt
+- Tournament-Ranking folgt wieder dem bestehenden Katalogvertrag: `SIMULTANEOUS_RACE`, Solo nach eigener Zeit, Team nach dem schnellsten Player
+- Fullversion-Result-Handoff übergibt deshalb die Dauer statt des internen Fehler-Scores als Match-Metrik.
+
+Bereits gestartete Wortketten-Sessions behalten ihre beim Start erzeugten Ketten. Der gemeinsame-Chain-Vertrag greift bei neu erzeugten Runs/Sessions.

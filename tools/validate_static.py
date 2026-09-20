@@ -111,6 +111,8 @@ for _rpc in ['start_word_chain_tournament_player','get_word_chain_tournament_sta
 for _needle in ["WORD_CHAIN_MODULE='word-chain'","ensureWordChainAssets","renderWordChainSession","get_word_chain_game_result"]:
  if _needle not in runtime_text: fail('Wortkette In-App Runtime unvollständig: '+_needle)
 if 'ingestWordChainResult' not in bridge_text or "result?.game_key==='word_chain'" not in bridge_text: fail('Wortkette Result-Handoff fehlt')
+if "game.wortkette.compound_nouns" not in runtime_text: fail('Wortkette nutzt nicht die kanonische Catalog-ID')
+if "Number(r.duration_ms||0)" not in bridge_text: fail('Wortkette Result-Handoff nutzt nicht die Race-Zeit')
 for _needle in ['var(--ui)','var(--display)','var(--theme-surface)','var(--theme-on-surface)','var(--theme-primary-action)','var(--theme-on-primary-action)','var(--theme-input-bg)','var(--theme-on-input)','var(--theme-success-bg)','var(--theme-on-success)','var(--theme-danger-bg)','var(--theme-on-danger)']:
  if _needle not in _wc_css: fail('Wortkette Design/Theme Contract fehlt: '+_needle)
 for _forbidden in ['Arial Black','Impact,','data-theme-pack="theme.']:

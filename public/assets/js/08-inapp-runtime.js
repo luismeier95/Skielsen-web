@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.47';
+const VERSION=window.SKIELSEN_VERSION||'15.1.48';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -442,7 +442,7 @@ function isMoreLessGame(g){
   return g?.game_id==='game.higher_lower'||/MEHR\s+ODER\s+WENIGER/i.test(String(g?.name||''));
 }
 function isWordChainGame(g){
-  return g?.game_id==='game.word_chain'||/WORTKETTE/i.test(String(g?.name||''));
+  return g?.game_id==='game.wortkette.compound_nouns'||g?.game_id==='game.word_chain'||/WORTKETTE/i.test(String(g?.name||''));
 }
 function nativeGameIsLive(g){
   if(!g)return false;
