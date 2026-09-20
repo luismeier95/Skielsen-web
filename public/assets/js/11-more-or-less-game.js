@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,autoContinueKey='';
+let root=null,session=null,db=null,state=null,pollTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -45,6 +45,36 @@ function categoryLabel(){
     label='WIKIPEDIA-AUFRUFE'+(p?' · '+p:'');
   }
   return label;
+}
+function playerByMemberId(id){return (state?.players||[]).find(p=>p.member_id===id)||null}
+function playStatusMarkup(player){
+  const name=String(player?.display_name||player?.member_name||'PLAYER').toUpperCase();
+  return `<section class="mol-full-play-status">
+    <div><small>KATEGORIE</small><strong>${esc(categoryLabel())}</strong></div>
+    <div><small>ZUG</small><strong>${esc(name)}</strong></div>
+  </section>`;
+}
+function countFrame(finalValue,target,progress){
+  const n=Number(target);
+  if(!Number.isFinite(n))return progress>=1?String(finalValue||'—'):'0';
+  const decimals=Math.abs(n%1)>0.0001?1:0;
+  const current=n*progress;
+  const suffix=String(finalValue||'').replace(/^[\d\s.,+-]+/,'').trim();
+  const number=current.toLocaleString('de-DE',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+  return number+(suffix?' '+suffix:'');
+}
+function animateRevealCount(el,finalValue,target,duration=950){
+  return new Promise(resolve=>{
+    if(!el){resolve();return}
+    const start=performance.now();
+    const step=now=>{
+      const p=Math.min(1,(now-start)/duration),eased=1-Math.pow(1-p,3);
+      el.textContent=countFrame(finalValue,target,eased);
+      if(p<1)requestAnimationFrame(step);
+      else{el.textContent=String(finalValue||target||'—');resolve()}
+    };
+    requestAnimationFrame(step);
+  });
 }
 function scoreboard(){
   return (state?.players||[]).map(p=>`<div class="mol-full-score ${p.active?'':'out'}" style="--mol-player:${colorOf(p)}">
@@ -160,36 +190,38 @@ function questionMarkup(){
   return `<section class="mol-full-app">
     ${header()}
     <main class="mol-full-content">
-      <div class="mol-full-kicker">${esc(categoryLabel())}</div>
+      ${playStatusMarkup(current)}
       <div class="mol-full-scoreboard">${scoreboard()}</div>
       <section class="mol-full-compare">
         <div class="mol-full-reference"><strong>${esc(ref.label||'—')}</strong><b>${esc(ref.display_value||ref.value||'—')}</b></div>
         <div class="mol-full-vs">VS</div>
-        <div class="mol-full-current"><strong>${esc(cur.label||'—')}</strong></div>
+        <div class="mol-full-current"><strong>${esc(cur.label||'—')}</strong><b class="mol-full-pending-value">&nbsp;</b></div>
       </section>
       ${mine?`<div class="mol-full-choice"><button data-mol-choice="LESS" class="less"><span>↓</span>WENIGER</button><button data-mol-choice="MORE" class="more"><span>↑</span>MEHR</button></div>`:`<div class="mol-full-wait">WARTEN · ${esc(String(who).toUpperCase())} ENTSCHEIDET</div>`}
     </main>
   </section>`;
 }
 function revealMarkup(){
-  const lr=state?.last_result||{},mine=state?.viewer?.member_id===lr.answer_member_id;
+  const lr=state?.last_result||{},ok=!!lr.ok,mine=state?.viewer?.member_id===lr.answer_member_id;
   const survivors=(state?.players||[]).filter(x=>x.active),categoryOver=survivors.length===1;
   const ref=state?.reference||{},cur=state?.current||{};
+  const actor=playerByMemberId(lr.answer_member_id)||state?.current_player||{};
   const refLabel=lr.reference_label||ref.label||'—';
   const refValue=lr.reference_display_value||lr.reference_value||ref.display_value||ref.value||'—';
   const curLabel=lr.current_label||cur.label||'—';
   const curValue=lr.current_display_value||lr.current_value||cur.display_value||cur.value||'—';
+  const curNumeric=Number(lr.current_value??cur.value);
   return `<section class="mol-full-app">
     ${header()}
     <main class="mol-full-content">
-      <div class="mol-full-kicker">${esc(categoryLabel())}</div>
+      ${playStatusMarkup(actor)}
       <div class="mol-full-scoreboard">${scoreboard()}</div>
-      <section class="mol-full-compare is-reveal">
+      <section class="mol-full-compare is-feedback ${ok?'is-correct':'is-wrong'}">
         <div class="mol-full-reference"><strong>${esc(refLabel)}</strong><b>${esc(refValue)}</b></div>
-        <div class="mol-full-vs">VS</div>
-        <div class="mol-full-current"><strong>${esc(curLabel)}</strong><b>${esc(curValue)}</b></div>
+        <div class="mol-full-vs mol-full-outcome" aria-label="${ok?'Richtig':'Falsch'}">${ok?'✓':'✕'}</div>
+        <div class="mol-full-current"><strong>${esc(curLabel)}</strong><b id="molFullCount" data-target="${Number.isFinite(curNumeric)?curNumeric:''}" data-final="${esc(curValue)}">0</b></div>
       </section>
-      ${mine?`<button class="mol-full-continue" id="molFullContinue" type="button">${categoryOver?'KATEGORIE ABSCHLIESSEN →':'WEITER →'}</button>`:`<div class="mol-full-wait">WARTEN</div>`}
+      ${!ok&&mine?`<button class="mol-full-continue is-delayed" id="molFullContinue" type="button" hidden>${categoryOver?'KATEGORIE ABSCHLIESSEN →':'WEITER →'}</button>`:!ok?`<div class="mol-full-wait is-delayed" id="molFullWait" hidden>WARTEN</div>`:''}
     </main>
   </section>`;
 }
@@ -200,10 +232,13 @@ function completeMarkup(){
     <main class="mol-full-content complete">
       <div class="mol-full-kicker">SPIEL BEENDET</div>
       <h1>MEHR<br>ODER<br>WENIGER.</h1>
-      <div class="mol-full-final">${standings.map((r,i)=>{
-        const p=playerById(r.participant_id);
-        return `<div class="mol-full-final-row" style="--mol-player:${colorOf(p)}"><span>${Number(r.placement||i+1)}.</span><i></i><strong>${esc(String(p?.display_name||'TEILNEHMER').toUpperCase())}</strong><b>${Number(r.category_wins||0)} KATEGORIE-SIEGE</b></div>`;
-      }).join('')}</div>
+      <div class="mol-full-final">
+        <div class="mol-full-final-head"><span>PLATZ</span><span></span><span>NAME</span><span>SIEGE</span></div>
+        ${standings.map((r,i)=>{
+          const p=playerById(r.participant_id);
+          return `<div class="mol-full-final-row" style="--mol-player:${colorOf(p)}"><span>${Number(r.placement||i+1)}.</span><i></i><strong>${esc(String(p?.display_name||'TEILNEHMER').toUpperCase())}</strong><b>${Number(r.category_wins||0)}</b></div>`;
+        }).join('')}
+      </div>
       <p class="mol-full-finished-note">ERGEBNIS WIRD AN DAS TURNIER ÜBERGEBEN.</p>
     </main>
   </section>`;
@@ -212,12 +247,14 @@ function render(){
   if(!root)return;
   root.closest('#v15InAppLayer')?.classList.remove('buzzer-mode');
   if(!selectedTier()){
+    feedbackKey='';clearTimeout(feedbackTimer);
     root.innerHTML=difficultyMarkup();
     bindDifficulty();
     bindChrome();
     return;
   }
   if(!state){
+    feedbackKey='';clearTimeout(feedbackTimer);
     root.innerHTML=`<section class="mol-full-app">${header()}<main class="mol-full-content"><div class="mol-full-wait">SPIELDATEN WERDEN GELADEN…</div></main></section>`;
     bindChrome();
     return;
@@ -227,20 +264,45 @@ function render(){
     return;
   }
   if(categoryAnimating)return;
-  if(state.phase==='REVEAL'&&state?.last_result?.ok){
-    const lr=state.last_result||{},mine=state?.viewer?.member_id===lr.answer_member_id;
-    const key=[state.category_no,lr.answer_member_id,lr.current_label,lr.current_display_value].join('|');
-    if(mine&&autoContinueKey!==key){autoContinueKey=key;queueMicrotask(()=>void act('CONTINUE'))}
+
+  if(state.phase==='REVEAL'){
+    const lr=state?.last_result||{};
+    const key=[state.category_no,lr.answer_member_id,lr.current_label,lr.current_display_value,lr.ok].join('|');
+    if(feedbackKey===key&&root.querySelector('.mol-full-compare.is-feedback')){bindChrome();return}
+    feedbackKey=key;clearTimeout(feedbackTimer);
+    root.innerHTML=revealMarkup();
     bindChrome();
+    const countEl=document.getElementById('molFullCount');
+    const finalValue=countEl?.dataset.final||'—';
+    const target=countEl?.dataset.target;
+    animateRevealCount(countEl,finalValue,target).then(()=>{
+      const currentKey=feedbackKey;
+      if(currentKey!==key)return;
+      if(lr.ok){
+        feedbackTimer=setTimeout(()=>{
+          if(feedbackKey!==key)return;
+          root.querySelector('.mol-full-compare.is-feedback')?.classList.add('is-promoting');
+          const mine=state?.viewer?.member_id===lr.answer_member_id;
+          if(mine)feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},500);
+        },250);
+      }else{
+        feedbackTimer=setTimeout(()=>{
+          if(feedbackKey!==key)return;
+          const btn=document.getElementById('molFullContinue');
+          const waitEl=document.getElementById('molFullWait');
+          if(btn){btn.hidden=false;btn.addEventListener('click',()=>act('CONTINUE'),{once:true})}
+          if(waitEl)waitEl.hidden=false;
+        },1050);
+      }
+    });
     return;
   }
-  autoContinueKey='';
+
+  feedbackKey='';clearTimeout(feedbackTimer);
   if(state.phase==='COMPLETE'||state.status==='FINISHED')root.innerHTML=completeMarkup();
-  else if(state.phase==='REVEAL')root.innerHTML=revealMarkup();
   else root.innerHTML=questionMarkup();
   bindChrome();
   root.querySelectorAll('[data-mol-choice]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.molChoice)));
-  document.getElementById('molFullContinue')?.addEventListener('click',()=>act('CONTINUE'));
 }
 async function act(type){
   if(!db||!session?.session_id||busy)return;
@@ -272,7 +334,7 @@ async function poll(){
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession?.session_id||!nextDb)return false;
-  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++}
+  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer)}
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
@@ -290,7 +352,7 @@ function updateSession(nextSession){
   if(!before&&after)void poll();
 }
 function unmount(){
-  clearInterval(pollTimer);pollTimer=0;animationToken++;root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
+  clearInterval(pollTimer);pollTimer=0;animationToken++;clearTimeout(feedbackTimer);feedbackKey='';root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
 }
 window.skielsenMoreLess={mount,updateSession,unmount,poll,setTier};
 })();
