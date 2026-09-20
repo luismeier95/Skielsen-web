@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.54';
+const VERSION=window.SKIELSEN_VERSION||'15.1.55';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -358,12 +358,8 @@ function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
 
       <section class="v15-wordchain-ready-card v15-wordchain-ready-demo-card">
         <div class="v15-wordchain-ready-card-head"><small>02 · BEISPIEL</small><strong>SO LÄUFT DIE RUNDE</strong></div>
-        <div class="v15-wordchain-ready-demo" aria-label="Animiertes Wortkette Beispiel">
-          <div class="v15-wordchain-ready-demo-stats"><span>SCHRITT 01 / 10</span><b>−1</b><span>ZEIT 11</span></div>
-          <small>AKTUELLES AUSGANGSWORT</small>
-          <div class="v15-wordchain-ready-demo-word"><strong>HAUS</strong><b>+</b></div>
-          <div class="v15-wordchain-ready-demo-boxes" aria-hidden="true"><i>T</i><i>Ü</i><i></i><i></i></div>
-          <div class="v15-wordchain-ready-demo-feedback"><b>−1 PUNKT</b><span>HINWEIS AUFGEDECKT</span></div>
+        <div class="v15-wordchain-ready-demo" aria-label="Wortkette Spielbeispiel">
+          <img class="v15-wordchain-ready-demo-image" src="assets/images/wortkette-rule-page.webp?v=${VERSION}" width="914" height="638" alt="Wortkette Spielbeispiel">
         </div>
       </section>
     </div>
