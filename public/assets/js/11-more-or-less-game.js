@@ -287,7 +287,7 @@ function render(){
         },250);
       }else{
         const mine=state?.viewer?.member_id===lr.answer_member_id;
-        if(mine&&feedbackKey===key)void act('CONTINUE');
+        if(mine&&feedbackKey===key)requestAnimationFrame(()=>void act('CONTINUE'));
       }
     });
     return;
