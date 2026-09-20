@@ -104,7 +104,7 @@ function shell(){
           <div class="wc-result-columns"><span>POSITION</span><span>NAME</span><span>ZEIT</span><span>SCORE</span></div>
           <div class="wc-result-rows" data-wc-result-rows></div>
         </section>
-        <button class="wc-result-primary" type="button" data-wc-finish>TURNIER ANSEHEN →</button>
+        <button class="wc-result-primary" type="button" data-wc-finish hidden>TURNIER ANSEHEN →</button>
       </main>
     </section>
   </div>`;
@@ -228,6 +228,7 @@ function fitBase(){
   }
 }
 function renderPlay(next,{clearInput=false}={}){
+  const enteringPlay=!!q('[data-wc-page="play"]')?.hidden;
   state=next;
   showPage('play');
   if(clearInput){inputBuffer='';acceptedBuffer='';syncInput()}
@@ -246,6 +247,7 @@ function renderPlay(next,{clearInput=false}={}){
   renderSlots();
   requestAnimationFrame(()=>{fitBase();fitSlots()});
   tick();
+  if(enteringPlay)setTimeout(focusInput,60);
 }
 function syncClock(next){
   const server=Date.parse(next?.server_now||'');
@@ -374,6 +376,8 @@ function renderResult(result){
   if(meta)meta.textContent=rows.length?rows.length+' PARTICIPANTS':'ERGEBNIS WIRD GELADEN';
   const host=q('[data-wc-result-rows]');
   if(host)host.innerHTML=rows.length?resultRowsHtml(rows):'<div class="wc-result-wait">ERGEBNIS WIRD GELADEN …</div>';
+  const finish=q('[data-wc-finish]');
+  if(finish)finish.hidden=!rows.length;
 }
 function renderResultWaiting(){
   showPage('result');
@@ -382,6 +386,8 @@ function renderResultWaiting(){
   if(meta)meta.textContent=`${finished} / ${total} FERTIG`;
   const host=q('[data-wc-result-rows]');
   if(host)host.innerHTML='<div class="wc-result-wait">WARTET AUF DIE ANDEREN PLAYER …</div>';
+  const finish=q('[data-wc-finish]');
+  if(finish)finish.hidden=true;
 }
 function ingestResult(result){
   if(resultIngested||!result)return;
