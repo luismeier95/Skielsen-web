@@ -5,6 +5,9 @@ const ROOT_ID='suiteGameRoot';
 const menu=document.getElementById('suiteMenu');
 const stage=document.getElementById('suiteStage');
 const layer=document.getElementById('v15InAppLayer');
+const query=new URLSearchParams(window.location.search);
+const embedMode=query.get('embed')==='1';
+const requestedGame=String(query.get('game')||'');
 let currentGame=null;
 let activeMock=null;
 
@@ -59,7 +62,7 @@ window.skielsenV15={
   ingestInAppGameResult(){return true}
 };
 window.skielsenInApp={
-  minimize:showMenu,
+  minimize(){return embedMode?true:showMenu()},
   finishAndExit(){return true}
 };
 
@@ -309,5 +312,7 @@ function startGame(kind){
 document.querySelectorAll('[data-suite-game]').forEach(btn=>btn.addEventListener('click',()=>startGame(btn.dataset.suiteGame)));
 document.getElementById('suiteBack').addEventListener('click',showMenu);
 document.getElementById('suiteReset').addEventListener('click',()=>{if(currentGame)startGame(currentGame)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!stage.hidden)showMenu()});
+document.addEventListener('keydown',e=>{if(!embedMode&&e.key==='Escape'&&!stage.hidden)showMenu()});
+if(embedMode)document.body.classList.add('suite-embedded');
+if(['buzzer','more-less','word-chain'].includes(requestedGame))queueMicrotask(()=>startGame(requestedGame));
 })();

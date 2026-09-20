@@ -64,3 +64,12 @@ body.suite-body{padding:0!important;overflow-x:hidden;
 /* Standalone keeps the production game canvases clean. */
 body.suite-body #v15InAppLayer.word-chain-mode{background:var(--theme-page)!important}
 body.suite-body #v15InAppLayer.buzzer-mode{background:var(--theme-page)!important}
+
+/* Embedded actual-game preview used by the Game Design Contract. */
+body.suite-body.suite-embedded{overflow:hidden!important}
+body.suite-body.suite-embedded .suite-menu,
+body.suite-body.suite-embedded .suite-tools{display:none!important}
+body.suite-body.suite-embedded .suite-stage,
+body.suite-body.suite-embedded #v15InAppLayer,
+body.suite-body.suite-embedded #v15InAppPlayerContent,
+body.suite-body.suite-embedded #suiteGameRoot{min-height:100svh}
