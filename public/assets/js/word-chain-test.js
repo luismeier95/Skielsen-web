@@ -154,7 +154,13 @@ function fitSlotText(){
   const slots=q('#wcxtSlots');
   if(!slots)return;
   const count=Math.max(1,slots.children.length);
+  const width=Math.max(1,slots.clientWidth);
+  const gap=window.innerWidth<=720?4:6;
+  const size=Math.max(14,Math.min(window.innerWidth<=720?30:38,Math.floor((width-gap*(count-1))/count)));
+  const font=Math.max(12,Math.min(window.innerWidth<=720?21:25,Math.floor(size*.68)));
   slots.style.setProperty('--slot-count',String(count));
+  slots.style.setProperty('--slot-size',size+'px');
+  slots.style.setProperty('--slot-font',font+'px');
 }
 function renderPlay(){
   q('#wcxtPlayLayout').hidden=false;
@@ -365,6 +371,14 @@ stateButtons.forEach(btn=>btn.addEventListener('click',()=>{
   else if(state==='RESULT')finishGame(true);
 }));
 
+
+window.addEventListener('resize',()=>{
+  if(!game||game.completed)return;
+  requestAnimationFrame(()=>{
+    fitSingleLine(q('#wcxtBase'),52,22);
+    fitSlotText();
+  });
+});
 
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey)return;
