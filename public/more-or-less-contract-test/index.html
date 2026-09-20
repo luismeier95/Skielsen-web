@@ -12,7 +12,6 @@
 <link rel="stylesheet" href="assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="assets/css/tournament-theme-runtime.css?v=core2fix1">
 <link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.0">
-<link rel="stylesheet" href="assets/css/more-or-less-contract-test.css?v=intro-scale2">
 <style id="molcWrongGuard">
 .molc-wrong-flag{display:none!important}
 .molc-compare-reveal{
@@ -22,6 +21,16 @@
 }
 .molc-compare-reveal .molc-compare-half{background:transparent!important}
 </style>
+<script id="molcFreshCssLoader">
+(()=>{
+  const stamp=Date.now();
+  const link=document.createElement('link');
+  link.rel='stylesheet';
+  link.href='assets/css/more-or-less-contract-test.css?t='+stamp;
+  document.head.appendChild(link);
+  window.__MOLC_REFRESH_STAMP__=stamp;
+})();
+</script>
 </head>
 <body class="v15-tournament-active molc-body" data-theme-pack="theme.skielsen.core">
 <nav class="molc-testbar" aria-label="Standalone Test Controls">
@@ -60,7 +69,6 @@
   </section>
 </main>
 
-<script src="assets/js/more-or-less-contract-test.js?v=intro-scale2"></script>
 <script id="molcWrongGuardScript">
 (()=>{
   const clean=()=>{
@@ -72,6 +80,13 @@
   };
   clean();
   new MutationObserver(clean).observe(document.getElementById('molcContent')||document.body,{childList:true,subtree:true});
+})();
+</script>
+<script id="molcFreshJsLoader">
+(()=>{
+  const script=document.createElement('script');
+  script.src='assets/js/more-or-less-contract-test.js?t='+(window.__MOLC_REFRESH_STAMP__||Date.now());
+  document.body.appendChild(script);
 })();
 </script>
 </body>
