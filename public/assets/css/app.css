@@ -4366,7 +4366,7 @@ body[data-theme-pack] .dbb-join-user,
 body[data-theme-pack] .dbb-group-note,
 body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cff)!important}
 
-/* V15.1.60 · Wortkette Ready / Rule Page */
+/* V15.1.61 · Wortkette Ready / Rule Page */
 .v15-wordchain-ready-page{
   display:grid;
   gap:14px;
@@ -4430,11 +4430,11 @@ body[data-theme-pack] .dbb-series-note{border-left-color:var(--app-accent,#7c5cf
   text-transform:uppercase;
   -webkit-text-fill-color:currentColor;
 }
-.v15-wordchain-ready-state.waiting{
+.v15-wordchain-ready-state.state-waiting{
   color:var(--theme-danger-bg)!important;
   -webkit-text-fill-color:var(--theme-danger-bg)!important;
 }
-.v15-wordchain-ready-state.ready{
+.v15-wordchain-ready-state.state-ready{
   color:var(--theme-success-bg)!important;
   -webkit-text-fill-color:var(--theme-success-bg)!important;
 }

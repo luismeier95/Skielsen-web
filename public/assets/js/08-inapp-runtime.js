@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.60';
+const VERSION=window.SKIELSEN_VERSION||'15.1.61';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -338,7 +338,7 @@ function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
     return `<div class="v15-wordchain-ready-player ${isReady?'is-ready':'is-waiting'}">
       <i class="v15-wordchain-ready-accent" style="background:${accent}" aria-hidden="true"></i>
       <span class="v15-wordchain-ready-player-copy"><strong>${esc(p?.display_name||'PLAYER')}${isMe?'<small>DU</small>':''}</strong></span>
-      <b class="v15-wordchain-ready-state ${isReady?'ready':'waiting'}">${isReady?'BEREIT':'WARTET'}</b>
+      <b class="v15-wordchain-ready-state ${isReady?'state-ready':'state-waiting'}">${isReady?'BEREIT':'WARTET'}</b>
     </div>`;
   }).join('')||'<div class="v15-wordchain-ready-empty">NOCH KEINE PLAYER ZUGEWIESEN.</div>';
   const forceButton=showForceStart
