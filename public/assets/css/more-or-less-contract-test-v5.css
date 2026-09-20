@@ -231,7 +231,6 @@ body.molc-body{
 
 .molc-play-status{grid-template-columns:repeat(2,1fr)}
 .molc-play-status>div:nth-child(2){text-align:right}
-.molc-wrong-flag{min-height:52px;margin-bottom:10px;display:grid;place-items:center;background:var(--theme-danger-bg);color:var(--theme-on-danger);font:clamp(30px,6vw,44px)/1 var(--display)}
 .molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(42px,7vw,64px)}
 @media(max-width:720px){.molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(34px,11vw,50px)}}
 
@@ -343,4 +342,14 @@ body.molc-body{
   .molc-metric b,
   .molc-compare-ref .molc-metric b,
   .molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:34px}
+}
+
+/* Wrong answer state on comparison container */
+.molc-compare-reveal{
+  border:2px solid var(--theme-danger)!important;
+  background:color-mix(in srgb,var(--theme-danger) 8%,var(--theme-surface))!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-danger) 18%,transparent),var(--theme-shadow-soft);
+}
+.molc-compare-reveal .molc-compare-half{
+  background:transparent!important;
 }
