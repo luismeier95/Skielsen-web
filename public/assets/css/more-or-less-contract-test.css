@@ -114,7 +114,7 @@ body.molc-body{
   text-align:center;
 }
 .molc-compare-ref{border-bottom:1px solid var(--theme-border)}
- .molc-compare-half strong{
+.molc-compare-half strong{
   display:block;
   margin:0 0 18px;
   font:clamp(40px,7vw,68px)/.9 var(--display);
@@ -122,7 +122,7 @@ body.molc-body{
   overflow-wrap:anywhere;
 }
 .molc-compare-cur strong{margin-bottom:0}
- .molc-metric{
+.molc-metric{
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -175,7 +175,7 @@ body.molc-body{
   color:var(--theme-on-more-action,var(--theme-on-success));
 }
 .molc-choice-icon{font:900 26px/1 var(--display)}
- .molc-choice-btn>b{
+.molc-choice-btn>b{
   font:900 10px/1 var(--ui);
   letter-spacing:.8px;
 }
@@ -227,4 +227,169 @@ body.molc-body{
   .molc-choice-actions{grid-template-columns:1fr}
   .molc-choice-btn{min-height:78px}
   .molc-roulette{min-height:360px}
+}
+
+.molc-play-status{grid-template-columns:repeat(2,1fr)}
+.molc-play-status>div:nth-child(2){text-align:right}
+.molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(42px,7vw,64px)}
+@media(max-width:720px){.molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(34px,11vw,50px)}}
+
+
+/* Comparison layout refinement: exactly two centered lines per reveal half. */
+.molc-compare-half{
+  overflow:hidden;
+}
+.molc-compare-ref{
+  padding:24px 32px 56px;
+}
+.molc-compare-cur{
+  padding:56px 32px 24px;
+}
+.molc-compare-half strong{
+  width:100%;
+  max-width:100%;
+  margin:0 0 14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;
+  overflow-wrap:normal;
+  word-break:normal;
+  font-size:clamp(20px,5vw,44px);
+  line-height:1;
+  letter-spacing:-.02em;
+  text-align:center;
+}
+.molc-compare-cur strong{
+  margin-bottom:14px;
+}
+.molc-metric b,
+.molc-compare-ref .molc-metric b,
+.molc-compare-reveal .molc-compare-cur .molc-metric b{
+  white-space:nowrap;
+  font-size:clamp(28px,5.4vw,48px);
+  line-height:1;
+  text-align:center;
+}
+@media(max-width:720px){
+  .molc-compare-ref{padding:18px 12px 48px}
+  .molc-compare-cur{padding:48px 12px 18px}
+  .molc-compare-half strong{
+    font-size:clamp(18px,5vw,30px);
+    margin-bottom:12px;
+  }
+  .molc-metric b,
+  .molc-compare-ref .molc-metric b,
+  .molc-compare-reveal .molc-compare-cur .molc-metric b{
+    font-size:clamp(24px,7vw,38px);
+  }
+}
+
+
+/* V5: deterministic comparison typography and reserved VS lane. */
+.molc-compare-stacked{
+  grid-template-rows:minmax(0,1fr) 72px minmax(0,1fr);
+}
+.molc-compare-stacked::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:50%;
+  height:1px;
+  background:var(--theme-border);
+  z-index:0;
+}
+.molc-compare-ref{
+  border-bottom:0;
+  padding:24px 32px;
+}
+.molc-compare-cur{
+  padding:24px 32px;
+}
+.molc-vs{
+  position:relative;
+  left:auto;
+  top:auto;
+  transform:none;
+  align-self:center;
+  justify-self:center;
+  z-index:2;
+}
+.molc-compare-half strong{
+  width:100%;
+  margin:0 0 12px;
+  white-space:nowrap!important;
+  overflow:hidden;
+  text-overflow:clip;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+  font-size:38px;
+  line-height:1;
+  letter-spacing:-.02em;
+  text-align:center;
+}
+.molc-compare-cur strong{margin-bottom:12px}
+.molc-metric b,
+.molc-compare-ref .molc-metric b,
+.molc-compare-reveal .molc-compare-cur .molc-metric b{
+  white-space:nowrap;
+  font-size:44px;
+  line-height:1;
+  text-align:center;
+}
+@media(max-width:720px){
+  .molc-compare-stacked{grid-template-rows:minmax(0,1fr) 60px minmax(0,1fr)}
+  .molc-compare-ref,.molc-compare-cur{padding:18px 12px}
+  .molc-compare-half strong{font-size:28px;margin-bottom:10px}
+  .molc-metric b,
+  .molc-compare-ref .molc-metric b,
+  .molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:34px}
+}
+
+/* Wrong answer state on comparison container */
+.molc-compare-reveal{
+  border:2px solid var(--theme-danger)!important;
+  background:color-mix(in srgb,var(--theme-danger) 8%,var(--theme-surface))!important;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-danger) 18%,transparent),var(--theme-shadow-soft);
+}
+.molc-compare-reveal .molc-compare-half{
+  background:transparent!important;
+}
+
+/* Compact player score tiles */
+.molc-scoreboard{gap:7px;margin-bottom:10px}
+.molc-player{
+  position:relative;
+  min-width:0;
+  min-height:48px;
+  padding:0 12px 0 14px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:10px;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+  border:1px solid var(--theme-border);
+  border-left:6px solid var(--player);
+  border-top:1px solid var(--theme-border);
+}
+.molc-player i{display:none}
+.molc-player span,
+.molc-player b{
+  display:block;
+  margin:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.molc-player span{font:900 8px/1 var(--ui);text-transform:uppercase}
+.molc-player b{font:900 13px/1 var(--display);text-align:right}
+.molc-player.out{opacity:.4}
+.molc-player.out:after{
+  content:"OUT";
+  position:absolute;
+  right:5px;
+  top:4px;
+  padding:2px 4px;
+  background:var(--theme-danger-bg);
+  color:var(--theme-on-danger);
+  font:900 5px/1 var(--ui);
 }
