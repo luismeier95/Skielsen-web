@@ -15,6 +15,53 @@ class P(HTMLParser):
   if tag=='style': self.inline_styles+=1
 def fail(msg): print('ERROR:',msg,file=sys.stderr); raise SystemExit(1)
 if not INDEX.exists(): fail('public/index.html fehlt')
+
+# Repository hygiene: current source-of-truth files only.
+required_docs=[
+ 'docs/README.md',
+ 'docs/GAME_DESIGN_CONTRACT.md',
+ 'docs/THEME_CONTRACT.md',
+ 'docs/THEME_TEMPLATE.css',
+ 'docs/WORTKETTE_DATABASE.md',
+ 'docs/WORTKETTE_DESIGN_CONTRACT.md',
+ 'docs/WORTKETTE_GAME_CONTRACT.md',
+]
+for rel in required_docs:
+ if not (ROOT/rel).exists(): fail(f'Aktuelle Projektdokumentation fehlt: {rel}')
+
+required_dev_routes=[
+ 'public/game-design-contract.html',
+ 'public/standalone-games.html',
+ 'public/more-or-less-contract-test/index.html',
+ 'public/word-chain-test/index.html',
+]
+for rel in required_dev_routes:
+ if not (ROOT/rel).exists(): fail(f'Kanonische Test-/Contract-Route fehlt: {rel}')
+
+legacy_exact=[
+ 'public/wortkette-standalone.html',
+ 'public/wortkette.html',
+ 'public/more-or-less-standalone.html',
+ 'public/more-or-less-contract-test.html',
+ 'docs/WORTKETTE_HANDOVER.md',
+ 'docs/WORTKETTE_FULLVERSION_INTEGRATION_PLAN.md',
+ 'docs/WORTKETTE_CODING_AGENT_HANDOFF_V2.md',
+ 'docs/WORTKETTE_THEME_AUDIT.md',
+ 'docs/WORTKETTE_GAME_CONTRACT_V2.md',
+ 'docs/WORTKETTE_DESIGN_CONTRACT_V2.md',
+]
+for rel in legacy_exact:
+ if (ROOT/rel).exists(): fail(f'Veraltetes Legacy-Artefakt wieder im Repo: {rel}')
+
+legacy_globs=[
+ 'public/wortkette-v*.html',
+ 'public/more-or-less-contract-test-v*.html',
+ 'public/assets/css/more-or-less-contract-test-v*.css',
+ 'public/assets/js/more-or-less-contract-test-v*.js',
+]
+for pattern in legacy_globs:
+ stale=list(ROOT.glob(pattern))
+ if stale: fail('Veraltete Snapshot-Dateien wieder im Repo: '+', '.join(str(p.relative_to(ROOT)) for p in stale))
 h=INDEX.read_text(encoding='utf-8')
 if 'data:image/' in h: fail('Base64-Bilder in index.html')
 p=P(); p.feed(h)
@@ -123,7 +170,6 @@ for _needle in ['var(--ui)','var(--display)','var(--theme-surface)','var(--theme
  if _needle not in _wc_css: fail('Wortkette Design/Theme Contract fehlt: '+_needle)
 for _forbidden in ['Arial Black','Impact,','data-theme-pack="theme.']:
  if _forbidden in _wc_css: fail('Wortkette Theme-/Typografie-Hardcoding gefunden: '+_forbidden)
-if 'docs/WORTKETTE_THEME_AUDIT.md' not in [str(p.relative_to(ROOT)).replace('\\','/') for p in ROOT.rglob('WORTKETTE_THEME_AUDIT.md')]: fail('Wortkette Pre-Merge Theme Audit fehlt')
 
 if 'assets/js/00-app-history.js?v='+v not in h: fail('App-History-Controller fehlt oder Cache-Version stimmt nicht')
 version_js=(PUBLIC/'assets/js/00-version.js').read_text(encoding='utf-8')
