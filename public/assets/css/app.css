@@ -4637,3 +4637,19 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   .admin-command-progress{flex:1 1 160px;min-width:0}.admin-command-difficulty{flex:1 1 210px;min-width:0}
   .admin-command-difficulty button{min-height:38px;font-size:7px;padding:0 7px}
 }
+
+
+/* V15.1.73 · Mobile Admin Command bottom dock */
+@media(max-width:800px){
+  .admin-command-bar{
+    position:fixed!important;
+    top:auto!important;
+    bottom:76px!important;
+    left:0!important;
+    right:0!important;
+    z-index:1201!important;
+  }
+  body.profile-page-active .admin-command-bar{bottom:134px!important}
+  body.admin-command-visible{padding-bottom:260px!important}
+  body.admin-command-visible.profile-page-active{padding-bottom:318px!important}
+}
