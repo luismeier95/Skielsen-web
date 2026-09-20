@@ -44,7 +44,7 @@ Referenz:
 - Design Contract: `docs/WORTKETTE_DESIGN_CONTRACT_V2.md`
 - Global Contract: `docs/GAME_DESIGN_CONTRACT.md`
 
-## Non-Negotiables
+## Fullversion Frame\n\nProduction Wortkette is mounted below the existing global `.sk-header`. **Do not render a second SKIELSEN header, logo bar, duplicate menu or duplicate top navigation inside `12-word-chain-game.js`.**\n\nDesktop and Mobile differ below that frame; Mobile is not a scaled Desktop layout.\n\n## Non-Negotiables
 
 ### Canonical IDs
 - available game: `game.wortkette.compound_nouns`
