@@ -118,14 +118,18 @@ function updateTimer(){
     applyWrong(true);
   }
 }
-function normalizeTail(raw){
+function normalizeTail(raw,target=current().next,revealed=game.revealed){
   let tail=clean(raw);
-  const target=current().next;
-  const prefix=target.slice(0,game.revealed);
-  if(prefix.length===1&&tail.startsWith(prefix)&&!target.startsWith(prefix+prefix)){
-    tail=tail.slice(1);
-  }
+  const prefix=String(target||'').slice(0,Math.max(0,Number(revealed)||0));
+  const repeatedInitial=prefix.length===1&&tail.startsWith(prefix);
+  const realDoubleInitial=prefix.length===1&&String(target||'').startsWith(prefix+prefix);
+  if(repeatedInitial&&!realDoubleInitial)tail=tail.slice(1);
   return tail;
+}
+function repeatedInitialRuleSelfTest(){
+  const normal=normalizeTail('GELD','GELD',1)==='ELD';
+  const double=normalizeTail('LLAMA','LLAMA',1)==='LLAMA';
+  return normal&&double;
 }
 function assembledGuess(){
   const target=current().next;
@@ -271,5 +275,6 @@ q('#wcxtInput').addEventListener('keydown',e=>{
 q('#wcxtMinimize')?.addEventListener?.('click',()=>{});
 
 setTheme(theme.value);
+if(!repeatedInitialRuleSelfTest())console.warn('Wortkette repeated-initial rule self-test failed');
 freshGame();
 })();
