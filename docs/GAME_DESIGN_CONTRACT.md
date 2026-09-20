@@ -1,0 +1,148 @@
+# SKIELSEN · GLOBAL GAME DESIGN & IMPLEMENTATION CONTRACT
+
+Stand: V1.2  
+Geltung: **alle zukünftigen SKIELSEN Games ab der ersten Standalone-Version**
+
+## 1. Hierarchie
+
+1. **Theme Contract** bestimmt Farben, Kontraste und semantische Tokens.
+2. **Game Design Contract** bestimmt Canvas, Header, Status, Player-Anzeigen, Action-Bereiche, Result-Komponenten, responsive Verhalten und Daten-Bindings.
+3. **Game Module** gestaltet ausschließlich die jeweilige Mechanik.
+
+Kein Game darf Theme- oder Contract-Verantwortung selbst übernehmen.
+
+## 2. Stable Geometry
+
+Innerhalb eines aktiven Play-Flows behalten gemeinsame UI-Bereiche ihre Position und Größe:
+
+- App Header
+- Progress
+- Status Header
+- Player-Anzeigen
+- Action-/Input-Bereich
+
+Zustandswechsel dürfen das Seitenraster nicht springen lassen.
+
+Nur der **game-spezifische Mechanik-Bereich** darf seine Inhalte animieren oder morphen.
+
+## 3. Animation Boundary
+
+Animationen sind ausschließlich dort erlaubt, wo sie Teil der Spielmechanik sind.
+
+Nicht animieren:
+- Shared Header
+- Status
+- Player-Cards
+- globale Buttons/Actions
+- Seitenbreite
+- äußere Container-Höhen
+
+Ausnahmen müssen ausdrücklich im Game Contract dokumentiert sein.
+
+## 4. Responsive
+
+- gemeinsamer Desktop-Canvas: maximal 760 px
+- Mobile: 100 %
+- primärer Breakpoint: 720 px
+- Action-Layout darf auf Mobile nicht ohne Mechanik-Grund seine Reihenfolge oder Position ändern
+- Keyboard-/Viewport-Sonderfälle müssen explizit als Mechanik-Anforderung dokumentiert sein
+
+## 5. Theme Authority
+
+Keine Theme-Farben im Game hardcoden.
+
+Variable Farben kommen aus:
+- Tournament Theme Runtime
+- semantischen Theme Tokens
+- festen Player-Identitätsfarben Rot / Blau / Grün / Gelb
+
+Jedes Game muss mindestens Surface-, On-Surface-, Border-, Accent-, Primary-, Secondary-, Success-, Warning-, Danger- und Input-Tokens korrekt verwenden.
+
+## 6. Standalone → Database Contract
+
+Eine Standalone gilt erst als integrationsbereit, wenn jede variable Information bereits klassifiziert ist.
+
+Jede Variable braucht:
+
+| Feld | Pflicht |
+|---|---|
+| UI Element | ja |
+| Variable / Source Key | ja |
+| Datentyp | ja |
+| Datenquelle / RPC / Tabelle | ja |
+| Null-/Fallback-Verhalten | ja |
+| State/Phase | ja |
+| Theme-Abhängigkeit | falls relevant |
+| Client- oder Serverautorität | ja |
+
+Beim Merge in die Vollversion darf keine variable Herkunft erst nachträglich erraten werden.
+
+## 7. Variablenklassen
+
+Jede Standalone trennt explizit:
+
+1. **Static Layout** – Maße, Struktur, fixe Copy.
+2. **Theme Tokens** – Farben und Kontraste.
+3. **Content Variables** – Namen, Labels, Werte, Texte.
+4. **State Variables** – Phase, Ready, Active, Out, Complete usw.
+5. **Interaction State** – Eingaben, Auswahl, temporäre UI-Zustände.
+6. **Database Mapping Layer** – konkrete Quelle der produktiven Werte.
+
+## 8. Player Contract
+
+Variable Player-Informationen dürfen nicht hartcodiert werden.
+
+Mindestens erforderlich, sofern im Game sichtbar:
+- participant/member ID
+- display name
+- identity color / team slot
+- game-specific score
+- active/finished/out state
+
+Player-Reihenfolge muss während eines Play-Flows stabil bleiben, sofern die Mechanik kein Ranking-Reorder verlangt.
+
+## 9. Result Contract
+
+Jedes Game beendet mit dem gemeinsamen Result-Pattern.
+
+Game-spezifisch sind nur:
+- Spaltennamen
+- Werte
+- Tiebreak-relevante Daten
+
+Für jede Result-Spalte muss die Datenquelle vor der Integration feststehen.
+
+## 10. Standalone Implementation Gate
+
+Vor Merge müssen geprüft sein:
+
+### Layout
+- feste gemeinsame Container
+- keine unerwünschten Layout-Sprünge
+- Mobile/Desktop geprüft
+- Animationen nur in erlaubter Zone
+
+### Theme
+- alle unterstützten Themes geprüft
+- keine Hardcoded Theme-Farben
+- Kontraste über semantische Tokens
+
+### Daten
+- jede Variable mit Source Key dokumentiert
+- Datentyp dokumentiert
+- Fallback dokumentiert
+- Server-/Client-Autorität dokumentiert
+- Result-Mapping vollständig
+
+### Workflow
+- Standalone visuell geprüft
+- Produktionsmodul auf dieselben Contract-Regeln gemappt
+- GitHub Validation/Deploy erfolgreich
+
+## 11. Referenz-Testseiten
+
+- Game Design Contract: `/game-design-contract.html`
+- Mehr oder Weniger: `/more-or-less-contract-test/`
+- Wortkette: `/word-chain-test/`
+
+Diese Testseiten sind Design-/Implementierungsreferenzen und keine Ersatzquelle für serverautoritatives Gameplay.
