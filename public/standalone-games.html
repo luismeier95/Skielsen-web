@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="de" data-theme-pack="theme.skielsen.core">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e9">
+<title>SKIELSEN · Games Standalone</title>
+<link rel="stylesheet" href="assets/css/app.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/tournament-theme-runtime.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/buzzer-time.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/more-or-less-game.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/wortkette-game.css?v=15.1.65">
+<link rel="stylesheet" href="assets/css/standalone-games.css?v=15.1.65">
+</head>
+<body class="v15-tournament-active suite-body" data-theme-pack="theme.skielsen.core">
+<section class="suite-menu" id="suiteMenu">
+  <header class="suite-hero">
+    <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
+    <div><small>STANDALONE PLAYTEST · V15.1.65</small><h1>DREI SPIELE.<br>EINE DATEI.</h1></div>
+  </header>
+  <p class="suite-lead">Die drei fertigen Games laufen hier mit ihren aktuellen Produktions-Styles und Produktions-Modulen. Der Test ist lokal und verändert kein echtes Turnier.</p>
+  <div class="suite-grid">
+    <button class="suite-card" type="button" data-suite-game="buzzer">
+      <span>01</span><strong>BUZZER</strong><small>ZEIT STOPPEN · 5 RUNDEN</small><b>SPIELEN →</b>
+    </button>
+    <button class="suite-card" type="button" data-suite-game="more-less">
+      <span>02</span><strong>MEHR ODER WENIGER</strong><small>EASY · NORMAL · HARDCORE</small><b>SPIELEN →</b>
+    </button>
+    <button class="suite-card" type="button" data-suite-game="word-chain">
+      <span>03</span><strong>WORTKETTE</strong><small>10 SCHRITTE · LIVE-ERGEBNIS</small><b>SPIELEN →</b>
+    </button>
+  </div>
+  <footer class="suite-note">ESC = SPIELAUSWAHL · RESET startet das aktuell geöffnete Game neu.</footer>
+</section>
+
+<section class="suite-stage" id="suiteStage" hidden>
+  <div id="v15InAppLayer">
+    <div class="v15-inapp-shell">
+      <div id="v15InAppPlayerContent">
+        <div id="suiteGameRoot"></div>
+      </div>
+    </div>
+  </div>
+  <nav class="suite-tools" id="suiteTools">
+    <button type="button" id="suiteBack">← GAMES</button>
+    <button type="button" id="suiteReset">RESET</button>
+  </nav>
+</section>
+
+<script>window.SKIELSEN_VERSION='15.1.65';</script>
+<script src="assets/js/09-buzzer-time.js?v=15.1.65"></script>
+<script src="assets/js/11-more-or-less-game.js?v=15.1.65"></script>
+<script src="assets/js/12-word-chain-game.js?v=15.1.65"></script>
+<script src="assets/js/standalone-games.js?v=15.1.65"></script>
+</body>
+</html>
