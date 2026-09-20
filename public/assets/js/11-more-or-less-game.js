@@ -166,9 +166,9 @@ function questionMarkup(){
       <div class="mol-full-kicker">${esc(categoryLabel())}</div>
       <div class="mol-full-scoreboard">${scoreboard()}</div>
       <section class="mol-full-compare">
-        <div class="mol-full-reference"><small>REFERENZ</small><strong>${esc(ref.label||'—')}</strong><b>${esc(ref.display_value||ref.value||'—')}</b></div>
+        <div class="mol-full-reference"><strong>${esc(ref.label||'—')}</strong><b>${esc(ref.display_value||ref.value||'—')}</b></div>
         <div class="mol-full-vs">VS</div>
-        <div class="mol-full-current"><small>${mine?'DU BIST DRAN':esc(String(who).toUpperCase()+' IST DRAN')}</small><strong>${esc(cur.label||'—')}</strong><span>IST DER WERT …</span></div>
+        <div class="mol-full-current"><strong>${esc(cur.label||'—')}</strong></div>
       </section>
       ${mine?`<div class="mol-full-choice"><button data-mol-choice="LESS" class="less"><span>↓</span>WENIGER</button><button data-mol-choice="MORE" class="more"><span>↑</span>MEHR</button></div>`:`<div class="mol-full-wait">WARTEN · ${esc(String(who).toUpperCase())} ENTSCHEIDET</div>`}
     </main>

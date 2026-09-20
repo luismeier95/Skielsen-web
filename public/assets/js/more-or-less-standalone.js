@@ -184,7 +184,6 @@ function renderPlay(){
   q('#prevLabel').textContent=prev.label;
   q('#prevValue').textContent=prev.display_value||formatValue(prev.value);
   q('#currentLabel').textContent=cur.label;
-  q('#turnLabel').textContent=p.name+' IST DRAN';
   renderScoreboard();show('playScreen');
 }
 function choose(choice){
