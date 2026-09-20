@@ -1495,6 +1495,9 @@ body {
 #jokerPage .v1521-joker-history span{display:block;margin-top:0;font:800 10px/1.45 var(--ui);color:#777}
 #jokerPage .v1521-joker-empty{padding:22px 18px;font:850 10px/1.35 var(--ui);color:#999;background:#fafafa}
 
+/* Feature-gated navigation must honor hidden even where nav rules force display:flex. */
+[data-page][hidden]{display:none!important}
+
 /* Betting disabled means invisible, not "disabled" UI. */
 [data-page="bets"][hidden],#matchDetailPage .betting-block[hidden],#prototypeControlBetGate[hidden],#prototypeAdminBetGate[hidden]{display:none!important}
 
