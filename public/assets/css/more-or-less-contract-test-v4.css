@@ -234,3 +234,53 @@ body.molc-body{
 .molc-wrong-flag{min-height:52px;margin-bottom:10px;display:grid;place-items:center;background:var(--theme-danger-bg);color:var(--theme-on-danger);font:clamp(30px,6vw,44px)/1 var(--display)}
 .molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(42px,7vw,64px)}
 @media(max-width:720px){.molc-compare-reveal .molc-compare-cur .molc-metric b{font-size:clamp(34px,11vw,50px)}}
+
+
+/* Comparison layout refinement: exactly two centered lines per reveal half. */
+.molc-compare-half{
+  overflow:hidden;
+}
+.molc-compare-ref{
+  padding:24px 32px 56px;
+}
+.molc-compare-cur{
+  padding:56px 32px 24px;
+}
+.molc-compare-half strong{
+  width:100%;
+  max-width:100%;
+  margin:0 0 14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;
+  overflow-wrap:normal;
+  word-break:normal;
+  font-size:clamp(20px,5vw,44px);
+  line-height:1;
+  letter-spacing:-.02em;
+  text-align:center;
+}
+.molc-compare-cur strong{
+  margin-bottom:14px;
+}
+.molc-metric b,
+.molc-compare-ref .molc-metric b,
+.molc-compare-reveal .molc-compare-cur .molc-metric b{
+  white-space:nowrap;
+  font-size:clamp(28px,5.4vw,48px);
+  line-height:1;
+  text-align:center;
+}
+@media(max-width:720px){
+  .molc-compare-ref{padding:18px 12px 48px}
+  .molc-compare-cur{padding:48px 12px 18px}
+  .molc-compare-half strong{
+    font-size:clamp(18px,5vw,30px);
+    margin-bottom:12px;
+  }
+  .molc-metric b,
+  .molc-compare-ref .molc-metric b,
+  .molc-compare-reveal .molc-compare-cur .molc-metric b{
+    font-size:clamp(24px,7vw,38px);
+  }
+}
