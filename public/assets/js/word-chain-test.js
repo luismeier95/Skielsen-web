@@ -127,8 +127,10 @@ function normalizeTail(raw,target=current().next,revealed=game.revealed){
   return tail;
 }
 function repeatedInitialRuleSelfTest(){
-  const normal=normalizeTail('GELD','GELD',1)==='ELD';
-  const double=normalizeTail('LLAMA','LLAMA',1)==='LLAMA';
+  const normalTarget='GELD',normalPrefix=normalTarget.slice(0,1);
+  const normal=normalPrefix+normalizeTail('GELD',normalTarget,1)===normalTarget;
+  const doubleTarget='LLAMA',doublePrefix=doubleTarget.slice(0,1);
+  const double=doublePrefix+normalizeTail('LAMA',doubleTarget,1)===doubleTarget;
   return normal&&double;
 }
 function assembledGuess(){
