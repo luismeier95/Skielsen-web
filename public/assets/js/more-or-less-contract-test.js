@@ -67,6 +67,26 @@ function format(key,value){
   if(key==='WIKIPEDIA_VIEWS')return Number(value).toLocaleString('de-DE')+' / Monat';
   return Number(value).toLocaleString('de-DE')+' '+META[key][1];
 }
+function countText(key,value,progress){
+  const target=Number(value)||0;
+  const current=target*progress;
+  if(key==='POPULATION')return current.toLocaleString('de-DE',{minimumFractionDigits:target%1?1:0,maximumFractionDigits:1})+' Mio.';
+  if(key==='WIKIPEDIA_VIEWS')return Math.round(current).toLocaleString('de-DE')+' / Monat';
+  return Math.round(current).toLocaleString('de-DE')+' '+META[key][1];
+}
+function animateCount(el,key,value,duration=900){
+  return new Promise(resolve=>{
+    const start=performance.now();
+    const step=now=>{
+      const p=Math.min(1,(now-start)/duration);
+      const eased=1-Math.pow(1-p,3);
+      el.textContent=countText(key,value,eased);
+      if(p<1)requestAnimationFrame(step);
+      else{el.textContent=format(key,value);resolve()}
+    };
+    requestAnimationFrame(step);
+  });
+}
 function color(p){return COLORS[p?.color]||'var(--theme-accent)'}
 function fitCompareLabels(){
   requestAnimationFrame(()=>{
@@ -182,7 +202,7 @@ function question(){
     <section class="molc-compare molc-compare-stacked">
       <div class="molc-compare-half molc-compare-ref"><strong>${esc(ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,ref[1]))}</b></div></div>
       <div class="molc-vs">VS</div>
-      <div class="molc-compare-half molc-compare-cur"><strong>${esc(cur[0])}</strong></div>
+      <div class="molc-compare-half molc-compare-cur"><strong>${esc(cur[0])}</strong><div class="molc-metric molc-pending-value" aria-hidden="true"><b>&nbsp;</b></div></div>
     </section>
     <div class="skg-choice-actions molc-choice-actions">
       <button class="skg-btn less molc-choice-btn" data-choice="LESS" type="button"><span class="molc-choice-icon">↓</span><b>WENIGER</b></button>
@@ -194,24 +214,38 @@ function question(){
 function answer(choice){
   const ref=s.facts[s.factIndex%s.facts.length],cur=s.facts[(s.factIndex+1)%s.facts.length],p=s.players[s.currentSeat];
   const correct=Number(cur[1])>Number(ref[1])?'MORE':'LESS';
+  const ok=choice===correct;
   s.lastSeat=s.currentSeat;
-  if(choice===correct){advanceTurn();return}
-  p.active=false;
-  s.lastResult={player:p,ok:false,correct,ref,cur};
-  s.screen='REVEAL';render();
+  if(!ok)p.active=false;
+  s.lastResult={player:p,ok,correct,ref,cur};
+  s.screen='REVEAL';
+  render();
 }
 function reveal(){
   chrome('PLAY',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
   const r=s.lastResult,p=r.player,survivors=s.players.filter(x=>x.active),categoryOver=survivors.length===1;
+  const outcome=r.ok?'✓':'✕';
   content.innerHTML=`${playStatus(p)}${scoreboard()}
-    <section class="molc-compare molc-compare-stacked molc-compare-reveal">
+    <section class="molc-compare molc-compare-stacked molc-feedback-card ${r.ok?'is-correct':'is-wrong'}">
       <div class="molc-compare-half molc-compare-ref"><strong>${esc(r.ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.ref[1]))}</b></div></div>
-      <div class="molc-vs">VS</div>
-      <div class="molc-compare-half molc-compare-cur"><strong>${esc(r.cur[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.cur[1]))}</b></div></div>
+      <div class="molc-vs molc-outcome" aria-label="${r.ok?'Richtig':'Falsch'}">${outcome}</div>
+      <div class="molc-compare-half molc-compare-cur"><strong>${esc(r.cur[0])}</strong><div class="molc-metric"><b id="molcCountValue">${esc(countText(s.categoryKey,r.cur[1],0))}</b></div></div>
     </section>
-    <div class="skg-actions"><button class="skg-btn primary" id="molcContinue" type="button">${categoryOver?(s.categoryNo>=s.categoryCount?'ERGEBNIS →':'NÄCHSTE KATEGORIE →'):'WEITER →'}</button></div>`;
+    <div class="skg-actions molc-feedback-actions"><button class="skg-btn primary" id="molcContinue" type="button" hidden>${categoryOver?(s.categoryNo>=s.categoryCount?'ERGEBNIS →':'NÄCHSTE KATEGORIE →'):'WEITER →'}</button></div>`;
   fitCompareLabels();
-  document.getElementById('molcContinue').addEventListener('click',continueGame);
+  const countEl=document.getElementById('molcCountValue');
+  animateCount(countEl,s.categoryKey,r.cur[1]).then(()=>{
+    if(r.ok){
+      const card=content.querySelector('.molc-feedback-card');
+      requestAnimationFrame(()=>card?.classList.add('is-promoting'));
+      setTimeout(advanceTurn,520);
+      return;
+    }
+    setTimeout(()=>{
+      const btn=document.getElementById('molcContinue');
+      if(btn){btn.hidden=false;btn.addEventListener('click',continueGame,{once:true})}
+    },2000);
+  });
 }
 function advanceTurn(){
   s.factIndex=(s.factIndex+1)%Math.max(1,s.facts.length-1);
@@ -235,11 +269,11 @@ function result(){
     <section class="skg-status is-result" aria-label="Ergebnis"></section>
     <section class="skg-result-table">
       <header><strong>FINALES ERGEBNIS</strong><span>5 KATEGORIEN</span></header>
-      <div class="skg-result-columns"><span>NAME</span><span>SIEGE</span><span>PLATZ</span></div>
+      <div class="skg-result-columns molc-result-columns"><span>PLATZ</span><span>NAME</span><span>SIEGE</span></div>
       ${rows.map((p,i)=>`<div class="skg-result-row molc-result-row ${i===0?'is-first':''}">
+        <b class="molc-place">${i+1}.</b>
         <span class="skg-result-player"><i style="background:${color(p)}"></i><strong>${esc(p.name)}</strong></span>
         <b class="molc-wins">${p.wins}</b>
-        <b class="molc-place">${i+1}.</b>
       </div>`).join('')}
     </section>
     <div class="skg-actions"><button class="skg-btn primary" id="molcAgain" type="button">NEUER TEST →</button></div>
