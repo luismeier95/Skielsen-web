@@ -153,6 +153,18 @@ word_chain_css=PUBLIC/'assets/css/wortkette-game.css'
 if not word_chain_js.exists() or not word_chain_css.exists(): fail('Wortkette Vollversion fehlt')
 _wc_js=word_chain_js.read_text(encoding='utf-8')
 _wc_css=word_chain_css.read_text(encoding='utf-8')
+
+# Locked Wortkette regression contract: these working interactions/layout rules
+# must not change as a side effect of unrelated app updates.
+if 'enterkeyhint="go"' not in _wc_js: fail('Wortkette Mobile-Keyboard Contract verletzt: Enter muss GO bleiben')
+if "if(input)input.disabled=true" in _wc_js: fail('Wortkette Mobile-Keyboard Contract verletzt: Input darf beim Submit nicht disabled werden')
+if 'setTimeout(focusInput,40)' in _wc_js: fail('Wortkette Mobile-Keyboard Contract verletzt: kein künstliches Refocus nach Submit')
+for _feedback in ["feedback('RICHTIG","feedback('FALSCH","feedback('ZEIT ABGELAUFEN","feedback('WORT VOLLSTÄNDIG AUFGEDECKT"]:
+ if _feedback in _wc_js: fail('Wortkette Feedback Contract verletzt: Gameplay-Ribbon wieder eingeführt')
+if 'WORD_CHAIN_MOBILE_LAYOUT_CONTRACT' not in _wc_css: fail('Wortkette Mobile-Layout Contract fehlt')
+if 'grid-template-rows:minmax(54px,.8fr) 36px minmax(96px,1.15fr);' not in _wc_css: fail('Wortkette Mobile-Layout Contract verletzt: Plus/Nomen-Trennung geändert')
+if 'row-gap:10px;' not in _wc_css: fail('Wortkette Mobile-Layout Contract verletzt: Abstand Plus/Nomen fehlt')
+if '.wc-feedback:empty{display:none}' not in _wc_css: fail('Wortkette Feedback darf leeres Layout nicht verändern')
 for _rpc in ['start_word_chain_tournament_player','get_word_chain_tournament_state','submit_word_chain_tournament']:
  if _rpc not in _wc_js: fail('Wortkette Server-Sync fehlt: '+_rpc)
 for _needle in ["WORD_CHAIN_MODULE='word-chain'","ensureWordChainAssets","renderWordChainSession","get_word_chain_game_result"]:

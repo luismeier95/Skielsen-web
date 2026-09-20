@@ -545,11 +545,14 @@
   .wc-word-timer.urgent>i{background:var(--theme-danger-bg,var(--theme-danger))}
   .wc-chain{display:none!important}
 
+  /* WORD_CHAIN_MOBILE_LAYOUT_CONTRACT: plus and answer label are separate tracks; feedback never changes geometry. */
   .wc-puzzle{
+    position:relative;
     height:100%;
     min-height:0;
     padding:8px 8px 6px;
-    grid-template-rows:minmax(54px,.8fr) 36px minmax(96px,1.15fr) 34px;
+    grid-template-rows:minmax(54px,.8fr) 36px minmax(96px,1.15fr);
+    row-gap:10px;
     border-top:0;
     box-shadow:none;
   }
@@ -579,10 +582,18 @@
     font-size:var(--wc-slot-font,21px);
   }
   .wc-feedback{
-    height:34px;
-    padding-inline:6px;
+    position:absolute;
+    left:8px;
+    right:8px;
+    bottom:6px;
+    z-index:2;
+    height:auto;
+    min-height:0;
+    padding:7px 8px;
     font-size:7px;
+    pointer-events:none;
   }
+  .wc-feedback:empty{display:none}
 
   .wc-result-page{
     height:100%;
@@ -625,7 +636,8 @@
   .wc-status strong{font-size:18px}
   .wc-puzzle{
     padding:5px 6px 4px;
-    grid-template-rows:minmax(44px,.72fr) 30px minmax(76px,1fr) 28px;
+    grid-template-rows:minmax(44px,.72fr) 30px minmax(76px,1fr);
+    row-gap:8px;
   }
   .wc-base small,.wc-answer>small{font-size:5.5px}
   .wc-base strong{margin-top:4px;font-size:38px}
@@ -633,5 +645,5 @@
   .wc-answer{grid-template-rows:16px minmax(48px,1fr)}
   .wc-slots{min-height:46px}
   .wc-slot{height:36px}
-  .wc-feedback{height:28px;font-size:6.5px}
+  .wc-feedback{left:6px;right:6px;bottom:4px;height:auto;font-size:6.5px}
 }

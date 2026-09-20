@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.75';
+const VERSION=window.SKIELSEN_VERSION||'15.1.76';
 const POLL_MS=1600;
 const DIFFICULTIES={
   EASY:{threshold:50,showWordLength:true},
