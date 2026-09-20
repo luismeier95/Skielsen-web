@@ -38,7 +38,11 @@ function publicState(){
   return session?.public_state||{};
 }
 function difficultyRequired(){
-  return publicState()?.difficulty_required===true;
+  // V4 production contract: every Word Chain In-App session must pass the
+  // session-wide difficulty gate before any player run can be created.
+  // Do not fall back to legacy NORMAL when older/missing public_state flags
+  // reach the current client; the admin must explicitly choose a tier.
+  return true;
 }
 function selectedDifficulty(){
   const value=String(publicState()?.word_chain_difficulty||state?.difficulty||'').toUpperCase();
