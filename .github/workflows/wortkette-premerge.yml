@@ -1,0 +1,25 @@
+name: Wortkette pre-merge validation
+
+on:
+  push:
+    branches:
+      - feature/wortkette-fullversion-v20
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v6
+      - name: Static contract validation
+        run: python3 tools/validate_static.py
+      - name: JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find public/assets/js -type f -name '*.js' -print0)
