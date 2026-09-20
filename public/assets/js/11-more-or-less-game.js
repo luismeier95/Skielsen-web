@@ -48,8 +48,7 @@ function categoryLabel(){
 }
 function scoreboard(){
   return (state?.players||[]).map(p=>`<div class="mol-full-score ${p.active?'':'out'}" style="--mol-player:${colorOf(p)}">
-    <i></i><span>${esc(String(p.display_name||'TEILNEHMER').toUpperCase())}</span>
-    <b>${Number(p.category_wins||0)} SIEGE</b>
+    <i></i><span>${esc(String(p.display_name||'TEILNEHMER').toUpperCase())}</span><b>${Number(p.category_wins||0)}</b>
   </div>`).join('');
 }
 function minimizeGame(event){
