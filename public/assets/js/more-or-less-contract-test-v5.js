@@ -205,7 +205,7 @@ function answer(choice){
 function reveal(){
   chrome('PLAY',`KATEGORIE ${s.categoryNo} / ${s.categoryCount}`);
   const r=s.lastResult,p=r.player,survivors=s.players.filter(x=>x.active),categoryOver=survivors.length===1;
-  content.innerHTML=`${playStatus(p)}${scoreboard()}<div class="molc-wrong-flag">FALSCH</div>
+  content.innerHTML=`${playStatus(p)}${scoreboard()}
     <section class="molc-compare molc-compare-stacked molc-compare-reveal">
       <div class="molc-compare-half molc-compare-ref"><strong>${esc(r.ref[0])}</strong><div class="molc-metric"><b>${esc(format(s.categoryKey,r.ref[1]))}</b></div></div>
       <div class="molc-vs">VS</div>
