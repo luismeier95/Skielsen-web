@@ -100,3 +100,54 @@
 
 .mol-full-compare.is-reveal .mol-full-current b{display:block;font-size:21px}
 #v15MoreLessRoot .mol-full-result.wrong{min-height:52px;margin:0 0 10px;display:grid;place-items:center;font:clamp(30px,7vw,46px)/1 var(--mol-display)}
+
+
+/* Comparison layout refinement: compact, centered, one-line labels. */
+.mol-full-compare{
+  grid-template-rows:minmax(0,1fr) 64px minmax(0,1fr);
+}
+.mol-full-reference,
+.mol-full-current{
+  overflow:hidden;
+  padding:20px 28px;
+}
+.mol-full-reference strong,
+.mol-full-current strong{
+  width:100%;
+  max-width:100%;
+  margin:0 0 12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;
+  font-size:clamp(20px,5vw,44px);
+  line-height:1;
+  letter-spacing:-.02em;
+  text-align:center;
+}
+.mol-full-reference b,
+.mol-full-current b,
+.mol-full-compare.is-reveal .mol-full-current b{
+  display:block;
+  white-space:nowrap;
+  font-size:clamp(28px,5.4vw,48px);
+  line-height:1;
+  text-align:center;
+}
+.mol-full-vs{
+  align-self:center;
+  justify-self:center;
+  margin:0;
+}
+@media(max-width:560px){
+  .mol-full-compare{grid-template-rows:minmax(0,1fr) 58px minmax(0,1fr)}
+  .mol-full-reference,.mol-full-current{padding:16px 12px}
+  .mol-full-reference strong,.mol-full-current strong{
+    font-size:clamp(18px,5vw,30px);
+    margin-bottom:10px;
+  }
+  .mol-full-reference b,
+  .mol-full-current b,
+  .mol-full-compare.is-reveal .mol-full-current b{
+    font-size:clamp(24px,7vw,38px);
+  }
+}
