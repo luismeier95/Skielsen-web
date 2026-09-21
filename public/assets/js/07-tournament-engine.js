@@ -44,7 +44,7 @@ function syncBettingFeatureVisibility(){
  const resultSettlement=q('#matchResultPop .match-result-pop__settlement');if(resultSettlement)resultSettlement.hidden=!enabled;
  const resultWallet=q('#matchResultPop .match-result-pop__wallet');if(resultWallet)resultWallet.hidden=!enabled;
  const betSaved=q('#v1536BetSavedModal');if(betSaved&&!enabled)betSaved.hidden=true;
- if(!enabled)q('#matchResultPop')?.classList.remove('is-win','is-loss');
+ if(!enabled){const resultPop=q('#matchResultPop');if(resultPop){resultPop.hidden=true;resultPop.classList.remove('is-visible','is-win','is-loss','is-shared')}}
  let changed=false;if(!enabled&&state){for(const g of state.games||[]){for(const m of g.matches||[]){if(m.status==='BETTING_OPEN'){m.status='READY';changed=true}}}}if(changed)saveSoon();
 }
 function syncVoteFeatureVisibility(){
@@ -540,10 +540,15 @@ function loser(m){const w=winner(m);return w?(w===m.a?m.b:m.a):null}
 function updateRatingsAfterMatch(m,g){const w=winner(m),l=loser(m);if(!w||!l)return;const weights=gameWeights(g);for(const pid of [w,l]){const opp=pid===w?l:w,actual=pid===w?1:0,p=participant(pid);for(const aid of p.actorIds){for(const [sid,weight] of weights){const r=state.ratings[aid]?.[sid];if(!r)continue;const self=participantMetric(pid,sid),other=participantMetric(opp,sid),expected=1/(1+Math.exp(-(self-other)/12));const delta=8*(weight/100)*(actual-expected);r.skielsen=clamp(r.skielsen+delta,0,100);r.evidence=Number(r.evidence||0)+(weight/100);r.confidence=clamp(1-Math.pow(.90,r.evidence),0,1)}}}}
 function showFlowToast(kicker,title,copy='',ms=2200){const t=q('#v1517FlowToast');if(!t)return;if(flowToastTimer){clearTimeout(flowToastTimer);flowToastTimer=0}t.innerHTML=`<small>${esc(kicker||'SKIELSEN')}</small><strong>${esc(title||'GESPEICHERT')}</strong>${copy?`<span>${esc(copy)}</span>`:''}`;t.hidden=false;requestAnimationFrame(()=>t.classList.add('show'));flowToastTimer=setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.hidden=true},180);flowToastTimer=0},ms)}
 function showResultPopup(m,g,winnerId,onContinue=null){
- const pop=q('#matchResultPop');if(!pop)return false;
+ const pop=q('#matchResultPop'),bettingEnabled=feature('feature.betting');
+ if(!pop||!bettingEnabled){
+   if(pop){pop.hidden=true;pop.classList.remove('is-visible','is-win','is-loss','is-shared')}
+   matchResultContinuation=null;
+   return false
+ }
  matchResultContinuation=typeof onContinue==='function'?onContinue:null;
- const bettingEnabled=feature('feature.betting'),shared=isSharedContestMatch(m),pa=shared?participant(winnerId):participant(m.a),pb=shared?null:participant(m.b);
- const userBet=bettingEnabled?(state.bets[m.id]||[]).find(b=>b.actorId===state.userActorId):null,won=userBet?.status==='WON',lost=userBet?.status==='LOST';
+ const shared=isSharedContestMatch(m),pa=shared?participant(winnerId):participant(m.a),pb=shared?null:participant(m.b);
+ const userBet=(state.bets[m.id]||[]).find(b=>b.actorId===state.userActorId),won=userBet?.status==='WON',lost=userBet?.status==='LOST';
  const net=userBet?(won?Number(userBet.payout||0)-Number(userBet.stake||0):-Number(userBet.stake||0)):0;
  const settlement=q('.match-result-pop__settlement',pop),wallet=q('.match-result-pop__wallet',pop);
  if(settlement)settlement.hidden=!bettingEnabled;if(wallet)wallet.hidden=!bettingEnabled;
@@ -587,7 +592,7 @@ function routeToCurrentWork(){
  show('home')
 }
 function concludeCurrentMatch(scoreA,scoreB){const g=gameNow(),m=matchNow();if(!g||!m||m.status!=='LIVE')return false;scoreA=Number(scoreA);scoreB=Number(scoreB);if(!Number.isFinite(scoreA)||!Number.isFinite(scoreB)||scoreA<0||scoreB<0||scoreA===scoreB)return false;m.scoreA=scoreA;m.scoreB=scoreB;m.status='CONCLUDED';const w=winner(m),l=loser(m);settleBets(m,w);updateRatingsAfterMatch(m,g);state.matchHistory.unshift({gameIndex:state.currentGameIndex,game:g.name,stage:m.stage,a:m.a,b:m.b,scoreA,scoreB,winner:w,at:nowLabel()});addAudit('RESULT CONFIRMED · '+g.name+' · '+stageLabel(m.stage)+' · '+scoreA+':'+scoreB);const pre=feature('feature.betting')?state.oddsSnapshots[m.id]:null;if(pre){const wp=w===m.a?pre.pa:pre.pb;if(wp<.4)addNews('UNDERDOG SCHLÄGT ZURÜCK.',`${teamName(participant(w))} gewinnt ${g.name} mit ${Math.round(wp*100)} % eingefrorener Siegchance.`,'UPSET');else addNews(`${teamName(participant(w))} SETZT SICH DURCH.`,`${g.name} · ${stageLabel(m.stage)} endet ${scoreA}:${scoreB}.`)}else addNews(`${teamName(participant(w))} GEWINNT.`,`${g.name} · ${stageLabel(m.stage)} endet ${scoreA}:${scoreB}.`);
- resolveBracketAfterMatch(g,true);showResultPopup(m,g,w,()=>{if(g.phase==='RESULTS')continueCompletedGameFlow(g);else{renderAll();saveSoon();routeToCurrentWork()}});renderAll();saveSoon();return true}
+ resolveBracketAfterMatch(g,true);const continueAfterResult=()=>{if(g.phase==='RESULTS')continueCompletedGameFlow(g);else{renderAll();saveSoon();routeToCurrentWork()}};if(!showResultPopup(m,g,w,continueAfterResult))continueAfterResult();renderAll();saveSoon();return true}
 function rrStandings(g){const ps=state.participants.map(p=>({id:p.id,wins:0,diff:0,for:0}));const map=Object.fromEntries(ps.map(x=>[x.id,x]));g.matches.slice(0,3).forEach(m=>{if(m.status!=='CONCLUDED')return;map[m.a].for+=m.scoreA;map[m.b].for+=m.scoreB;map[m.a].diff+=m.scoreA-m.scoreB;map[m.b].diff+=m.scoreB-m.scoreA;map[winner(m)].wins++});let arr=[...ps];arr.sort((x,y)=>y.wins-x.wins||y.diff-x.diff||y.for-x.for||hash(g.game_id+'|'+x.id)-hash(g.game_id+'|'+y.id));const groups={};arr.forEach(x=>(groups[x.wins]||(groups[x.wins]=[])).push(x));Object.values(groups).forEach(gr=>{if(gr.length===2){const a=gr[0],b=gr[1],hm=g.matches.slice(0,3).find(m=>m.status==='CONCLUDED'&&((m.a===a.id&&m.b===b.id)||(m.a===b.id&&m.b===a.id)));if(hm&&winner(hm)===b.id){const ia=arr.indexOf(a),ib=arr.indexOf(b);if(Math.abs(ia-ib)===1)[arr[ia],arr[ib]]=[arr[ib],arr[ia]]}}});return arr}
 function syncBracketDependencies(g){
  if(!g||!Array.isArray(g.matches)||state?.participants?.length!==4)return g;

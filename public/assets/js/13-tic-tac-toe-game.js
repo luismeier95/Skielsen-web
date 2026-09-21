@@ -145,17 +145,17 @@ function renderDifficulty(){
     <main class="tttp-stage tttp-prestart">
       <section class="tttp-title"><small>SPIELREGEL FESTLEGEN</small><h2>VARIANTE WÄHLEN.</h2></section>
       <div class="tttp-choice-grid">
-        <button type="button" class="tttp-choice" data-variant="NORMAL" ${isAdmin()?'':'disabled'}>
+        <button type="button" class="tttp-choice ${variant()==='NORMAL'?'is-selected':''}" data-variant="NORMAL" ${isAdmin()?'':'disabled'}>
           <strong>NORMAL</strong><span>Klassisches Tic Tac Toe. Drei eigene Symbole in einer Reihe gewinnen.</span>
         </button>
-        <button type="button" class="tttp-choice" data-variant="DISAPPEAR" ${isAdmin()?'':'disabled'}>
+        <button type="button" class="tttp-choice ${variant()==='DISAPPEAR'?'is-selected':''}" data-variant="DISAPPEAR" ${isAdmin()?'':'disabled'}>
           <strong>DISAPPEAR</strong><span>Beim vierten eigenen Symbol verschwindet das älteste. Maximal drei bleiben aktiv.</span>
         </button>
       </div>
       <p class="tttp-feedback" data-ttt-feedback>${esc(isAdmin()?message:'WARTET AUF DIE AUSWAHL DES ADMINS.')}</p>
     </main>`;
   root.querySelectorAll('[data-variant]').forEach(btn=>btn.addEventListener('click',async()=>{
-    root.querySelectorAll('[data-variant]').forEach(x=>x.disabled=true);
+    root.querySelectorAll('[data-variant]').forEach(x=>{x.disabled=true;x.classList.toggle('is-selected',x===btn)});
     setMessage('SCHWIERIGKEIT WIRD GESPEICHERT …');
     try{await rpc('set_tic_tac_toe_variant',{p_session_id:session.session_id,p_variant:btn.dataset.variant});message='';await refresh(true)}
     catch(err){root.querySelectorAll('[data-variant]').forEach(x=>x.disabled=false);setMessage('FEHLER · '+String(err?.message||err))}
