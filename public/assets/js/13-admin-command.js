@@ -4,7 +4,7 @@
 const VERSION=window.SKIELSEN_VERSION||'15.1.88';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
-let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0;
+let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=false,mobileTouchStartX=null,mobileTouchStartY=null,mobileTouchTracking=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=()=>window.skielsenV15||null;
@@ -26,6 +26,10 @@ function ensureHost(){
   host.className='admin-command-bar';
   host.hidden=true;
   host.setAttribute('aria-label','Admin Command');
+  host.addEventListener('click',e=>{
+    if(!mobileCollapsed||window.innerWidth>800||e.target.closest('button,a,input,select,textarea'))return;
+    setMobileCollapsed(false);
+  });
   const header=document.querySelector('.sk-header');
   if(header)header.insertAdjacentElement('afterend',host);
   else document.body.prepend(host);
@@ -226,8 +230,58 @@ function collapseAnchor(){
   }
   return Array.from(page.children||[]).find(node=>node.getClientRects?.().length)||null;
 }
+function setMobileCollapsed(next){
+  const host=ensureHost();
+  mobileCollapsed=!!next;
+  const active=window.matchMedia('(max-width:800px)').matches
+    &&!host.hidden
+    &&document.body.classList.contains('v15-tournament-active');
+  host.classList.toggle('is-scroll-collapsed',active&&mobileCollapsed);
+  document.body.classList.toggle('admin-command-collapsed',active&&mobileCollapsed);
+}
+function mobileSwipeEligible(target){
+  if(!window.matchMedia('(max-width:800px)').matches)return false;
+  if(!document.body.classList.contains('v15-tournament-active'))return false;
+  if(document.body.classList.contains('mobile-more-open')||window.skielsenInApp?.fullscreen)return false;
+  if(target?.closest?.('button,a,input,select,textarea,[contenteditable="true"],#adminCommandBar'))return false;
+  return true;
+}
+function onMobileTouchStart(e){
+  if(e.touches?.length!==1||!mobileSwipeEligible(e.target)){
+    mobileTouchTracking=false;
+    return;
+  }
+  mobileTouchStartX=e.touches[0].clientX;
+  mobileTouchStartY=e.touches[0].clientY;
+  mobileTouchTracking=true;
+}
+function onMobileTouchEnd(e){
+  if(!mobileTouchTracking||!e.changedTouches?.length){
+    mobileTouchTracking=false;
+    return;
+  }
+  const dx=e.changedTouches[0].clientX-mobileTouchStartX;
+  const dy=e.changedTouches[0].clientY-mobileTouchStartY;
+  mobileTouchTracking=false;
+  if(Math.abs(dy)<42||Math.abs(dy)<Math.abs(dx)*1.15)return;
+  if(dy<0)setMobileCollapsed(true);
+  else setMobileCollapsed(false);
+}
 function syncCollapseState(){
   const host=ensureHost();
+  const mobile=window.matchMedia('(max-width:800px)').matches;
+  if(mobile){
+    if(host.hidden||!document.body.classList.contains('v15-tournament-active')){
+      mobileCollapsed=false;
+      host.classList.remove('is-scroll-collapsed');
+      document.body.classList.remove('admin-command-collapsed');
+      return;
+    }
+    host.classList.toggle('is-scroll-collapsed',mobileCollapsed);
+    document.body.classList.toggle('admin-command-collapsed',mobileCollapsed);
+    return;
+  }
+  document.body.classList.remove('admin-command-collapsed');
   const desktop=window.matchMedia('(min-width:801px)').matches;
   if(!desktop||host.hidden||!document.body.classList.contains('v15-tournament-active')){
     host.classList.remove('is-scroll-collapsed');
@@ -258,7 +312,14 @@ function render(){
   const host=ensureHost();
   const visible=!!(state()&&isAdmin()&&document.body.classList.contains('v15-tournament-active')&&!window.skielsenInApp?.fullscreen);
   document.body.classList.toggle('admin-command-visible',visible);
-  if(!visible){cancelHold();host.hidden=true;host.classList.remove('is-scroll-collapsed');return;}
+  if(!visible){
+    cancelHold();
+    host.hidden=true;
+    mobileCollapsed=false;
+    host.classList.remove('is-scroll-collapsed');
+    document.body.classList.remove('admin-command-collapsed');
+    return;
+  }
   const data=model(),signature=JSON.stringify(data);
   host.hidden=false;host.dataset.tone=data.tone||'wait';
   syncCollapseState();
@@ -282,8 +343,18 @@ function render(){
 window.addEventListener('skielsen:tournament-render',render);
 window.addEventListener('skielsen:inapp-session',()=>{lastSignature='';render();});
 window.addEventListener('popstate',()=>setTimeout(render,0));
-window.addEventListener('resize',()=>{if(holdButton)cancelHold(holdButton);queueCollapseSync();});
+window.addEventListener('resize',()=>{
+  if(holdButton)cancelHold(holdButton);
+  if(window.innerWidth>800){
+    mobileCollapsed=false;
+    document.body.classList.remove('admin-command-collapsed');
+  }
+  queueCollapseSync();
+});
 window.addEventListener('scroll',queueCollapseSync,{passive:true});
+document.addEventListener('touchstart',onMobileTouchStart,{passive:true});
+document.addEventListener('touchend',onMobileTouchEnd,{passive:true});
+document.addEventListener('touchcancel',()=>{mobileTouchTracking=false},{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 
 let tries=0;
