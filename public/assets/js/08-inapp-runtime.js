@@ -9,10 +9,12 @@ const MORE_LESS_MODULE='more-or-less';
 const MORE_LESS_GAME_KEY='higher_lower';
 const WORD_CHAIN_MODULE='word-chain';
 const WORD_CHAIN_GAME_KEY='word_chain';
+const TIC_TAC_TOE_MODULE='tic-tac-toe';
+const TIC_TAC_TOE_GAME_KEY='tic_tac_toe';
 const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
-let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,wordChainAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
+let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,wordChainAssetsPromise=null,ticTacToeAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
 let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -245,6 +247,29 @@ function ensureWordChainAssets(){
   });
   return wordChainAssetsPromise;
 }
+function ensureTicTacToeAssets(){
+  if(window.skielsenTicTacToe)return Promise.resolve();
+  if(ticTacToeAssetsPromise)return ticTacToeAssetsPromise;
+  ticTacToeAssetsPromise=new Promise((resolve,reject)=>{
+    if(!document.querySelector('link[data-tic-tac-toe-css]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';link.href=`assets/css/tic-tac-toe-game.css?v=${VERSION}`;link.dataset.ticTacToeCss='1';
+      document.head.appendChild(link);
+    }
+    const existing=document.querySelector('script[data-tic-tac-toe-js]');
+    if(existing){
+      if(window.skielsenTicTacToe){resolve();return}
+      existing.addEventListener('load',()=>resolve(),{once:true});
+      existing.addEventListener('error',reject,{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src=`assets/js/13-tic-tac-toe-game.js?v=${VERSION}`;
+    script.defer=true;script.dataset.ticTacToeJs='1';
+    script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
+  });
+  return ticTacToeAssetsPromise;
+}
 function rosterHtml(s){
   const me=s?.me?.tournament_member_id;
   return (s?.players||[]).map(p=>`<div class="v15-inapp-player ${p.tournament_member_id===me?'me':''}"><i style="background:${colorHex[p.identity_color]||'var(--theme-muted)'}"></i><div><strong>${esc(p.display_name||'PLAYER')}</strong><small>SEAT ${esc(p.seat)} · ${esc(statusDE(p.status))}${p.tournament_member_id===me?' · DU':''}</small></div></div>`).join('');
@@ -339,6 +364,32 @@ function renderWordChainSession(s){
   });
 }
 
+function renderTicTacToeSession(s){
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  const live=String(s?.status||'').toUpperCase()==='ACTIVE';
+  prepareInAppSurface(String(s.session_id||'tic-tac-toe'),s.game?.name||'TIC TAC TOE',live);
+  layer.classList.remove('buzzer-mode','word-chain-mode');
+  window.skielsenBuzzerTime?.unmount?.();
+  window.skielsenMoreLess?.unmount?.();
+  window.skielsenWordChain?.unmount?.();
+  let gameRoot=document.getElementById('v15TicTacToeRoot');
+  if(!gameRoot||gameRoot.dataset.session!==String(s.session_id)){
+    window.skielsenTicTacToe?.unmount?.();
+    host.innerHTML=`<div id="v15TicTacToeRoot" data-session="${esc(s.session_id)}"><div class="v15-inapp-message">TIC TAC TOE WIRD GELADEN …</div></div>`;
+    gameRoot=document.getElementById('v15TicTacToeRoot');
+  }
+  ensureTicTacToeAssets().then(()=>{
+    const rootNow=document.getElementById('v15TicTacToeRoot');
+    if(rootNow&&playerSession?.session_id===s.session_id){
+      if(!window.skielsenTicTacToe?.state)window.skielsenTicTacToe?.mount?.(rootNow,s,db);
+      else window.skielsenTicTacToe?.updateSession?.(s);
+    }
+  }).catch(err=>{
+    console.warn('Tic Tac Toe assets',err);
+    if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">TIC-TAC-TOE-MODUL KONNTE NICHT GELADEN WERDEN.</div>';
+  });
+}
+
 function wordChainReadyRulesHtml(s,readyMessage,ready,showForceStart){
   const players=Array.isArray(s?.players)?s.players:[];
   const me=String(s?.me?.tournament_member_id||'');
@@ -394,6 +445,7 @@ function renderPlayerSession(s){
     window.skielsenBuzzerTime?.unmount?.();
     window.skielsenMoreLess?.unmount?.();
     window.skielsenWordChain?.unmount?.();
+    window.skielsenTicTacToe?.unmount?.();
     layer.classList.remove('buzzer-mode','word-chain-mode');
     document.body.classList.remove('v15-word-chain-inapp-open');
     layer.hidden=true;
@@ -403,6 +455,7 @@ function renderPlayerSession(s){
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
   const isWordChain=s.game?.module_key===WORD_CHAIN_MODULE;
+  const isTicTacToe=s.game?.module_key===TIC_TAC_TOE_MODULE;
   document.body.classList.toggle('v15-word-chain-inapp-open',isWordChain);
   const forceStartWithoutReady=!!s.public_state?.force_start_without_ready;
   if(active&&!inAppManualMinimized)inAppMinimized=false;
@@ -420,10 +473,15 @@ function renderPlayerSession(s){
     renderWordChainSession(s);
     return;
   }
+  if(isTicTacToe){
+    renderTicTacToeSession(s);
+    return;
+  }
 
   window.skielsenBuzzerTime?.unmount?.();
   window.skielsenMoreLess?.unmount?.();
   window.skielsenWordChain?.unmount?.();
+  window.skielsenTicTacToe?.unmount?.();
   layer.classList.remove('buzzer-mode','word-chain-mode');
   if(active)prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',true);
   else prepareInAppSurface(String(s.session_id||'inapp'),s.game?.name||'IN-APP GAME',false);
@@ -463,11 +521,12 @@ function renderPlayerSession(s){
 async function recoverCompletedNativeGame(){
   const g=currentGame();
   if(!g?.tournament_game_id||!supportedNativeGame(g)||!db)return false;
-  const rpc=isBuzzerGame(g)?'get_buzzer_time_game_result':(isMoreLessGame(g)?'get_higher_lower_game_result':'get_word_chain_game_result');
+  const rpc=isBuzzerGame(g)?'get_buzzer_time_game_result':(isMoreLessGame(g)?'get_higher_lower_game_result':(isWordChainGame(g)?'get_word_chain_game_result':'get_tic_tac_toe_result'));
   try{
     const {data,error}=await db.rpc(rpc,{p_tournament_game_id:g.tournament_game_id});
     if(error||!data)return false;
     const result=data.result||data;
+    if(isTicTacToeGame(g)&&data?.session_id&&result&&!result._session_id)result._session_id=data.session_id;
     const key=String(g.tournament_game_id)+'|'+String(result?.finalized_at||result?.tournament_handoff?.completed_at||'complete');
     if(lastRecoveredResultKey===key)return true;
     const bridge=window.skielsenBuzzerBridge;
@@ -546,6 +605,9 @@ function isMoreLessGame(g){
 function isWordChainGame(g){
   return g?.game_id==='game.wortkette.compound_nouns'||g?.game_id==='game.word_chain'||/WORTKETTE/i.test(String(g?.name||''));
 }
+function isTicTacToeGame(g){
+  return g?.game_id==='game.tictactoe.classic_disappear'||/TIC\s*TAC\s*TOE/i.test(String(g?.name||''));
+}
 function nativeGameIsLive(g){
   if(!g)return false;
   const serverActive=String(g.status||'').toUpperCase()==='ACTIVE';
@@ -553,9 +615,9 @@ function nativeGameIsLive(g){
   return serverActive||localActive;
 }
 function buzzerGameIsLive(g){return isBuzzerGame(g)&&nativeGameIsLive(g)}
-function supportedNativeGame(g){return isBuzzerGame(g)||isMoreLessGame(g)||isWordChainGame(g)}
-function gameKeyFor(g){return isBuzzerGame(g)?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:(isWordChainGame(g)?WORD_CHAIN_GAME_KEY:null))}
-function moduleKeyFor(g){return isBuzzerGame(g)?BUZZER_MODULE:(isMoreLessGame(g)?MORE_LESS_MODULE:(isWordChainGame(g)?WORD_CHAIN_MODULE:null))}
+function supportedNativeGame(g){return isBuzzerGame(g)||isMoreLessGame(g)||isWordChainGame(g)||isTicTacToeGame(g)}
+function gameKeyFor(g){return isBuzzerGame(g)?BUZZER_GAME_KEY:(isMoreLessGame(g)?MORE_LESS_GAME_KEY:(isWordChainGame(g)?WORD_CHAIN_GAME_KEY:(isTicTacToeGame(g)?TIC_TAC_TOE_GAME_KEY:null)))}
+function moduleKeyFor(g){return isBuzzerGame(g)?BUZZER_MODULE:(isMoreLessGame(g)?MORE_LESS_MODULE:(isWordChainGame(g)?WORD_CHAIN_MODULE:(isTicTacToeGame(g)?TIC_TAC_TOE_MODULE:null)))}
 function inAppAdminRelevant(){
   const g=currentGame(),tracker=String(g?.tracker_type||'').toUpperCase(),play=String(g?.play_mode||g?.default_play_mode||'').toUpperCase();
   return tracker==='IN_APP_NATIVE'||play==='IN_APP';
@@ -631,7 +693,8 @@ function renderAdmin(){
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
   const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
   const isWordChain=adminSession?.game?.module_key===WORD_CHAIN_MODULE;
-  const isAutoNative=isBuzzer||adminSession?.game?.module_key===MORE_LESS_MODULE;
+  const isTicTacToe=adminSession?.game?.module_key===TIC_TAC_TOE_MODULE;
+  const isAutoNative=isBuzzer||adminSession?.game?.module_key===MORE_LESS_MODULE||isTicTacToe;
   const forceStartWithoutReady=!!adminSession?.public_state?.force_start_without_ready;
   const assignedPlayers=adminSession?.players?.length||0;
   const minPlayers=Number(adminSession?.game?.min_players||2);
@@ -676,7 +739,7 @@ async function refreshAdmin(force){
     const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
     if(!r.error)adminSession=r.data||adminSession;
   }
-  if(supportedNativeGame(g)&&nativeGameIsLive(g)&&!rt?.test_mode)await ensureNativeLifecycle(g);
+  if(supportedNativeGame(g)&&(nativeGameIsLive(g)||isTicTacToeGame(g))&&!rt?.test_mode)await ensureNativeLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
@@ -743,10 +806,37 @@ async function autoAssignNativePlayers(){
   return true;
 }
 async function ensureNativeLifecycle(g){
-  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g)||!nativeGameIsLive(g))return;
+  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g))return;
+  if(!isTicTacToeGame(g)&&!nativeGameIsLive(g))return;
   autoLifecycleBusy=true;
   try{
     const expectedKey=gameKeyFor(g),expectedModule=moduleKeyFor(g);
+    if(isTicTacToeGame(g)){
+      const selection=window.skielsenV15?.gameControl;
+      const st=window.skielsenV15?.state;
+      const localGame=selection?.g===g?selection.g:(st?.games||[]).find(x=>x.tournament_game_id===g.tournament_game_id)||g;
+      const m=selection?.g===g?selection.m:(localGame?.matches||[])[localGame?.matchIndex||0];
+      if(!m?.a||!m?.b)return;
+      if(adminSession&&adminGameId!==g.tournament_game_id){adminSession=null;adminCandidates=[]}
+      if(adminSession){
+        const ps=new Set((adminSession.players||[]).map(p=>p.participant_id));
+        if(!ps.has(m.a)||!ps.has(m.b)){
+          adminSession=null;adminCandidates=[];
+        }
+      }
+      if(!adminSession){
+        const created=await db.rpc('create_tic_tac_toe_match_session',{
+          p_tournament_game_id:g.tournament_game_id,
+          p_participant_a_id:m.a,
+          p_participant_b_id:m.b
+        });
+        if(created.error){console.warn('Tic Tac Toe prestart session',created.error);return}
+        adminGameId=g.tournament_game_id;
+        const fetched=await db.rpc('get_admin_active_in_app_game',{p_tournament_game_id:g.tournament_game_id});
+        if(!fetched.error)adminSession=fetched.data||null;
+      }
+      return;
+    }
     const activation=await db.rpc('activate_tournament_game',{p_tournament_game_id:g.tournament_game_id});
     if(activation.error){console.warn('Native In-App server activation',activation.error);return}
     if(activation.data?.status!=='ACTIVE')return;
@@ -822,6 +912,7 @@ function finishInAppSurface(){
   window.skielsenBuzzerTime?.unmount?.();
   window.skielsenMoreLess?.unmount?.();
   window.skielsenWordChain?.unmount?.();
+  window.skielsenTicTacToe?.unmount?.();
   const host=document.getElementById('v15InAppPlayerContent');if(host)host.innerHTML='';
   clearInAppSurface();
   return true;
@@ -856,7 +947,7 @@ window.addEventListener('popstate',()=>{
 });
 
 window.addEventListener('beforeunload',()=>{
-  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();window.skielsenMoreLess?.unmount?.();window.skielsenWordChain?.unmount?.();
+  clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();window.skielsenMoreLess?.unmount?.();window.skielsenWordChain?.unmount?.();window.skielsenTicTacToe?.unmount?.();
 });
 window.skielsenInApp={
   start,
