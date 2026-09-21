@@ -60,6 +60,7 @@
   menu.addEventListener('click',e=>{
     if(!e.target.closest('[data-page]'))return;
     closeMore();
+    requestAnimationFrame(closeMore);
   });
 
   // Swipe down to dismiss the bottom sheet.
