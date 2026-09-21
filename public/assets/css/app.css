@@ -5171,9 +5171,10 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
 }
 
 
-/* ===== V15.1.100 · Desktop Admin Command measured spacing =====
+/* ===== V15.1.101 · Desktop Admin Command measured spacing =====
    Exact desktop geometry from the Admin Command Design Mode V3:
    ADMIN -> 30px -> command -> 20px -> two-line status.
+   Command field is 260px so the longest current title fits without truncation.
    Progress track is 290px. Right cluster is button2 -> 20px -> button1 -> 30px -> context.
 */
 @media(min-width:1101px){
@@ -5187,7 +5188,7 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   }
 
   body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-inner{
-    grid-template-columns:70px 30px 150px 20px 328px minmax(0,1fr) auto 30px 100px!important;
+    grid-template-columns:70px 30px 260px 20px 328px minmax(0,1fr) auto 30px 100px!important;
     gap:0!important;
     padding-left:20px!important;
     padding-right:20px!important;
@@ -5202,8 +5203,8 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
 
   body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy{
     grid-column:3!important;
-    width:150px!important;
-    min-width:150px!important;
+    width:260px!important;
+    min-width:260px!important;
     padding:0!important;
     display:flex!important;
     align-items:center!important;
@@ -5211,8 +5212,8 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   }
 
   body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy>strong{
-    width:150px!important;
-    max-width:150px!important;
+    width:260px!important;
+    max-width:260px!important;
     white-space:nowrap!important;
     overflow:hidden!important;
     text-overflow:ellipsis!important;
