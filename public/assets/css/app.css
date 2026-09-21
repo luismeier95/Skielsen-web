@@ -5463,3 +5463,17 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     grid-column:4!important;
   }
 }
+
+
+/* ===== V15.1.103 · Mobile collapsed Admin Command order =====
+   Mobile collapsed mirrors desktop: step title before player status.
+*/
+@media(max-width:800px){
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-copy{
+    grid-area:brand!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand{
+    grid-area:copy!important;
+  }
+}
