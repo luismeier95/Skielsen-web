@@ -18,14 +18,10 @@
       document.documentElement.style.removeProperty('--mobile-more-bottom');
       return;
     }
-    const candidates=[];
+    // MORE is an overlay above the primary bottom navigation. Secondary docks
+    // (Admin Command / profile tabs) must never reduce the drawer viewport.
     const nav=document.querySelector('.mobile-nav');
-    const profileNav=document.querySelector('.mobile-profile-nav');
-    const admin=document.getElementById('adminCommandBar');
-    if(isVisible(nav))candidates.push(nav.getBoundingClientRect().top);
-    if(isVisible(profileNav))candidates.push(profileNav.getBoundingClientRect().top);
-    if(document.body.classList.contains('admin-command-visible')&&isVisible(admin))candidates.push(admin.getBoundingClientRect().top);
-    const boundary=candidates.length?Math.min(...candidates):window.innerHeight-76;
+    const boundary=isVisible(nav)?nav.getBoundingClientRect().top:window.innerHeight-76;
     const bottom=Math.max(0,Math.round(window.innerHeight-Math.max(0,Math.min(window.innerHeight,boundary))));
     document.documentElement.style.setProperty('--mobile-more-bottom',bottom+'px');
   }
@@ -34,7 +30,7 @@
     if(typeof ResizeObserver!=='function')return;
     dockObserver?.disconnect();
     dockObserver=new ResizeObserver(()=>{if(menu.classList.contains('open'))syncDock()});
-    [document.querySelector('.mobile-nav'),document.querySelector('.mobile-profile-nav'),document.getElementById('adminCommandBar')]
+    [document.querySelector('.mobile-nav')]
       .filter(Boolean).forEach(el=>dockObserver.observe(el));
   }
 
