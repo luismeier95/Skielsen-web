@@ -1417,3 +1417,32 @@ body.v15-tournament-active[data-theme-pack] :is(
     color:#050505!important
   }
 }
+
+
+/* ===== V15.1.104c · HARD LIGHT AUTHORITY FOR MOBILE MORE =====
+   ID specificity intentionally overrides legacy theme-nav rules with !important.
+*/
+@media(max-width:800px){
+  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu.mobile-more-menu{
+    background:#fff!important;
+    color:#050505!important;
+    border-color:#e8e8e8!important;
+  }
+  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-handle{
+    background:#c8c8c8!important;
+  }
+  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid a{
+    background:#fff!important;
+    color:#050505!important;
+    border-color:#ececec!important;
+  }
+  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid a b,
+  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid .mobile-more-arrow{
+    color:#050505!important;
+    -webkit-text-fill-color:#050505!important;
+  }
+  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid .mobile-more-icon{
+    color:#050505!important;
+    background-color:#050505!important;
+  }
+}
