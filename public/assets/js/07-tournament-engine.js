@@ -147,15 +147,19 @@ function buildParticipants(rt){
    });
  }else{
    const rows=dbps.filter(p=>String(p.participant_type).toUpperCase()==='SOLO');
-   if(rows.length){
-     participants=rows.slice().sort((a,b)=>(SOLO_ORDER.indexOf(a.identity_color)-SOLO_ORDER.indexOf(b.identity_color))||(Number(a.seed||0)-Number(b.seed||0))).map(pr=>{
-       const a=actors.find(x=>x.id===pr.solo_member_id)||actors.find(x=>x.soloColor===pr.identity_color);
-       return {id:pr.participant_id,name:a?.name||('PLAYER '+COLOR_DE[pr.identity_color]),color:pr.identity_color,actorIds:a?[a.id]:[],seed:pr.seed??null,soloMemberId:pr.solo_member_id||null};
-     });
-   }else{
-     const count=Math.max(2,Math.min(4,Number(rt.expected_active_players||actors.length||4)));
-     participants=SOLO_ORDER.slice(0,count).map(c=>{const a=actors.find(x=>x.soloColor===c);return a?{id:'solo-'+a.id,name:a.name,color:c,actorIds:[a.id]}:null}).filter(Boolean);
-   }
+   const byColor=new Map();
+   rows.forEach(pr=>{
+     const a=actors.find(x=>x.id===pr.solo_member_id)||actors.find(x=>x.soloColor===pr.identity_color);
+     byColor.set(pr.identity_color,{id:pr.participant_id,name:a?.name||('PLAYER '+COLOR_DE[pr.identity_color]),color:pr.identity_color,actorIds:a?[a.id]:[],seed:pr.seed??null,soloMemberId:pr.solo_member_id||null,isBotParticipant:false});
+   });
+   // Test bots intentionally live outside public.participants. They still represent a
+   // full SOLO participant in the client tournament engine and therefore must be
+   // merged with the canonical participant rows by identity color.
+   actors.filter(a=>a.isBot&&a.soloColor&&!byColor.has(a.soloColor)).forEach(a=>{
+     byColor.set(a.soloColor,{id:a.id,name:a.name,color:a.soloColor,actorIds:[a.id],seed:null,soloMemberId:null,isBotParticipant:true,testBotId:a.id});
+   });
+   const count=Math.max(2,Math.min(4,Number(rt.expected_active_players||actors.length||4)));
+   participants=SOLO_ORDER.slice(0,count).map(c=>byColor.get(c)||null).filter(Boolean);
  }
  actors.forEach(a=>{const p=participants.find(p=>p.actorIds.includes(a.id));a.participantId=p?.id||null});
  const userA=members.find(m=>m.userId===rt.current_user_id)||members[0]||bots[0]||null;
