@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.115';
+const VERSION=window.SKIELSEN_VERSION||'15.1.116';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -623,7 +623,9 @@ function isMoreLessGame(g){
   return g?.game_id==='game.higher_lower'||/MEHR\s+ODER\s+WENIGER/i.test(String(g?.name||''));
 }
 function isMoreLessNamedQaTest(g=currentGame()){
-  return !!(rt?.test_mode&&isMoreLessGame(g)&&/^Mehr oder Weniger$/i.test(String(rt?.tournament_name||'').trim()));
+  const sessionFlag=!!(adminSession?.public_state?.test_bot_mode||playerSession?.public_state?.test_bot_mode);
+  const namedTest=!!(rt?.test_mode&&/^Mehr oder Weniger$/i.test(String(rt?.tournament_name||rt?.name||'').trim()));
+  return !!(isMoreLessGame(g)&&(sessionFlag||namedTest));
 }
 function isWordChainGame(g){
   return g?.game_id==='game.wortkette.compound_nouns'||g?.game_id==='game.word_chain'||/WORTKETTE/i.test(String(g?.name||''));

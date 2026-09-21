@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='15.1.115';
+const VERSION='15.1.116';
 window.SKIELSEN_VERSION=VERSION;
 function syncVersion(root=document){
   document.title=`SKIELSEN V${VERSION}`;

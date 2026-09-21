@@ -20,7 +20,12 @@ const tierLabel=t=>String(t||'NORMAL').toUpperCase();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const selectedTier=()=>String(session?.public_state?.familiarity_tier||'').toUpperCase();
 const isAdmin=()=>!!window.skielsenV15?.runtime?.is_admin;
-const isTestBotTournament=()=>!!(window.skielsenV15?.runtime?.test_mode&&/^Mehr oder Weniger$/i.test(String(window.skielsenV15?.runtime?.tournament_name||'').trim()));
+const isTestBotTournament=()=>{
+  const runtime=window.skielsenV15?.runtime||{};
+  const sessionFlag=!!session?.public_state?.test_bot_mode;
+  const namedTest=!!(runtime.test_mode&&/^Mehr oder Weniger$/i.test(String(runtime.tournament_name||runtime.name||'').trim()));
+  return sessionFlag||namedTest;
+};
 function categoryPoolForTier(tier){
   const t=tierLabel(tier);
   return CATEGORY_POOL.filter(c=>c.category_key!=='LENGTH'||t==='HARDCORE');

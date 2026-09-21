@@ -1,4 +1,4 @@
-/* SKIELSEN PWA service worker · 15.1.115
+/* SKIELSEN PWA service worker · 15.1.116
    Intentionally no offline cache yet: this enables install/app display mode without
    introducing stale tournament runtime assets. */
 self.addEventListener('install',()=>self.skipWaiting());
