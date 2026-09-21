@@ -195,9 +195,10 @@ if 'mountTestBot' not in _ttt_prod_text or 'localChooseBotMove' not in _ttt_prod
 mobile_nav_text=(PUBLIC/'assets/js/04-mobile-navigation.js').read_text(encoding='utf-8')
 mobile_nav_css=(PUBLIC/'assets/css/app.css').read_text(encoding='utf-8')
 if "document.body.classList.add('mobile-more-open')" not in mobile_nav_text or "document.body.classList.remove('mobile-more-open')" not in mobile_nav_text: fail('Mobile MORE Drawer setzt keinen Overlay-State')
-if "document.getElementById('adminCommandBar')" not in mobile_nav_text or "'--mobile-more-bottom'" not in mobile_nav_text or 'syncDock' not in mobile_nav_text: fail('Mobile MORE Drawer berücksichtigt den unteren Dock-Stack nicht dynamisch')
-if 'body.mobile-more-open #adminCommandBar{display:none!important}' in mobile_nav_css: fail('Mobile MORE Drawer darf die Admin Command Bar nicht mehr ausblenden')
-if mobile_nav_css.count('bottom:var(--mobile-more-bottom,76px)')<2: fail('Mobile MORE Drawer und Backdrop beginnen nicht oberhalb des aktuellen Dock-Stacks')
+if "'--mobile-more-bottom','76px'" not in mobile_nav_text or 'syncDock' not in mobile_nav_text: fail('Mobile MORE Drawer ist nicht deterministisch oberhalb der Primary Nav verankert')
+if 'body.mobile-more-open #adminCommandBar' not in mobile_nav_css or 'body.mobile-more-open .mobile-profile-nav' not in mobile_nav_css: fail('Mobile MORE Drawer blendet konkurrierende Bottom-Docks nicht aus')
+if mobile_nav_css.count('bottom:var(--mobile-more-bottom,76px)')<2: fail('Mobile MORE Drawer und Backdrop liegen nicht oberhalb der Primary Nav')
+if 'z-index:4090' not in mobile_nav_css or 'z-index:4100' not in mobile_nav_css: fail('Mobile MORE Drawer Overlay-Layer ist nicht eindeutig')
 if "closest('[data-page]')" not in mobile_nav_text or 'requestAnimationFrame(closeMore)' not in mobile_nav_text: fail('Mobile MORE Drawer schließt nach Page-Auswahl nicht automatisch')
 
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
