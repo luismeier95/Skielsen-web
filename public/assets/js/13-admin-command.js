@@ -1,10 +1,10 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.92';
+const VERSION=window.SKIELSEN_VERSION||'15.1.93';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
-let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,collapseScrollPending=false,mobileCollapsed=false,mobileTouchStartX=null,mobileTouchStartY=null,mobileTouchTracking=false,mobileLastScrollY=Math.max(0,window.scrollY||0),mobileScrollDirection=0,mobileDirectionTravel=0;
+let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=true;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=()=>window.skielsenV15||null;
@@ -26,9 +26,10 @@ function ensureHost(){
   host.className='admin-command-bar';
   host.hidden=true;
   host.setAttribute('aria-label','Admin Command');
+  host.setAttribute('aria-expanded','false');
   host.addEventListener('click',e=>{
-    if(!mobileCollapsed||window.innerWidth>800||e.target.closest('button,a,input,select,textarea'))return;
-    setMobileCollapsed(false);
+    if(window.innerWidth>800||e.target.closest('button,a,input,select,textarea,[contenteditable="true"]'))return;
+    setMobileCollapsed(!mobileCollapsed);
   });
   const header=document.querySelector('.sk-header');
   if(header)header.insertAdjacentElement('afterend',host);
@@ -235,93 +236,30 @@ function setMobileCollapsed(next){
   const active=window.matchMedia('(max-width:800px)').matches
     &&!host.hidden
     &&document.body.classList.contains('v15-tournament-active');
-  const desired=active&&!!next;
-  if(
-    mobileCollapsed===desired
-    &&host.classList.contains('is-scroll-collapsed')===desired
-    &&document.body.classList.contains('admin-command-collapsed')===desired
-  )return;
+  const desired=active?!!next:true;
   mobileCollapsed=desired;
-  host.classList.toggle('is-scroll-collapsed',desired);
-  document.body.classList.toggle('admin-command-collapsed',desired);
-}
-function mobileSwipeEligible(target){
-  if(!window.matchMedia('(max-width:800px)').matches)return false;
-  if(!document.body.classList.contains('v15-tournament-active'))return false;
-  if(document.body.classList.contains('mobile-more-open')||window.skielsenInApp?.fullscreen)return false;
-  if(target?.closest?.('button,a,input,select,textarea,[contenteditable="true"],#adminCommandBar'))return false;
-  return true;
-}
-function onMobileTouchStart(e){
-  if(e.touches?.length!==1||!mobileSwipeEligible(e.target)){
-    mobileTouchTracking=false;
-    return;
-  }
-  mobileTouchStartX=e.touches[0].clientX;
-  mobileTouchStartY=e.touches[0].clientY;
-  mobileTouchTracking=true;
-}
-function onMobileTouchMove(e){
-  if(!mobileTouchTracking||e.touches?.length!==1)return;
-  const x=e.touches[0].clientX,y=e.touches[0].clientY;
-  const dx=x-mobileTouchStartX,dy=y-mobileTouchStartY;
-  if(Math.abs(dy)<12||Math.abs(dy)<Math.abs(dx)*1.1)return;
-  setMobileCollapsed(dy<0);
-  mobileTouchStartX=x;
-  mobileTouchStartY=y;
-}
-function onMobileTouchEnd(e){
-  if(!mobileTouchTracking||!e.changedTouches?.length){
-    mobileTouchTracking=false;
-    return;
-  }
-  const dx=e.changedTouches[0].clientX-mobileTouchStartX;
-  const dy=e.changedTouches[0].clientY-mobileTouchStartY;
-  mobileTouchTracking=false;
-  if(Math.abs(dy)<18||Math.abs(dy)<Math.abs(dx)*1.1)return;
-  setMobileCollapsed(dy<0);
-}
-function syncMobileScrollIntent(){
-  const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
-  const delta=y-mobileLastScrollY;
-  mobileLastScrollY=y;
-  if(window.innerWidth>800||!document.body.classList.contains('v15-tournament-active')||document.body.classList.contains('mobile-more-open')||window.skielsenInApp?.fullscreen){
-    mobileScrollDirection=0;
-    mobileDirectionTravel=0;
-    return;
-  }
-  if(y<=2){
-    mobileScrollDirection=-1;
-    mobileDirectionTravel=0;
-    setMobileCollapsed(false);
-    return;
-  }
-  if(Math.abs(delta)<1.5)return;
-  const direction=delta>0?1:-1;
-  if(direction!==mobileScrollDirection){
-    mobileScrollDirection=direction;
-    mobileDirectionTravel=0;
-  }
-  mobileDirectionTravel+=Math.abs(delta);
-  if(mobileDirectionTravel<10)return;
-  setMobileCollapsed(direction>0);
-  mobileDirectionTravel=0;
+  const applied=active&&desired;
+  host.classList.toggle('is-scroll-collapsed',applied);
+  document.body.classList.toggle('admin-command-collapsed',applied);
+  host.setAttribute('aria-expanded',String(active&&!desired));
 }
 function onWindowScroll(){
-  queueCollapseSync(true);
+  if(window.innerWidth>800)queueCollapseSync();
 }
 function syncCollapseState(){
   const host=ensureHost();
   const mobile=window.matchMedia('(max-width:800px)').matches;
   if(mobile){
     if(host.hidden||!document.body.classList.contains('v15-tournament-active')){
-      mobileCollapsed=false;
+      mobileCollapsed=true;
       host.classList.remove('is-scroll-collapsed');
       document.body.classList.remove('admin-command-collapsed');
+      host.setAttribute('aria-expanded','false');
       return;
     }
     host.classList.toggle('is-scroll-collapsed',mobileCollapsed);
     document.body.classList.toggle('admin-command-collapsed',mobileCollapsed);
+    host.setAttribute('aria-expanded',String(!mobileCollapsed));
     return;
   }
   document.body.classList.remove('admin-command-collapsed');
@@ -343,14 +281,10 @@ function syncCollapseState(){
   const anchorTop=anchor.getBoundingClientRect().top;
   host.classList.toggle('is-scroll-collapsed',anchorTop<=collisionLine);
 }
-function queueCollapseSync(trackScroll=false){
-  if(trackScroll)collapseScrollPending=true;
+function queueCollapseSync(){
   if(collapseRaf)return;
   collapseRaf=requestAnimationFrame(()=>{
     collapseRaf=0;
-    const inspectScroll=collapseScrollPending;
-    collapseScrollPending=false;
-    if(inspectScroll)syncMobileScrollIntent();
     syncCollapseState();
   });
 }
@@ -362,9 +296,10 @@ function render(){
   if(!visible){
     cancelHold();
     host.hidden=true;
-    mobileCollapsed=false;
+    mobileCollapsed=true;
     host.classList.remove('is-scroll-collapsed');
     document.body.classList.remove('admin-command-collapsed');
+    host.setAttribute('aria-expanded','false');
     return;
   }
   const data=model(),signature=JSON.stringify(data);
@@ -382,7 +317,7 @@ function render(){
   }
 
   const actions=(data.actions||[]).slice(0,2).map(actionMarkup).join('');
-  host.innerHTML='<div class="admin-command-inner"><div class="admin-command-brand"><small>ADMIN COMMAND</small><span class="admin-command-state"><i aria-hidden="true"></i>'+esc(data.status||'STATUS')+'</span></div><div class="admin-command-copy"><strong>'+esc(data.title||'NÄCHSTER SCHRITT')+'</strong><span>'+esc(data.copy||'')+'</span></div><div class="admin-command-tools">'+utility+'<div class="admin-command-actions">'+actions+'</div></div><div class="admin-command-context">'+esc(data.context||'')+'<b aria-hidden="true">⌄</b></div></div>';
+  host.innerHTML='<div class="admin-command-inner"><div class="admin-command-brand"><small>ADMIN COMMAND</small><span class="admin-command-state"><i aria-hidden="true"></i>'+esc(data.status||'STATUS')+'</span></div><div class="admin-command-copy"><strong>'+esc(data.title||'NÄCHSTER SCHRITT')+'</strong><span>'+esc(data.copy||'')+'</span></div><div class="admin-command-tools">'+utility+'<div class="admin-command-actions">'+actions+'</div></div><div class="admin-command-context">'+esc(data.context||'')+'<b aria-hidden="true">⌃</b></div></div>';
   bind(host);
   queueCollapseSync();
 }
@@ -392,20 +327,13 @@ window.addEventListener('skielsen:inapp-session',()=>{lastSignature='';render();
 window.addEventListener('popstate',()=>setTimeout(render,0));
 window.addEventListener('resize',()=>{
   if(holdButton)cancelHold(holdButton);
-  mobileLastScrollY=Math.max(0,window.scrollY||0);
-  mobileScrollDirection=0;
-  mobileDirectionTravel=0;
   if(window.innerWidth>800){
-    mobileCollapsed=false;
+    mobileCollapsed=true;
     document.body.classList.remove('admin-command-collapsed');
   }
   queueCollapseSync();
 });
 window.addEventListener('scroll',onWindowScroll,{passive:true});
-document.addEventListener('touchstart',onMobileTouchStart,{passive:true});
-document.addEventListener('touchmove',onMobileTouchMove,{passive:true});
-document.addEventListener('touchend',onMobileTouchEnd,{passive:true});
-document.addEventListener('touchcancel',()=>{mobileTouchTracking=false},{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 
 let tries=0;

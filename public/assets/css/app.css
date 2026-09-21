@@ -4854,15 +4854,31 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     font-size:7px!important;
   }
 
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context{
+    display:flex!important;
+    align-items:center!important;
+    gap:7px!important;
+  }
+
   body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context>b{
-    display:none!important;
+    width:18px!important;
+    height:18px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 18px!important;
+    border:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 28%,transparent)!important;
+    border-radius:50%!important;
+    color:var(--theme-inverse-text,#fff)!important;
+    font-size:10px!important;
+    line-height:1!important;
   }
 }
 
 
-/* ===== V15.1.92 · Mobile Admin Command stable-geometry collapse =====
-   Mobile mirrors the desktop inset/radius. An upward swipe collapses the
-   command rail to one status line; a downward swipe or tap expands it again.
+/* ===== V15.1.93 · Mobile Admin Command tap-to-expand =====
+   Mobile starts collapsed by default. A tap on the rail expands/collapses it;
+   scroll gestures never change its state.
 */
 @media(max-width:800px){
   body.v15-tournament-active #adminCommandBar.admin-command-bar{
@@ -4883,7 +4899,8 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
       height .11s ease-out,
       border-radius .11s ease-out,
       box-shadow .11s ease-out!important;
-  }
+    touch-action:manipulation!important;
+    }
 
   body.v15-tournament-active.profile-page-active #adminCommandBar.admin-command-bar{
     bottom:139px!important;
