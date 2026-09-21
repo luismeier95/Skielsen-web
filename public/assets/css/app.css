@@ -5169,3 +5169,81 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     display:contents!important;
   }
 }
+
+
+/* ===== V15.1.99 · Desktop Admin Command cleanup =====
+   Remove vertical separators and tighten the title/status workflow group.
+*/
+@media(min-width:801px){
+  body.v15-tournament-active #adminCommandBar .admin-command-brand,
+  body.v15-tournament-active #adminCommandBar .admin-command-copy,
+  body.v15-tournament-active #adminCommandBar .admin-command-utility-wrap,
+  body.v15-tournament-active #adminCommandBar .admin-command-actions,
+  body.v15-tournament-active #adminCommandBar .admin-command-context{
+    border-left:0!important;
+    border-right:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-inner{
+    grid-template-columns:84px 12px fit-content(190px) fit-content(250px) minmax(110px,auto) minmax(135px,1fr)!important;
+    gap:8px!important;
+    padding-left:18px!important;
+    padding-right:18px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-brand{
+    padding:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy{
+    padding:0 2px 0 0!important;
+    min-width:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-self:start!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy>strong{
+    width:auto!important;
+    white-space:nowrap!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy>span{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-tools{
+    display:contents!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-utility-wrap{
+    padding:0!important;
+    gap:4px!important;
+    min-width:0!important;
+    justify-self:start!important;
+    align-content:center!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-progress{
+    min-width:0!important;
+    width:100%!important;
+    grid-template-columns:minmax(72px,1fr) auto!important;
+    gap:6px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-actions{
+    padding:0 0 0 6px!important;
+    justify-self:start!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-action{
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-context{
+    padding:0 0 0 8px!important;
+    margin-left:auto!important;
+    justify-self:end!important;
+  }
+}
