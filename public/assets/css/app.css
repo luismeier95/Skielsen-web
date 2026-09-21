@@ -5477,3 +5477,53 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     grid-area:copy!important;
   }
 }
+
+
+/* ===== V15.1.104 · Mobile Hamburger Menu · Variante 04 Bottom Sheet ===== */
+@media(max-width:800px){
+  .mobile-nav>.mobile-more-trigger{gap:5px!important}
+  .mobile-more-trigger-icon{
+    width:25px;height:20px;flex:0 0 auto;background:currentColor;
+    -webkit-mask:url("../icons/menu-hamburger.png") center/contain no-repeat;
+    mask:url("../icons/menu-hamburger.png") center/contain no-repeat
+  }
+  body.v15-tournament-active .mobile-more-menu,
+  .mobile-more-menu{
+    background:var(--theme-surface,#fff)!important;
+    color:var(--theme-on-surface,#050505)!important;
+    border-top:0!important;border-radius:20px 20px 0 0!important;
+    padding:8px 16px calc(16px + env(safe-area-inset-bottom))!important;
+    box-shadow:0 -12px 35px rgba(0,0,0,.18)!important;overflow-x:hidden!important
+  }
+  .mobile-more-head{display:none!important}
+  .mobile-more-handle{
+    width:42px;height:4px;border-radius:10px;
+    background:color-mix(in srgb,currentColor 24%,transparent);
+    margin:2px auto 14px
+  }
+  .mobile-more-grid{display:block!important;padding:0!important}
+  body.v15-tournament-active .mobile-more-grid a,
+  .mobile-more-grid a{
+    min-height:48px!important;padding:0!important;border:0!important;
+    border-bottom:1px solid color-mix(in srgb,currentColor 11%,transparent)!important;
+    background:transparent!important;color:inherit!important;
+    display:grid!important;grid-template-columns:32px minmax(0,1fr) 20px!important;
+    align-items:center!important;gap:8px!important;text-decoration:none!important
+  }
+  .mobile-more-grid a:last-child{border-bottom:0!important}
+  .mobile-more-grid a:after{content:none!important}
+  .mobile-more-grid a b{
+    min-width:0;color:inherit!important;font:900 10px/1 var(--ui)!important;letter-spacing:.15px
+  }
+  .mobile-more-icon{
+    width:27px;height:27px;display:block;justify-self:start;background:currentColor;
+    -webkit-mask:var(--mobile-more-icon) center/contain no-repeat;
+    mask:var(--mobile-more-icon) center/contain no-repeat
+  }
+  .mobile-more-icon-bets{--mobile-more-icon:url("../icons/menu-bets.png")}
+  .mobile-more-icon-games{--mobile-more-icon:url("../icons/menu-games.png")}
+  .mobile-more-icon-joker{--mobile-more-icon:url("../icons/menu-joker.png")}
+  .mobile-more-icon-news{--mobile-more-icon:url("../icons/menu-news.png")}
+  .mobile-more-icon-settings{--mobile-more-icon:url("../icons/menu-settings.png")}
+  .mobile-more-arrow{justify-self:end;color:inherit!important;font:900 16px/1 var(--display)}
+}
