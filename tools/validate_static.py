@@ -117,10 +117,11 @@ if "setMobileCollapsed(!mobileCollapsed)" not in admin_command_text or "host.set
 if "window.addEventListener('scroll',onWindowScroll,{passive:true})" not in admin_command_text or "if(window.innerWidth>800)queueCollapseSync()" not in admin_command_text: fail('Desktop Admin Command Scroll-Collapse wurde beim Mobile Umbau beschädigt')
 if 'syncMobileScrollIntent' in admin_command_text or "document.addEventListener('touchmove',onMobileTouchMove" in admin_command_text: fail('Mobile Admin Command darf seinen State nicht mehr durch Scroll/Swipe ändern')
 if '<b aria-hidden="true">⌃</b>' not in admin_command_text: fail('Mobile Admin Command Expand-Pfeil fehlt')
-if 'V15.1.93 · Mobile Admin Command tap-to-expand' not in main_css_text: fail('Mobile Admin Command Layout V15.1.93 fehlt')
+if 'V15.1.94 · Mobile Admin Command tap-to-expand' not in main_css_text: fail('Mobile Admin Command Layout V15.1.94 fehlt')
 if 'bottom:81px!important;' not in main_css_text or 'left:10px!important;' not in main_css_text or 'right:10px!important;' not in main_css_text: fail('Mobile Admin Command Inset/Dock stimmt nicht')
 if 'body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-inner' not in main_css_text or 'height:44px!important;' not in main_css_text: fail('Mobile Admin Command Default-Collapse ist nicht einzeilig')
-if 'body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context>b' not in main_css_text or 'display:inline-flex!important;' not in main_css_text: fail('Mobile Admin Command Expand-Pfeil ist nicht sichtbar')
+_mobile_admin_css=main_css_text.split('V15.1.94 · Mobile Admin Command tap-to-expand',1)[-1]
+if 'body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context>b' not in _mobile_admin_css or 'display:inline-flex!important;' not in _mobile_admin_css: fail('Mobile Admin Command Expand-Pfeil ist nicht sichtbar')
 if 'body.v15-tournament-active.admin-command-visible.admin-command-collapsed{\n    padding-bottom:270px!important;' not in main_css_text or 'body.v15-tournament-active.admin-command-visible.admin-command-collapsed.profile-page-active{\n    padding-bottom:328px!important;' not in main_css_text: fail('Mobile Admin Command verändert beim Toggle die Dokumenthöhe')
 if 'padding-bottom:135px!important;' in main_css_text or 'padding-bottom:193px!important;' in main_css_text: fail('Alter instabiler Mobile Admin Command Collapse-Offset ist noch vorhanden')
 if 'v15InAppLiveStrip' not in runtime_text: fail('In-App Live-Strip fehlt')

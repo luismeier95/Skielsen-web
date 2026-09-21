@@ -4876,7 +4876,7 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
 }
 
 
-/* ===== V15.1.93 · Mobile Admin Command tap-to-expand =====
+/* ===== V15.1.94 · Mobile Admin Command tap-to-expand =====
    Mobile starts collapsed by default. A tap on the rail expands/collapses it;
    scroll gestures never change its state.
 */
@@ -4989,8 +4989,24 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     white-space:nowrap!important;
   }
 
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context{
+    display:flex!important;
+    align-items:center!important;
+    gap:7px!important;
+  }
+
   body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context>b{
-    display:none!important;
+    width:18px!important;
+    height:18px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 18px!important;
+    border:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 28%,transparent)!important;
+    border-radius:50%!important;
+    color:var(--theme-inverse-text,#fff)!important;
+    font-size:10px!important;
+    line-height:1!important;
   }
 
   /* Keep the document geometry identical in both states.
