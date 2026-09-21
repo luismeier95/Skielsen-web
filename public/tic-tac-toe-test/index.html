@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de" data-theme-pack="theme.skielsen.core">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e9">
+<title>SKIELSEN · Tic Tac Toe · Standalone</title>
+<link rel="stylesheet" href="../assets/css/app.css?v=15.1.76">
+<link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.76">
+<link rel="stylesheet" href="./style.css?v=1.0.0">
+</head>
+<body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
+<section class="tttx-shell" id="tttxApp">
+  <header class="tttx-header">
+    <div class="tttx-brand">
+      <img src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
+      <strong>TIC TAC TOE</strong>
+    </div>
+  </header>
+
+  <div class="tttx-progress" aria-hidden="true"><i id="tttxProgress"></i></div>
+
+  <main class="tttx-content">
+    <section class="tttx-page tttx-setup" id="tttxSetup">
+      <div class="tttx-hero">
+        <h1>TIC<br>TAC<br>TOE.</h1>
+      </div>
+
+      <section class="tttx-setup-card">
+        <small>SCHWIERIGKEIT</small>
+        <div class="tttx-difficulty" role="group" aria-label="Schwierigkeit">
+          <button type="button" class="active" data-mode="NORMAL">NORMAL</button>
+          <button type="button" data-mode="DISAPPEAR">DISAPPEAR</button>
+        </div>
+      </section>
+
+      <button class="tttx-primary" id="tttxStart" type="button">SPIEL STARTEN →</button>
+
+      <section class="tttx-rule-note">
+        <strong id="tttxRuleTitle">NORMAL</strong>
+        <span id="tttxRuleText">Klassisches Tic Tac Toe. Drei eigene Symbole in einer Reihe gewinnen.</span>
+      </section>
+    </section>
+
+    <section class="tttx-page tttx-play" id="tttxPlay" hidden>
+      <section class="tttx-status" aria-label="Spielstatus">
+        <div><small>DU</small><strong id="tttxYou">X</strong></div>
+        <div><small>AM ZUG</small><strong id="tttxTurn">PLAYER 1</strong></div>
+        <div><small>MODUS</small><strong id="tttxMode">NORMAL</strong></div>
+      </section>
+
+      <section class="tttx-mechanic" aria-label="Tic Tac Toe Spielfeld">
+        <div class="tttx-board" id="tttxBoard" role="grid" aria-label="3 mal 3 Tic Tac Toe Spielfeld"></div>
+      </section>
+    </section>
+
+    <section class="tttx-page tttx-result" id="tttxResult" hidden>
+      <section class="tttx-result-status"><strong>ERGEBNIS</strong></section>
+
+      <section class="tttx-result-card">
+        <header>
+          <strong>FINALES ERGEBNIS</strong>
+          <span id="tttxResultMeta">NORMAL · 1 BOARD</span>
+        </header>
+        <div class="tttx-result-columns">
+          <span>POSITION</span><span>NAME</span><span>ERGEBNIS</span><span>ZÜGE</span>
+        </div>
+        <div id="tttxResultRows"></div>
+      </section>
+
+      <button class="tttx-primary tttx-result-action" id="tttxAgain" type="button">NEUES SPIEL →</button>
+    </section>
+  </main>
+</section>
+
+<script src="./app.js?v=1.0.0"></script>
+</body>
+</html>

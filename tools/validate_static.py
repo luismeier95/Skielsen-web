@@ -34,6 +34,7 @@ required_dev_routes=[
  'public/standalone-games.html',
  'public/more-or-less-contract-test/index.html',
  'public/word-chain-test/index.html',
+ 'public/tic-tac-toe-test/index.html',
 ]
 for rel in required_dev_routes:
  if not (ROOT/rel).exists(): fail(f'Kanonische Test-/Contract-Route fehlt: {rel}')
@@ -125,6 +126,19 @@ if h.index('assets/js/00-team-identity.js?v='+v) > h.index('assets/js/00-theme-c
 team_identity_js=(PUBLIC/'assets/js/00-team-identity.js').read_text(encoding='utf-8')
 for _needle in ["hex:'#1515FF'","hex:'#FF1717'","hex:'#F2B705'","hex:'#00A65A'","hex:'#2979FF'","hex:'#FF1744'","hex:'#00F5D4'","hex:'#FF2ED1'"]:
  if _needle not in team_identity_js: fail('Core/Core2 Team-Palette unvollständig: '+_needle)
+
+# Tic Tac Toe standalone regression contract.
+_ttt_test_js=ROOT/'public/tic-tac-toe-test/app.js'
+_ttt_test_css=ROOT/'public/tic-tac-toe-test/style.css'
+if not _ttt_test_js.exists() or not _ttt_test_css.exists(): fail('Tic Tac Toe Standalone fehlt')
+_ttt_test_js_text=_ttt_test_js.read_text(encoding='utf-8')
+_ttt_test_css_text=_ttt_test_css.read_text(encoding='utf-8')
+for _mode in ['NORMAL','DISAPPEAR']:
+ if _mode not in _ttt_test_js_text: fail('Tic Tac Toe Standalone Schwierigkeit fehlt: '+_mode)
+if 'game.active[actor].shift()' not in _ttt_test_js_text: fail('Tic Tac Toe Disappear-Regel fehlt')
+if 'game.winning=winningCells(game.board)' not in _ttt_test_js_text: fail('Tic Tac Toe Siegprüfung fehlt')
+if '<input' in _ttt_test_js_text.lower(): fail('Tic Tac Toe Standalone darf keine Tastatur-Eingabe verwenden')
+if 'TIC_TAC_TOE_STANDALONE_MOBILE_CONTRACT' not in _ttt_test_css_text: fail('Tic Tac Toe Mobile Contract fehlt')
 
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
