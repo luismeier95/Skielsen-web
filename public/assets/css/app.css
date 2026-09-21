@@ -5527,3 +5527,24 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   .mobile-more-icon-settings{--mobile-more-icon:url("../icons/menu-settings.png")}
   .mobile-more-arrow{justify-self:end;color:inherit!important;font:900 16px/1 var(--display)}
 }
+
+
+/* ===== V15.1.104b · MORE Bottom Sheet light mode ===== */
+@media(max-width:800px){
+  .mobile-more-menu{
+    background:#fff!important;
+    color:#050505!important;
+    border-color:#e8e8e8!important;
+    will-change:transform;
+    touch-action:pan-y
+  }
+  .mobile-more-handle{background:#c8c8c8!important}
+  .mobile-more-grid a{
+    background:#fff!important;
+    color:#050505!important;
+    border-bottom-color:#ececec!important
+  }
+  .mobile-more-grid a b,
+  .mobile-more-grid .mobile-more-arrow,
+  .mobile-more-grid .mobile-more-icon{color:#050505!important}
+}
