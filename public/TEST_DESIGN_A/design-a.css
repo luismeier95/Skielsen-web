@@ -794,3 +794,202 @@ html[data-skielsen-design-a="ice"] button:focus-visible{
     margin-top:12px!important;
   }
 }
+
+
+/* =========================================================
+   DESIGN A · ROUNDING + WIDTH CORRECTION V2
+   Screenshot review 2026-09-21:
+   - every major container gets a visible radius
+   - header inner surface may never paint a square black block
+   - desktop Admin Command uses exactly the same outer width as header
+   ========================================================= */
+
+html[data-skielsen-design-a="ice"]{
+  --ice-shell-width:min(1460px,calc(100% - 28px));
+  --ice-radius-xl:22px;
+  --ice-radius-lg:18px;
+  --ice-radius-md:14px;
+  --ice-radius-sm:11px;
+}
+
+/* Header: one rounded glass shell, including its inner content and color strip. */
+html[data-skielsen-design-a="ice"] .sk-header{
+  width:var(--ice-shell-width)!important;
+  max-width:1460px!important;
+  border-radius:var(--ice-radius-xl)!important;
+  background:rgba(247,251,255,.80)!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__main{
+  background:transparent!important;
+  border-radius:var(--ice-radius-xl) var(--ice-radius-xl) 0 0!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__strip{
+  border-radius:0 0 var(--ice-radius-xl) var(--ice-radius-xl)!important;
+  overflow:hidden!important;
+}
+
+/* The large page heroes are containers too: no square white slabs in Design A. */
+html[data-skielsen-design-a="ice"] :is(
+  .home-dashboard-hero,
+  .main-page-hero,
+  .utility-hero,
+  .games-intro,
+  .jl-hero,
+  .detail-hero
+){
+  border-radius:var(--ice-radius-xl)!important;
+  background:rgba(255,255,255,.58)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+  backdrop-filter:blur(24px) saturate(122%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(122%)!important;
+  overflow:hidden!important;
+}
+
+/* Systematic rounding contract for all current full-version container shells. */
+html[data-skielsen-design-a="ice"] :is(
+  .home-player-entry,
+  .home-module,
+  .home-match-card,
+  .action-card,
+  .home-story,
+  .player-profile-switchbar,
+  .profile-nav,
+  .pm-block,
+  .pm-table,
+  .match-section,
+  .match-card,
+  .v20-match-card,
+  .match-carousel>article,
+  .ranking-section,
+  .ranking-breakdown,
+  .category-grid,
+  .prototype-bet-deadline,
+  .bet-match-card,
+  .bet-disclosure,
+  .bet-context,
+  .bet-slip,
+  .my-bets,
+  .community-bets,
+  .wallet-ledger,
+  .coin-wallet,
+  .utility-panel,
+  .detail-section,
+  .detail-disclosure,
+  .games-filterbar,
+  .games-filter-toggle,
+  .game-card,
+  .games-card,
+  .game-catalog-card,
+  .v15-news-item,
+  .v15-news-card,
+  .news-card,
+  .joker-card,
+  .candidate-card,
+  .v1508-joker-game-list>*,
+  .admin-block,
+  .admin-card,
+  .admin-section,
+  .theme-admin-card,
+  .v1535-control-state-body,
+  .prototype-control-bet-gate,
+  .jl-panel,
+  .jl-invite,
+  .jl-status,
+  .jl-team-card,
+  .jl-player-card,
+  .jl-waiting>*,
+  .dbb-panel,
+  .dbb-profile-card,
+  .dbb-home-head,
+  .dbb-action-card,
+  .dbb-create-option,
+  .dbb-list>*,
+  .v1536-dialog,
+  .match-result-pop__card,
+  .mvp-complete-card,
+  .v1510-joker-dialog-card,
+  .v1511-joker-resolution-card,
+  .v1536-pick-card
+){
+  border-radius:var(--ice-radius-lg)!important;
+  overflow:hidden!important;
+}
+
+/* Nested controls may be smaller, but must not fall back to square rectangles. */
+html[data-skielsen-design-a="ice"] :is(
+  .home-module-head button,
+  .open-actions-indicator,
+  .bet-team,
+  .bet-team-button,
+  .v1515-quickbet-choice,
+  .slip-selection,
+  .potential-win,
+  .custom-stake-field,
+  .stake-presets button,
+  .games-filter,
+  .admin-command-action,
+  .admin-command-difficulty button,
+  .dbb-btn,
+  .dbb-auth-tab,
+  .jl-start,
+  .jl-primary,
+  .jl-sheet-cancel,
+  .v1508-joker-secondary
+){
+  border-radius:var(--ice-radius-sm)!important;
+}
+
+/* Desktop Admin Command must align 1:1 with the top banner. */
+@media(min-width:801px){
+  html[data-skielsen-design-a="ice"] #adminCommandBar.admin-command-bar{
+    position:sticky!important;
+    top:98px!important;
+    left:auto!important;
+    right:auto!important;
+    width:var(--ice-shell-width)!important;
+    max-width:1460px!important;
+    margin:10px auto 0!important;
+    border:1px solid rgba(255,255,255,.14)!important;
+    border-radius:var(--ice-radius-xl)!important;
+    overflow:hidden!important;
+    box-shadow:0 14px 34px rgba(7,21,46,.22)!important;
+  }
+  html[data-skielsen-design-a="ice"] #adminCommandBar .admin-command-inner{
+    width:100%!important;
+    max-width:none!important;
+    border-radius:var(--ice-radius-xl)!important;
+    overflow:hidden!important;
+  }
+}
+
+/* Mobile: same side inset and radius as the floating navigation stack. */
+@media(max-width:800px){
+  html[data-skielsen-design-a="ice"] #adminCommandBar.admin-command-bar{
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    border-radius:17px!important;
+    overflow:hidden!important;
+  }
+
+  html[data-skielsen-design-a="ice"] .sk-header{
+    width:calc(100% - 12px)!important;
+    max-width:none!important;
+  }
+
+  html[data-skielsen-design-a="ice"] :is(
+    .home-dashboard-hero,
+    .main-page-hero,
+    .utility-hero,
+    .games-intro,
+    .jl-hero,
+    .detail-hero
+  ){
+    border-radius:17px!important;
+  }
+}
