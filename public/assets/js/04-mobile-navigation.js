@@ -57,6 +57,15 @@
   if(closeBtn)closeBtn.addEventListener('click',closeMore);
 
   // Selecting a destination always closes MORE immediately.
+  // This document-level capture listener is intentionally registered here,
+  // before the tournament engine's own capture listener can stop propagation.
+  document.addEventListener('click',e=>{
+    const destination=e.target.closest?.('#mobileMoreMenu [data-page]');
+    if(!destination)return;
+    closeMore();
+    requestAnimationFrame(closeMore);
+  },true);
+
   menu.addEventListener('click',e=>{
     if(!e.target.closest('[data-page]'))return;
     closeMore();
