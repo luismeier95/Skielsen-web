@@ -10,7 +10,7 @@ const TEAM_MODE_COPY={
   SIMULTANEOUS:{title:'SIMULTANEOUS',copy:'Zwei Duelle laufen gleichzeitig. Bei 1:1 entscheidet ein Decider.'}
 };
 
-let root=null,session=null,db=null,state=null,pollTimer=0,countdownTimer=0,pollBusy=false,lastSignature='',message='';
+let root=null,session=null,db=null,state=null,pollTimer=0,countdownTimer=0,pollBusy=false,lastSignature='',message='',localTest=null,localBotTimer=0;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const colorVar=c=>({BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'})[String(c||'').toUpperCase()]||'var(--theme-accent)';
 const uuid=()=>crypto?.randomUUID?.()||('ttt-'+Date.now()+'-'+Math.random().toString(16).slice(2));
@@ -18,6 +18,7 @@ const uuid=()=>crypto?.randomUUID?.()||('ttt-'+Date.now()+'-'+Math.random().toSt
 function clearTimers(){
   clearInterval(pollTimer);pollTimer=0;
   clearInterval(countdownTimer);countdownTimer=0;
+  clearTimeout(localBotTimer);localBotTimer=0;
 }
 function participantInfo(pid){
   const rows=(state?.players||[]).filter(p=>p.participant_id===pid);
@@ -291,6 +292,205 @@ function updateCountdown(){
   el.textContent=(ms/1000).toFixed(1);
   el.classList.toggle('is-low',ms<=2000);
 }
+
+function localOther(pid){
+  if(!localTest)return null;
+  return pid===localTest.human.id?localTest.bot.id:localTest.human.id;
+}
+function localPlayer(pid){
+  if(!localTest)return {id:pid,name:'PLAYER',color:''};
+  return pid===localTest.human.id?localTest.human:localTest.bot;
+}
+function localWinningCells(board){
+  for(const line of WINS){
+    const [a,b,c]=line;
+    if(board[a]&&board[a]===board[b]&&board[a]===board[c])return line;
+  }
+  return [];
+}
+function localApplyPreview(board,queues,pid,index,mode){
+  const next=board.slice(),q=[...(queues[pid]||[])];
+  next[index]=pid;q.push(index);
+  if(mode==='DISAPPEAR'&&q.length>3){
+    const old=q.shift();
+    next[old]=null;
+  }
+  return {board:next,queue:q,win:localWinningCells(next)};
+}
+function localChooseBotMove(){
+  if(!localTest)return null;
+  const g=localTest.game,bot=localTest.bot.id,human=localTest.human.id;
+  const free=g.board.map((v,i)=>v==null?i:null).filter(Number.isInteger);
+  if(!free.length)return null;
+  const wins=pid=>free.find(i=>localApplyPreview(g.board,g.active,pid,i,g.mode).win.length);
+  const own=wins(bot);if(Number.isInteger(own))return own;
+  const block=wins(human);if(Number.isInteger(block))return block;
+  if(free.includes(4))return 4;
+  const corners=[0,2,6,8].filter(i=>free.includes(i));
+  if(corners.length)return corners[(g.movesTotal+corners.length)%corners.length];
+  return free[(g.movesTotal+free.length)%free.length];
+}
+function renderLocalSetup(){
+  if(!root||!localTest)return;
+  const g=localTest.game;
+  root.innerHTML=`${header('SCHWIERIGKEIT','TEST BOT')}
+    <main class="tttp-stage tttp-prestart">
+      <section class="tttp-title"><small>TEST MATCH · ${esc(localTest.human.name)} VS ${esc(localTest.bot.name)}</small><h2>VARIANTE WÄHLEN.</h2></section>
+      <div class="tttp-choice-grid">
+        <button type="button" class="tttp-choice ${g.mode==='NORMAL'?'is-selected':''}" data-local-variant="NORMAL">
+          <strong>NORMAL</strong><span>Klassisches Tic Tac Toe. Drei eigene Symbole in einer Reihe gewinnen.</span>
+        </button>
+        <button type="button" class="tttp-choice ${g.mode==='DISAPPEAR'?'is-selected':''}" data-local-variant="DISAPPEAR">
+          <strong>DISAPPEAR</strong><span>Beim vierten eigenen Symbol verschwindet das älteste. Maximal drei bleiben aktiv.</span>
+        </button>
+      </div>
+      <button type="button" class="tttp-primary" data-local-start>MATCH STARTEN →</button>
+      <p class="tttp-feedback">LOKALER TEST-BOT · KEIN ZWEITES GERÄT ERFORDERLICH.</p>
+    </main>`;
+  root.querySelectorAll('[data-local-variant]').forEach(btn=>btn.addEventListener('click',()=>{
+    g.mode=btn.dataset.localVariant==='DISAPPEAR'?'DISAPPEAR':'NORMAL';
+    renderLocalSetup();
+  }));
+  root.querySelector('[data-local-start]')?.addEventListener('click',startLocalBoard);
+}
+function startLocalBoard(){
+  if(!localTest)return;
+  clearTimeout(localBotTimer);
+  const g=localTest.game;
+  g.board=Array(9).fill(null);
+  g.active={[localTest.human.id]:[],[localTest.bot.id]:[]};
+  g.starter=localTest.human.id;
+  g.current=g.starter;
+  g.boardIndex=1;
+  g.boardMoves=0;
+  g.movesTotal=0;
+  g.winner=null;
+  g.winning=[];
+  g.locked=false;
+  g.phase='PLAYING';
+  renderLocalBoard();
+}
+function resetLocalBoardAfterDraw(){
+  if(!localTest)return;
+  const g=localTest.game;
+  g.starter=localOther(g.starter);
+  g.current=g.starter;
+  g.board=Array(9).fill(null);
+  g.active={[localTest.human.id]:[],[localTest.bot.id]:[]};
+  g.boardIndex+=1;
+  g.boardMoves=0;
+  g.locked=false;
+  renderLocalBoard();
+  scheduleLocalBot();
+}
+function localMove(index,pid){
+  if(!localTest)return;
+  const g=localTest.game;
+  if(g.phase!=='PLAYING'||g.locked||pid!==g.current||!Number.isInteger(index)||index<0||index>8||g.board[index])return;
+  g.locked=true;
+  const preview=localApplyPreview(g.board,g.active,pid,index,g.mode);
+  g.board=preview.board;
+  g.active[pid]=preview.queue;
+  g.boardMoves+=1;
+  g.movesTotal+=1;
+  g.winning=preview.win;
+  if(g.winning.length){
+    g.winner=pid;
+    g.phase='RESULT';
+    renderLocalBoard();
+    localBotTimer=setTimeout(renderLocalResult,500);
+    return;
+  }
+  const full=g.board.every(Boolean);
+  if(g.mode==='NORMAL'&&full){
+    renderLocalBoard();
+    localBotTimer=setTimeout(resetLocalBoardAfterDraw,420);
+    return;
+  }
+  g.current=localOther(pid);
+  g.locked=false;
+  renderLocalBoard();
+  scheduleLocalBot();
+}
+function scheduleLocalBot(){
+  if(!localTest||localTest.game.phase!=='PLAYING'||localTest.game.current!==localTest.bot.id)return;
+  clearTimeout(localBotTimer);
+  localTest.game.locked=true;
+  renderLocalBoard();
+  localBotTimer=setTimeout(()=>{
+    if(!localTest||localTest.game.phase!=='PLAYING')return;
+    localTest.game.locked=false;
+    const move=localChooseBotMove();
+    if(Number.isInteger(move))localMove(move,localTest.bot.id);
+  },520);
+}
+function renderLocalBoard(){
+  if(!root||!localTest)return;
+  const g=localTest.game,turn=localPlayer(g.current),humanTurn=g.current===localTest.human.id&&!g.locked;
+  const nextOut=new Set();
+  if(g.mode==='DISAPPEAR'){
+    const q=g.active[localTest.human.id]||[];
+    if(q.length===3)nextOut.add(Number(q[0]));
+  }
+  root.innerHTML=`${header('MATCH LIVE',g.mode)}
+    <main class="tttp-game">
+      <section class="tttp-statusbar">
+        <div><small>DU</small><strong>X</strong></div>
+        <div><small>AM ZUG</small><strong>${esc(turn.name)}</strong></div>
+        <div><small>BOARD</small><strong>${g.boardIndex}</strong></div>
+      </section>
+      <section class="tttp-versus">
+        <span class="tttp-participant"><i style="--tttp-team:${colorVar(localTest.human.color)}"></i><b>${esc(localTest.human.name)}</b></span>
+        <b>VS</b>
+        <span class="tttp-participant"><i style="--tttp-team:${colorVar(localTest.bot.color)}"></i><b>${esc(localTest.bot.name)}</b></span>
+      </section>
+      <section class="tttp-board" role="grid" aria-label="Tic Tac Toe Spielfeld">
+        ${g.board.map((pid,i)=>`<button type="button" class="tttp-cell ${g.winning.includes(i)?'is-winning':''} ${nextOut.has(i)?'is-next-out':''}" data-local-cell="${i}" ${(!humanTurn||pid)?'disabled':''}>
+          ${pid?`<span style="--tttp-mark:${colorVar(localPlayer(pid).color)}">${pid===localTest.human.id?'X':'O'}</span>`:''}
+        </button>`).join('')}
+      </section>
+      <div class="tttp-turn-note ${humanTurn?'is-mine':''}">
+        <i style="--tttp-team:${colorVar(turn.color)}"></i>
+        <strong>${humanTurn?'DU BIST DRAN':esc(turn.name)+' IST DRAN'}</strong>
+        <span>${g.current===localTest.human.id?'X':'O'}</span>
+      </div>
+      <p class="tttp-feedback">TEST BOT · ${g.movesTotal} ZÜGE</p>
+    </main>`;
+  root.querySelectorAll('[data-local-cell]').forEach(btn=>btn.addEventListener('click',()=>localMove(Number(btn.dataset.localCell),localTest.human.id)));
+}
+function renderLocalResult(){
+  if(!root||!localTest)return;
+  const g=localTest.game,winner=localPlayer(g.winner),loser=localPlayer(localOther(g.winner));
+  root.innerHTML=`${header('ERGEBNIS',g.mode)}
+    <main class="tttp-stage tttp-result">
+      <section class="tttp-result-card">
+        <header><strong>FINALES MATCH-ERGEBNIS</strong><span>${esc(g.mode)} · ${g.boardIndex} BOARD${g.boardIndex===1?'':'S'}</span></header>
+        <div class="tttp-result-row"><b>1.</b><span class="tttp-participant"><i style="--tttp-team:${colorVar(winner.color)}"></i><b>${esc(winner.name)}</b></span><strong>SIEG</strong></div>
+        <div class="tttp-result-row"><b>2.</b><span class="tttp-participant"><i style="--tttp-team:${colorVar(loser.color)}"></i><b>${esc(loser.name)}</b></span><strong>NIEDERLAGE</strong></div>
+      </section>
+      <button type="button" class="tttp-primary" data-local-complete>ERGEBNIS ÜBERNEHMEN →</button>
+    </main>`;
+  root.querySelector('[data-local-complete]')?.addEventListener('click',()=>{
+    const done=localTest?.onComplete;
+    const winnerId=localTest?.game?.winner;
+    if(typeof done==='function'&&winnerId)done(winnerId);
+  });
+}
+function mountTestBot(nextRoot,config){
+  unmount();
+  root=nextRoot;
+  const human=config?.human,bot=config?.bot;
+  if(!human?.id||!bot?.id)throw new Error('TIC_TAC_TOE_TEST_BOT_CONFIG_INVALID');
+  localTest={
+    human:{id:human.id,name:human.name||'PLAYER',color:human.color||'RED'},
+    bot:{id:bot.id,name:bot.name||'BOT',color:bot.color||'BLUE'},
+    onComplete:config?.onComplete,
+    game:{mode:'NORMAL',phase:'SETUP',board:[],active:{},starter:null,current:null,boardIndex:1,boardMoves:0,movesTotal:0,winner:null,winning:[],locked:false}
+  };
+  root.classList.add('tttp-root');
+  renderLocalSetup();
+}
+
 function mount(nextRoot,nextSession,nextDb){
   unmount();
   root=nextRoot;session=nextSession;db=nextDb;message='';lastSignature='';
@@ -303,7 +503,7 @@ function updateSession(next){session=next||session}
 function unmount(){
   clearTimers();
   if(root){root.classList.remove('tttp-root');root.innerHTML=''}
-  root=null;session=null;db=null;state=null;pollBusy=false;lastSignature='';message='';
+  root=null;session=null;db=null;state=null;localTest=null;pollBusy=false;lastSignature='';message='';
 }
-window.skielsenTicTacToe={mount,updateSession,unmount,get state(){return state}};
+window.skielsenTicTacToe={mount,mountTestBot,updateSession,unmount,get state(){return state},get testBot(){return localTest}};
 })();
