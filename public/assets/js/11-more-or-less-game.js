@@ -356,7 +356,11 @@ function mount(nextRoot,nextSession,nextDb){
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
-  if(existingTier)void poll();else render();
+  // Paint the game shell immediately. Waiting for the first RPC before rendering
+  // leaves the outer "WIRD GELADEN" placeholder stuck when mobile/network timing
+  // delays the state request.
+  render();
+  if(existingTier)void poll();
   pollTimer=setInterval(poll,POLL_MS);
   return true;
 }
