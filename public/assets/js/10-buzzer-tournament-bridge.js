@@ -7,6 +7,7 @@ const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-y
 let db=null,engine=null,installed=false,detailIndex=null,jokerBridgeBound=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const feature=(rt,id)=>!!(rt?.features||[]).find(f=>f.feature_id===id&&f.enabled);
+const voteFeature=(rt,type)=>String(rt?.mode||'').toUpperCase()==='TEAM'&&feature(rt,String(type||'').toUpperCase()==='LVP'?'feature.lvp_voting':'feature.mvp_voting');
 const fmtMs=ms=>ms==null||!Number.isFinite(Number(ms))?'—':(Number(ms)/1000).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' s';
 const marker=color=>({BLUE:'team-blue',RED:'team-red',YELLOW:'team-yellow',GREEN:'team-green'}[String(color||'').toUpperCase()]||'team-neutral');
 const participant=(st,id)=>(st?.participants||[]).find(p=>p.id===id)||null;
@@ -22,7 +23,7 @@ async function persistLocalState(){
 function addAudit(st,text){st.audit=Array.isArray(st.audit)?st.audit:[];st.audit.unshift({at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),text});st.audit=st.audit.slice(0,100)}
 function addNews(st,headline,body){st.news=Array.isArray(st.news)?st.news:[];st.news.unshift({id:'bzt-'+Date.now()+Math.random(),headline,body,type:'MATCH_REPORT',at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})});st.news=st.news.slice(0,80)}
 function settleLocalBets(st,m,winnerId){
-  if(!m)return;for(const b of st.bets?.[m.id]||[]){if(b.status!=='PLACED')continue;if(b.participantId===winnerId){b.status='WON';b.payout=Math.ceil(Number(b.stake||0)*Number(b.acceptedOdds||0));st.wallets[b.actorId]=(st.wallets[b.actorId]||0)+b.payout;st.transactions.push({id:'tx-pay-'+b.id,type:'PAYOUT',actorId:b.actorId,amount:b.payout,betId:b.id,at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),reason:m.id})}else{b.status='LOST';b.payout=0}}
+  if(!feature(engine?.runtime,'feature.betting')||!m)return;for(const b of st.bets?.[m.id]||[]){if(b.status!=='PLACED')continue;if(b.participantId===winnerId){b.status='WON';b.payout=Math.ceil(Number(b.stake||0)*Number(b.acceptedOdds||0));st.wallets[b.actorId]=(st.wallets[b.actorId]||0)+b.payout;st.transactions.push({id:'tx-pay-'+b.id,type:'PAYOUT',actorId:b.actorId,amount:b.payout,betId:b.id,at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),reason:m.id})}else{b.status='LOST';b.payout=0}}
 }
 function commitLocalPoints(st,rt,g,placements){
   if(g.resultsCommitted)return;
@@ -31,8 +32,8 @@ function commitLocalPoints(st,rt,g,placements){
 }
 function initializeVoteOrAdvance(g){
   const st=engine?.state,rt=engine?.runtime;if(!st||!rt||!g)return;
-  if(feature(rt,'feature.mvp_voting')){g.phase='VOTING_MVP';g.vote={type:'MVP',votes:{},winnerActorId:null,finalized:false};engine.render();engine.show('home');persistLocalState();return}
-  if(feature(rt,'feature.lvp_voting')){g.phase='VOTING_LVP';g.vote={type:'LVP',votes:{},winnerActorId:null,finalized:false};engine.render();engine.show('home');persistLocalState();return}
+  if(voteFeature(rt,'MVP')){g.phase='VOTING_MVP';g.vote={type:'MVP',votes:{},winnerActorId:null,finalized:false};engine.render();engine.show('home');persistLocalState();return}
+  if(voteFeature(rt,'LVP')){g.phase='VOTING_LVP';g.vote={type:'LVP',votes:{},winnerActorId:null,finalized:false};engine.render();engine.show('home');persistLocalState();return}
   g.phase='COMPLETED';g.vote=null;
   if(st.currentGameIndex<(st.games||[]).length-1){st.currentGameIndex++;const n=currentGame(st);if(n&&!['ACTIVE','PREPARING'].includes(n.phase))n.phase='PLANNED';engine.render();persistLocalState().finally(()=>engine.prepareCurrentGame?.())}else{st.tournamentDone=true;engine.render();persistLocalState()}
   engine.show('home');
