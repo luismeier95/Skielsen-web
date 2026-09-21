@@ -739,7 +739,7 @@ async function refreshAdmin(force){
     const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
     if(!r.error)adminSession=r.data||adminSession;
   }
-  if(supportedNativeGame(g)&&(nativeGameIsLive(g)||isTicTacToeGame(g))&&!rt?.test_mode)await ensureNativeLifecycle(g);
+  if(supportedNativeGame(g)&&nativeGameIsLive(g)&&!rt?.test_mode)await ensureNativeLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
@@ -806,8 +806,7 @@ async function autoAssignNativePlayers(){
   return true;
 }
 async function ensureNativeLifecycle(g){
-  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g))return;
-  if(!isTicTacToeGame(g)&&!nativeGameIsLive(g))return;
+  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g)||!nativeGameIsLive(g))return;
   autoLifecycleBusy=true;
   try{
     const expectedKey=gameKeyFor(g),expectedModule=moduleKeyFor(g);
