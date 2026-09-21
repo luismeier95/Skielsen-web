@@ -18,12 +18,9 @@
       document.documentElement.style.removeProperty('--mobile-more-bottom');
       return;
     }
-    // MORE is an overlay above the primary bottom navigation. Secondary docks
-    // (Admin Command / profile tabs) must never reduce the drawer viewport.
-    const nav=document.querySelector('.mobile-nav');
-    const boundary=isVisible(nav)?nav.getBoundingClientRect().top:window.innerHeight-76;
-    const bottom=Math.max(0,Math.round(window.innerHeight-Math.max(0,Math.min(window.innerHeight,boundary))));
-    document.documentElement.style.setProperty('--mobile-more-bottom',bottom+'px');
+    // The primary mobile navigation is a fixed 76px dock. MORE always overlays
+    // every secondary dock and therefore must not depend on runtime measurements.
+    document.documentElement.style.setProperty('--mobile-more-bottom','76px');
   }
 
   function observeDock(){
