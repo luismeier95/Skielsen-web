@@ -16,16 +16,16 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "assets/icons/pwa-icon-192.png",
+      "src": "assets/icons/pwa-icon-192-v151111.png?v=15.1.111",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "assets/icons/pwa-icon-512.png",
+      "src": "assets/icons/pwa-icon-512-v151111.png?v=15.1.111",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

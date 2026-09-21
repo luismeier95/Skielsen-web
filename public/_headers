@@ -11,3 +11,9 @@
 
 /assets/*
   Cache-Control: public, max-age=3600, must-revalidate
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+/sw.js
+  Cache-Control: no-cache
