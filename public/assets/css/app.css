@@ -5401,3 +5401,65 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   }
 }
 
+
+
+/* ===== V15.1.102 · Admin Command cleanup =====
+   No internal vertical separators.
+   Desktop collapsed order: ADMIN | step title | player status | context.
+*/
+@media(min-width:801px){
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-brand,
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy,
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-utility-wrap,
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-actions,
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-context{
+    border-left:0!important;
+    border-right:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-inner{
+    grid-template-columns:auto auto minmax(0,1fr) auto!important;
+    gap:14px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand{
+    grid-column:1!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-copy{
+    grid-column:2!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-tools{
+    display:contents!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-utility-wrap{
+    grid-column:3!important;
+    min-width:0!important;
+    display:flex!important;
+    align-items:center!important;
+    padding:0!important;
+    border:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-state-mobile{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-state-desktop{
+    display:flex!important;
+    min-width:0!important;
+    width:auto!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-progress,
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-difficulty,
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-actions{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context{
+    grid-column:4!important;
+  }
+}

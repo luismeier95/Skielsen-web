@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.101';
+const VERSION=window.SKIELSEN_VERSION||'15.1.102';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
 let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=true;
@@ -318,7 +318,7 @@ function render(){
 
   const actions=(data.actions||[]).slice(0,2).map(actionMarkup).join('');
   const statusText=esc(data.status||'STATUS');
-  host.innerHTML='<div class="admin-command-inner"><div class="admin-command-brand"><small class="admin-command-brand-desktop">ADMIN</small><small class="admin-command-brand-mobile">ADMIN COMMAND</small><span class="admin-command-state admin-command-state-mobile"><i aria-hidden="true"></i>'+statusText+'</span></div><div class="admin-command-copy"><strong>'+esc(data.title||'NÄCHSTER SCHRITT')+'</strong><span>'+esc(data.copy||'')+'</span></div><div class="admin-command-tools"><div class="admin-command-utility-wrap"><span class="admin-command-state admin-command-state-desktop"><i aria-hidden="true"></i>'+statusText+'</span>'+utility+'</div><div class="admin-command-actions">'+actions+'</div></div><div class="admin-command-context">'+esc(data.context||'')+'<b class="admin-command-toggle-glyph" aria-hidden="true"></b></div></div>';
+  host.innerHTML='<div class="admin-command-inner"><div class="admin-command-brand"><small class="admin-command-brand-desktop">ADMIN</small><small class="admin-command-brand-mobile">ADMIN</small><span class="admin-command-state admin-command-state-mobile"><i aria-hidden="true"></i>'+statusText+'</span></div><div class="admin-command-copy"><strong>'+esc(data.title||'NÄCHSTER SCHRITT')+'</strong><span>'+esc(data.copy||'')+'</span></div><div class="admin-command-tools"><div class="admin-command-utility-wrap"><span class="admin-command-state admin-command-state-desktop"><i aria-hidden="true"></i>'+statusText+'</span>'+utility+'</div><div class="admin-command-actions">'+actions+'</div></div><div class="admin-command-context">'+esc(data.context||'')+'<b class="admin-command-toggle-glyph" aria-hidden="true"></b></div></div>';
   bind(host);
   queueCollapseSync();
 }
