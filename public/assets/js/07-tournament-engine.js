@@ -117,6 +117,10 @@ function returnFromGameControl(){
  show(PAGE_IDS[target]?target:'home')
 }
 function participant(id){return state?.participants?.find(p=>p.id===id)||null}
+function localTicTacToeBotMatch(g=gameNow(),m=matchNow()){
+ if(!runtime?.test_mode||g?.game_id!=='game.tictactoe.classic_disappear'||!m)return false;
+ return [m.a,m.b].some(id=>!!participant(id)?.isBotParticipant);
+}
 function actor(id){return state?.actors?.find(a=>a.id===id)||null}
 function userActor(){return actor(state?.userActorId)}
 function userParticipant(){return participant(state?.userParticipantId)}
@@ -1220,7 +1224,8 @@ async function startMatch(){
  if(m.status!=='BETTING_OPEN'&&m.status!=='READY'){showFlowToast('MATCH','START NICHT MÖGLICH','MATCHSTATUS · '+String(m.status||'UNBEKANNT'),2600);return false}
  if(!gateComplete(m)){showFlowToast('MATCH','BETTING NOCH OFFEN','ALLE PLAYER MÜSSEN WETTEN ODER ÜBERSPRINGEN.',2600);return false}
  if(!isAdmin()){showFlowToast('MATCH','ADMIN ERFORDERLICH','NUR DER TURNIER-ADMIN KANN DEN MATCH STARTEN.',2600);return false}
- if(client&&g.tournament_game_id){
+ const localTttBot=localTicTacToeBotMatch(g,m);
+ if(client&&g.tournament_game_id&&!localTttBot){
    const {data,error}=await client.rpc('activate_tournament_game',{p_tournament_game_id:g.tournament_game_id});
    if(error){
      console.warn('Server game activation failed',error);
@@ -1235,7 +1240,13 @@ async function startMatch(){
      return false
    }
  }
- m.status='LIVE';g.phase='ACTIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon();showFlowToast('MATCH','MATCH GESTARTET',String(g.name||'GAME').toUpperCase(),2200);setTimeout(()=>{window.skielsenInApp?.start?.(runtime);window.skielsenInApp?.poll?.()},0);return true
+ m.status='LIVE';g.phase='ACTIVE';inlineResultMatchId=null;addAudit('MATCH STARTED · '+g.name+' · '+stageLabel(m.stage));renderAll();saveSoon();showFlowToast('MATCH','MATCH GESTARTET',String(g.name||'GAME').toUpperCase(),2200);
+ if(localTttBot){
+   setTimeout(()=>{void window.skielsenInApp?.startTestTicTacToe?.(runtime,g,m)},0);
+ }else{
+   setTimeout(()=>{window.skielsenInApp?.start?.(runtime);window.skielsenInApp?.poll?.()},0);
+ }
+ return true
 }
 function autofillScore(){const m=matchNow();if(!m)return;const a=3+(hash(m.id+'A')%8),b=2+(hash(m.id+'B')%8);let aa=a,bb=b;if(aa===bb)aa++;const ia=q('#quickResultA'),ib=q('#quickResultB');if(ia)ia.value=aa;if(ib)ib.value=bb;syncQuickResultButton()}
 function syncQuickResultButton(){const sel=gameControlSelection(),m=sel.m,a=Number(q('#quickResultA')?.value),b=Number(q('#quickResultB')?.value);const ok=sel.isCurrent&&m?.status==='LIVE'&&Number.isFinite(a)&&Number.isFinite(b)&&a>=0&&b>=0&&a!==b;setHoldLabel(q('#quickResultConfirm'),'ERGEBNIS BESTÄTIGEN',!ok)}
