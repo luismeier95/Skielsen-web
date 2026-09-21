@@ -540,7 +540,8 @@ function loser(m){const w=winner(m);return w?(w===m.a?m.b:m.a):null}
 function updateRatingsAfterMatch(m,g){const w=winner(m),l=loser(m);if(!w||!l)return;const weights=gameWeights(g);for(const pid of [w,l]){const opp=pid===w?l:w,actual=pid===w?1:0,p=participant(pid);for(const aid of p.actorIds){for(const [sid,weight] of weights){const r=state.ratings[aid]?.[sid];if(!r)continue;const self=participantMetric(pid,sid),other=participantMetric(opp,sid),expected=1/(1+Math.exp(-(self-other)/12));const delta=8*(weight/100)*(actual-expected);r.skielsen=clamp(r.skielsen+delta,0,100);r.evidence=Number(r.evidence||0)+(weight/100);r.confidence=clamp(1-Math.pow(.90,r.evidence),0,1)}}}}
 function showFlowToast(kicker,title,copy='',ms=2200){const t=q('#v1517FlowToast');if(!t)return;if(flowToastTimer){clearTimeout(flowToastTimer);flowToastTimer=0}t.innerHTML=`<small>${esc(kicker||'SKIELSEN')}</small><strong>${esc(title||'GESPEICHERT')}</strong>${copy?`<span>${esc(copy)}</span>`:''}`;t.hidden=false;requestAnimationFrame(()=>t.classList.add('show'));flowToastTimer=setTimeout(()=>{t.classList.remove('show');setTimeout(()=>{t.hidden=true},180);flowToastTimer=0},ms)}
 function showResultPopup(m,g,winnerId,onContinue=null){
- const pop=q('#matchResultPop'),bettingEnabled=feature('feature.betting');
+ const pop=q('#matchResultPop');
+ const bettingEnabled=feature('feature.betting');
  if(!pop||!bettingEnabled){
    if(pop){pop.hidden=true;pop.classList.remove('is-visible','is-win','is-loss','is-shared')}
    matchResultContinuation=null;
