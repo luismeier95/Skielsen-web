@@ -5022,3 +5022,150 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     padding-bottom:328px!important;
   }
 }
+
+
+/* ===== V15.1.98 · Desktop Admin Command information order =====
+   Desktop sequence follows the workflow hierarchy:
+   ADMIN | spacer | step title | player status + progress | action | game/match context.
+   Mobile keeps the V15.1.97 composition unchanged.
+*/
+@media(min-width:801px){
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-inner{
+    grid-template-columns:84px 40px minmax(150px,1fr) minmax(180px,1.2fr) minmax(110px,auto) minmax(135px,160px)!important;
+    gap:0!important;
+    padding-left:18px!important;
+    padding-right:18px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-brand{
+    grid-column:1!important;
+    min-width:0!important;
+    min-height:42px!important;
+    display:flex!important;
+    align-items:center!important;
+    padding:0 14px 0 0!important;
+    border-right:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 20%,transparent)!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-brand-desktop{
+    display:block!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-brand-mobile,
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-state-mobile{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy{
+    grid-column:3!important;
+    min-width:0!important;
+    min-height:42px!important;
+    display:flex!important;
+    align-items:center!important;
+    padding:0 14px!important;
+    border-left:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 20%,transparent)!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy>strong{
+    width:100%!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-copy>span{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-tools{
+    display:contents!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-utility-wrap{
+    grid-column:4!important;
+    min-width:0!important;
+    min-height:42px!important;
+    display:grid!important;
+    grid-template-rows:auto auto!important;
+    align-content:center!important;
+    gap:6px!important;
+    padding:0 14px!important;
+    border-left:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 20%,transparent)!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-state-desktop{
+    display:flex!important;
+    min-width:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-progress{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:minmax(70px,1fr) auto!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-difficulty{
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-actions{
+    grid-column:5!important;
+    min-width:0!important;
+    min-height:42px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    padding:0 14px!important;
+    border-left:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 20%,transparent)!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-action{
+    min-width:0!important;
+    width:100%!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar:not(.is-scroll-collapsed) .admin-command-context{
+    grid-column:6!important;
+    min-width:0!important;
+    padding-left:14px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand-desktop{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand-mobile{
+    display:block!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-state-mobile{
+    display:flex!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-state-desktop{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand,
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-copy,
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context{
+    grid-column:auto!important;
+  }
+}
+
+@media(max-width:800px){
+  .admin-command-brand-desktop,
+  .admin-command-state-desktop{
+    display:none!important;
+  }
+
+  .admin-command-brand-mobile{
+    display:block!important;
+  }
+
+  .admin-command-state-mobile{
+    display:flex!important;
+  }
+
+  .admin-command-utility-wrap{
+    display:contents!important;
+  }
+}
