@@ -154,6 +154,7 @@ if "TIC_TAC_TOE_MODULE='tic-tac-toe'" not in runtime_text or 'ensureTicTacToeAss
 if 'create_tic_tac_toe_match_session' not in runtime_text or 'get_tic_tac_toe_result' not in runtime_text: fail('Tic Tac Toe Match-Lifecycle fehlt in der Runtime')
 if 'ingestTicTacToeResult' not in bridge_text or "result?.game_key==='tic_tac_toe'" not in bridge_text: fail('Tic Tac Toe Result-Handoff fehlt')
 if 'concludeCurrentMatch' not in engine_text.split('window.skielsenV15=',1)[-1]: fail('Canonical Match Conclusion ist nicht für native Spiele exportiert')
+if "actors.filter(a=>a.isBot&&a.soloColor&&!byColor.has(a.soloColor))" not in engine_text or "isBotParticipant:true" not in engine_text: fail('SOLO Test-Bots werden nicht als Turnier-Participants materialisiert')
 
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
