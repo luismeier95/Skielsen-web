@@ -1,0 +1,68 @@
+/*
+  SKIELSEN HOME · Rounded Containers Experiment V1
+  =================================================
+  Reversible by design:
+  - no existing app.css rule is changed
+  - all overrides are scoped to #homePage
+  - rollback = remove this stylesheet link from index.html
+  - original HOME geometry/content remains untouched
+*/
+
+#homePage{
+  --home-radius-outer:16px;
+  --home-radius-card:12px;
+  --home-radius-small:9px;
+}
+
+/* Main HOME surfaces */
+#homePage .home-dashboard-hero{
+  border-radius:var(--home-radius-outer)!important;
+}
+
+#homePage .home-player-entry{
+  border-radius:var(--home-radius-card)!important;
+  overflow:hidden;
+}
+
+#homePage .home-module{
+  border-radius:var(--home-radius-outer)!important;
+  overflow:hidden!important;
+}
+
+/* Internal HOME cards / interactive containers */
+#homePage .home-match-card{
+  border-radius:var(--home-radius-card)!important;
+  overflow:hidden;
+}
+
+#homePage .home-match-versus{
+  border-radius:var(--home-radius-small)!important;
+}
+
+#homePage .action-card{
+  border-radius:var(--home-radius-card)!important;
+  overflow:hidden;
+}
+
+#homePage .home-story{
+  border-radius:var(--home-radius-card)!important;
+  overflow:hidden;
+}
+
+#homePage .home-standing-row{
+  border-radius:var(--home-radius-small)!important;
+  overflow:hidden;
+}
+
+/* Small HOME status containers */
+#homePage .open-actions-indicator>b{
+  border-radius:8px!important;
+}
+
+@media(max-width:800px){
+  #homePage{
+    --home-radius-outer:14px;
+    --home-radius-card:11px;
+    --home-radius-small:8px;
+  }
+}
