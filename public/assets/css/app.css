@@ -4860,7 +4860,7 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
 }
 
 
-/* ===== V15.1.90 · Mobile Admin Command radius + swipe collapse =====
+/* ===== V15.1.91 · Mobile Admin Command responsive scroll collapse =====
    Mobile mirrors the desktop inset/radius. An upward swipe collapses the
    command rail to one status line; a downward swipe or tap expands it again.
 */
@@ -4879,10 +4879,10 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     overflow:hidden!important;
     box-shadow:0 8px 24px rgba(0,0,0,.22)!important;
     transition:
-      min-height .18s ease,
-      height .18s ease,
-      border-radius .18s ease,
-      box-shadow .18s ease!important;
+      min-height .11s ease-out,
+      height .11s ease-out,
+      border-radius .11s ease-out,
+      box-shadow .11s ease-out!important;
   }
 
   body.v15-tournament-active.profile-page-active #adminCommandBar.admin-command-bar{
@@ -4895,9 +4895,9 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     border-radius:14px!important;
     overflow:hidden!important;
     transition:
-      min-height .18s ease,
-      height .18s ease,
-      padding .18s ease!important;
+      min-height .11s ease-out,
+      height .11s ease-out,
+      padding .11s ease-out!important;
   }
 
   body.v15-tournament-active.admin-command-visible{

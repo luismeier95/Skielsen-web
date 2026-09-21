@@ -4,7 +4,7 @@
 const VERSION=window.SKIELSEN_VERSION||'15.1.88';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
-let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=false,mobileTouchStartX=null,mobileTouchStartY=null,mobileTouchTracking=false;
+let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=false,mobileTouchStartX=null,mobileTouchStartY=null,mobileTouchTracking=false,mobileLastScrollY=Math.max(0,window.scrollY||0),mobileScrollDirection=0,mobileDirectionTravel=0;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=()=>window.skielsenV15||null;
@@ -255,6 +255,15 @@ function onMobileTouchStart(e){
   mobileTouchStartY=e.touches[0].clientY;
   mobileTouchTracking=true;
 }
+function onMobileTouchMove(e){
+  if(!mobileTouchTracking||e.touches?.length!==1)return;
+  const x=e.touches[0].clientX,y=e.touches[0].clientY;
+  const dx=x-mobileTouchStartX,dy=y-mobileTouchStartY;
+  if(Math.abs(dy)<18||Math.abs(dy)<Math.abs(dx)*1.1)return;
+  setMobileCollapsed(dy<0);
+  mobileTouchStartX=x;
+  mobileTouchStartY=y;
+}
 function onMobileTouchEnd(e){
   if(!mobileTouchTracking||!e.changedTouches?.length){
     mobileTouchTracking=false;
@@ -263,9 +272,38 @@ function onMobileTouchEnd(e){
   const dx=e.changedTouches[0].clientX-mobileTouchStartX;
   const dy=e.changedTouches[0].clientY-mobileTouchStartY;
   mobileTouchTracking=false;
-  if(Math.abs(dy)<42||Math.abs(dy)<Math.abs(dx)*1.15)return;
-  if(dy<0)setMobileCollapsed(true);
-  else setMobileCollapsed(false);
+  if(Math.abs(dy)<24||Math.abs(dy)<Math.abs(dx)*1.1)return;
+  setMobileCollapsed(dy<0);
+}
+function syncMobileScrollIntent(){
+  const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+  const delta=y-mobileLastScrollY;
+  mobileLastScrollY=y;
+  if(window.innerWidth>800||!document.body.classList.contains('v15-tournament-active')||document.body.classList.contains('mobile-more-open')||window.skielsenInApp?.fullscreen){
+    mobileScrollDirection=0;
+    mobileDirectionTravel=0;
+    return;
+  }
+  if(y<=2){
+    mobileScrollDirection=-1;
+    mobileDirectionTravel=0;
+    setMobileCollapsed(false);
+    return;
+  }
+  if(Math.abs(delta)<1.5)return;
+  const direction=delta>0?1:-1;
+  if(direction!==mobileScrollDirection){
+    mobileScrollDirection=direction;
+    mobileDirectionTravel=0;
+  }
+  mobileDirectionTravel+=Math.abs(delta);
+  if(mobileDirectionTravel<10)return;
+  setMobileCollapsed(direction>0);
+  mobileDirectionTravel=0;
+}
+function onWindowScroll(){
+  syncMobileScrollIntent();
+  queueCollapseSync();
 }
 function syncCollapseState(){
   const host=ensureHost();
@@ -345,14 +383,18 @@ window.addEventListener('skielsen:inapp-session',()=>{lastSignature='';render();
 window.addEventListener('popstate',()=>setTimeout(render,0));
 window.addEventListener('resize',()=>{
   if(holdButton)cancelHold(holdButton);
+  mobileLastScrollY=Math.max(0,window.scrollY||0);
+  mobileScrollDirection=0;
+  mobileDirectionTravel=0;
   if(window.innerWidth>800){
     mobileCollapsed=false;
     document.body.classList.remove('admin-command-collapsed');
   }
   queueCollapseSync();
 });
-window.addEventListener('scroll',queueCollapseSync,{passive:true});
+window.addEventListener('scroll',onWindowScroll,{passive:true});
 document.addEventListener('touchstart',onMobileTouchStart,{passive:true});
+document.addEventListener('touchmove',onMobileTouchMove,{passive:true});
 document.addEventListener('touchend',onMobileTouchEnd,{passive:true});
 document.addEventListener('touchcancel',()=>{mobileTouchTracking=false},{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
