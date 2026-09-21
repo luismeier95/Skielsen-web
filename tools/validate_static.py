@@ -107,7 +107,7 @@ if 'var(--v15-admin-command-gap)' not in main_css_text or 'var(--v15-frozen-admi
 
 admin_command_text=(PUBLIC/'assets/js/13-admin-command.js').read_text(encoding='utf-8')
 if 'V15.1.88 · scroll-collapse experiment' not in admin_command_text or 'function collapseAnchor()' not in admin_command_text or 'function syncCollapseState()' not in admin_command_text: fail('Admin Command Scroll-Collapse Runtime fehlt')
-if "window.addEventListener('scroll',queueCollapseSync,{passive:true})" not in admin_command_text: fail('Admin Command Scroll-Collapse reagiert nicht auf Scrollen')
+if "window.addEventListener('scroll',onWindowScroll,{passive:true})" not in admin_command_text: fail('Admin Command Scroll-Collapse reagiert nicht auf Scrollen')
 if "host.classList.toggle('is-scroll-collapsed',anchorTop<=collisionLine)" not in admin_command_text: fail('Admin Command Collapse hat keine Container-Kollision')
 if 'V15.1.88 · Admin Command scroll-collapse experiment' not in main_css_text: fail('Admin Command Scroll-Collapse CSS fehlt')
 if '#adminCommandBar.is-scroll-collapsed .admin-command-inner' not in main_css_text or 'height:38px!important;' not in main_css_text: fail('Collapsed Admin Command ist nicht einzeilig')
