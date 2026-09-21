@@ -5635,3 +5635,14 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     letter-spacing:0!important;
   }
 }
+
+
+/* ===== V15.1.113 · Refresh/mobile HOME/MORE fixes ===== */
+@media(max-width:800px){
+  /* Match the hero→ranking spacing: 14px between ranking and next match as well. */
+  #homePage .home-dashboard-grid{gap:0!important}
+  #homePage .home-dashboard-grid>aside .home-standings{margin:0 0 14px!important}
+
+  /* Author-level display rules must never override feature-gated [hidden] entries. */
+  #mobileMoreMenu .mobile-more-grid a[hidden]{display:none!important}
+}

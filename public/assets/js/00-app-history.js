@@ -1,6 +1,7 @@
 (()=>{
 'use strict';
 const KEY='__skielsen_nav_v1';
+const PERSIST_KEY='skielsen.nav.current.v1';
 const handlers=new Map();
 let restoring=false;
 
@@ -8,9 +9,19 @@ function cloneData(data){
   if(!data||typeof data!=='object')return {};
   try{return JSON.parse(JSON.stringify(data))}catch(_){return {}}
 }
+function readPersisted(){
+  try{
+    const raw=sessionStorage.getItem(PERSIST_KEY);
+    const entry=raw?JSON.parse(raw):null;
+    return entry&&entry.area&&entry.view?entry:null;
+  }catch(_){return null}
+}
+function persist(entry){
+  try{if(entry)sessionStorage.setItem(PERSIST_KEY,JSON.stringify(entry));else sessionStorage.removeItem(PERSIST_KEY)}catch(_){}
+}
 function current(){
   const raw=history.state&&history.state[KEY];
-  return raw&&raw.area&&raw.view?raw:null;
+  return raw&&raw.area&&raw.view?raw:readPersisted();
 }
 function same(a,b){
   if(!a||!b||a.area!==b.area||a.view!==b.view)return false;
@@ -19,12 +30,14 @@ function same(a,b){
 function write(mode,area,view,data={}){
   if(!area||!view)return null;
   const next={version:1,area:String(area),view:String(view),data:cloneData(data)};
-  const prev=current();
-  if(mode==='push'&&same(prev,next))return prev;
+  const stateEntry=history.state&&history.state[KEY];
+  const prev=stateEntry||current();
+  if(mode==='push'&&stateEntry&&same(prev,next))return prev;
   const base=history.state&&typeof history.state==='object'?{...history.state}:{};
   base[KEY]=next;
   if(mode==='replace')history.replaceState(base,'',location.href);
   else history.pushState(base,'',location.href);
+  persist(next);
   return next;
 }
 function register(area,handler){
@@ -41,7 +54,7 @@ async function restore(entry){
 }
 window.addEventListener('popstate',event=>{
   const entry=event.state&&event.state[KEY];
-  if(entry)void restore(entry);
+  if(entry){persist(entry);void restore(entry)}
 });
 window.skielsenHistory={
   push:(area,view,data)=>write('push',area,view,data),
