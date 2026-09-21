@@ -128,9 +128,36 @@ function ingestWordChainResult(tournamentGameId,result){
   return true;
 }
 
+function ingestTicTacToeResult(tournamentGameId,result){
+  const st=engine?.state,rt=engine?.runtime;
+  if(!st||!rt||!result||result.game_key!=='tic_tac_toe'||!Array.isArray(result.standings))return false;
+  const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);
+  if(gi<0)return false;
+  const g=st.games[gi],m=(g.matches||[])[g.matchIndex||0];
+  if(!m||!m.a||!m.b)return false;
+  const rows=[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999));
+  if(rows.length!==2)return false;
+  const ids=new Set(rows.map(r=>r.participant_id));
+  if(!ids.has(m.a)||!ids.has(m.b))return false;
+  const resultKey=String(result._session_id||result.finalized_at||result.completed_at||'')+'|'+String(m.id||g.matchIndex||0);
+  g.ticTacToeHandledResults=g.ticTacToeHandledResults||{};
+  if(resultKey&&g.ticTacToeHandledResults[resultKey])return true;
+  const winnerId=rows[0]?.participant_id;
+  if(winnerId!==m.a&&winnerId!==m.b)return false;
+  if(typeof engine.concludeCurrentMatch!=='function')return false;
+  const ok=winnerId===m.a?engine.concludeCurrentMatch(1,0):engine.concludeCurrentMatch(0,1);
+  if(ok){
+    if(resultKey)g.ticTacToeHandledResults[resultKey]=true;
+    g.inAppMatchResult=result;
+    persistLocalState();
+  }
+  return !!ok;
+}
+
 function ingestInAppGameResult(tournamentGameId,result){
   if(result?.game_key==='higher_lower')return ingestHigherLowerResult(tournamentGameId,result);
   if(result?.game_key==='word_chain')return ingestWordChainResult(tournamentGameId,result);
+  if(result?.game_key==='tic_tac_toe')return ingestTicTacToeResult(tournamentGameId,result);
   const st=engine?.state,rt=engine?.runtime;if(!st||!rt||!result||result.game_key!=='buzzer_time_stoppen'||!Array.isArray(result.standings))return false;
   const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);if(gi<0)return false;const g=st.games[gi],rows=[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)),placements=rows.map(r=>r.participant_id),valid=new Set((st.participants||[]).map(p=>p.id));
   if(placements.length!==(st.participants||[]).length||new Set(placements).size!==placements.length||placements.some(id=>!valid.has(id)))return false;
