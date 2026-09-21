@@ -177,8 +177,16 @@ function renderReady(){
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='MATCH WIRD GESTARTET …';setMessage('');
     try{
       const ok=await window.skielsenV15?.startMatch?.();
-      if(!ok){btn.disabled=false;btn.textContent='MATCH STARTEN →';setMessage('MATCH KANN NOCH NICHT GESTARTET WERDEN.')}
-    }catch(err){btn.disabled=false;btn.textContent='MATCH STARTEN →';setMessage('STARTFEHLER · '+String(err?.message||err))}
+      if(!ok){
+        btn.disabled=false;btn.textContent='MATCH STARTEN →';setMessage('MATCH KANN NOCH NICHT GESTARTET WERDEN.');
+        return;
+      }
+      await rpc('start_tic_tac_toe_match',{p_session_id:session.session_id});
+      message='';
+      await refresh(true);
+    }catch(err){
+      btn.disabled=false;btn.textContent='MATCH STARTEN →';setMessage('STARTFEHLER · '+String(err?.message||err));
+    }
   });
 }
 function boardForViewer(){
