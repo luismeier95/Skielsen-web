@@ -1398,51 +1398,60 @@ body.v15-tournament-active[data-theme-pack] :is(
 }
 
 
-/* ===== V15.1.104b · MORE is intentionally light in every theme ===== */
-@media(max-width:800px){
-  body.v15-tournament-active[data-theme-pack] .mobile-more-menu{
-    background:#fff!important;
-    color:#050505!important;
-    border-color:#e8e8e8!important
-  }
-  body.v15-tournament-active[data-theme-pack] .mobile-more-handle{background:#c8c8c8!important}
-  body.v15-tournament-active[data-theme-pack] .mobile-more-grid a{
-    background:#fff!important;
-    color:#050505!important;
-    border-color:#ececec!important
-  }
-  body.v15-tournament-active[data-theme-pack] .mobile-more-grid a b,
-  body.v15-tournament-active[data-theme-pack] .mobile-more-grid .mobile-more-arrow,
-  body.v15-tournament-active[data-theme-pack] .mobile-more-grid .mobile-more-icon{
-    color:#050505!important
-  }
-}
-
-
-/* ===== V15.1.104c · HARD LIGHT AUTHORITY FOR MOBILE MORE =====
-   ID specificity intentionally overrides legacy theme-nav rules with !important.
+/* ===== V15.1.104d · MOBILE MORE THEME AUTHORITY =====
+   Core / Core 2 stay white. All other tournament themes inherit their own
+   surface, text, border and muted colors.
 */
 @media(max-width:800px){
-  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu.mobile-more-menu{
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core"] #mobileMoreMenu.mobile-more-menu,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"] #mobileMoreMenu.mobile-more-menu{
     background:#fff!important;
     color:#050505!important;
     border-color:#e8e8e8!important;
   }
-  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-handle{
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core"] #mobileMoreMenu .mobile-more-handle,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"] #mobileMoreMenu .mobile-more-handle{
     background:#c8c8c8!important;
   }
-  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid a{
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core"] #mobileMoreMenu .mobile-more-grid a,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"] #mobileMoreMenu .mobile-more-grid a{
     background:#fff!important;
     color:#050505!important;
     border-color:#ececec!important;
   }
-  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid a b,
-  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid .mobile-more-arrow{
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core"] #mobileMoreMenu .mobile-more-grid a b,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core"] #mobileMoreMenu .mobile-more-grid .mobile-more-arrow,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"] #mobileMoreMenu .mobile-more-grid a b,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"] #mobileMoreMenu .mobile-more-grid .mobile-more-arrow{
     color:#050505!important;
     -webkit-text-fill-color:#050505!important;
   }
-  html body.v15-tournament-active[data-theme-pack] #mobileMoreMenu .mobile-more-grid .mobile-more-icon{
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core"] #mobileMoreMenu .mobile-more-grid .mobile-more-icon,
+  html body.v15-tournament-active[data-theme-pack="theme.skielsen.core2"] #mobileMoreMenu .mobile-more-grid .mobile-more-icon{
     color:#050505!important;
     background-color:#050505!important;
+  }
+
+  html body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #mobileMoreMenu.mobile-more-menu{
+    background:var(--theme-surface)!important;
+    color:var(--theme-on-surface)!important;
+    border-color:var(--theme-border)!important;
+  }
+  html body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #mobileMoreMenu .mobile-more-handle{
+    background:color-mix(in srgb,var(--theme-on-surface) 24%,transparent)!important;
+  }
+  html body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #mobileMoreMenu .mobile-more-grid a{
+    background:var(--theme-surface)!important;
+    color:var(--theme-on-surface)!important;
+    border-color:var(--theme-border)!important;
+  }
+  html body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #mobileMoreMenu .mobile-more-grid a b,
+  html body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #mobileMoreMenu .mobile-more-grid .mobile-more-arrow{
+    color:var(--theme-on-surface)!important;
+    -webkit-text-fill-color:var(--theme-on-surface)!important;
+  }
+  html body.v15-tournament-active[data-theme-pack]:not([data-theme-pack="theme.skielsen.core"]):not([data-theme-pack="theme.skielsen.core2"]) #mobileMoreMenu .mobile-more-grid .mobile-more-icon{
+    color:var(--theme-on-surface)!important;
+    background-color:var(--theme-on-surface)!important;
   }
 }
