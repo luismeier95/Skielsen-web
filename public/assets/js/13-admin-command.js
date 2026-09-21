@@ -1,10 +1,10 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.81';
+const VERSION=window.SKIELSEN_VERSION||'15.1.88';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
-let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='';
+let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=()=>window.skielsenV15||null;
@@ -206,13 +206,62 @@ async function runAction(action){
   }
   return false;
 }
+/* V15.1.88 · scroll-collapse experiment
+   Desktop Admin Command stays fixed, but the active page's first hero/content
+   compresses it into a one-line status rail as that container reaches it. */
+function collapseAnchor(){
+  const page=document.querySelector('.app-page.active');
+  if(!page)return null;
+  const preferred=[
+    '.home-dashboard-hero',
+    '.main-page-hero',
+    '.utility-hero',
+    '.games-intro',
+    '.jl-hero',
+    '.admin-hero-clean'
+  ];
+  for(const selector of preferred){
+    const node=page.querySelector(selector);
+    if(node&&node.getClientRects().length)return node;
+  }
+  return Array.from(page.children||[]).find(node=>node.getClientRects?.().length)||null;
+}
+function syncCollapseState(){
+  const host=ensureHost();
+  const desktop=window.matchMedia('(min-width:801px)').matches;
+  if(!desktop||host.hidden||!document.body.classList.contains('v15-tournament-active')){
+    host.classList.remove('is-scroll-collapsed');
+    return;
+  }
+  const anchor=collapseAnchor(),header=document.querySelector('.sk-header');
+  if(!anchor||!header){
+    host.classList.remove('is-scroll-collapsed');
+    return;
+  }
+  const headerBottom=header.getBoundingClientRect().bottom;
+  const bodyStyle=getComputedStyle(document.body);
+  const gap=parseFloat(bodyStyle.getPropertyValue('--v15-admin-command-gap'))||5;
+  const expandedHeight=parseFloat(bodyStyle.getPropertyValue('--v15-frozen-admin-height'))||72;
+  const collisionLine=headerBottom+gap+expandedHeight;
+  const anchorTop=anchor.getBoundingClientRect().top;
+  host.classList.toggle('is-scroll-collapsed',anchorTop<=collisionLine);
+}
+function queueCollapseSync(){
+  if(collapseRaf)return;
+  collapseRaf=requestAnimationFrame(()=>{
+    collapseRaf=0;
+    syncCollapseState();
+  });
+}
+
 function render(){
   const host=ensureHost();
   const visible=!!(state()&&isAdmin()&&document.body.classList.contains('v15-tournament-active')&&!window.skielsenInApp?.fullscreen);
   document.body.classList.toggle('admin-command-visible',visible);
-  if(!visible){cancelHold();host.hidden=true;return;}
+  if(!visible){cancelHold();host.hidden=true;host.classList.remove('is-scroll-collapsed');return;}
   const data=model(),signature=JSON.stringify(data);
   host.hidden=false;host.dataset.tone=data.tone||'wait';
+  syncCollapseState();
   if(lastSignature===signature)return;
   cancelHold();lastSignature=signature;
 
@@ -227,12 +276,14 @@ function render(){
   const actions=(data.actions||[]).slice(0,2).map(actionMarkup).join('');
   host.innerHTML='<div class="admin-command-inner"><div class="admin-command-brand"><small>ADMIN COMMAND</small><span class="admin-command-state"><i aria-hidden="true"></i>'+esc(data.status||'STATUS')+'</span></div><div class="admin-command-copy"><strong>'+esc(data.title||'NÄCHSTER SCHRITT')+'</strong><span>'+esc(data.copy||'')+'</span></div><div class="admin-command-tools">'+utility+'<div class="admin-command-actions">'+actions+'</div></div><div class="admin-command-context">'+esc(data.context||'')+'<b aria-hidden="true">⌄</b></div></div>';
   bind(host);
+  queueCollapseSync();
 }
 
 window.addEventListener('skielsen:tournament-render',render);
 window.addEventListener('skielsen:inapp-session',()=>{lastSignature='';render();});
 window.addEventListener('popstate',()=>setTimeout(render,0));
-window.addEventListener('resize',()=>{if(holdButton)cancelHold(holdButton);});
+window.addEventListener('resize',()=>{if(holdButton)cancelHold(holdButton);queueCollapseSync();});
+window.addEventListener('scroll',queueCollapseSync,{passive:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 
 let tries=0;

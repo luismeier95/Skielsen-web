@@ -4778,3 +4778,80 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     scroll-padding-top:var(--v15-frozen-header-height)!important;
   }
 }
+
+
+/* ===== V15.1.88 · Admin Command scroll-collapse experiment =====
+   The fixed desktop command rail morphs to one status line when the
+   active page's first container reaches the expanded command area.
+*/
+@media(min-width:801px){
+  body.v15-tournament-active #adminCommandBar.admin-command-bar,
+  body.v15-tournament-active #adminCommandBar .admin-command-inner{
+    transition:
+      min-height .18s ease,
+      height .18s ease,
+      padding .18s ease,
+      border-radius .18s ease,
+      box-shadow .18s ease!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-inner{
+    min-height:38px!important;
+    height:38px!important;
+    padding:0 14px!important;
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+    gap:14px!important;
+    align-items:center!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand{
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    padding-right:14px!important;
+    min-width:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-brand>small{
+    font-size:7px!important;
+    letter-spacing:.7px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-state{
+    font-size:7px!important;
+    gap:6px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-state>i{
+    width:7px!important;
+    height:7px!important;
+    flex-basis:7px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-copy{
+    min-width:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-copy>strong{
+    font-size:9px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-copy>span,
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-tools{
+    display:none!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context{
+    min-height:0!important;
+    padding-left:14px!important;
+    font-size:7px!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context>b{
+    display:none!important;
+  }
+}
