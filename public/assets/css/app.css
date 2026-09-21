@@ -2770,6 +2770,9 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
    PLAYER, GAMES, NEWS and ADMIN live in the thumb-zone MORE drawer. */
 @media(max-width:800px){
   body{padding-bottom:84px}
+  body.mobile-more-open{overflow:hidden}
+  body.mobile-more-open #adminCommandBar,
+  body.mobile-more-open .mobile-profile-nav{display:none!important}
   .mobile-nav{grid-template-columns:repeat(5,1fr)!important;height:76px}
   .mobile-nav>a,.mobile-nav>.mobile-more-trigger{
     border:0;background:#050505;color:#777;text-decoration:none;display:flex;flex-direction:column;
@@ -2778,9 +2781,9 @@ body.profile-matches-open #profilePage>#playerOverviewDashboard{display:revert!i
   .mobile-nav>.mobile-more-trigger{padding:0}
   .mobile-nav>a.active,.mobile-nav>.mobile-more-trigger.active{color:#fff}
   .mobile-nav>.mobile-more-trigger.active:after{content:"";position:absolute;bottom:0;width:32px;height:4px;background:var(--app-accent,#7c5cff)}
-  .mobile-more-backdrop{position:fixed;top:0;left:0;right:0;bottom:var(--mobile-more-bottom,76px);background:rgba(5,5,5,.44);z-index:2290}
+  .mobile-more-backdrop{position:fixed;top:0;left:0;right:0;bottom:var(--mobile-more-bottom,76px);background:rgba(5,5,5,.44);z-index:4090}
   .mobile-more-menu{
-    position:fixed;left:0;right:0;bottom:var(--mobile-more-bottom,76px);z-index:2300;background:#fff;border-top:4px solid #050505;max-height:calc(100dvh - var(--mobile-more-bottom,76px));overflow-y:auto;
+    position:fixed;left:0;right:0;bottom:var(--mobile-more-bottom,76px);z-index:4100;background:#fff;border-top:4px solid #050505;max-height:calc(100dvh - var(--mobile-more-bottom,76px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
     padding:0 12px calc(12px + env(safe-area-inset-bottom));transform:translateY(calc(100% + 90px));
     transition:transform .22s ease;box-shadow:0 -10px 35px rgba(0,0,0,.18);
   }
