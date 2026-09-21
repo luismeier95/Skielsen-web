@@ -202,25 +202,29 @@ function ensureBuzzerAssets(){
   return buzzerAssetsPromise;
 }
 function ensureMoreLessAssets(){
-  if(window.skielsenMoreLess)return Promise.resolve();
+  if(!document.querySelector('link[data-more-less-css]')&&!document.getElementById('more-less-game-css')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}&fix=molux11`;link.dataset.moreLessCss='1';
+    document.head.appendChild(link);
+  }
+  if(window.skielsenMoreLess?.mount)return Promise.resolve(window.skielsenMoreLess);
   if(moreLessAssetsPromise)return moreLessAssetsPromise;
   moreLessAssetsPromise=new Promise((resolve,reject)=>{
-    if(!document.querySelector('link[data-more-less-css]')){
-      const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/more-or-less-game.css?v=${VERSION}&fix=molux10`;link.dataset.moreLessCss='1';
-      document.head.appendChild(link);
-    }
-    const existing=document.querySelector('script[data-more-less-js]');
-    if(existing){
-      if(window.skielsenMoreLess){resolve();return}
-      existing.addEventListener('load',()=>resolve(),{once:true});
-      existing.addEventListener('error',reject,{once:true});
-      return;
-    }
+    const finish=()=>{
+      if(window.skielsenMoreLess?.mount){resolve(window.skielsenMoreLess);return}
+      reject(new Error('MORE_LESS_MODULE_NOT_REGISTERED'));
+    };
+    const existing=document.querySelector('script[data-more-less-js],#more-less-game-runtime');
+    if(existing)existing.remove();
     const script=document.createElement('script');
-    script.src=`assets/js/11-more-or-less-game.js?v=${VERSION}&fix=molux10`;
-    script.defer=true;script.dataset.moreLessJs='1';
-    script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
+    script.src=`assets/js/11-more-or-less-game.js?v=${VERSION}&fix=molux11`;
+    script.dataset.moreLessJs='1';
+    script.onload=finish;
+    script.onerror=()=>reject(new Error('MORE_LESS_ASSET_LOAD_FAILED'));
+    document.head.appendChild(script);
+  }).catch(err=>{
+    moreLessAssetsPromise=null;
+    throw err;
   });
   return moreLessAssetsPromise;
 }
@@ -327,15 +331,18 @@ function renderMoreLessSession(s){
     host.innerHTML=`<div id="v15MoreLessRoot" data-session="${esc(s.session_id)}"><div class="v15-inapp-message">MEHR ODER WENIGER WIRD GELADEN …</div></div>`;
     gameRoot=document.getElementById('v15MoreLessRoot');
   }
-  ensureMoreLessAssets().then(()=>{
+  ensureMoreLessAssets().then(api=>{
     const rootNow=document.getElementById('v15MoreLessRoot');
-    if(rootNow&&playerSession?.session_id===s.session_id){
-      window.skielsenMoreLess?.mount?.(rootNow,s,db);
-      window.skielsenMoreLess?.updateSession?.(s);
-    }
+    const sameSession=String(playerSession?.session_id||'')===String(s.session_id||'');
+    if(!rootNow||!sameSession)return;
+    const mounted=api?.mount?.(rootNow,s,db);
+    if(mounted===false)throw new Error('MORE_LESS_MOUNT_REJECTED');
+    api?.updateSession?.(s);
   }).catch(err=>{
     console.warn('More or Less assets',err);
-    if(gameRoot)gameRoot.innerHTML='<div class="v15-inapp-message">MEHR-ODER-WENIGER-MODUL KONNTE NICHT GELADEN WERDEN.</div>';
+    moreLessAssetsPromise=null;
+    const rootNow=document.getElementById('v15MoreLessRoot');
+    if(rootNow)rootNow.innerHTML='<div class="v15-inapp-message">MEHR ODER WENIGER KONNTE NICHT INITIALISIERT WERDEN.<br><small>SEITE NEU LADEN ODER ERNEUT ÖFFNEN.</small></div>';
   });
 }
 
