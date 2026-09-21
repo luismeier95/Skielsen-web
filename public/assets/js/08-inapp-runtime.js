@@ -15,7 +15,7 @@ const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
 let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,wordChainAssetsPromise=null,ticTacToeAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
-let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME';
+let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME',localTestTicTacToeActive=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
@@ -559,6 +559,7 @@ async function forceStartFromReadyPage(s){
   await pollPlayer();
 }
 async function pollPlayer(){
+  if(localTestTicTacToeActive)return;
   if(pollBusy||!db||!rt?.tournament_id)return;
   pollBusy=true;
   try{
@@ -607,6 +608,15 @@ function isWordChainGame(g){
 }
 function isTicTacToeGame(g){
   return g?.game_id==='game.tictactoe.classic_disappear'||/TIC\s*TAC\s*TOE/i.test(String(g?.name||''));
+}
+function currentMatchHasSoloTestBot(g=currentGame()){
+  const st=window.skielsenV15?.state;
+  const control=window.skielsenV15?.gameControl;
+  const localGame=control?.g===g?control.g:(st?.games||[]).find(x=>x.tournament_game_id===g?.tournament_game_id)||g;
+  const m=control?.g===g?control.m:(localGame?.matches||[])[localGame?.matchIndex||0];
+  if(!m)return false;
+  const byId=id=>(st?.participants||[]).find(p=>p.id===id);
+  return [m.a,m.b].some(id=>!!byId(id)?.isBotParticipant);
 }
 function nativeGameIsLive(g){
   if(!g)return false;
@@ -739,7 +749,8 @@ async function refreshAdmin(force){
     const r=await db.rpc('get_in_app_game_session_admin',{p_session_id:adminSession.session_id});
     if(!r.error)adminSession=r.data||adminSession;
   }
-  if(supportedNativeGame(g)&&nativeGameIsLive(g)&&!rt?.test_mode)await ensureNativeLifecycle(g);
+  const tttPrestart=isTicTacToeGame(g)&&['PREPARING','ACTIVE'].includes(String(g?.phase||'').toUpperCase())&&!currentMatchHasSoloTestBot(g);
+  if(supportedNativeGame(g)&&((nativeGameIsLive(g)&&!rt?.test_mode)||tttPrestart))await ensureNativeLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
@@ -806,7 +817,9 @@ async function autoAssignNativePlayers(){
   return true;
 }
 async function ensureNativeLifecycle(g){
-  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g)||!nativeGameIsLive(g))return;
+  if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g))return;
+  if(!isTicTacToeGame(g)&&!nativeGameIsLive(g))return;
+  if(isTicTacToeGame(g)&&currentMatchHasSoloTestBot(g))return;
   autoLifecycleBusy=true;
   try{
     const expectedKey=gameKeyFor(g),expectedModule=moduleKeyFor(g);
@@ -905,7 +918,51 @@ async function completeAdminSession(){
   await db.rpc('complete_in_app_game_session',{p_session_id:adminSession.session_id});
   adminSession=null;adminCandidates=[];renderAdmin();await pollPlayer();
 }
+async function startTestTicTacToe(runtime,g,m){
+  rt=runtime||window.skielsenV15?.runtime||rt;
+  db=window.skielsenDb?.client||db;
+  const st=window.skielsenV15?.state;
+  if(!rt?.test_mode||!isTicTacToeGame(g)||!m||!st)return false;
+  const pA=(st.participants||[]).find(p=>p.id===m.a);
+  const pB=(st.participants||[]).find(p=>p.id===m.b);
+  const bot=pA?.isBotParticipant?pA:(pB?.isBotParticipant?pB:null);
+  const human=bot?.id===pA?.id?pB:pA;
+  if(!bot||!human)return false;
+
+  localTestTicTacToeActive=true;
+  playerSession=null;
+  const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
+  prepareInAppSurface('ttt-test-'+String(m.id||Date.now()),g?.name||'TIC TAC TOE',true);
+  layer.classList.remove('buzzer-mode','word-chain-mode');
+  layer.hidden=false;
+  host.innerHTML='<div id="v15TicTacToeRoot" data-test-bot="true"><div class="v15-inapp-message">TIC TAC TOE TEST-BOT WIRD GELADEN …</div></div>';
+  updateInAppChrome();
+
+  try{
+    await ensureTicTacToeAssets();
+    const rootNow=document.getElementById('v15TicTacToeRoot');
+    if(!rootNow)return false;
+    window.skielsenTicTacToe?.mountTestBot?.(rootNow,{
+      human:{id:human.id,name:human.name,color:human.color},
+      bot:{id:bot.id,name:bot.name,color:bot.color},
+      onComplete:winnerId=>{
+        const a=winnerId===m.a?1:0,b=winnerId===m.b?1:0;
+        finishInAppSurface();
+        window.skielsenV15?.concludeCurrentMatch?.(a,b);
+      }
+    });
+    openInAppFullscreen('push');
+    return true;
+  }catch(err){
+    localTestTicTacToeActive=false;
+    console.warn('Tic Tac Toe local test bot',err);
+    host.innerHTML='<div class="v15-inapp-message">TIC-TAC-TOE-TESTBOT KONNTE NICHT GELADEN WERDEN.</div>';
+    return false;
+  }
+}
+
 function finishInAppSurface(){
+  localTestTicTacToeActive=false;
   const layer=ensureLayer();
   layer.hidden=true;
   window.skielsenBuzzerTime?.unmount?.();
@@ -950,6 +1007,7 @@ window.addEventListener('beforeunload',()=>{
 });
 window.skielsenInApp={
   start,
+  startTestTicTacToe,
   poll:pollPlayer,
   minimize:()=>minimizeInApp(true),
   minimizeForNavigation:()=>minimizeInApp(false),
