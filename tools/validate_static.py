@@ -119,7 +119,7 @@ if 'ingestHigherLowerResult' not in bridge_text: fail('Mehr-oder-Weniger Result-
 # Optional feature context contract: disabled tournament features must not leak into active pages/popups.
 admin_command_text=(PUBLIC/'assets/js/13-admin-command.js').read_text(encoding='utf-8')
 if "const bettingEnabled=feature('feature.betting')" not in engine_text: fail('Winner-Popup ist nicht explizit an Betting-Feature gekoppelt')
-if "resultSettlement.hidden=!bettingEnabled" not in engine_text or "resultWallet.hidden=!bettingEnabled" not in engine_text: fail('Winner-Popup blendet Betting Settlement/Wallet bei deaktiviertem Betting nicht aus')
+if "settlement.hidden=!bettingEnabled" not in engine_text or "wallet.hidden=!bettingEnabled" not in engine_text: fail('Winner-Popup blendet Betting Settlement/Wallet bei deaktiviertem Betting nicht aus')
 if "if(!feature('feature.betting')||!m)return" not in engine_text: fail('Lokale Betting-Abrechnung läuft ohne Feature-Gate')
 if "if(!feature(engine?.runtime,'feature.betting')||!m)return" not in bridge_text: fail('In-App Result-Bridge rechnet Betting ohne Feature-Gate ab')
 if "voteFeature=(rt,type)=>String(rt?.mode||'').toUpperCase()==='TEAM'" not in bridge_text: fail('In-App Voting berücksichtigt TEAM-only Contract nicht')
