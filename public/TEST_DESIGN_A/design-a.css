@@ -1,0 +1,796 @@
+/*
+  SKIELSEN · TEST DESIGN A
+  Leitidee: "Ice / Architectural Glass"
+  -------------------------------------
+  Unabhängiger visueller Test-Layer für die bestehende Vollversion.
+  Keine Produktivlogik wird verändert.
+*/
+
+html[data-skielsen-design-a="ice"]{
+  --ice-ink:#07152e;
+  --ice-ink-2:#20334f;
+  --ice-muted:#71839a;
+  --ice-page:#eaf3ff;
+  --ice-surface:rgba(255,255,255,.64);
+  --ice-surface-strong:rgba(255,255,255,.84);
+  --ice-surface-soft:rgba(255,255,255,.40);
+  --ice-line:rgba(255,255,255,.82);
+  --ice-line-dark:rgba(24,58,99,.14);
+  --ice-accent:#46a9ff;
+  --ice-accent-2:#91d1ff;
+  --ice-shadow:0 18px 46px rgba(53,92,136,.13),inset 0 1px 0 rgba(255,255,255,.85);
+
+  --black:#07152e!important;
+  --white:#fff!important;
+  --g50:rgba(255,255,255,.46)!important;
+  --g100:rgba(255,255,255,.58)!important;
+  --g150:rgba(25,58,96,.10)!important;
+  --g200:rgba(25,58,96,.14)!important;
+  --g300:rgba(25,58,96,.22)!important;
+  --g500:#71839a!important;
+  --app-accent:#46a9ff!important;
+  --app-accent-soft:rgba(70,169,255,.13)!important;
+
+  --theme-root-canvas:#eaf3ff!important;
+  --theme-browser-color:#eaf3ff!important;
+  --theme-page:transparent!important;
+  --theme-on-page:#07152e!important;
+  --theme-surface:rgba(255,255,255,.64)!important;
+  --theme-on-surface:#07152e!important;
+  --theme-surface-soft:rgba(255,255,255,.42)!important;
+  --theme-on-surface-soft:#20334f!important;
+  --theme-surface-muted:rgba(235,244,255,.58)!important;
+  --theme-on-surface-muted:#20334f!important;
+  --theme-border:rgba(255,255,255,.78)!important;
+  --theme-border-strong:rgba(24,58,99,.18)!important;
+  --theme-muted:#71839a!important;
+  --theme-faint:#9babc0!important;
+  --theme-placeholder:#8697ad!important;
+  --theme-header:rgba(247,251,255,.75)!important;
+  --theme-on-header:#07152e!important;
+  --theme-nav:rgba(255,255,255,.70)!important;
+  --theme-on-nav:#07152e!important;
+  --theme-nav-muted:#71839a!important;
+  --theme-inverse-surface:#07152e!important;
+  --theme-on-inverse:#fff!important;
+  --theme-accent:#46a9ff!important;
+  --theme-on-accent:#07152e!important;
+  --theme-accent-2:#91d1ff!important;
+  --theme-primary-action:#07152e!important;
+  --theme-on-primary-action:#fff!important;
+  --theme-secondary-action:rgba(255,255,255,.66)!important;
+  --theme-on-secondary-action:#07152e!important;
+  --theme-secondary-border:rgba(24,58,99,.16)!important;
+  --theme-dialog-bg:rgba(247,251,255,.92)!important;
+  --theme-on-dialog:#07152e!important;
+  --theme-overlay:rgba(26,50,80,.28)!important;
+  --theme-shadow:rgba(40,79,122,.16)!important;
+  --theme-shadow-soft:rgba(40,79,122,.09)!important;
+  --theme-focus:#46a9ff!important;
+}
+
+html[data-skielsen-design-a="ice"],
+html[data-skielsen-design-a="ice"] body{
+  min-height:100%;
+  background:
+    radial-gradient(circle at 76% 10%,rgba(124,184,242,.28),transparent 31%),
+    radial-gradient(circle at 12% 18%,rgba(255,255,255,.95),transparent 34%),
+    linear-gradient(145deg,#f5faff 0%,#dbe9f8 48%,#edf5fd 100%)!important;
+  color:var(--ice-ink)!important;
+}
+
+html[data-skielsen-design-a="ice"] body{
+  position:relative;
+  isolation:isolate;
+  background-attachment:fixed!important;
+}
+
+html[data-skielsen-design-a="ice"] body:before,
+html[data-skielsen-design-a="ice"] body:after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:-3;
+  border:1px solid rgba(255,255,255,.68);
+  background:linear-gradient(145deg,rgba(255,255,255,.48),rgba(118,170,225,.08));
+  box-shadow:inset 0 0 32px rgba(255,255,255,.30);
+}
+html[data-skielsen-design-a="ice"] body:before{
+  width:58vw;height:54vw;left:-18vw;top:-20vw;
+  transform:rotate(21deg);
+  clip-path:polygon(0 0,100% 10%,72% 100%,10% 76%);
+}
+html[data-skielsen-design-a="ice"] body:after{
+  width:52vw;height:52vw;right:-17vw;top:13vh;
+  transform:rotate(-12deg);
+  clip-path:polygon(28% 0,100% 18%,82% 100%,0 73%);
+}
+
+html[data-skielsen-design-a="ice"] *{
+  scrollbar-color:rgba(7,21,46,.28) transparent;
+}
+
+/* ---------- Global glass language ---------- */
+html[data-skielsen-design-a="ice"] :is(
+  .home-module,.panel,.skills-panel,.standings,.match-section,.ranking-section,
+  .bet-match-card,.bet-slip,.bet-context,.my-bets,.community-bets,.wallet-ledger,
+  .utility-panel,.detail-section,.detail-disclosure,.ranking-breakdown,
+  .games-filterbar,.game-card,.games-card,.v15-news-card,.news-card,
+  .jl-panel,.jl-invite,.jl-status,.jl-sheet-card,.jl-name-card,
+  .prototype-bet-deadline,.coin-wallet,.player-profile-switchbar,
+  .v1536-dialog,.match-result-pop__card,.mvp-complete-card,
+  .v1510-joker-dialog-card,.v1511-joker-resolution-card,
+  .v1536-pick-card,.dbb-panel,.dbb-profile-card,.dbb-action-card,
+  .dbb-create-option,.dbb-list>*,.dbb-home-head
+){
+  background:var(--ice-surface)!important;
+  border:1px solid var(--ice-line)!important;
+  border-radius:18px!important;
+  box-shadow:var(--ice-shadow)!important;
+  backdrop-filter:blur(24px) saturate(122%);
+  -webkit-backdrop-filter:blur(24px) saturate(122%);
+  clip-path:none!important;
+}
+
+/* ---------- Main header ---------- */
+html[data-skielsen-design-a="ice"] .sk-header{
+  position:sticky!important;
+  top:12px!important;
+  z-index:2400!important;
+  width:min(1460px,calc(100% - 28px))!important;
+  margin:12px auto 0!important;
+  background:rgba(247,251,255,.76)!important;
+  border:1px solid rgba(255,255,255,.86)!important;
+  border-radius:18px!important;
+  box-shadow:0 14px 36px rgba(45,84,126,.13),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  backdrop-filter:blur(28px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(130%)!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__main{
+  min-height:72px!important;
+  max-width:none!important;
+  padding:0 18px!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__logo{
+  filter:brightness(0) saturate(100%) invert(9%) sepia(23%) saturate(1767%) hue-rotate(178deg) brightness(93%) contrast(102%)!important;
+  max-height:31px!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__version{
+  color:var(--ice-muted)!important;
+  opacity:.78;
+}
+html[data-skielsen-design-a="ice"] .sk-header__nav{
+  gap:4px!important;
+  height:auto!important;
+  align-items:center!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__nav a{
+  min-height:40px!important;
+  padding:0 12px!important;
+  border-radius:11px!important;
+  color:var(--ice-muted)!important;
+  background:transparent!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__nav a:after{display:none!important}
+html[data-skielsen-design-a="ice"] .sk-header__nav a:hover{
+  background:rgba(255,255,255,.58)!important;
+  color:var(--ice-ink)!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__nav a.active{
+  color:#fff!important;
+  background:var(--ice-ink)!important;
+  box-shadow:0 8px 18px rgba(7,21,46,.16)!important;
+}
+html[data-skielsen-design-a="ice"] .sk-header__strip{
+  height:2px!important;
+  opacity:.52!important;
+}
+
+/* ---------- Page + editorial hero ---------- */
+html[data-skielsen-design-a="ice"] .page,
+html[data-skielsen-design-a="ice"] .app-page{
+  max-width:1420px!important;
+  padding:40px 26px 120px!important;
+  background:transparent!important;
+}
+html[data-skielsen-design-a="ice"] .main-page-hero,
+html[data-skielsen-design-a="ice"] .utility-hero,
+html[data-skielsen-design-a="ice"] .games-intro{
+  min-height:230px!important;
+  padding:44px 10px 34px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  clip-path:none!important;
+  overflow:visible!important;
+}
+html[data-skielsen-design-a="ice"] .main-page-hero:after,
+html[data-skielsen-design-a="ice"] .utility-hero:after,
+html[data-skielsen-design-a="ice"] .games-intro:after{display:none!important}
+html[data-skielsen-design-a="ice"] .main-hero-pre,
+html[data-skielsen-design-a="ice"] .bet-kicker,
+html[data-skielsen-design-a="ice"] .matches-kicker,
+html[data-skielsen-design-a="ice"] .ranking-kicker,
+html[data-skielsen-design-a="ice"] .news-kicker{
+  color:var(--ice-muted)!important;
+  font-size:9px!important;
+  letter-spacing:3px!important;
+}
+html[data-skielsen-design-a="ice"] :is(.main-page-hero,.utility-hero,.games-intro) h1{
+  margin-top:8px!important;
+  color:var(--ice-ink)!important;
+  font-size:clamp(48px,6vw,88px)!important;
+  line-height:.88!important;
+  letter-spacing:-3px!important;
+}
+html[data-skielsen-design-a="ice"] :is(.main-page-hero,.utility-hero,.games-intro) p{
+  color:var(--ice-ink-2)!important;
+  max-width:650px!important;
+  line-height:1.55!important;
+}
+
+/* Betting hero keeps wallet floating like the Design A study. */
+html[data-skielsen-design-a="ice"] #betsPage .bet-hero{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(260px,360px)!important;
+  align-items:end!important;
+  gap:32px!important;
+}
+html[data-skielsen-design-a="ice"] #betsPage .coin-wallet{
+  align-self:end!important;
+  justify-self:end!important;
+  min-width:300px!important;
+  padding:18px 20px!important;
+}
+html[data-skielsen-design-a="ice"] #betsPage .coin-wallet strong{
+  color:var(--ice-ink)!important;
+  font-size:30px!important;
+}
+html[data-skielsen-design-a="ice"] #betsPage .coin-wallet small,
+html[data-skielsen-design-a="ice"] #betsPage .coin-wallet span{color:var(--ice-muted)!important}
+
+/* ---------- Section heads ---------- */
+html[data-skielsen-design-a="ice"] :is(
+ .home-module-head,.match-section-head,.ranking-section-head,.bet-section-head,
+ .games-section-head,.utility-head,.detail-section-head,.pm-head,
+ .v1508-joker-section-head,.v1525-joker-section-head
+){
+  border-color:var(--ice-line-dark)!important;
+  color:var(--ice-ink)!important;
+}
+html[data-skielsen-design-a="ice"] :is(
+ .home-module-head,.match-section-head,.ranking-section-head,.bet-section-head,
+ .games-section-head,.utility-head,.detail-section-head
+) :is(small,span){color:var(--ice-muted)!important}
+
+/* ---------- Rounded floating actions ---------- */
+html[data-skielsen-design-a="ice"] button,
+html[data-skielsen-design-a="ice"] .context-back,
+html[data-skielsen-design-a="ice"] a[data-page]{
+  border-radius:11px;
+}
+html[data-skielsen-design-a="ice"] :is(
+  .primary-action,.place-bet-btn,.jl-primary,.jl-start,
+  .v1536-control-action,#gameControlStart,.prototype-mvp-continue,
+  .dbb-btn.primary,.dbb-home-signout
+){
+  border:0!important;
+  border-radius:12px!important;
+  background:var(--ice-ink)!important;
+  color:#fff!important;
+  box-shadow:0 10px 22px rgba(7,21,46,.18)!important;
+}
+html[data-skielsen-design-a="ice"] :is(
+  .primary-action,.place-bet-btn,.jl-primary,.jl-start,.v1536-control-action,
+  #gameControlStart,.dbb-btn.primary
+):hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 27px rgba(7,21,46,.22)!important;
+}
+html[data-skielsen-design-a="ice"] :is(
+ .detail-back,.context-back,.prototype-skip-bet,.v1508-joker-secondary,
+ .games-filter,.games-filter-toggle,.stake-presets button
+){
+  background:rgba(255,255,255,.58)!important;
+  color:var(--ice-ink)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:0 6px 16px rgba(53,92,136,.08)!important;
+}
+
+/* ---------- Home ---------- */
+html[data-skielsen-design-a="ice"] .home-dashboard-grid{
+  gap:16px!important;
+}
+html[data-skielsen-design-a="ice"] .home-module{
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .home-match-card,
+html[data-skielsen-design-a="ice"] .action-card,
+html[data-skielsen-design-a="ice"] .home-story{
+  border-radius:14px!important;
+  background:rgba(255,255,255,.52)!important;
+  border:1px solid rgba(255,255,255,.76)!important;
+}
+html[data-skielsen-design-a="ice"] .home-player-entry{
+  border-radius:15px!important;
+  background:rgba(255,255,255,.64)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+}
+html[data-skielsen-design-a="ice"] .home-player-avatar,
+html[data-skielsen-design-a="ice"] .avatar{
+  border-radius:16px!important;
+  clip-path:none!important;
+  background:var(--ice-ink)!important;
+}
+
+/* ---------- Profile ---------- */
+html[data-skielsen-design-a="ice"] #profilePage>.profile.main-page-hero{
+  grid-template-columns:110px 1fr auto!important;
+  min-height:220px!important;
+}
+html[data-skielsen-design-a="ice"] .profile-nav{
+  height:auto!important;
+  min-height:54px!important;
+  margin-bottom:16px!important;
+  padding:6px!important;
+  border-radius:15px!important;
+  background:rgba(255,255,255,.62)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+}
+html[data-skielsen-design-a="ice"] .profile-nav a{
+  border-radius:10px!important;
+  color:var(--ice-muted)!important;
+}
+html[data-skielsen-design-a="ice"] .profile-nav a:after{display:none!important}
+html[data-skielsen-design-a="ice"] .profile-nav a.active{
+  color:#fff!important;background:var(--ice-ink)!important;
+}
+
+/* ---------- Matches ---------- */
+html[data-skielsen-design-a="ice"] .match-section{
+  padding:18px!important;
+  margin-bottom:16px!important;
+}
+html[data-skielsen-design-a="ice"] :is(.match-card,.v20-match-card,.match-carousel>article){
+  border-radius:15px!important;
+  overflow:hidden!important;
+  border:1px solid var(--ice-line)!important;
+  background:rgba(255,255,255,.52)!important;
+  box-shadow:0 10px 25px rgba(53,92,136,.10)!important;
+}
+html[data-skielsen-design-a="ice"] .match-carousel{
+  gap:12px!important;
+}
+
+/* ---------- Match detail ---------- */
+html[data-skielsen-design-a="ice"] .match-detail-page{
+  background:transparent!important;
+}
+html[data-skielsen-design-a="ice"] .detail-hero{
+  border-radius:20px!important;
+  background:rgba(255,255,255,.56)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .detail-section{
+  margin-top:12px!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .detail-disclosure>summary{
+  border-radius:16px!important;
+  background:rgba(255,255,255,.58)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:0 8px 22px rgba(53,92,136,.08)!important;
+}
+
+/* ---------- Ranking ---------- */
+html[data-skielsen-design-a="ice"] .ranking-section{
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .ranking-row{
+  border-color:var(--ice-line-dark)!important;
+}
+html[data-skielsen-design-a="ice"] .ranking-row:hover{
+  background:rgba(255,255,255,.44)!important;
+}
+html[data-skielsen-design-a="ice"] .ranking-breakdown>summary{
+  border-radius:15px!important;
+  background:rgba(255,255,255,.58)!important;
+  border:1px solid var(--ice-line)!important;
+}
+
+/* ---------- Betting ---------- */
+html[data-skielsen-design-a="ice"] #betsPage{
+  max-width:1320px!important;
+}
+html[data-skielsen-design-a="ice"] .prototype-bet-deadline{
+  margin-bottom:12px!important;
+  padding:16px 18px!important;
+}
+html[data-skielsen-design-a="ice"] .bet-match-card{
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .bet-match-top{
+  border-color:var(--ice-line-dark)!important;
+}
+html[data-skielsen-design-a="ice"] .bet-teams{
+  padding:16px!important;
+}
+html[data-skielsen-design-a="ice"] .bet-team,
+html[data-skielsen-design-a="ice"] .bet-team-button,
+html[data-skielsen-design-a="ice"] .v1515-quickbet-choice{
+  border-radius:14px!important;
+  background:rgba(255,255,255,.50)!important;
+  border:1px solid var(--ice-line)!important;
+}
+html[data-skielsen-design-a="ice"] .bet-team.selected,
+html[data-skielsen-design-a="ice"] .bet-team-button.selected,
+html[data-skielsen-design-a="ice"] .v1515-quickbet-choice.selected{
+  background:var(--ice-ink)!important;
+  color:#fff!important;
+  box-shadow:0 10px 24px rgba(7,21,46,.17)!important;
+}
+html[data-skielsen-design-a="ice"] .bet-slip{
+  margin-top:12px!important;
+  padding:18px!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .slip-selection,
+html[data-skielsen-design-a="ice"] .potential-win,
+html[data-skielsen-design-a="ice"] .custom-stake-field{
+  border-radius:12px!important;
+  background:rgba(255,255,255,.48)!important;
+  border-color:var(--ice-line)!important;
+}
+html[data-skielsen-design-a="ice"] .stake-presets button{
+  border-radius:10px!important;
+}
+html[data-skielsen-design-a="ice"] .stake-presets button.active{
+  background:var(--ice-ink)!important;color:#fff!important;
+}
+html[data-skielsen-design-a="ice"] .bet-disclosure{
+  margin-top:12px!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .bet-disclosure>summary{
+  border-radius:16px!important;
+  color:var(--ice-ink)!important;
+  background:rgba(255,255,255,.58)!important;
+}
+
+/* ---------- News ---------- */
+html[data-skielsen-design-a="ice"] .v15-news-feed{
+  display:grid!important;
+  gap:12px!important;
+}
+html[data-skielsen-design-a="ice"] .v15-news-item,
+html[data-skielsen-design-a="ice"] .v15-news-card{
+  border-radius:16px!important;
+  background:rgba(255,255,255,.62)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+}
+
+/* ---------- Games ---------- */
+html[data-skielsen-design-a="ice"] .games-filterbar{
+  padding:8px!important;
+}
+html[data-skielsen-design-a="ice"] .games-filter.active{
+  background:var(--ice-ink)!important;
+  color:#fff!important;
+}
+html[data-skielsen-design-a="ice"] .games-grid{
+  gap:12px!important;
+}
+html[data-skielsen-design-a="ice"] .game-card,
+html[data-skielsen-design-a="ice"] .games-card{
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .game-card:hover,
+html[data-skielsen-design-a="ice"] .games-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 20px 38px rgba(53,92,136,.16)!important;
+}
+
+/* ---------- Joker / Voting / Utility ---------- */
+html[data-skielsen-design-a="ice"] .utility-panel{
+  padding:20px!important;
+}
+html[data-skielsen-design-a="ice"] .joker-card,
+html[data-skielsen-design-a="ice"] .candidate-card,
+html[data-skielsen-design-a="ice"] .v1508-joker-game-list>*{
+  border-radius:14px!important;
+  background:rgba(255,255,255,.54)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:0 9px 22px rgba(53,92,136,.08)!important;
+}
+html[data-skielsen-design-a="ice"] .joker-card.selected,
+html[data-skielsen-design-a="ice"] .candidate-card.selected{
+  outline:2px solid var(--ice-accent)!important;
+  outline-offset:1px!important;
+}
+
+/* ---------- Admin ---------- */
+html[data-skielsen-design-a="ice"] #adminPage :is(.admin-block,.admin-card,.admin-section,.theme-admin-card){
+  border-radius:16px!important;
+  background:rgba(255,255,255,.62)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+}
+html[data-skielsen-design-a="ice"] #adminPage input,
+html[data-skielsen-design-a="ice"] #adminPage select,
+html[data-skielsen-design-a="ice"] #adminPage textarea{
+  border-radius:10px!important;
+  background:rgba(255,255,255,.68)!important;
+  border-color:var(--ice-line)!important;
+  color:var(--ice-ink)!important;
+}
+
+/* ---------- Game control ---------- */
+html[data-skielsen-design-a="ice"] .game-control-layout{
+  gap:14px!important;
+}
+html[data-skielsen-design-a="ice"] .v1535-control-state-body,
+html[data-skielsen-design-a="ice"] .prototype-control-bet-gate{
+  border-radius:13px!important;
+  background:rgba(255,255,255,.48)!important;
+  border:1px solid var(--ice-line)!important;
+}
+
+/* ---------- Account / Supabase bootstrap ---------- */
+html[data-skielsen-design-a="ice"] #dbBootstrapOverlay{
+  background:
+    radial-gradient(circle at 75% 12%,rgba(111,170,232,.25),transparent 30%),
+    linear-gradient(145deg,#f6fbff,#dceafa 50%,#eef6ff)!important;
+  color:var(--ice-ink)!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-top{
+  width:min(1460px,calc(100% - 28px))!important;
+  margin:12px auto 0!important;
+  border-radius:18px!important;
+  background:rgba(247,251,255,.78)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:var(--ice-shadow)!important;
+  backdrop-filter:blur(28px)!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-brand img{
+  filter:brightness(0) saturate(100%) invert(9%) sepia(23%) saturate(1767%) hue-rotate(178deg) brightness(93%) contrast(102%)!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-main{
+  max-width:1420px!important;
+  padding-top:54px!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-title{
+  color:var(--ice-ink)!important;
+  font-size:clamp(44px,5.5vw,78px)!important;
+  letter-spacing:-2.5px!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-kicker,
+html[data-skielsen-design-a="ice"] .dbb-lead{
+  color:var(--ice-muted)!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-panel,
+html[data-skielsen-design-a="ice"] .dbb-action-card,
+html[data-skielsen-design-a="ice"] .dbb-create-option{
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-action-card:hover,
+html[data-skielsen-design-a="ice"] .dbb-create-option:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 20px 38px rgba(53,92,136,.16)!important;
+}
+html[data-skielsen-design-a="ice"] .dbb-field input,
+html[data-skielsen-design-a="ice"] .dbb-field select{
+  border-radius:11px!important;
+  background:rgba(255,255,255,.70)!important;
+  color:var(--ice-ink)!important;
+  border-color:var(--ice-line)!important;
+}
+
+/* ---------- Join / Lobby ---------- */
+html[data-skielsen-design-a="ice"] .jl-hero{
+  background:transparent!important;
+  border:0!important;
+}
+html[data-skielsen-design-a="ice"] .jl-team-card,
+html[data-skielsen-design-a="ice"] .jl-player-card,
+html[data-skielsen-design-a="ice"] .jl-waiting>*{
+  border-radius:13px!important;
+  background:rgba(255,255,255,.52)!important;
+  border:1px solid var(--ice-line)!important;
+}
+
+/* ---------- Modals ---------- */
+html[data-skielsen-design-a="ice"] :is(
+ .v1536-modal,.match-result-pop,.mvp-complete-popup,
+ .v1510-joker-dialog,.v1511-joker-resolution-dialog,.v1536-pick-overlay
+){
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+}
+html[data-skielsen-design-a="ice"] :is(
+ .v1536-dialog,.match-result-pop__card,.mvp-complete-card,
+ .v1510-joker-dialog-card,.v1511-joker-resolution-card
+){
+  border-radius:20px!important;
+}
+
+/* ---------- Admin Command ---------- */
+html[data-skielsen-design-a="ice"] .admin-command-bar{
+  left:14px!important;
+  right:14px!important;
+  width:auto!important;
+  border-radius:17px!important;
+  background:rgba(7,21,46,.94)!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  box-shadow:0 14px 34px rgba(7,21,46,.25)!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .admin-command-inner{
+  border-radius:17px!important;
+}
+html[data-skielsen-design-a="ice"] .admin-command-action{
+  border-radius:10px!important;
+}
+
+/* ---------- Mobile nav ---------- */
+html[data-skielsen-design-a="ice"] .mobile-nav{
+  left:10px!important;
+  right:10px!important;
+  bottom:10px!important;
+  width:auto!important;
+  height:68px!important;
+  border-radius:17px!important;
+  padding:5px!important;
+  background:rgba(247,251,255,.84)!important;
+  border:1px solid rgba(255,255,255,.90)!important;
+  box-shadow:0 14px 32px rgba(42,82,126,.19)!important;
+  backdrop-filter:blur(26px)!important;
+  -webkit-backdrop-filter:blur(26px)!important;
+  overflow:hidden!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-nav>a,
+html[data-skielsen-design-a="ice"] .mobile-nav>.mobile-more-trigger{
+  border-radius:12px!important;
+  background:transparent!important;
+  color:var(--ice-muted)!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-nav>a.active,
+html[data-skielsen-design-a="ice"] .mobile-nav>.mobile-more-trigger.active{
+  color:#fff!important;
+  background:var(--ice-ink)!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-nav>a.active:after,
+html[data-skielsen-design-a="ice"] .mobile-nav>.mobile-more-trigger.active:after{
+  display:none!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-profile-nav{
+  left:10px!important;
+  right:10px!important;
+  width:auto!important;
+  border-radius:14px!important;
+  background:rgba(247,251,255,.82)!important;
+  border:1px solid var(--ice-line)!important;
+  box-shadow:0 10px 24px rgba(42,82,126,.12)!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-more-backdrop{
+  background:rgba(27,54,86,.24)!important;
+  backdrop-filter:blur(5px)!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-more-menu{
+  left:10px!important;
+  right:10px!important;
+  border-radius:18px 18px 0 0!important;
+  border:1px solid var(--ice-line)!important;
+  border-bottom:0!important;
+  background:rgba(247,251,255,.90)!important;
+  box-shadow:0 -16px 40px rgba(42,82,126,.18)!important;
+  backdrop-filter:blur(28px)!important;
+}
+html[data-skielsen-design-a="ice"] .mobile-more-menu:before{
+  content:"";
+  display:block;
+  width:44px;
+  height:4px;
+  border-radius:99px;
+  background:rgba(7,21,46,.22);
+  margin:9px auto 2px;
+}
+html[data-skielsen-design-a="ice"] .mobile-more-grid a{
+  border-radius:12px!important;
+  background:rgba(255,255,255,.55)!important;
+  border-color:var(--ice-line)!important;
+  color:var(--ice-ink)!important;
+}
+
+/* ---------- Inputs ---------- */
+html[data-skielsen-design-a="ice"] input,
+html[data-skielsen-design-a="ice"] select,
+html[data-skielsen-design-a="ice"] textarea{
+  border-radius:10px!important;
+}
+html[data-skielsen-design-a="ice"] input:focus,
+html[data-skielsen-design-a="ice"] select:focus,
+html[data-skielsen-design-a="ice"] textarea:focus,
+html[data-skielsen-design-a="ice"] button:focus-visible{
+  outline:3px solid rgba(70,169,255,.34)!important;
+  outline-offset:2px!important;
+}
+
+/* ---------- Responsive ---------- */
+@media(max-width:900px){
+  html[data-skielsen-design-a="ice"] .sk-header{
+    top:6px!important;
+    margin-top:6px!important;
+    width:calc(100% - 12px)!important;
+    border-radius:15px!important;
+  }
+  html[data-skielsen-design-a="ice"] .sk-header__main{
+    min-height:58px!important;
+    padding:0 12px!important;
+  }
+  html[data-skielsen-design-a="ice"] .page,
+  html[data-skielsen-design-a="ice"] .app-page{
+    padding:24px 12px 110px!important;
+  }
+  html[data-skielsen-design-a="ice"] .main-page-hero,
+  html[data-skielsen-design-a="ice"] .utility-hero,
+  html[data-skielsen-design-a="ice"] .games-intro{
+    min-height:180px!important;
+    padding:28px 6px 22px!important;
+  }
+  html[data-skielsen-design-a="ice"] :is(.main-page-hero,.utility-hero,.games-intro) h1{
+    font-size:clamp(44px,14vw,68px)!important;
+    letter-spacing:-2.5px!important;
+  }
+  html[data-skielsen-design-a="ice"] #betsPage .bet-hero{
+    display:block!important;
+  }
+  html[data-skielsen-design-a="ice"] #betsPage .coin-wallet{
+    justify-self:stretch!important;
+    width:100%!important;
+    min-width:0!important;
+    margin-top:18px!important;
+  }
+  html[data-skielsen-design-a="ice"] .home-dashboard-grid,
+  html[data-skielsen-design-a="ice"] .dashboard,
+  html[data-skielsen-design-a="ice"] .jl-layout{
+    grid-template-columns:1fr!important;
+  }
+  html[data-skielsen-design-a="ice"] .admin-command-bar{
+    left:10px!important;
+    right:10px!important;
+    bottom:88px!important;
+  }
+  html[data-skielsen-design-a="ice"] body.admin-command-visible{
+    padding-bottom:280px!important;
+  }
+  html[data-skielsen-design-a="ice"] body.admin-command-visible.profile-page-active{
+    padding-bottom:338px!important;
+  }
+}
+
+@media(max-width:560px){
+  html[data-skielsen-design-a="ice"] .sk-header__logo{max-height:24px!important}
+  html[data-skielsen-design-a="ice"] .home-module,
+  html[data-skielsen-design-a="ice"] .match-section,
+  html[data-skielsen-design-a="ice"] .ranking-section,
+  html[data-skielsen-design-a="ice"] .bet-match-card,
+  html[data-skielsen-design-a="ice"] .bet-slip,
+  html[data-skielsen-design-a="ice"] .utility-panel{
+    border-radius:15px!important;
+  }
+  html[data-skielsen-design-a="ice"] #profilePage>.profile.main-page-hero{
+    grid-template-columns:58px 1fr!important;
+  }
+  html[data-skielsen-design-a="ice"] .profile-ranking{
+    grid-column:1/-1!important;
+    text-align:left!important;
+    margin-top:12px!important;
+  }
+}
