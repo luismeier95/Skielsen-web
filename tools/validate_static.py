@@ -155,6 +155,10 @@ if 'create_tic_tac_toe_match_session' not in runtime_text or 'get_tic_tac_toe_re
 if 'ingestTicTacToeResult' not in bridge_text or "result?.game_key==='tic_tac_toe'" not in bridge_text: fail('Tic Tac Toe Result-Handoff fehlt')
 if 'concludeCurrentMatch' not in engine_text.split('window.skielsenV15=',1)[-1]: fail('Canonical Match Conclusion ist nicht für native Spiele exportiert')
 if "actors.filter(a=>a.isBot&&a.soloColor&&!byColor.has(a.soloColor))" not in engine_text or "isBotParticipant:true" not in engine_text: fail('SOLO Test-Bots werden nicht als Turnier-Participants materialisiert')
+mobile_nav_text=(PUBLIC/'assets/js/04-mobile-navigation.js').read_text(encoding='utf-8')
+if "document.body.classList.add('mobile-more-open')" not in mobile_nav_text or "document.body.classList.remove('mobile-more-open')" not in mobile_nav_text: fail('Mobile MORE Drawer setzt keinen Overlay-State')
+if 'body.mobile-more-open #adminCommandBar{display:none!important}' not in main_css: fail('Admin Command wird im Mobile MORE Drawer nicht ausgeblendet')
+if '.mobile-more-backdrop{position:fixed;inset:0;background:rgba(5,5,5,.44);z-index:2290}' not in main_css or 'bottom:76px;z-index:2300' not in main_css: fail('Mobile MORE Drawer liegt nicht sicher über der Admin Command Bar')
 
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
