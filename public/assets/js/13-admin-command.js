@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.110';
+const VERSION=window.SKIELSEN_VERSION||'15.1.114';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
 let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=true;
@@ -83,6 +83,10 @@ function model(){
 
   if(session){
     const status=String(session.status||'').toUpperCase(),ready=readySnapshot(session);
+    const moreLessTest=!!(runtime()?.test_mode&&/^Mehr oder Weniger$/i.test(String(runtime()?.tournament_name||'').trim())&&String(session.game?.module_key||'')==='more-or-less');
+    if(moreLessTest&&['WAITING_FOR_PLAYERS','READY','ASSIGNED','CONNECTED'].includes(status)){
+      return {tone:'warning',status:'TESTSTART',title:'MEHR ODER WENIGER STARTBEREIT',copy:'Der Test-Bot wird als zweiter Player in den Lauf aufgenommen.',context,actions:[{id:'force-inapp-start',label:'START ERZWINGEN',primary:true,hold:true},{id:'live',label:'SESSION ÖFFNEN'}]};
+    }
     if(['WAITING_FOR_PLAYERS','READY','ASSIGNED','CONNECTED'].includes(status)&&ready.total&&ready.ready<ready.total){
       const missing=ready.total-ready.ready,names=ready.waiting.slice(0,2).join(', ');
       return {tone:'danger',status:'BLOCKER',title:missing+' SPIELER NOCH NICHT BEREIT',copy:ready.ready+' / '+ready.total+' bereit'+(names?' · Warte auf '+names+'.':''),context,actions:[{id:'live',label:'PLAYER STATUS',primary:true},{id:'match',label:'MATCH ANSEHEN'}]};
@@ -193,6 +197,7 @@ async function runAction(action){
     if(action==='vote'){if(!g?.vote||!voteFeatureEnabled(g.vote.type))return false;a?.show?.('mvpVote');return true;}
     if(action==='ranking'){a?.show?.('ranking');return true;}
     if(action==='reveal'){if(!voteFeaturesEnabled())return false;return !!a?.beginPostGameAwardReveal?.(g);}
+    if(action==='force-inapp-start')return !!(await window.skielsenInApp?.forceStartCurrent?.());
     if(action==='live'){
       if(window.skielsenInApp?.session){if(window.skielsenInApp.openFullscreen?.())return true;return !!(await window.skielsenInApp.openActive?.());}
       if(m){a?.openMatchDetail?.(m);return true;}

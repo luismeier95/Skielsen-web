@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.81';
+const VERSION=window.SKIELSEN_VERSION||'15.1.114';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -455,6 +455,7 @@ function renderPlayerSession(s){
   }
   const ready=s.me?.status==='READY',active=s.status==='ACTIVE';
   const isWordChain=s.game?.module_key===WORD_CHAIN_MODULE;
+  const isMoreLess=s.game?.module_key===MORE_LESS_MODULE;
   const isTicTacToe=s.game?.module_key===TIC_TAC_TOE_MODULE;
   document.body.classList.toggle('v15-word-chain-inapp-open',isWordChain);
   const forceStartWithoutReady=!!s.public_state?.force_start_without_ready;
@@ -490,7 +491,7 @@ function renderPlayerSession(s){
     :(isWordChain&&forceStartWithoutReady
       ?'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. IN DIESEM QA-TURNIER DARF DER ADMIN DIE WORTKETTE AUCH STARTEN, WENN NOCH NICHT ALLE PLAYER READY SIND.'
       :'BESTÄTIGE AUF DIESEM GERÄT, DASS DU BEREIT BIST. DIE SESSION STARTET ERST, WENN ALLE AUSGEWÄHLTEN PLAYER BEREIT SIND.');
-  const showReadyForceStart=!!(rt?.is_admin&&isWordChain&&forceStartWithoutReady&&String(s.status||'')==='WAITING_FOR_PLAYERS');
+  const showReadyForceStart=!!(rt?.is_admin&&String(s.status||'')==='WAITING_FOR_PLAYERS'&&((isWordChain&&forceStartWithoutReady)||(isMoreLess&&isMoreLessNamedQaTest())));
   const chrome=`<div class="v15-inapp-kicker">SKIELSEN · IN-APP GAME</div><h1 class="v15-inapp-title">${esc(s.game?.name||'IN-APP GAME')}</h1><div class="v15-inapp-meta"><span class="v15-inapp-status" data-status="${esc(s.status)}"><i></i>${esc(statusDE(s.status))}</span><span>SEAT ${esc(s.me?.seat||'—')}</span><span>SESSION ${esc(String(s.session_id||'').slice(0,8).toUpperCase())}</span></div>`;
   if(isWordChain&&!active){
     const readySignature=JSON.stringify({
@@ -506,7 +507,7 @@ function renderPlayerSession(s){
     const readyPage=host.querySelector('.v15-wordchain-ready-page');
     if(readyPage)readyPage.dataset.readySignature=readySignature;
   }else{
-    host.innerHTML=chrome+`<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message" id="v15InAppReadyMessage">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button></div>`}</section>`;
+    host.innerHTML=chrome+`<section class="v15-inapp-panel"><div class="v15-inapp-panel-head"><b>AUSGEWÄHLTE PLAYER</b><span>NUR DIESE ACCOUNTS ERHALTEN DIE SESSION</span></div><div class="v15-inapp-roster">${rosterHtml(s)}</div>${active?`<div class="v15-inapp-gamehost" id="v15InAppGameHost"><h2>SESSION ACTIVE</h2><p>Das Game-Modul <b>${esc(s.game?.module_key||'—')}</b> ist noch nicht implementiert.</p><button class="v15-inapp-btn" id="v15InAppTestAction" type="button">TEST-AKTION SENDEN</button><div class="v15-inapp-feedback" id="v15InAppFeedback"></div></div>`:`<div class="v15-inapp-message" id="v15InAppReadyMessage">${readyMessage}</div><div class="v15-inapp-actions"><button class="v15-inapp-btn ${ready?'secondary':''}" id="v15InAppReady" type="button">${ready?'BEREITS BEREIT ✓':'ICH BIN BEREIT'}</button>${showReadyForceStart?'<button class="v15-inapp-btn force" id="v15InAppReadyForceStart" type="button">START ERZWINGEN</button>':''}</div>`}</section>`;
   }
 
   document.getElementById('v15InAppReady')?.addEventListener('click',()=>setReady(!ready));
@@ -542,21 +543,32 @@ async function setReady(v){
   if(r.error){console.warn('In-App ready',r.error);return}
   await pollPlayer();
 }
+async function forceStartCurrent(){
+  const s=playerSession||adminSession;
+  if(!rt?.is_admin||!db||!s?.session_id)return false;
+  const current=currentGame();
+  const wordChainAllowed=s.game?.module_key===WORD_CHAIN_MODULE&&s?.public_state?.force_start_without_ready;
+  const moreLessAllowed=s.game?.module_key===MORE_LESS_MODULE&&isMoreLessNamedQaTest(current);
+  if(!wordChainAllowed&&!moreLessAllowed)return false;
+  const r=await db.rpc('start_in_app_game_session',{p_session_id:s.session_id});
+  if(r.error){console.warn('In-App force start',r.error);return false}
+  await refreshAdmin(true);
+  await pollPlayer();
+  return true;
+}
 async function forceStartFromReadyPage(s){
-  const allowed=!!(rt?.is_admin&&s?.game?.module_key===WORD_CHAIN_MODULE&&s?.public_state?.force_start_without_ready&&String(s?.status||'')==='WAITING_FOR_PLAYERS');
+  const current=currentGame();
+  const allowed=!!(rt?.is_admin&&String(s?.status||'')==='WAITING_FOR_PLAYERS'&&((s?.game?.module_key===WORD_CHAIN_MODULE&&s?.public_state?.force_start_without_ready)||(s?.game?.module_key===MORE_LESS_MODULE&&isMoreLessNamedQaTest(current))));
   if(!allowed||!db||!s?.session_id)return;
   const btn=document.getElementById('v15InAppReadyForceStart');
   const msg=document.getElementById('v15InAppReadyMessage');
   if(btn){btn.disabled=true;btn.textContent='STARTET …'}
   if(msg){msg.hidden=false;msg.textContent='ADMIN-START WIRD ERZWUNGEN …';}
-  const r=await db.rpc('start_in_app_game_session',{p_session_id:s.session_id});
-  if(r.error){
-    console.warn('Wortkette force start',r.error);
+  const ok=await forceStartCurrent();
+  if(!ok){
     if(btn){btn.disabled=false;btn.textContent='START ERZWINGEN'}
-    if(msg){msg.hidden=false;msg.textContent='STARTFEHLER · '+String(r.error.message||'UNBEKANNT');}
-    return;
+    if(msg){msg.hidden=false;msg.textContent='STARTFEHLER · SESSION KONNTE NICHT GESTARTET WERDEN.';}
   }
-  await pollPlayer();
 }
 async function pollPlayer(){
   if(localTestTicTacToeActive)return;
@@ -602,6 +614,9 @@ function isBuzzerGame(g){
 }
 function isMoreLessGame(g){
   return g?.game_id==='game.higher_lower'||/MEHR\s+ODER\s+WENIGER/i.test(String(g?.name||''));
+}
+function isMoreLessNamedQaTest(g=currentGame()){
+  return !!(rt?.test_mode&&isMoreLessGame(g)&&/^Mehr oder Weniger$/i.test(String(rt?.tournament_name||'').trim()));
 }
 function isWordChainGame(g){
   return g?.game_id==='game.wortkette.compound_nouns'||g?.game_id==='game.word_chain'||/WORTKETTE/i.test(String(g?.name||''));
@@ -703,21 +718,21 @@ function renderAdmin(){
   st.textContent=adminSession?statusDE(adminSession.status):'KEINE SESSION';
   const isBuzzer=adminSession?.game?.module_key===BUZZER_MODULE;
   const isWordChain=adminSession?.game?.module_key===WORD_CHAIN_MODULE;
+  const isMoreLess=adminSession?.game?.module_key===MORE_LESS_MODULE;
   const isTicTacToe=adminSession?.game?.module_key===TIC_TAC_TOE_MODULE;
-  const isAutoNative=isBuzzer||adminSession?.game?.module_key===MORE_LESS_MODULE||isTicTacToe;
+  const isAutoNative=isBuzzer||isMoreLess||isTicTacToe;
+  const isMoreLessTest=isMoreLess&&isMoreLessNamedQaTest();
   const forceStartWithoutReady=!!adminSession?.public_state?.force_start_without_ready;
   const assignedPlayers=adminSession?.players?.length||0;
   const minPlayers=Number(adminSession?.game?.min_players||2);
-  const canForceStart=isWordChain
-    &&forceStartWithoutReady
-    &&assignedPlayers>=minPlayers
-    &&String(adminSession?.status||'')==='WAITING_FOR_PLAYERS';
+  const waiting=String(adminSession?.status||'')==='WAITING_FOR_PLAYERS';
+  const canForceStart=(isWordChain&&forceStartWithoutReady&&assignedPlayers>=minPlayers&&waiting)||(isMoreLessTest&&waiting);
   const startBtn=document.getElementById('v15InAppStart');
   const forceStartBtn=document.getElementById('v15InAppForceStart');
   const createBtn=document.getElementById('v15InAppCreate');
   if(startBtn){startBtn.hidden=!!isAutoNative;startBtn.disabled=!adminSession||adminSession.status!=='READY'}
   if(forceStartBtn){
-    forceStartBtn.hidden=!(isWordChain&&forceStartWithoutReady&&String(adminSession?.status||'')==='WAITING_FOR_PLAYERS');
+    forceStartBtn.hidden=!((isWordChain&&forceStartWithoutReady&&waiting)||(isMoreLessTest&&waiting));
     forceStartBtn.disabled=!canForceStart;
   }
   if(createBtn){createBtn.hidden=!!isAutoNative;createBtn.disabled=!!adminSession}
@@ -725,7 +740,7 @@ function renderAdmin(){
   const completeBtn=document.getElementById('v15InAppComplete');
   if(completeBtn){completeBtn.hidden=!!isAutoNative;completeBtn.disabled=!!isAutoNative||!adminSession||adminSession.status!=='ACTIVE'}
   if(info&&adminSession){
-    const extra=isAutoNative?' · AUTO-FLOW · ABSCHLUSS AUTOMATISCH':(forceStartWithoutReady?' · QA-OVERRIDE · ADMIN-START OHNE ALLE READYS ERLAUBT':'');
+    const extra=isMoreLessTest&&waiting?' · TEST-BOT · START ERZWINGEN VERFÜGBAR':(isAutoNative?' · AUTO-FLOW · ABSCHLUSS AUTOMATISCH':(forceStartWithoutReady?' · QA-OVERRIDE · ADMIN-START OHNE ALLE READYS ERLAUBT':''));
     info.textContent=`SESSION ${String(adminSession.session_id).slice(0,8).toUpperCase()} · ${adminSession.players?.length||0} PLAYER · ${statusDE(adminSession.status)}${extra}`;
   }else if(info&&isBuzzerGame(currentGame())&&buzzerGameIsLive(currentGame())){
     info.textContent='BUZZER SESSION WIRD AUTOMATISCH VORBEREITET …';
@@ -750,7 +765,8 @@ async function refreshAdmin(force){
     if(!r.error)adminSession=r.data||adminSession;
   }
   const tttPrestart=isTicTacToeGame(g)&&['PREPARING','ACTIVE'].includes(String(g?.phase||'').toUpperCase())&&!currentMatchHasSoloTestBot(g);
-  if(supportedNativeGame(g)&&((nativeGameIsLive(g)&&!rt?.test_mode)||tttPrestart))await ensureNativeLifecycle(g);
+  const moreLessTest=isMoreLessNamedQaTest(g);
+  if(supportedNativeGame(g)&&((nativeGameIsLive(g)&&!rt?.test_mode)||tttPrestart||moreLessTest))await ensureNativeLifecycle(g);
   renderAdmin();
 }
 async function assignRows(rows){
@@ -818,7 +834,7 @@ async function autoAssignNativePlayers(){
 }
 async function ensureNativeLifecycle(g){
   if(autoLifecycleBusy||!rt?.is_admin||!db||!g?.tournament_game_id||!supportedNativeGame(g))return;
-  if(!isTicTacToeGame(g)&&!nativeGameIsLive(g))return;
+  if(!isTicTacToeGame(g)&&!nativeGameIsLive(g)&&!isMoreLessNamedQaTest(g))return;
   if(isTicTacToeGame(g)&&currentMatchHasSoloTestBot(g))return;
   autoLifecycleBusy=true;
   try{
@@ -1008,6 +1024,7 @@ window.addEventListener('beforeunload',()=>{
 window.skielsenInApp={
   start,
   startTestTicTacToe,
+  forceStartCurrent,
   poll:pollPlayer,
   minimize:()=>minimizeInApp(true),
   minimizeForNavigation:()=>minimizeInApp(false),

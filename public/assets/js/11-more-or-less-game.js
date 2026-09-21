@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -20,6 +20,7 @@ const tierLabel=t=>String(t||'NORMAL').toUpperCase();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const selectedTier=()=>String(session?.public_state?.familiarity_tier||'').toUpperCase();
 const isAdmin=()=>!!window.skielsenV15?.runtime?.is_admin;
+const isTestBotTournament=()=>!!(window.skielsenV15?.runtime?.test_mode&&/^Mehr oder Weniger$/i.test(String(window.skielsenV15?.runtime?.tournament_name||'').trim()));
 function categoryPoolForTier(tier){
   const t=tierLabel(tier);
   return CATEGORY_POOL.filter(c=>c.category_key!=='LENGTH'||t==='HARDCORE');
@@ -47,6 +48,17 @@ function categoryLabel(){
   return label;
 }
 function playerByMemberId(id){return (state?.players||[]).find(p=>p.member_id===id)||null}
+function scheduleBotTurn(){
+  clearTimeout(botTimer);botTimer=0;
+  if(!isAdmin()||!isTestBotTournament()||state?.phase!=='QUESTION'||!state?.current_player?.is_bot)return;
+  const key=[state?.category_no,state?.turn_no,state?.current_player?.participant_id].join('|');
+  botTimer=setTimeout(()=>{
+    botTimer=0;
+    if(busy||!isAdmin()||!isTestBotTournament()||state?.phase!=='QUESTION'||!state?.current_player?.is_bot)return;
+    const seed=String(key).split('').reduce((n,ch)=>((n*33)+ch.charCodeAt(0))>>>0,5381);
+    void act((seed%2)===0?'MORE':'LESS');
+  },850);
+}
 function playStatusMarkup(player){
   const name=String(player?.display_name||player?.member_name||'PLAYER').toUpperCase();
   return `<section class="mol-full-play-status">
@@ -209,7 +221,7 @@ function questionMarkup(){
 function revealMarkup(){
   const lr=state?.last_result||{},ok=!!lr.ok,mine=state?.viewer?.member_id===lr.answer_member_id;
   const ref=state?.reference||{},cur=state?.current||{};
-  const actor=playerByMemberId(lr.answer_member_id)||state?.current_player||{};
+  const actor=playerById(lr.participant_id)||playerByMemberId(lr.answer_member_id)||state?.current_player||{};
   const refLabel=lr.reference_label||ref.label||'—';
   const refValue=lr.reference_display_value||lr.reference_value||ref.display_value||ref.value||'—';
   const curLabel=lr.current_label||cur.label||'—';
@@ -274,6 +286,7 @@ function render(){
   if(categoryAnimating)return;
 
   if(state.phase==='REVEAL'){
+    clearTimeout(botTimer);botTimer=0;
     const lr=state?.last_result||{};
     const key=[state.category_no,lr.answer_member_id,lr.current_label,lr.current_display_value,lr.ok].join('|');
     if(feedbackKey===key&&root.querySelector('.mol-full-compare.is-feedback')){bindChrome();return}
@@ -307,6 +320,7 @@ function render(){
   else root.innerHTML=questionMarkup();
   bindChrome();
   root.querySelectorAll('[data-mol-choice]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.molChoice)));
+  scheduleBotTurn();
 }
 async function act(type){
   if(!db||!session?.session_id||busy)return;
@@ -338,7 +352,7 @@ async function poll(){
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession?.session_id||!nextDb)return false;
-  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer)}
+  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(botTimer);botTimer=0}
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
@@ -356,7 +370,7 @@ function updateSession(nextSession){
   if(!before&&after)void poll();
 }
 function unmount(){
-  clearInterval(pollTimer);pollTimer=0;animationToken++;clearTimeout(feedbackTimer);feedbackKey='';root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
+  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;animationToken++;clearTimeout(feedbackTimer);feedbackKey='';root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
 }
 window.skielsenMoreLess={mount,updateSession,unmount,poll,setTier};
 })();
