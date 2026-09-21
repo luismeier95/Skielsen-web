@@ -4679,3 +4679,51 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     scroll-padding-top:calc(var(--sk-header-height) + var(--sk-strip-height) + 72px);
   }
 }
+
+
+/* ===== V15.1.84 · Frozen desktop tournament chrome =====
+   Excel-style freeze panes: use viewport-fixed chrome instead of CSS sticky.
+   Sticky was unreliable because the page root intentionally clips horizontal overflow.
+*/
+@media(min-width:801px){
+  body.v15-tournament-active{
+    --v15-frozen-header-height:calc(var(--sk-header-height) + var(--sk-strip-height));
+    --v15-frozen-admin-height:72px;
+    padding-top:var(--v15-frozen-header-height)!important;
+  }
+
+  body.v15-tournament-active.admin-command-visible{
+    padding-top:calc(var(--v15-frozen-header-height) + var(--v15-frozen-admin-height))!important;
+  }
+
+  body.v15-tournament-active .sk-header{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    z-index:2300!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.admin-command-bar{
+    position:fixed!important;
+    top:var(--v15-frozen-header-height)!important;
+    left:0!important;
+    right:0!important;
+    width:100%!important;
+    z-index:2200!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar .admin-command-inner{
+    min-height:var(--v15-frozen-admin-height)!important;
+  }
+
+  body.v15-tournament-active{
+    scroll-padding-top:calc(var(--v15-frozen-header-height) + var(--v15-frozen-admin-height))!important;
+  }
+
+  body.v15-tournament-active:not(.admin-command-visible){
+    scroll-padding-top:var(--v15-frozen-header-height)!important;
+  }
+}

@@ -96,9 +96,10 @@ if 'higher_lower_action' not in more_less_js.read_text(encoding='utf-8') or 'get
 runtime_text=(PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8')
 main_css_text=(PUBLIC/'assets/css/app.css').read_text(encoding='utf-8')
 
-if 'V15.1.83 · Sticky desktop app chrome' not in main_css_text: fail('Sticky Desktop App Chrome fehlt')
-if 'position:sticky!important;\n  top:0!important;' not in main_css_text: fail('Top-Navigation ist nicht sticky')
-if 'top:calc(var(--sk-header-height) + var(--sk-strip-height))!important;' not in main_css_text: fail('Admin Command klebt nicht direkt unter der Top-Navigation')
+if 'V15.1.84 · Frozen desktop tournament chrome' not in main_css_text: fail('Frozen Desktop Tournament Chrome fehlt')
+if 'body.v15-tournament-active .sk-header{' not in main_css_text or 'position:fixed!important;' not in main_css_text: fail('Top-Navigation ist nicht viewport-fixed')
+if 'body.v15-tournament-active #adminCommandBar.admin-command-bar{' not in main_css_text or 'top:var(--v15-frozen-header-height)!important;' not in main_css_text: fail('Admin Command ist nicht direkt unter der fixierten Top-Navigation')
+if 'body.v15-tournament-active.admin-command-visible' not in main_css_text or 'padding-top:calc(var(--v15-frozen-header-height) + var(--v15-frozen-admin-height))!important;' not in main_css_text: fail('Content-Offset für eingefrorene Header/Admin-Leisten fehlt')
 if 'v15InAppLiveStrip' not in runtime_text: fail('In-App Live-Strip fehlt')
 if "MORE_LESS_MODULE='more-or-less'" not in runtime_text or 'ensureMoreLessAssets' not in runtime_text or 'ensureNativeLifecycle' not in runtime_text: fail('Mehr-oder-Weniger ist nicht in den In-App Auto-Flow integriert')
 if "db.rpc('activate_tournament_game'" not in runtime_text: fail('In-App Auto-Flow repariert Server-LIVE-Status nicht')
