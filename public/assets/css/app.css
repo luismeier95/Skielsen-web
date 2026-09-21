@@ -4854,50 +4854,10 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     font-size:7px!important;
   }
 
-  body.v15-tournament-active #adminCommandBar .admin-command-context{
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-end!important;
-    gap:7px!important;
-  }
-
-  body.v15-tournament-active #adminCommandBar .admin-command-toggle-glyph{
-    width:20px!important;
-    height:20px!important;
-    flex:0 0 20px!important;
-    display:inline-flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    color:var(--theme-inverse-text,#fff)!important;
-    line-height:0!important;
-  }
-
-  body.v15-tournament-active #adminCommandBar .admin-command-toggle-glyph::before{
-    content:"";
-    width:16px;
-    height:16px;
-    display:block;
-    background:currentColor;
-    -webkit-mask-image:url("../icons/admin-command-toggle.svg");
-    mask-image:url("../icons/admin-command-toggle.svg");
-    -webkit-mask-repeat:no-repeat;
-    mask-repeat:no-repeat;
-    -webkit-mask-position:center;
-    mask-position:center;
-    -webkit-mask-size:contain;
-    mask-size:contain;
-    transform:scaleY(-1);
-    transform-origin:center;
-    transition:transform .12s ease-out;
-  }
-
-  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-toggle-glyph::before{
-    transform:none;
-  }
 }
 
 
-/* ===== V15.1.96 · Mobile Admin Command image toggle =====
+/* ===== V15.1.97 · Mobile Admin Command image toggle =====
    Mobile starts collapsed by default. A tap on the rail expands/collapses it;
    scroll gestures never change its state.
 */
@@ -5010,24 +4970,45 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     white-space:nowrap!important;
   }
 
-  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context{
+  body.v15-tournament-active #adminCommandBar .admin-command-context{
     display:flex!important;
     align-items:center!important;
+    justify-content:flex-end!important;
     gap:7px!important;
   }
 
-  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-context>b{
-    width:18px!important;
-    height:18px!important;
+  body.v15-tournament-active #adminCommandBar .admin-command-toggle-glyph{
+    width:20px!important;
+    height:20px!important;
+    flex:0 0 20px!important;
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
-    flex:0 0 18px!important;
-    border:1px solid color-mix(in srgb,var(--theme-inverse-text,#fff) 28%,transparent)!important;
-    border-radius:50%!important;
     color:var(--theme-inverse-text,#fff)!important;
-    font-size:10px!important;
-    line-height:1!important;
+    line-height:0!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar .admin-command-toggle-glyph::before{
+    content:"";
+    width:16px;
+    height:16px;
+    display:block;
+    background:currentColor;
+    -webkit-mask-image:url("../icons/admin-command-toggle.svg");
+    mask-image:url("../icons/admin-command-toggle.svg");
+    -webkit-mask-repeat:no-repeat;
+    mask-repeat:no-repeat;
+    -webkit-mask-position:center;
+    mask-position:center;
+    -webkit-mask-size:contain;
+    mask-size:contain;
+    transform:scaleY(-1);
+    transform-origin:center;
+    transition:transform .12s ease-out;
+  }
+
+  body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-toggle-glyph::before{
+    transform:none;
   }
 
   /* Keep the document geometry identical in both states.
