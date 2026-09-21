@@ -5548,3 +5548,34 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   .mobile-more-grid .mobile-more-arrow,
   .mobile-more-grid .mobile-more-icon{color:#050505!important}
 }
+
+
+/* ===== V15.1.106 · Normalized mobile navigation icons =====
+   Source artwork is cropped to visible alpha bounds and centered on a common
+   64x64 canvas before rendering. All five bottom-nav icons share one optical box.
+*/
+@media(max-width:800px){
+  .mobile-nav>a,
+  .mobile-nav>.mobile-more-trigger{
+    gap:5px!important;
+  }
+
+  .mobile-nav-icon,
+  .mobile-more-trigger-icon{
+    width:24px!important;
+    height:24px!important;
+    flex:0 0 24px!important;
+    display:block!important;
+    font-size:0!important;
+    line-height:0!important;
+    background:currentColor!important;
+    -webkit-mask:var(--mobile-nav-icon) center/contain no-repeat!important;
+    mask:var(--mobile-nav-icon) center/contain no-repeat!important;
+  }
+
+  .mobile-nav-icon-home{--mobile-nav-icon:url("../icons/nav-home.png")}
+  .mobile-nav-icon-matches{--mobile-nav-icon:url("../icons/nav-matches.png")}
+  .mobile-nav-icon-ranking{--mobile-nav-icon:url("../icons/nav-ranking.png")}
+  .mobile-nav-icon-player{--mobile-nav-icon:url("../icons/nav-player.png")}
+  .mobile-more-trigger-icon{--mobile-nav-icon:url("../icons/nav-hamburger.png")}
+}
