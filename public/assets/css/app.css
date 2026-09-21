@@ -4727,3 +4727,54 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     scroll-padding-top:var(--v15-frozen-header-height)!important;
   }
 }
+
+
+/* ===== V15.1.87 · Desktop Admin Command inset + radius =====
+   Mirrors the HOME 12px viewport inset while staying viewport-fixed.
+*/
+@media(min-width:801px){
+  body.v15-tournament-active{
+    --v15-admin-command-gap:5px;
+    --v15-admin-command-inset:12px;
+  }
+
+  body.v15-tournament-active.admin-command-visible{
+    padding-top:calc(
+      var(--v15-frozen-header-height)
+      + var(--v15-admin-command-gap)
+      + var(--v15-frozen-admin-height)
+    )!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar.admin-command-bar{
+    position:fixed!important;
+    top:calc(var(--v15-frozen-header-height) + var(--v15-admin-command-gap))!important;
+    left:var(--v15-admin-command-inset)!important;
+    right:var(--v15-admin-command-inset)!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    border:1px solid color-mix(in srgb,var(--theme-border,#3a3a3a) 72%,transparent)!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+  }
+
+  body.v15-tournament-active #adminCommandBar .admin-command-inner{
+    width:100%!important;
+    max-width:none!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+  }
+
+  body.v15-tournament-active{
+    scroll-padding-top:calc(
+      var(--v15-frozen-header-height)
+      + var(--v15-admin-command-gap)
+      + var(--v15-frozen-admin-height)
+    )!important;
+  }
+
+  body.v15-tournament-active:not(.admin-command-visible){
+    scroll-padding-top:var(--v15-frozen-header-height)!important;
+  }
+}
