@@ -4860,7 +4860,7 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
 }
 
 
-/* ===== V15.1.91 · Mobile Admin Command responsive scroll collapse =====
+/* ===== V15.1.92 · Mobile Admin Command stable-geometry collapse =====
    Mobile mirrors the desktop inset/radius. An upward swipe collapses the
    command rail to one status line; a downward swipe or tap expands it again.
 */
@@ -4898,6 +4898,7 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
       min-height .11s ease-out,
       height .11s ease-out,
       padding .11s ease-out!important;
+    will-change:height;
   }
 
   body.v15-tournament-active.admin-command-visible{
@@ -4975,11 +4976,14 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     display:none!important;
   }
 
+  /* Keep the document geometry identical in both states.
+     On short pages, shrinking this spacer changes maxScrollY and creates a
+     synthetic reverse scroll event that can immediately undo the collapse. */
   body.v15-tournament-active.admin-command-visible.admin-command-collapsed{
-    padding-bottom:135px!important;
+    padding-bottom:270px!important;
   }
 
   body.v15-tournament-active.admin-command-visible.admin-command-collapsed.profile-page-active{
-    padding-bottom:193px!important;
+    padding-bottom:328px!important;
   }
 }

@@ -1,10 +1,10 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.88';
+const VERSION=window.SKIELSEN_VERSION||'15.1.92';
 const HOLD_MS=2000;
 let difficulty='NORMAL';
-let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,mobileCollapsed=false,mobileTouchStartX=null,mobileTouchStartY=null,mobileTouchTracking=false,mobileLastScrollY=Math.max(0,window.scrollY||0),mobileScrollDirection=0,mobileDirectionTravel=0;
+let holdButton=null,holdStarted=0,holdRaf=0,lastSignature='',collapseRaf=0,collapseScrollPending=false,mobileCollapsed=false,mobileTouchStartX=null,mobileTouchStartY=null,mobileTouchTracking=false,mobileLastScrollY=Math.max(0,window.scrollY||0),mobileScrollDirection=0,mobileDirectionTravel=0;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=()=>window.skielsenV15||null;
@@ -232,12 +232,18 @@ function collapseAnchor(){
 }
 function setMobileCollapsed(next){
   const host=ensureHost();
-  mobileCollapsed=!!next;
   const active=window.matchMedia('(max-width:800px)').matches
     &&!host.hidden
     &&document.body.classList.contains('v15-tournament-active');
-  host.classList.toggle('is-scroll-collapsed',active&&mobileCollapsed);
-  document.body.classList.toggle('admin-command-collapsed',active&&mobileCollapsed);
+  const desired=active&&!!next;
+  if(
+    mobileCollapsed===desired
+    &&host.classList.contains('is-scroll-collapsed')===desired
+    &&document.body.classList.contains('admin-command-collapsed')===desired
+  )return;
+  mobileCollapsed=desired;
+  host.classList.toggle('is-scroll-collapsed',desired);
+  document.body.classList.toggle('admin-command-collapsed',desired);
 }
 function mobileSwipeEligible(target){
   if(!window.matchMedia('(max-width:800px)').matches)return false;
@@ -259,7 +265,7 @@ function onMobileTouchMove(e){
   if(!mobileTouchTracking||e.touches?.length!==1)return;
   const x=e.touches[0].clientX,y=e.touches[0].clientY;
   const dx=x-mobileTouchStartX,dy=y-mobileTouchStartY;
-  if(Math.abs(dy)<18||Math.abs(dy)<Math.abs(dx)*1.1)return;
+  if(Math.abs(dy)<12||Math.abs(dy)<Math.abs(dx)*1.1)return;
   setMobileCollapsed(dy<0);
   mobileTouchStartX=x;
   mobileTouchStartY=y;
@@ -272,7 +278,7 @@ function onMobileTouchEnd(e){
   const dx=e.changedTouches[0].clientX-mobileTouchStartX;
   const dy=e.changedTouches[0].clientY-mobileTouchStartY;
   mobileTouchTracking=false;
-  if(Math.abs(dy)<24||Math.abs(dy)<Math.abs(dx)*1.1)return;
+  if(Math.abs(dy)<18||Math.abs(dy)<Math.abs(dx)*1.1)return;
   setMobileCollapsed(dy<0);
 }
 function syncMobileScrollIntent(){
@@ -302,8 +308,7 @@ function syncMobileScrollIntent(){
   mobileDirectionTravel=0;
 }
 function onWindowScroll(){
-  syncMobileScrollIntent();
-  queueCollapseSync();
+  queueCollapseSync(true);
 }
 function syncCollapseState(){
   const host=ensureHost();
@@ -338,10 +343,14 @@ function syncCollapseState(){
   const anchorTop=anchor.getBoundingClientRect().top;
   host.classList.toggle('is-scroll-collapsed',anchorTop<=collisionLine);
 }
-function queueCollapseSync(){
+function queueCollapseSync(trackScroll=false){
+  if(trackScroll)collapseScrollPending=true;
   if(collapseRaf)return;
   collapseRaf=requestAnimationFrame(()=>{
     collapseRaf=0;
+    const inspectScroll=collapseScrollPending;
+    collapseScrollPending=false;
+    if(inspectScroll)syncMobileScrollIntent();
     syncCollapseState();
   });
 }
