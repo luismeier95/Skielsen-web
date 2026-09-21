@@ -4652,3 +4652,30 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   body.admin-command-visible{padding-bottom:260px!important}
   body.admin-command-visible.profile-page-active{padding-bottom:318px!important}
 }
+
+
+/* ===== V15.1.83 · Sticky desktop app chrome =====
+   Full version only:
+   - top navigation remains pinned to the viewport top
+   - Admin Command remains pinned directly beneath the navigation
+   - mobile Admin Command keeps its existing bottom-dock behavior
+*/
+.sk-header{
+  position:sticky!important;
+  top:0!important;
+  left:auto!important;
+  right:auto!important;
+  z-index:2300!important;
+}
+
+@media(min-width:801px){
+  .admin-command-bar{
+    position:sticky!important;
+    top:calc(var(--sk-header-height) + var(--sk-strip-height))!important;
+    z-index:2200!important;
+  }
+
+  html{
+    scroll-padding-top:calc(var(--sk-header-height) + var(--sk-strip-height) + 72px);
+  }
+}

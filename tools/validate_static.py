@@ -95,6 +95,10 @@ if not more_less_js.exists() or not more_less_css.exists(): fail('Mehr-oder-Weni
 if 'higher_lower_action' not in more_less_js.read_text(encoding='utf-8') or 'get_higher_lower_state' not in more_less_js.read_text(encoding='utf-8'): fail('Mehr-oder-Weniger Server-Sync fehlt')
 runtime_text=(PUBLIC/'assets/js/08-inapp-runtime.js').read_text(encoding='utf-8')
 main_css_text=(PUBLIC/'assets/css/app.css').read_text(encoding='utf-8')
+
+if 'V15.1.83 · Sticky desktop app chrome' not in main_css_text: fail('Sticky Desktop App Chrome fehlt')
+if 'position:sticky!important;\n  top:0!important;' not in main_css_text: fail('Top-Navigation ist nicht sticky')
+if 'top:calc(var(--sk-header-height) + var(--sk-strip-height))!important;' not in main_css_text: fail('Admin Command klebt nicht direkt unter der Top-Navigation')
 if 'v15InAppLiveStrip' not in runtime_text: fail('In-App Live-Strip fehlt')
 if "MORE_LESS_MODULE='more-or-less'" not in runtime_text or 'ensureMoreLessAssets' not in runtime_text or 'ensureNativeLifecycle' not in runtime_text: fail('Mehr-oder-Weniger ist nicht in den In-App Auto-Flow integriert')
 if "db.rpc('activate_tournament_game'" not in runtime_text: fail('In-App Auto-Flow repariert Server-LIVE-Status nicht')
