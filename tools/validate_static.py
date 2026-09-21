@@ -117,14 +117,14 @@ if "setMobileCollapsed(!mobileCollapsed)" not in admin_command_text or "host.set
 if "window.addEventListener('scroll',onWindowScroll,{passive:true})" not in admin_command_text or "if(window.innerWidth>800)queueCollapseSync()" not in admin_command_text: fail('Desktop Admin Command Scroll-Collapse wurde beim Mobile Umbau beschädigt')
 if 'syncMobileScrollIntent' in admin_command_text or "document.addEventListener('touchmove',onMobileTouchMove" in admin_command_text: fail('Mobile Admin Command darf seinen State nicht mehr durch Scroll/Swipe ändern')
 if 'admin-command-toggle-glyph' not in admin_command_text: fail('Mobile Admin Command Toggle-Glyph fehlt')
-_admin_toggle_icon=PUBLIC/'assets/icons/admin-command-toggle.png'
-if not _admin_toggle_icon.exists() or _admin_toggle_icon.stat().st_size<1000: fail('Mobile Admin Command Toggle-PNG fehlt')
-if 'V15.1.95 · Mobile Admin Command image toggle' not in main_css_text: fail('Mobile Admin Command Layout V15.1.95 fehlt')
+_admin_toggle_icon=PUBLIC/'assets/icons/admin-command-toggle.svg'
+if not _admin_toggle_icon.exists() or '<path' not in _admin_toggle_icon.read_text(encoding='utf-8'): fail('Mobile Admin Command Toggle-SVG fehlt')
+if 'V15.1.96 · Mobile Admin Command image toggle' not in main_css_text: fail('Mobile Admin Command Layout V15.1.96 fehlt')
 if 'bottom:81px!important;' not in main_css_text or 'left:10px!important;' not in main_css_text or 'right:10px!important;' not in main_css_text: fail('Mobile Admin Command Inset/Dock stimmt nicht')
 if 'body.v15-tournament-active #adminCommandBar.is-scroll-collapsed .admin-command-inner' not in main_css_text or 'height:44px!important;' not in main_css_text: fail('Mobile Admin Command Default-Collapse ist nicht einzeilig')
-_mobile_admin_css=main_css_text.split('V15.1.95 · Mobile Admin Command image toggle',1)[-1]
-if 'mask-image:url("../icons/admin-command-toggle.png")' not in _mobile_admin_css or 'transform:scaleY(-1);' not in _mobile_admin_css: fail('Mobile Admin Command verwendet das Toggle-PNG nicht gespiegelt für Collapse')
-if '#adminCommandBar.is-scroll-collapsed .admin-command-toggle-glyph::before' not in _mobile_admin_css or 'transform:none;' not in _mobile_admin_css: fail('Mobile Admin Command verwendet das Original-PNG nicht für Extend')
+_mobile_admin_css=main_css_text.split('V15.1.96 · Mobile Admin Command image toggle',1)[-1]
+if 'mask-image:url("../icons/admin-command-toggle.svg")' not in _mobile_admin_css or 'transform:scaleY(-1);' not in _mobile_admin_css: fail('Mobile Admin Command verwendet das Toggle-SVG nicht gespiegelt für Collapse')
+if '#adminCommandBar.is-scroll-collapsed .admin-command-toggle-glyph::before' not in _mobile_admin_css or 'transform:none;' not in _mobile_admin_css: fail('Mobile Admin Command verwendet das Original-SVG nicht für Extend')
 if 'body.v15-tournament-active.admin-command-visible.admin-command-collapsed{\n    padding-bottom:270px!important;' not in main_css_text or 'body.v15-tournament-active.admin-command-visible.admin-command-collapsed.profile-page-active{\n    padding-bottom:328px!important;' not in main_css_text: fail('Mobile Admin Command verändert beim Toggle die Dokumenthöhe')
 if 'padding-bottom:135px!important;' in main_css_text or 'padding-bottom:193px!important;' in main_css_text: fail('Alter instabiler Mobile Admin Command Collapse-Offset ist noch vorhanden')
 if 'v15InAppLiveStrip' not in runtime_text: fail('In-App Live-Strip fehlt')

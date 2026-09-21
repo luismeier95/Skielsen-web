@@ -4878,8 +4878,8 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
     height:16px;
     display:block;
     background:currentColor;
-    -webkit-mask-image:url("../icons/admin-command-toggle.png");
-    mask-image:url("../icons/admin-command-toggle.png");
+    -webkit-mask-image:url("../icons/admin-command-toggle.svg");
+    mask-image:url("../icons/admin-command-toggle.svg");
     -webkit-mask-repeat:no-repeat;
     mask-repeat:no-repeat;
     -webkit-mask-position:center;
@@ -4897,7 +4897,7 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
 }
 
 
-/* ===== V15.1.95 · Mobile Admin Command image toggle =====
+/* ===== V15.1.96 · Mobile Admin Command image toggle =====
    Mobile starts collapsed by default. A tap on the rail expands/collapses it;
    scroll gestures never change its state.
 */
