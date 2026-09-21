@@ -13,6 +13,9 @@ const runtime=()=>api()?.runtime||null;
 const currentGame=()=>{const s=state();return s?.games?.[s.currentGameIndex||0]||null};
 const currentMatch=()=>{const g=currentGame();return g?.matches?.[g.matchIndex||0]||null};
 const feature=id=>!!(runtime()?.features||[]).find(f=>f.feature_id===id&&f.enabled);
+const isTeamTournament=()=>String(runtime()?.mode||'').toUpperCase()==='TEAM';
+const voteFeatureEnabled=type=>isTeamTournament()&&feature(String(type||'').toUpperCase()==='LVP'?'feature.lvp_voting':'feature.mvp_voting');
+const voteFeaturesEnabled=()=>voteFeatureEnabled('MVP')||voteFeatureEnabled('LVP');
 const isAdmin=()=>!!runtime()?.is_admin;
 
 function ensureHost(){
@@ -86,11 +89,11 @@ function model(){
     if(status==='ACTIVE')return {tone:'live',status:'MATCH LÄUFT',title:'KEINE ADMIN-AKTION ERFORDERLICH',copy:'Das In-App-Spiel läuft. Du kannst jederzeit direkt zurück ins Spiel wechseln.',context,actions:[{id:'live',label:'LIVE ANSEHEN',primary:true},{id:'match',label:'MATCH ANSEHEN'}]};
   }
 
-  if(g?.vote&&!g.vote.finalized){
+  if(g?.vote&&!g.vote.finalized&&voteFeatureEnabled(g.vote.type)){
     const type=String(g.vote.type||'MVP').toUpperCase(),progress=voteProgress(g),ownDone=!!g.vote.votes?.[s?.userActorId];
     return {tone:'wait',status:'WARTET AUF PLAYER',title:type+'-WAHL LÄUFT',copy:progress.value+' von '+progress.max+' Stimmen eingegangen.'+(ownDone?' Deine Stimme ist gespeichert.':' Deine Stimme ist noch offen.'),context,progress,actions:[{id:'vote',label:ownDone?'VOTING STATUS':'JETZT ABSTIMMEN',primary:true}]};
   }
-  if(g?.phase==='AWARD_REVEAL')return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'AWARD REVEAL',copy:'Die Abstimmung ist abgeschlossen. Das Ergebnis wartet auf den Reveal.',context,actions:[{id:'reveal',label:'REVEAL ANZEIGEN',primary:true}]};
+  if(g?.phase==='AWARD_REVEAL'&&voteFeaturesEnabled())return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'AWARD REVEAL',copy:'Die Abstimmung ist abgeschlossen. Das Ergebnis wartet auf den Reveal.',context,actions:[{id:'reveal',label:'REVEAL ANZEIGEN',primary:true}]};
 
   if(g?.phase==='PLANNED'){
     if(feature('feature.joker')){
@@ -98,7 +101,7 @@ function model(){
       return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'JOKERRUNDE SCHLIESSEN',copy:count?count+' Joker '+(count===1?'wurde':'wurden')+' für dieses Game gesetzt.':'Joker können noch gesetzt werden. Danach werden Pairings und nächster Schritt festgeschrieben.',context,actions:[{id:'prepare',label:'JOKERRUNDE SCHLIESSEN',primary:true},{id:'joker',label:'JOKER ANSEHEN'}]};
     }
     if(feature('feature.betting'))return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'BETTING ÖFFNEN',copy:'Der Wettmarkt ist der nächste Pflichtschritt vor dem Matchstart.',context,actions:[{id:'prepare',label:'BETTING ÖFFNEN',primary:true},{id:'match',label:'MATCH ANSEHEN'}]};
-    return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'MATCH STARTEN',copy:'Keine Joker- oder Betting-Gates sind offen. Der Match kann gestartet werden.',context,actions:[{id:'start',label:'MATCH STARTEN',primary:true,hold:true},{id:'match',label:'MATCH ANSEHEN'}]};
+    return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'MATCH STARTEN',copy:'Der Match kann direkt gestartet werden.',context,actions:[{id:'start',label:'MATCH STARTEN',primary:true,hold:true},{id:'match',label:'MATCH ANSEHEN'}]};
   }
   if(g?.phase==='PREPARING'){
     const waits=feature('feature.joker')&&!!g?.joker?.awaitingPick;
@@ -110,7 +113,7 @@ function model(){
     }
     return {tone:'wait',status:'VORBEREITUNG',title:'SPIEL WIRD VORBEREITET',copy:'Pairings und serverseitiger Lifecycle werden synchronisiert.',context,actions:[{id:'match',label:'STATUS ANSEHEN',primary:true}]};
   }
-  if(m?.status==='BETTING_OPEN'&&!a?.gateComplete?.(m)){
+  if(feature('feature.betting')&&m?.status==='BETTING_OPEN'&&!a?.gateComplete?.(m)){
     const progress=betProgress(m),pending=Math.max(0,progress.max-progress.value);
     return {tone:'wait',status:'WARTET AUF PLAYER',title:'BETTING LÄUFT',copy:pending+' von '+progress.max+' Entscheidungen noch offen.',context,progress,actions:[{id:'match',label:'BETTING STATUS',primary:true}]};
   }
@@ -121,7 +124,7 @@ function model(){
     if(inAppGame(g))return {tone:'live',status:'MATCH LÄUFT',title:'IN-APP GAME LÄUFT',copy:'Die Session liefert das Ergebnis automatisch an das Turnier.',context,actions:[{id:'live',label:'LIVE ANSEHEN',primary:true},{id:'match',label:'MATCH ANSEHEN'}]};
     return {tone:'warning',status:'NÄCHSTER SCHRITT',title:'ERGEBNIS EINTRAGEN',copy:'Der Match läuft. Sobald das Endergebnis feststeht, trägst du es im Match ein.',context,actions:[{id:'match',label:'ERGEBNIS ERFASSEN',primary:true}]};
   }
-  if(g?.phase==='RESULTS')return {tone:'wait',status:'AUSWERTUNG',title:'ERGEBNIS WIRD VERARBEITET',copy:'Punkte, Joker und mögliche Votes werden für den nächsten Schritt vorbereitet.',context,actions:[{id:'match',label:'MATCH ANSEHEN',primary:true}]};
+  if(g?.phase==='RESULTS'){const parts=['Punkte'];if(feature('feature.joker'))parts.push('Joker');if(voteFeaturesEnabled())parts.push('Votes');return {tone:'wait',status:'AUSWERTUNG',title:'ERGEBNIS WIRD VERARBEITET',copy:parts.join(', ')+' werden für den nächsten Schritt vorbereitet.',context,actions:[{id:'match',label:'MATCH ANSEHEN',primary:true}]};}
   return {tone:'wait',status:'TURNIER LÄUFT',title:g?.name||'AKTUELLER TURNIERSTATUS',copy:'Der nächste operative Schritt wird aus dem aktuellen Turnierzustand ermittelt.',context,actions:[{id:'match',label:'MATCH ANSEHEN',primary:true}]};
 }
 function actionMarkup(action){
@@ -180,11 +183,11 @@ async function runAction(action){
       const ok=await a?.startMatch?.();a?.render?.();return !!ok;
     }
     if(action==='match'){if(m){a?.openMatchDetail?.(m);return true;}a?.show?.('matches');return true;}
-    if(action==='joker'){a?.show?.('joker');return true;}
-    if(action==='pick'){a?.show?.('joker');return true;}
-    if(action==='vote'){a?.show?.('mvpVote');return true;}
+    if(action==='joker'){if(!feature('feature.joker'))return false;a?.show?.('joker');return true;}
+    if(action==='pick'){if(!feature('feature.joker'))return false;a?.show?.('joker');return true;}
+    if(action==='vote'){if(!g?.vote||!voteFeatureEnabled(g.vote.type))return false;a?.show?.('mvpVote');return true;}
     if(action==='ranking'){a?.show?.('ranking');return true;}
-    if(action==='reveal'){return !!a?.beginPostGameAwardReveal?.(g);}
+    if(action==='reveal'){if(!voteFeaturesEnabled())return false;return !!a?.beginPostGameAwardReveal?.(g);}
     if(action==='live'){
       if(window.skielsenInApp?.session){if(window.skielsenInApp.openFullscreen?.())return true;return !!(await window.skielsenInApp.openActive?.());}
       if(m){a?.openMatchDetail?.(m);return true;}
