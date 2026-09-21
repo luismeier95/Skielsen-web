@@ -140,6 +140,21 @@ if 'game.winning=winningCells(game.board)' not in _ttt_test_js_text: fail('Tic T
 if '<input' in _ttt_test_js_text.lower(): fail('Tic Tac Toe Standalone darf keine Tastatur-Eingabe verwenden')
 if 'TIC_TAC_TOE_STANDALONE_MOBILE_CONTRACT' not in _ttt_test_css_text: fail('Tic Tac Toe Mobile Contract fehlt')
 
+# Tic Tac Toe production integration regression contract.
+_ttt_prod_js=PUBLIC/'assets/js/13-tic-tac-toe-game.js'
+_ttt_prod_css=PUBLIC/'assets/css/tic-tac-toe-game.css'
+if not _ttt_prod_js.exists() or not _ttt_prod_css.exists(): fail('Tic Tac Toe Vollversion fehlt')
+_ttt_prod_text=_ttt_prod_js.read_text(encoding='utf-8')
+for _rpc in ['get_tic_tac_toe_state','set_tic_tac_toe_team_mode','select_tic_tac_toe_player','set_tic_tac_toe_variant','start_tic_tac_toe_match','submit_tic_tac_toe_move']:
+ if _rpc not in _ttt_prod_text: fail('Tic Tac Toe Production RPC fehlt: '+_rpc)
+for _mode in ['ALTERNATING','SELECTED_PLAYER','SIMULTANEOUS']:
+ if _mode not in _ttt_prod_text: fail('Tic Tac Toe Teammodus fehlt: '+_mode)
+if "data-ttt-countdown" not in _ttt_prod_text or "DECIDER_PLAYING" not in _ttt_prod_text: fail('Tic Tac Toe 5-Sekunden-Decider UI fehlt')
+if "TIC_TAC_TOE_MODULE='tic-tac-toe'" not in runtime_text or 'ensureTicTacToeAssets' not in runtime_text or 'renderTicTacToeSession' not in runtime_text: fail('Tic Tac Toe ist nicht in die In-App Runtime integriert')
+if 'create_tic_tac_toe_match_session' not in runtime_text or 'get_tic_tac_toe_result' not in runtime_text: fail('Tic Tac Toe Match-Lifecycle fehlt in der Runtime')
+if 'ingestTicTacToeResult' not in bridge_text or "result?.game_key==='tic_tac_toe'" not in bridge_text: fail('Tic Tac Toe Result-Handoff fehlt')
+if 'concludeCurrentMatch' not in engine_text.split('window.skielsenV15=',1)[-1]: fail('Canonical Match Conclusion ist nicht für native Spiele exportiert')
+
 if 'assets/js/00-theme-contract.js?v='+v not in h: fail('Theme Contract Runtime fehlt oder Cache-Version stimmt nicht')
 if h.index('assets/js/00-theme-contract.js?v='+v) > h.index('assets/js/00-app-history.js?v='+v): fail('Theme Contract Runtime muss vor App-History geladen werden')
 theme_contract_js=(PUBLIC/'assets/js/00-theme-contract.js').read_text(encoding='utf-8')
