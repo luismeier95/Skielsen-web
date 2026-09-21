@@ -1396,3 +1396,24 @@ body.v15-tournament-active[data-theme-pack] :is(
 ){
   border-left-color:var(--theme-accent)!important;
 }
+
+
+/* ===== V15.1.104b · MORE is intentionally light in every theme ===== */
+@media(max-width:800px){
+  body.v15-tournament-active[data-theme-pack] .mobile-more-menu{
+    background:#fff!important;
+    color:#050505!important;
+    border-color:#e8e8e8!important
+  }
+  body.v15-tournament-active[data-theme-pack] .mobile-more-handle{background:#c8c8c8!important}
+  body.v15-tournament-active[data-theme-pack] .mobile-more-grid a{
+    background:#fff!important;
+    color:#050505!important;
+    border-color:#ececec!important
+  }
+  body.v15-tournament-active[data-theme-pack] .mobile-more-grid a b,
+  body.v15-tournament-active[data-theme-pack] .mobile-more-grid .mobile-more-arrow,
+  body.v15-tournament-active[data-theme-pack] .mobile-more-grid .mobile-more-icon{
+    color:#050505!important
+  }
+}
