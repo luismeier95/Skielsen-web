@@ -79,8 +79,8 @@
 }
 .wc-difficulty{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:7px;
+  grid-template-columns:repeat(var(--difficulty-count,2),minmax(0,1fr));
+  gap:10px;
   margin-top:14px;
 }
 .wc-difficulty button{
@@ -490,7 +490,7 @@
     line-height:.9;
   }
   .wc-setup-card{padding:12px}
-  .wc-difficulty{gap:5px;margin-top:10px}
+  .wc-difficulty{grid-template-columns:1fr;gap:10px;margin-top:10px}
   .wc-difficulty button{min-height:62px;padding:9px 8px}
   .wc-difficulty button b{font-size:8px}
   .wc-difficulty button span{font-size:5.5px}
