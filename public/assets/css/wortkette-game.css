@@ -750,3 +750,20 @@
   .wc-merge-card.is-tournament .wc-merge-columns,
   .wc-merge-card.is-tournament .wc-merge-row{grid-template-columns:42px minmax(0,1fr) 70px 0!important}
 }
+
+
+/* V15.1.131 · Mobile uses the same result column geometry as desktop */
+@media(max-width:720px){
+  #v15WordChainRoot .wc-standard-columns,
+  #v15WordChainRoot .wc-standard-row{
+    grid-template-columns:64px minmax(0,1fr) 96px 72px 72px!important;
+  }
+  #v15WordChainRoot .wc-merge-columns,
+  #v15WordChainRoot .wc-merge-row{
+    grid-template-columns:64px minmax(0,1fr) 100px 72px!important;
+  }
+  #v15WordChainRoot .wc-merge-card.is-tournament .wc-merge-columns,
+  #v15WordChainRoot .wc-merge-card.is-tournament .wc-merge-row{
+    grid-template-columns:64px minmax(0,1fr) 100px 0!important;
+  }
+}
