@@ -672,7 +672,7 @@ async function pollPlayer(){
       playerSession=r.data;playerSessionMisses=0;
       renderPlayerSession(playerSession);
     }else{
-      if(window.skielsenWordChain?.resultOpen||window.skielsenMoreLess?.resultOpen||window.skielsenReaction?.resultOpen){
+      if(window.skielsenWordChain?.resultOpen||window.skielsenMoreLess?.resultOpen||window.skielsenTicTacToe?.resultOpen||window.skielsenReaction?.resultOpen){
         playerSessionMisses=0;
         return;
       }
@@ -1059,9 +1059,42 @@ async function startTestTicTacToe(runtime,g,m){
       human:{id:human.id,name:human.name,color:human.color},
       bot:{id:bot.id,name:bot.name,color:bot.color},
       onComplete:winnerId=>{
+        const engine=window.skielsenV15,st=engine?.state;
+        if(!engine||!st)return;
+        const before=(st.participants||[]).map(p=>{
+          const r=st.rankings?.[p.id]||{};
+          return {participant_id:p.id,display_name:p.name||'TEILNEHMER',identity_color:p.color||null,points:Number(r.points||0),first:Number(r.first||0)};
+        }).sort((a,b)=>b.points-a.points||b.first-a.first||String(a.display_name).localeCompare(String(b.display_name),'de')).map((r,i)=>({...r,rank:i+1}));
         const a=winnerId===m.a?1:0,b=winnerId===m.b?1:0;
-        finishInAppSurface();
-        window.skielsenV15?.concludeCurrentMatch?.(a,b);
+        const ok=engine.concludeCurrentMatch?.(a,b,{deferCanonicalPostgame:true});
+        if(!ok)return;
+        const placements=Array.isArray(g.placements)&&g.placements.length?[...g.placements]:[winnerId,winnerId===m.a?m.b:m.a];
+        const beforeBy=new Map(before.map(r=>[r.participant_id,r]));
+        const after=(st.participants||[]).map(p=>{
+          const r=st.rankings?.[p.id]||{};
+          return {participant_id:p.id,display_name:p.name||'TEILNEHMER',identity_color:p.color||null,points:Number(r.points||0),first:Number(r.first||0)};
+        }).sort((x,y)=>y.points-x.points||y.first-x.first||String(x.display_name).localeCompare(String(y.display_name),'de')).map((r,i)=>({...r,rank:i+1}));
+        const afterBy=new Map(after.map(r=>[r.participant_id,r]));
+        const rows=(st.participants||[]).map(p=>{
+          const old=beforeBy.get(p.id)||{},now=afterBy.get(p.id)||{},place=placements.indexOf(p.id)+1;
+          return {participant_id:p.id,display_name:p.name||now.display_name||'TEILNEHMER',identity_color:p.color||now.identity_color||null,game_placement:place>0?place:null,old_points:Number(old.points||0),added_points:Number(now.points||0)-Number(old.points||0),new_points:Number(now.points||0),old_rank:Number(old.rank||0),new_rank:Number(now.rank||0)};
+        });
+        const result={
+          game_key:'tic_tac_toe',variant:localTest?.game?.mode||'NORMAL',team_mode:'SOLO',
+          completion_reason:'WIN',winner_participant_id:winnerId,
+          standings:placements.map((pid,i)=>({participant_id:pid,placement:i+1,outcome:i===0?'WIN':'LOSS'})),
+          tournament_handoff:{status:'COMPLETED',finalized:true,placements:placements.map((pid,i)=>({participant_id:pid,placement:i+1}))},
+          finalized_at:new Date().toISOString()
+        };
+        const payload={phase:'MERGE',tournament_game_id:g.tournament_game_id||null,game_id:g.game_id||null,game_name:g.name||'TIC TAC TOE',joker_reveal:null,rows,result};
+        g.inAppResult=result;g.inAppCanonicalPostgame=payload;g.awaitingInAppResultClose=true;
+        window.skielsenTicTacToe?.showLocalPostgame?.({
+          payload,result,
+          onClose:()=>{
+            finishInAppSurface();
+            engine.beginCanonicalMergedPostGameFlow?.(g,m,winnerId);
+          }
+        });
       }
     });
     openInAppFullscreen('push');
