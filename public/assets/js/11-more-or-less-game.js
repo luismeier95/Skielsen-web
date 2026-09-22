@@ -153,7 +153,7 @@ function difficultyMarkup(){
       <h1>MEHR<br>ODER<br>WENIGER?</h1>
       <section class="mol-setup-card">
         <small>BEKANNTHEITSGRAD</small>
-        <div class="mol-difficulty-picker">
+        <div class="mol-difficulty-picker" style="--difficulty-count:${options.length}">
           ${options.map(([tier,copy])=>`<button type="button" data-mol-tier="${tier}" class="${pendingTier===tier?'active':''}" ${admin?'':'disabled'}><b>${tier}</b><span>${copy}</span></button>`).join('')}
         </div>
         <p class="mol-difficulty-hint">${esc(difficultyHint(pendingTier))}</p>
