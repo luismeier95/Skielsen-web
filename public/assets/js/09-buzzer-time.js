@@ -177,13 +177,13 @@ function buzzerMergeMarkup(){
       <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>TURNIERSTAND</h2></section>
       <section class="bzt-standard-card bzt-merge-card is-game" data-bzt-merge-card>
         <header><strong>GAME → TURNIER</strong><span>GESAMTRANKING</span></header>
-        <div class="bzt-standard-columns bzt-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
+        <div class="bzt-standard-columns bzt-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ABW.</span></div>
         <div class="bzt-standard-rows bzt-merge-rows">
           ${rows.map((r,i)=>`<div class="bzt-standard-row bzt-merge-row" data-bzt-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
             <b><span class="bzt-rank-value">${Number(r.old_rank||i+1)}.</span><small class="bzt-rank-move"></small></b>
             <span><i style="background:${teamColor(r.identity_color)}"></i><strong>${esc(String(r.display_name||'TEILNEHMER').replace(/^TEAM\\s+/i,''))}</strong></span>
-            <strong class="bzt-merge-points"><span class="bzt-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="bzt-award-points">${Number(r.added_points||0)}</span><b class="bzt-total-points">${Number(r.new_points||0)}</b></strong>
-            <strong class="bzt-added-points">+${Number(r.added_points||0)}</strong>
+            <strong class="bzt-merge-points"><span class="bzt-award-value">+${Number(r.added_points||0)}</span><span class="bzt-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="bzt-award-points">${Number(r.added_points||0)}</span><b class="bzt-total-points">${Number(r.new_points||0)}</b></strong>
+            <strong>${fmtSec((state?.result?.standings||[]).find(x=>x.participant_id===r.participant_id)?.total_deviation_ms)}</strong>
           </div>`).join('')}
         </div>
       </section>
