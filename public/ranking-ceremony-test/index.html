@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>SKIELSEN · Ranking Ceremony</title>
+<link rel="stylesheet" href="../assets/css/app.css?v=15.1.123">
+<link rel="stylesheet" href="style.css?v=15.1.123">
+</head>
+<body>
+<main class="ceremony" id="ceremony">
+  <div class="ambient" aria-hidden="true">
+    <span class="beam beam-a"></span><span class="beam beam-b"></span><span class="beam beam-c"></span>
+    <span class="floor-glow"></span>
+  </div>
+
+  <header class="ceremony-head">
+    <div class="brand-lockup">
+      <img src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
+      <span>FINALE · SIEGEREHRUNG</span>
+    </div>
+    <div class="ceremony-meta"><span>TURNIER BEENDET</span><strong>04 TEILNEHMER</strong></div>
+  </header>
+
+  <section class="stage" aria-label="Siegerehrung">
+    <div class="architecture" aria-hidden="true">
+      <div class="column column-left"><i class="capital"></i><i class="shaft"></i><i class="base"></i></div>
+      <div class="column column-right"><i class="capital"></i><i class="shaft"></i><i class="base"></i></div>
+      <div class="entablature"><span></span><b>SKIELSEN</b><span></span></div>
+    </div>
+
+    <div class="hero-copy">
+      <small>FINAL RANKING</small>
+      <h1>CHAMPIONS.</h1>
+      <p>VIER SPIELER. EIN TURNIER. EIN SIEGER.</p>
+    </div>
+
+    <section class="podium" aria-label="Top drei">
+      <article class="award award-second" data-rank="2" style="--team:#1515FF">
+        <div class="award-person">
+          <div class="wreath" aria-hidden="true"><span class="wreath-left">❧</span><span class="wreath-right">❧</span></div>
+          <span class="rank-label">II</span>
+          <strong>SOFYA</strong>
+          <small><b data-count="4">0</b> PUNKTE</small>
+        </div>
+        <div class="podium-block"><span>2</span><i></i></div>
+      </article>
+
+      <article class="award award-first" data-rank="1" style="--team:#FF1717">
+        <div class="crown-line" aria-hidden="true"><i></i><b>WINNER</b><i></i></div>
+        <div class="award-person">
+          <div class="wreath winner-wreath" aria-hidden="true"><span class="wreath-left">❧</span><span class="wreath-right">❧</span></div>
+          <span class="rank-label">I</span>
+          <strong>DJEELOI</strong>
+          <small><b data-count="5">0</b> PUNKTE</small>
+        </div>
+        <div class="podium-block"><span>1</span><i></i></div>
+      </article>
+
+      <article class="award award-third" data-rank="3" style="--team:#00A65A">
+        <div class="award-person">
+          <div class="wreath" aria-hidden="true"><span class="wreath-left">❧</span><span class="wreath-right">❧</span></div>
+          <span class="rank-label">III</span>
+          <strong>HANNES</strong>
+          <small><b data-count="2">0</b> PUNKTE</small>
+        </div>
+        <div class="podium-block"><span>3</span><i></i></div>
+      </article>
+    </section>
+
+    <section class="ranking-card" aria-label="Finale Rangliste">
+      <header><span>FINALE RANGLISTE</span><small>GESAMTPUNKTE</small></header>
+      <div class="ranking-row" style="--team:#FF1717"><b>01</b><i></i><strong>DJEELOI</strong><span>5</span></div>
+      <div class="ranking-row" style="--team:#1515FF"><b>02</b><i></i><strong>SOFYA</strong><span>4</span></div>
+      <div class="ranking-row" style="--team:#00A65A"><b>03</b><i></i><strong>HANNES</strong><span>2</span></div>
+      <div class="ranking-row" style="--team:#F2B705"><b>04</b><i></i><strong>PIA</strong><span>0</span></div>
+    </section>
+
+    <div class="final-seal" aria-hidden="true"><span>SKIELSEN</span><b>TOURNAMENT COMPLETE</b></div>
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+  </section>
+
+  <nav class="ceremony-tools" aria-label="Standalone Test Controls">
+    <button type="button" id="replay">NOCHMAL</button>
+    <button type="button" id="showFinal">FINAL</button>
+  </nav>
+</main>
+<script src="app.js?v=15.1.123"></script>
+</body>
+</html>

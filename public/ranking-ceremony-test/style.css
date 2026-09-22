@@ -1,0 +1,106 @@
+:root{
+  --black:#080808;--ink:#101010;--paper:#f0ede6;--marble:#ded8cc;--marble-hi:#f7f4ee;
+  --gold:#c5a35a;--muted:#8b877f;--line:rgba(255,255,255,.14);
+  --ui:Arial,Helvetica,sans-serif;--display:Arial Black,Arial,Helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--black);color:#fff}
+body{min-height:100svh;overflow-x:hidden;font-family:var(--ui)}
+button{font:inherit}
+.ceremony{position:relative;min-height:100svh;overflow:hidden;background:
+  radial-gradient(circle at 50% 14%,rgba(197,163,90,.12),transparent 31%),
+  linear-gradient(180deg,#121212 0,#080808 48%,#050505 100%);
+  isolation:isolate;
+}
+.ceremony:before{content:"";position:absolute;inset:0;z-index:-4;opacity:.14;background-image:
+  linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:64px 64px;
+}
+.ambient{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-2}
+.beam{position:absolute;top:-15%;width:28vw;height:92vh;filter:blur(4px);opacity:0;transform-origin:top center;background:linear-gradient(180deg,rgba(255,244,205,.13),transparent 78%)}
+.beam-a{left:17%;transform:rotate(13deg)}.beam-b{left:42%;transform:rotate(-4deg)}.beam-c{right:8%;transform:rotate(-16deg)}
+.floor-glow{position:absolute;left:8%;right:8%;bottom:-16vh;height:44vh;border-radius:50%;background:radial-gradient(ellipse,rgba(197,163,90,.18),transparent 66%);opacity:0}
+.ceremony-head{height:72px;padding:0 clamp(18px,3vw,48px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(5,5,5,.62);backdrop-filter:blur(14px);position:relative;z-index:20}
+.brand-lockup{display:flex;align-items:center;gap:18px}.brand-lockup img{width:96px;filter:invert(1);opacity:.94}.brand-lockup span,.ceremony-meta{font:900 9px/1 var(--ui);letter-spacing:1.45px}
+.brand-lockup span{color:#bcb8b1}.ceremony-meta{display:flex;gap:18px;align-items:center;color:#797670}.ceremony-meta strong{color:#fff}
+.stage{position:relative;width:min(1240px,100%);min-height:calc(100svh - 72px);margin:0 auto;padding:36px 84px 56px;display:flex;flex-direction:column;align-items:center}
+.architecture{position:absolute;inset:0;pointer-events:none;z-index:-1}
+.entablature{position:absolute;top:24px;left:14%;right:14%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;opacity:0;transform:translateY(-18px)}
+.entablature span{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}.entablature b{font:900 8px/1 var(--ui);letter-spacing:4px;color:var(--gold)}
+.column{position:absolute;top:58px;bottom:68px;width:64px;opacity:0;filter:drop-shadow(0 18px 20px rgba(0,0,0,.35));transform:translateY(34px)}
+.column-left{left:6px}.column-right{right:6px}
+.column i{display:block;margin:auto;background:
+ linear-gradient(90deg,#bdb6aa 0,#f5f1e9 16%,#d3ccc0 31%,#fff 48%,#cbc4b8 67%,#efeae2 84%,#b8b0a4 100%)}
+.capital{width:64px;height:24px;border-radius:3px 3px 1px 1px;clip-path:polygon(10% 0,90% 0,100% 35%,88% 48%,96% 100%,4% 100%,12% 48%,0 35%)}
+.shaft{width:36px;height:calc(100% - 58px);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);clip-path:polygon(13% 0,87% 0,100% 100%,0 100%)}
+.base{width:60px;height:34px;border-radius:2px;clip-path:polygon(9% 0,91% 0,83% 28%,100% 42%,100% 100%,0 100%,0 42%,17% 28%)}
+.hero-copy{text-align:center;margin-top:28px;opacity:0;transform:translateY(20px);position:relative;z-index:3}
+.hero-copy small{font:900 8px/1 var(--ui);letter-spacing:4px;color:var(--gold)}
+.hero-copy h1{margin:8px 0 5px;font:900 clamp(46px,7vw,92px)/.82 var(--display);letter-spacing:-4px}
+.hero-copy p{margin:0;color:#72706a;font:800 8px/1.2 var(--ui);letter-spacing:1.3px}
+.podium{width:min(860px,84vw);height:430px;margin-top:8px;display:grid;grid-template-columns:1fr 1.16fr 1fr;align-items:end;gap:10px;position:relative;z-index:4}
+.award{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;position:relative;opacity:0;transform:translateY(42px) scale(.96)}
+.award-person{text-align:center;position:relative;margin:auto auto 13px;min-height:150px;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.award-person:after{content:"";position:absolute;left:26%;right:26%;bottom:-10px;height:2px;background:var(--team);box-shadow:0 0 16px var(--team)}
+.award-person .rank-label{display:block;margin-bottom:7px;color:var(--gold);font:900 13px/1 Georgia,serif;letter-spacing:3px}
+.award-person strong{font:900 clamp(18px,2.5vw,32px)/.9 var(--display);letter-spacing:-1px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.award-person small{margin-top:10px;color:#89857e;font:800 7px/1 var(--ui);letter-spacing:1.25px}.award-person small b{font-size:10px;color:#fff}
+.wreath{position:absolute;left:50%;bottom:25px;width:160px;height:108px;transform:translateX(-50%);opacity:.7;color:var(--gold);font-family:Georgia,serif;pointer-events:none}
+.wreath span{position:absolute;top:0;font-size:90px;line-height:1}.wreath-left{left:0;transform:rotate(12deg)}.wreath-right{right:0;transform:scaleX(-1) rotate(12deg)}
+.winner-wreath{width:188px;height:128px;opacity:.98}.winner-wreath span{font-size:106px}
+.crown-line{position:absolute;top:20px;left:8%;right:8%;display:flex;align-items:center;gap:10px;color:var(--gold);opacity:0}
+.crown-line i{height:1px;background:currentColor;flex:1}.crown-line b{font:900 7px/1 var(--ui);letter-spacing:2.8px}
+.podium-block{position:relative;height:132px;background:linear-gradient(180deg,var(--marble-hi),var(--marble));color:#0b0b0b;box-shadow:0 22px 45px rgba(0,0,0,.38);overflow:hidden;border-top:3px solid var(--team)}
+.podium-block:before{content:"";position:absolute;inset:0;background:
+ repeating-linear-gradient(112deg,transparent 0 38px,rgba(0,0,0,.035) 40px,transparent 43px 82px);
+ mix-blend-mode:multiply;opacity:.7}
+.podium-block:after{content:"";position:absolute;left:0;right:0;top:13px;height:1px;background:rgba(0,0,0,.11)}
+.podium-block span{position:absolute;inset:0;display:grid;place-items:center;font:900 70px/.8 Georgia,serif;color:#161616;opacity:.82}
+.podium-block i{position:absolute;left:0;bottom:0;width:100%;height:7px;background:var(--team)}
+.award-first .podium-block{height:190px}.award-third .podium-block{height:104px}
+.award-first .award-person{min-height:190px;margin-bottom:14px}.award-first .award-person strong{font-size:clamp(25px,3.2vw,42px)}
+.ranking-card{width:min(760px,86vw);margin-top:22px;background:rgba(240,237,230,.96);color:var(--ink);box-shadow:0 18px 50px rgba(0,0,0,.42);opacity:0;transform:translateY(34px);position:relative;z-index:5}
+.ranking-card header{height:40px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;background:#0c0c0c;color:#fff}
+.ranking-card header span{font:900 9px/1 var(--ui);letter-spacing:1.5px}.ranking-card header small{font:800 7px/1 var(--ui);letter-spacing:1px;color:#888}
+.ranking-row{height:50px;display:grid;grid-template-columns:44px 8px minmax(0,1fr) 54px;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid rgba(0,0,0,.09);transform:translateX(-18px);opacity:0}
+.ranking-row:last-child{border-bottom:0}.ranking-row>b{font:900 10px/1 var(--ui);color:#888}.ranking-row>i{width:7px;height:28px;background:var(--team);box-shadow:0 0 0 1px rgba(0,0,0,.05)}
+.ranking-row>strong{font:900 15px/1 var(--display);letter-spacing:-.3px}.ranking-row>span{text-align:right;font:900 17px/1 var(--display)}
+.final-seal{margin-top:22px;display:flex;align-items:center;gap:12px;color:#6f6b64;opacity:0}
+.final-seal span{font:900 8px/1 var(--ui);letter-spacing:3px;color:var(--gold)}.final-seal b{font:800 7px/1 var(--ui);letter-spacing:1.5px}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:8}
+.confetti i{position:absolute;top:34%;left:50%;width:8px;height:18px;background:var(--c);opacity:0;transform:translate(-50%,-50%) rotate(var(--r))}
+.ceremony-tools{position:fixed;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:50;display:flex;gap:6px}
+.ceremony-tools button{height:36px;border:1px solid #333;background:rgba(7,7,7,.92);color:#fff;padding:0 12px;font:900 7px/1 var(--ui);letter-spacing:1px;cursor:pointer;backdrop-filter:blur(9px)}
+.ceremony-tools button:hover{border-color:#777}
+.is-running .beam{animation:beamIn 1.4s ease forwards}.is-running .beam-b{animation-delay:.18s}.is-running .beam-c{animation-delay:.32s}
+.is-running .floor-glow{animation:fadeIn 1.5s .35s ease forwards}
+.is-running .column{animation:columnIn .9s .25s cubic-bezier(.2,.75,.2,1) forwards}.is-running .entablature{animation:dropIn .8s .55s ease forwards}
+.is-running .hero-copy{animation:riseIn .85s .6s cubic-bezier(.2,.8,.2,1) forwards}
+.is-running .award-second{animation:awardIn .8s 1.55s cubic-bezier(.16,.85,.22,1) forwards}
+.is-running .award-third{animation:awardIn .8s 1.82s cubic-bezier(.16,.85,.22,1) forwards}
+.is-running .award-first{animation:winnerIn 1s 2.75s cubic-bezier(.12,.88,.2,1) forwards}
+.is-running .crown-line{animation:fadeIn .55s 3.28s ease forwards}
+.is-running .ranking-card{animation:riseIn .78s 4.1s cubic-bezier(.2,.8,.2,1) forwards}
+.is-running .ranking-row{animation:rowIn .45s ease forwards}.is-running .ranking-row:nth-child(2){animation-delay:4.38s}.is-running .ranking-row:nth-child(3){animation-delay:4.52s}.is-running .ranking-row:nth-child(4){animation-delay:4.66s}.is-running .ranking-row:nth-child(5){animation-delay:4.8s}
+.is-running .final-seal{animation:fadeIn .7s 5.15s ease forwards}
+.is-running .confetti i{animation:burst 1.9s var(--d) cubic-bezier(.1,.68,.2,1) forwards}
+.is-final .beam,.is-final .floor-glow,.is-final .column,.is-final .entablature,.is-final .hero-copy,.is-final .award,.is-final .crown-line,.is-final .ranking-card,.is-final .ranking-row,.is-final .final-seal{opacity:1!important;transform:none!important;animation:none!important}
+@keyframes beamIn{to{opacity:1}}@keyframes fadeIn{to{opacity:1}}@keyframes dropIn{to{opacity:1;transform:translateY(0)}}@keyframes columnIn{to{opacity:.82;transform:translateY(0)}}@keyframes riseIn{to{opacity:1;transform:translateY(0)}}@keyframes awardIn{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes winnerIn{0%{opacity:0;transform:translateY(58px) scale(.91)}68%{opacity:1;transform:translateY(-6px) scale(1.025)}100%{opacity:1;transform:none}}@keyframes rowIn{to{opacity:1;transform:none}}
+@keyframes burst{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--r))}8%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(calc(var(--r) + 340deg))}}
+@media(max-width:780px){
+  .ceremony-head{height:58px;padding:0 12px}.brand-lockup img{width:78px}.brand-lockup span{display:none}.ceremony-meta span{display:none}.ceremony-meta{font-size:7px}
+  .stage{min-height:calc(100svh - 58px);padding:24px 18px 76px}.column{width:34px;opacity:0}.column-left{left:-8px}.column-right{right:-8px}.capital{width:34px;height:18px}.shaft{width:19px}.base{width:32px;height:26px}
+  .entablature{left:8%;right:8%;top:16px}.hero-copy{margin-top:22px}.hero-copy h1{font-size:clamp(42px,15vw,68px);letter-spacing:-3px}.hero-copy p{font-size:6px}
+  .podium{width:100%;height:350px;gap:5px;margin-top:2px}.award-person{min-height:122px;margin-bottom:10px}.award-first .award-person{min-height:150px}.award-person strong{font-size:clamp(14px,5vw,23px)}.award-first .award-person strong{font-size:clamp(18px,6vw,29px)}
+  .wreath{width:115px;height:76px;bottom:22px}.wreath span{font-size:65px}.winner-wreath{width:138px}.winner-wreath span{font-size:77px}.podium-block{height:96px}.award-first .podium-block{height:142px}.award-third .podium-block{height:76px}.podium-block span{font-size:52px}
+  .crown-line{top:7px}.ranking-card{width:100%;margin-top:15px}.ranking-row{height:45px;grid-template-columns:38px 6px 1fr 42px;padding:0 10px;gap:8px}.ranking-row>i{height:24px}.ranking-row>strong{font-size:13px}.ranking-row>span{font-size:15px}
+  .final-seal{margin-top:14px}.ceremony-tools{right:7px;bottom:max(7px,env(safe-area-inset-bottom))}
+}
+@media(max-width:420px){
+  .stage{padding-left:12px;padding-right:12px}.podium{height:325px}.wreath{transform:translateX(-50%) scale(.87)}.winner-wreath{transform:translateX(-50%) scale(.9)}
+  .award-person small{font-size:6px}.ranking-card header{height:36px}.ranking-card header small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .ceremony *{animation:none!important;transition:none!important}.ceremony{scroll-behavior:auto}.beam,.floor-glow,.column,.entablature,.hero-copy,.award,.crown-line,.ranking-card,.ranking-row,.final-seal{opacity:1!important;transform:none!important}.confetti{display:none}
+}
