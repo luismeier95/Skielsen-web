@@ -1,6 +1,7 @@
 (()=>{
 'use strict';
 const states={
+  MODE:{progress:5,strong:'GAME MODE',small:'SETUP'},
   SETUP:{progress:10,strong:'SETUP',small:'GAME STATE'},
   READY:{progress:20,strong:'READY',small:'PLAYER STATUS'},
   PLAY:{progress:40,strong:'04 / 10',small:'GAME PROGRESS'},
