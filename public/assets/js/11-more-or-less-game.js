@@ -280,20 +280,25 @@ function revealMarkup(){
 }
 function completeMarkup(){
   const standings=Array.isArray(state?.result?.standings)?state.result.standings:[];
-  return `<section class="mol-full-app">
+  return `<section class="mol-full-app mol-result-page">
     ${header()}
-    <main class="mol-full-content complete">
-      <div class="mol-full-kicker">SPIEL BEENDET</div>
-      <h1>MEHR<br>ODER<br>WENIGER.</h1>
-      <div class="mol-full-final">
-        <div class="mol-full-final-head"><span>PLATZ</span><span></span><span>NAME</span><span>SIEGE</span></div>
-        ${standings.map((r,i)=>{
-          const p=playerById(r.participant_id);
-          return `<div class="mol-full-final-row" style="--mol-player:${colorOf(p)}"><span>${Number(r.placement||i+1)}.</span><i></i><strong>${esc(String(p?.display_name||'TEILNEHMER').toUpperCase())}</strong><b>${Number(r.category_wins||0)}</b></div>`;
-        }).join('')}
-      </div>
-      <p class="mol-full-finished-note">ERGEBNIS IST GESPEICHERT.</p>
-      <button type="button" class="mol-setup-start" id="molCloseGame">SPIEL SCHLIESSEN →</button>
+    <main class="mol-result-main">
+      <section class="mol-result-status"><strong>ERGEBNIS</strong></section>
+      <section class="mol-result-card">
+        <header><strong>FINALES ERGEBNIS</strong><span>${standings.length?standings.length+' PARTICIPANTS':'—'}</span></header>
+        <div class="mol-result-columns"><span>POSITION</span><span>NAME</span><span>SIEGE</span></div>
+        <div class="mol-result-rows">
+          ${standings.map((r,i)=>{
+            const p=playerById(r.participant_id);
+            return `<div class="mol-result-row">
+              <b>${Number(r.placement||i+1)}.</b>
+              <span><i style="--mol-player:${colorOf(p)}"></i><strong>${esc(String(p?.display_name||'TEILNEHMER').toUpperCase())}</strong></span>
+              <strong>${Number(r.category_wins||0)}</strong>
+            </div>`;
+          }).join('')}
+        </div>
+      </section>
+      <button type="button" class="mol-result-primary" id="molCloseGame">SPIEL SCHLIESSEN →</button>
     </main>
   </section>`;
 }
