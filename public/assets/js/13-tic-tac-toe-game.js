@@ -312,13 +312,13 @@ function renderFinalMerge(result){
     <main class="tttp-stage tttp-result">
       <section class="tttp-result-card tttp-merge-card is-game" data-ttt-merge-card>
         <header><strong>GAME → TURNIER</strong><span>GESAMTRANKING</span></header>
-        <div class="tttp-standard-columns tttp-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
+        <div class="tttp-standard-columns tttp-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ERGEBNIS</span></div>
         <div class="tttp-merge-rows">
           ${rows.map((r,i)=>`<div class="tttp-result-row tttp-merge-row" data-ttt-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
             <b><span class="tttp-rank-value">${Number(r.old_rank||i+1)}.</span><small class="tttp-rank-move"></small></b>
             <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b>${esc(r.display_name||'TEILNEHMER')}</b></span>
-            <strong class="tttp-merge-points"><span class="tttp-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="tttp-award-points">${Number(r.added_points||0)}</span><b class="tttp-total-points">${Number(r.new_points||0)}</b></strong>
-            <strong class="tttp-added-points">+${Number(r.added_points||0)}</strong>
+            <strong class="tttp-merge-points"><span class="tttp-award-value">+${Number(r.added_points||0)}</span><span class="tttp-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="tttp-award-points">${Number(r.added_points||0)}</span><b class="tttp-total-points">${Number(r.new_points||0)}</b></strong>
+            <strong>${Number(r.game_placement)===1?'SIEG':'PLATZ '+Number(r.game_placement||i+1)}</strong>
           </div>`).join('')}
         </div>
       </section>
@@ -336,7 +336,7 @@ function animateTttMerge(){
   postgameTimers.forEach(clearTimeout);postgameTimers=[];const run=++postgameRun,host=root?.querySelector('.tttp-merge-rows');if(!host)return;
   const rows=[...host.querySelectorAll('[data-ttt-merge-row]')],card=root?.querySelector('[data-ttt-merge-card]');
   postgameBusy=true;
-  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.tttp-merge-card'),colorVar((canonicalPostgame(result)?.rows||[]).find(r=>Number(r.game_placement)===1)?.identity_color))},350);
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.tttp-merge-card'),colorVar((canonicalPostgame(state?.result)?.rows||[]).find(r=>Number(r.game_placement)===1)?.identity_color))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
