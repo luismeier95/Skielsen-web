@@ -195,6 +195,7 @@ function animateBuzzerMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.bzt-merge-rows');if(!host)return;
   const rows=[...host.querySelectorAll('[data-bzt-merge-row]')],card=root?.querySelector('[data-bzt-merge-card]');
   postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.bzt-merge-card'))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
