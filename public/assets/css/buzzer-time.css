@@ -301,3 +301,21 @@
 .bzt-merge-card.is-total .bzt-merge-points em,
 .bzt-merge-card.is-total .bzt-merge-points .bzt-award-points{opacity:0;transform:translateY(-6px)}
 .bzt-merge-card.is-total .bzt-merge-points .bzt-total-points{opacity:1;transform:scale(1.08)}
+
+/* V15.1.133 · Points never leave column 3 during the morph */
+.bzt-merge-points .bzt-award-value{
+  display:inline-block;color:rgb(124,92,255)!important;opacity:1!important;transform:none!important;
+  transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)
+}
+.bzt-merge-card.is-merging .bzt-merge-points .bzt-award-value{opacity:0!important;transform:scale(.78)!important}
+.bzt-merge-card.is-total .bzt-merge-points .bzt-award-value{opacity:0!important}
+.bzt-merge-card.is-tournament .bzt-merge-columns,
+.bzt-merge-card.is-tournament .bzt-merge-row{grid-template-columns:56px minmax(0,1fr) 74px 0!important}
+.bzt-merge-card.is-tournament .bzt-merge-columns>span:nth-child(4),
+.bzt-merge-card.is-tournament .bzt-merge-row>strong:nth-child(4){opacity:0;overflow:hidden}
+@media(max-width:720px){
+  #v15InAppLayer.buzzer-mode .bzt-merge-card.is-tournament .bzt-merge-columns,
+  #v15InAppLayer.buzzer-mode .bzt-merge-card.is-tournament .bzt-merge-row{
+    grid-template-columns:minmax(42px,.8fr) minmax(0,2fr) minmax(54px,1fr) 0!important;
+  }
+}
