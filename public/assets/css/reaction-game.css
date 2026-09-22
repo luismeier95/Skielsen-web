@@ -234,3 +234,7 @@
     left:calc(9px + min(46px,12vw))!important;
   }
 }
+
+/* V15.1.133 · Explicit color contract for Reaction point morph */
+.rxp-award-value,.rxp-points-equation strong{color:rgb(124,92,255)!important}
+.rxp-points-equation b,.rxp-total-value{color:var(--theme-on-surface)!important}
