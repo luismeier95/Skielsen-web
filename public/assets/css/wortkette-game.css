@@ -688,3 +688,38 @@
   .wc-standard-row{animation:none!important;opacity:1!important;transform:none!important}
   .wc-merge-row{transition:none!important}
 }
+
+
+/* ===== V15.1.130 · Rounded/flexible mobile contract ===== */
+#v15WordChainRoot{
+  --wc-radius-outer:16px;
+  --wc-radius-card:12px;
+  --wc-radius-small:9px;
+}
+#v15WordChainRoot :where(.wc-setup-card,.wc-result-card,.wc-joker-card,.wc-status,.wc-chain,.wc-puzzle){
+  border-radius:var(--wc-radius-outer)!important;
+  overflow:hidden;
+}
+#v15WordChainRoot :where(.wc-difficulty button,.wc-start,.wc-result-primary){
+  border-radius:var(--wc-radius-card)!important;
+}
+#v15WordChainRoot .wc-difficulty button{
+  min-height:0!important;
+  padding:14px 12px!important;
+}
+@media(max-width:720px){
+  #v15WordChainRoot{
+    --wc-radius-outer:14px;
+    --wc-radius-card:11px;
+    --wc-radius-small:8px;
+  }
+  #v15WordChainRoot .wc-difficulty{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  #v15WordChainRoot .wc-difficulty button{
+    min-height:0!important;
+    padding:13px 12px!important;
+  }
+  #v15WordChainRoot .wc-setup-card{padding:14px!important}
+}
