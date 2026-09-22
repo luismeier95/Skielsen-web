@@ -30,6 +30,99 @@ function commitLocalPoints(st,rt,g,placements){
   placements.forEach((pid,ix)=>{const r=st.rankings?.[pid];if(!r)return;const place=ix+1;let pts=scoreFor(rt,place);if(feature(rt,'feature.joker')&&g.joker?.accepted?.type==='DOUBLE_POINTS'&&g.joker.accepted.participantId===pid)pts*=2;r.points=Number(r.points||0)+pts;if(place===1)r.first=Number(r.first||0)+1;else if(place===2)r.second=Number(r.second||0)+1;else if(place===3)r.third=Number(r.third||0)+1;else if(place===4)r.last=Number(r.last||0)+1});
   g.resultsCommitted=true;
 }
+function canonicalRankingSnapshot(st){
+  return (st?.participants||[]).map(p=>{
+    const r=st.rankings?.[p.id]||{};
+    return {
+      participant_id:p.id,display_name:p.name||'TEILNEHMER',identity_color:p.color||null,
+      points:Number(r.points||0),first:Number(r.first||0),second:Number(r.second||0),
+      third:Number(r.third||0),last:Number(r.last||0)
+    };
+  }).sort((a,b)=>b.points-a.points||b.first-a.first||String(a.display_name).localeCompare(String(b.display_name),'de'))
+    .map((r,i)=>({...r,rank:i+1}));
+}
+function canonicalGamePoints(rt,placements,reveal){
+  const out={};
+  (placements||[]).forEach((pid,ix)=>out[pid]=scoreFor(rt,ix+1));
+  const owner=reveal?.owner?.participant_id;
+  const final=Number(reveal?.result?.after);
+  if(owner&&Number.isFinite(final))out[owner]=final;
+  return out;
+}
+function captureCanonicalPostgame(st,rt,g,before,result,placements){
+  if(!st||!g||!Array.isArray(placements)||!placements.length)return null;
+  const reveal=result?.tournament_handoff?.joker_reveal||null;
+  const beforeRows=Array.isArray(before)&&before.length?before:canonicalRankingSnapshot(st);
+  const beforeBy=new Map(beforeRows.map(r=>[r.participant_id,r]));
+  const points=canonicalGamePoints(rt,placements,reveal);
+  placements.forEach((pid,ix)=>{
+    const r=st.rankings?.[pid],old=beforeBy.get(pid);
+    if(!r||!old)return;
+    r.points=Number(old.points||0)+Number(points[pid]||0);
+  });
+  const after=canonicalRankingSnapshot(st),afterBy=new Map(after.map(r=>[r.participant_id,r]));
+  const rows=(st.participants||[]).map(p=>{
+    const old=beforeBy.get(p.id)||{},now=afterBy.get(p.id)||{},place=placements.indexOf(p.id)+1;
+    return {
+      participant_id:p.id,display_name:p.name||now.display_name||old.display_name||'TEILNEHMER',identity_color:p.color||now.identity_color||old.identity_color||null,
+      game_placement:place>0?place:null,old_points:Number(old.points||0),added_points:Number(points[p.id]||0),new_points:Number(now.points||0),
+      old_rank:Number(old.rank||0),new_rank:Number(now.rank||0),movement:Number(old.rank||0)-Number(now.rank||0),
+      first:Number(now.first||0),second:Number(now.second||0),third:Number(now.third||0),last:Number(now.last||0)
+    };
+  });
+  const payload={
+    phase:'MERGE',tournament_game_id:g.tournament_game_id||null,game_id:g.game_id||null,
+    game_name:g.name||null,joker_reveal:reveal,rows,result:result||g.inAppResult||null
+  };
+  g.inAppCanonicalPostgame=payload;
+  return payload;
+}
+function reconstructCanonicalPostgame(st,rt,g,result){
+  if(g?.inAppCanonicalPostgame)return g.inAppCanonicalPostgame;
+  if(!st||!g)return null;
+  const standings=Array.isArray(result?.standings)?[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)):[];
+  const placements=Array.isArray(g.placements)&&g.placements.length?[...g.placements]:standings.map(r=>r.participant_id);
+  if(!placements.length)return null;
+  const reveal=result?.tournament_handoff?.joker_reveal||null,points=canonicalGamePoints(rt,placements,reveal);
+  const after=canonicalRankingSnapshot(st),afterBy=new Map(after.map(r=>[r.participant_id,r]));
+  const pseudoBefore=(st.participants||[]).map(p=>{
+    const now=afterBy.get(p.id)||{},place=placements.indexOf(p.id)+1;
+    return {
+      participant_id:p.id,display_name:p.name||now.display_name||'TEILNEHMER',identity_color:p.color||now.identity_color||null,
+      points:Number(now.points||0)-Number(points[p.id]||0),
+      first:Number(now.first||0)-(place===1?1:0),second:Number(now.second||0)-(place===2?1:0),
+      third:Number(now.third||0)-(place===3?1:0),last:Number(now.last||0)-(place===4?1:0)
+    };
+  }).sort((a,b)=>b.points-a.points||b.first-a.first||String(a.display_name).localeCompare(String(b.display_name),'de'))
+    .map((r,i)=>({...r,rank:i+1}));
+  const beforeBy=new Map(pseudoBefore.map(r=>[r.participant_id,r]));
+  const rows=(st.participants||[]).map(p=>{
+    const old=beforeBy.get(p.id)||{},now=afterBy.get(p.id)||{},place=placements.indexOf(p.id)+1;
+    return {
+      participant_id:p.id,display_name:p.name||now.display_name||'TEILNEHMER',identity_color:p.color||now.identity_color||null,
+      game_placement:place>0?place:null,old_points:Number(old.points||0),added_points:Number(points[p.id]||0),new_points:Number(now.points||0),
+      old_rank:Number(old.rank||0),new_rank:Number(now.rank||0),movement:Number(old.rank||0)-Number(now.rank||0),
+      first:Number(now.first||0),second:Number(now.second||0),third:Number(now.third||0),last:Number(now.last||0)
+    };
+  });
+  return g.inAppCanonicalPostgame={phase:'MERGE',tournament_game_id:g.tournament_game_id||null,game_id:g.game_id||null,game_name:g.name||null,joker_reveal:reveal,rows,result:result||g.inAppResult||null};
+}
+function getCanonicalPostgame(tournamentGameId,result=null){
+  const st=engine?.state,rt=engine?.runtime;if(!st)return null;
+  const g=(st.games||[]).find(x=>x.tournament_game_id===tournamentGameId)||currentGame(st);
+  return reconstructCanonicalPostgame(st,rt,g,result||g?.inAppResult||null);
+}
+function completeCanonicalInAppPostgame(tournamentGameId){
+  const st=engine?.state;if(!st)return false;
+  const g=(st.games||[]).find(x=>x.tournament_game_id===tournamentGameId)||currentGame(st);if(!g)return false;
+  const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0],winnerId=Array.isArray(g.placements)?g.placements[0]:null;
+  g.awaitingInAppResultClose=false;
+  if(g.joker){g.joker.revealed=true;g.joker.revealAcknowledged=true;g.joker.resolved=true;g.joker.locked=true}
+  persistLocalState();window.skielsenInApp?.finishAndExit?.();
+  if(typeof engine.beginCanonicalMergedPostGameFlow==='function'){engine.beginCanonicalMergedPostGameFlow(g,m,winnerId);return true}
+  if(typeof engine.startPostGameVote==='function'){engine.startPostGameVote(g);return true}
+  return false;
+}
 function initializeVoteOrAdvance(g){
   const st=engine?.state,rt=engine?.runtime;if(!st||!rt||!g)return;
   if(voteFeature(rt,'MVP')){g.phase='VOTING_MVP';g.vote={type:'MVP',votes:{},winnerActorId:null,finalized:false};engine.render();engine.show('home');persistLocalState();return}
@@ -72,6 +165,7 @@ async function showBridgeJokerReveal(g){
 async function continuePostGame(g){if(await showBridgeJokerReveal(g))return;initializeVoteOrAdvance(g)}
 
 function ingestHigherLowerResult(tournamentGameId,result){
+  const canonicalBefore=canonicalRankingSnapshot(engine?.state);
   const st=engine?.state,rt=engine?.runtime;if(!st||!rt||!Array.isArray(result?.standings))return false;
   const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);if(gi<0)return false;
   const g=st.games[gi],rows=[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999));
@@ -89,12 +183,14 @@ function ingestHigherLowerResult(tournamentGameId,result){
     addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));
     addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'MEHR ODER WENIGER').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${Number(r.category_wins||0)} KATEGORIE-SIEGE`).join(' · '));
   }
+  captureCanonicalPostgame(st,rt,g,canonicalBefore,result,placements);
   g.awaitingInAppResultClose=true;
   engine.render();persistLocalState();
   return true;
 }
 
 function ingestWordChainResult(tournamentGameId,result){
+  const canonicalBefore=canonicalRankingSnapshot(engine?.state);
   const st=engine?.state,rt=engine?.runtime;
   if(!st||!rt||!Array.isArray(result?.standings))return false;
   const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);if(gi<0)return false;
@@ -118,6 +214,7 @@ function ingestWordChainResult(tournamentGameId,result){
     addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));
     addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'WORTKETTE').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${Number(r.minus_points??Math.abs(Math.min(Number(r.score||0),0)))} MINUSPUNKTE`).join(' · '));
   }
+  captureCanonicalPostgame(st,rt,g,canonicalBefore,result,placements);
   g.awaitingInAppResultClose=true;
   engine.render();persistLocalState();
   return true;
@@ -229,12 +326,13 @@ function ingestInAppGameResult(tournamentGameId,result){
   if(result?.game_key==='tic_tac_toe')return ingestTicTacToeResult(tournamentGameId,result);
   if(result?.game_key==='reaction')return ingestReactionResult(tournamentGameId,result);
   const st=engine?.state,rt=engine?.runtime;if(!st||!rt||!result||result.game_key!=='buzzer_time_stoppen'||!Array.isArray(result.standings))return false;
+  const canonicalBefore=canonicalRankingSnapshot(st);
   const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);if(gi<0)return false;const g=st.games[gi],rows=[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)),placements=rows.map(r=>r.participant_id),valid=new Set((st.participants||[]).map(p=>p.id));
   if(placements.length!==(st.participants||[]).length||new Set(placements).size!==placements.length||placements.some(id=>!valid.has(id)))return false;
   if(g.inAppResult?.finalized_at===result.finalized_at&&g.resultsCommitted)return true;
   g.inAppResult=result;g.placements=[...placements];g.phase='RESULTS';const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0];if(m){m.participantIds=Array.isArray(m.participantIds)&&m.participantIds.length?m.participantIds:[...placements];m.placements=[...placements];m.values=Object.fromEntries(rows.map(r=>[r.participant_id,Number(r.total_deviation_ms||0)]));m.status='CONCLUDED'}
   if(!g.resultsCommitted){if(m)settleLocalBets(st,m,placements[0]);commitLocalPoints(st,rt,g,placements);st.matchHistory=Array.isArray(st.matchHistory)?st.matchHistory:[];st.matchHistory.unshift({gameIndex:gi,game:g.name,stage:m?.stage||'MULTI_PARTICIPANT',participantIds:[...placements],placements:[...placements],values:m?.values?{...m.values}:null,winner:placements[0],at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),source:'IN_APP_BUZZER'});addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'BUZZER').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${fmtMs(r.total_deviation_ms)}`).join(' · '))}
-  engine.render();persistLocalState();if(gi===Number(st.currentGameIndex||0)&&!g.postGameServerComplete){window.skielsenInApp?.finishAndExit?.();if(typeof engine.beginPostGameFlow==='function')engine.beginPostGameFlow(g,m,placements[0]);else continuePostGame(g)}return true;
+  captureCanonicalPostgame(st,rt,g,canonicalBefore,result,placements);g.awaitingInAppResultClose=true;engine.render();persistLocalState();return true;
 }
 
 function resultMarkup(payload){
@@ -257,5 +355,5 @@ function attach(){
   return true;
 }
 let tries=0;const boot=setInterval(()=>{tries++;if(attach()||tries>80)clearInterval(boot)},250);
-window.skielsenBuzzerBridge={version:VERSION,attach,ingestInAppGameResult,completePendingInAppGame,completeReactionPostgame,enhanceDetails};
+window.skielsenBuzzerBridge={version:VERSION,attach,ingestInAppGameResult,completePendingInAppGame,completeCanonicalInAppPostgame,getCanonicalPostgame,completeReactionPostgame,enhanceDetails};
 })();
