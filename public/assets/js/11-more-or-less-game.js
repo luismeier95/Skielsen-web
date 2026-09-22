@@ -347,7 +347,7 @@ function mergeMarkup(){
           ${rows.map((r,i)=>`<div class="mol-result-row mol-merge-row" data-mol-merge-row data-new-rank="${Number(r.new_rank||i+1)}" data-old-rank="${Number(r.old_rank||i+1)}" style="--mol-player:${colorOf({identity_color:r.identity_color})}">
             <b><span class="mol-rank-value">${Number(r.old_rank||i+1)}.</span><small class="mol-rank-move"></small></b>
             <span><i style="--mol-player:${colorOf({identity_color:r.identity_color})}"></i><strong>${esc(String(r.display_name||'TEILNEHMER').toUpperCase())}</strong></span>
-            <strong class="mol-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
+            <strong class="mol-merge-points"><span class="mol-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="mol-award-points">${Number(r.added_points||0)}</span><b class="mol-total-points">${Number(r.new_points||0)}</b></strong>
             <strong class="mol-added-points">+${Number(r.added_points||0)}</strong>
           </div>`).join('')}
         </div>
