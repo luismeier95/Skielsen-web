@@ -24,7 +24,7 @@ function best(p){const v=validTimes(p);return v.length?Math.min(...v):null}
 function fmt(v){return Number.isFinite(v)?Math.round(v)+' ms':'—'}
 function gamePoints(place,valid=true){
   if(!valid)return 0;
-  return [5,4,2,0][Math.max(0,Number(place)-1)]??0;
+  return [10,5,3,0][Math.max(0,Number(place)-1)]??0;
 }
 function countPoints(el,target,delay,run){
   el.textContent='0';
