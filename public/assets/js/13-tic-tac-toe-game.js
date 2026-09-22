@@ -68,6 +68,9 @@ async function refresh(force=false){
       state.state?.subgames?.['1']?.board_move_no,
       state.state?.subgames?.['2']?.board_move_no,
       state.state?.decider?.board_move_no,
+      state.result?.finalized_at,
+      state.result?.tournament_handoff?.finalized,
+      state.result?.tournament_handoff?.status,
       (state.lineups||[]).map(x=>[x.lineup_role,x.participant_id,x.tournament_member_id])
     ]);
     if(force||sig!==lastSignature){lastSignature=sig;render()}
@@ -262,6 +265,7 @@ function renderWaiting(){
   root.innerHTML=`${header('WARTET','SYNC')}<main class="tttp-stage"><div class="tttp-wait">MATCH WIRD VORBEREITET …</div><p class="tttp-feedback" data-ttt-feedback>${esc(message)}</p></main>`;
 }
 function canonicalPostgame(result=state?.result){
+  if(localTest?.postgamePayload)return localTest.postgamePayload;
   return window.skielsenBuzzerBridge?.getCanonicalPostgame?.(session?.tournament_game_id,result)||null;
 }
 function tttJokerAllowed(reveal){return !!reveal&&String(reveal?.joker?.category||'').toUpperCase()!=='ACTION'}
@@ -328,6 +332,7 @@ function renderFinalMerge(result){
   root.querySelector('[data-ttt-postgame-close]')?.addEventListener('click',()=>{
     if(postgameBusy||postgamePhase!=='MERGE_COMPLETE')return;
     const btn=root.querySelector('[data-ttt-postgame-close]');if(btn){btn.disabled=true;btn.textContent='WIRD GESCHLOSSEN …'}
+    if(localTest?.onPostgameClose){localTest.onPostgameClose();return}
     const ok=window.skielsenBuzzerBridge?.completeCanonicalInAppPostgame?.(session?.tournament_game_id);
     if(!ok)window.skielsenInApp?.completeAndExit?.();
   });
@@ -594,6 +599,15 @@ function renderLocalResult(){
     if(typeof done==='function'&&winnerId)done(winnerId);
   });
 }
+function showLocalPostgame(config){
+  if(!root||!localTest||!config?.result||!config?.payload)return false;
+  localTest.postgamePayload=config.payload;
+  localTest.onPostgameClose=config.onClose||null;
+  state={status:'FINISHED',phase:'COMPLETE',result:config.result};
+  postgamePhase='RANKING';postgameBusy=false;finalResultIngested=true;
+  renderComplete();
+  return true;
+}
 function mountTestBot(nextRoot,config){
   unmount();
   root=nextRoot;
@@ -623,5 +637,5 @@ function unmount(){
   if(root){root.classList.remove('tttp-root');root.innerHTML=''}
   root=null;session=null;db=null;state=null;localTest=null;pollBusy=false;lastSignature='';message='';postgamePhase='RANKING';postgameBusy=false;finalResultIngested=false;
 }
-window.skielsenTicTacToe={mount,mountTestBot,updateSession,unmount,get state(){return state},get testBot(){return localTest}};
+window.skielsenTicTacToe={mount,mountTestBot,showLocalPostgame,updateSession,unmount,get state(){return state},get testBot(){return localTest},get resultOpen(){return !!((localTest?.postgamePayload||state?.result?.tournament_handoff?.finalized)&&['RANKING','JOKER','MERGE','MERGE_COMPLETE'].includes(postgamePhase))}};
 })();
