@@ -317,7 +317,7 @@ function renderFinalMerge(result){
           ${rows.map((r,i)=>`<div class="tttp-result-row tttp-merge-row" data-ttt-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
             <b><span class="tttp-rank-value">${Number(r.old_rank||i+1)}.</span><small class="tttp-rank-move"></small></b>
             <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b>${esc(r.display_name||'TEILNEHMER')}</b></span>
-            <strong class="tttp-merge-points"><span class="tttp-award-value">+${Number(r.added_points||0)}</span><span class="tttp-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="tttp-award-points">${Number(r.added_points||0)}</span><b class="tttp-total-points">${Number(r.new_points||0)}</b></strong>
+            <strong class="tttp-merge-points"><span class="tttp-award-value">+${Number(r.added_points||0)}</span><span class="tttp-points-equation"><b class="tttp-base-points">${Number(r.old_points||0)}</b><em>+</em><strong class="tttp-award-points">${Number(r.added_points||0)}</strong></span><span class="tttp-total-points">${Number(r.new_points||0)}</span></strong>
             <strong>${Number(r.game_placement)===1?'SIEG':'PLATZ '+Number(r.game_placement||i+1)}</strong>
           </div>`).join('')}
         </div>
