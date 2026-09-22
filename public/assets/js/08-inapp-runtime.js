@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.116';
+const VERSION=window.SKIELSEN_VERSION||'15.1.118';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -11,6 +11,7 @@ const WORD_CHAIN_MODULE='word-chain';
 const WORD_CHAIN_GAME_KEY='word_chain';
 const TIC_TAC_TOE_MODULE='tic-tac-toe';
 const TIC_TAC_TOE_GAME_KEY='tic_tac_toe';
+const GAME_FLOW_STEPS=Object.freeze(['MODE_SELECTION','DIFFICULTY_SELECTION','READY','GAME','RANKING','CLOSE']);
 const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
@@ -321,7 +322,8 @@ function renderBuzzerTest(g){
 
 function renderMoreLessSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
-  prepareInAppSurface(String(s.session_id||'more-less'),s.game?.name||'MEHR ODER WENIGER',true);
+  const live=String(s?.status||'').toUpperCase()==='ACTIVE';
+  prepareInAppSurface(String(s.session_id||'more-less'),s.game?.name||'MEHR ODER WENIGER',live);
   layer.classList.remove('buzzer-mode','word-chain-mode');
   window.skielsenBuzzerTime?.unmount?.();
   window.skielsenWordChain?.unmount?.();
@@ -348,7 +350,8 @@ function renderMoreLessSession(s){
 
 function renderWordChainSession(s){
   const layer=ensureLayer(),host=document.getElementById('v15InAppPlayerContent');
-  prepareInAppSurface(String(s.session_id||'word-chain'),s.game?.name||'WORTKETTE',true);
+  const live=String(s?.status||'').toUpperCase()==='ACTIVE';
+  prepareInAppSurface(String(s.session_id||'word-chain'),s.game?.name||'WORTKETTE',live);
   layer.classList.remove('buzzer-mode');
   layer.classList.add('word-chain-mode');
   window.skielsenBuzzerTime?.unmount?.();
@@ -466,6 +469,10 @@ function renderPlayerSession(s){
   const isTicTacToe=s.game?.module_key===TIC_TAC_TOE_MODULE;
   document.body.classList.toggle('v15-word-chain-inapp-open',isWordChain);
   const forceStartWithoutReady=!!s.public_state?.force_start_without_ready;
+  const needsWordChainDifficulty=!!(isWordChain&&!String(s.public_state?.word_chain_difficulty||'').trim());
+  const needsMoreLessDifficulty=!!(isMoreLess&&!String(s.public_state?.familiarity_tier||'').trim());
+  if(!active&&needsMoreLessDifficulty){renderMoreLessSession(s);return}
+  if(!active&&needsWordChainDifficulty){renderWordChainSession(s);return}
   if(active&&!inAppManualMinimized)inAppMinimized=false;
   if(active&&s.game?.module_key===BUZZER_MODULE){
     window.skielsenMoreLess?.unmount?.();
@@ -590,7 +597,7 @@ async function pollPlayer(){
       playerSession=r.data;playerSessionMisses=0;
       renderPlayerSession(playerSession);
     }else{
-      if(window.skielsenWordChain?.resultOpen){
+      if(window.skielsenWordChain?.resultOpen||window.skielsenMoreLess?.resultOpen){
         playerSessionMisses=0;
         return;
       }
@@ -887,7 +894,7 @@ async function ensureNativeLifecycle(g){
           source:`V${VERSION}`,
           game_name:g.name||null,
           game_id:g.game_id||null,
-          familiarity_tier:String(g?.rules_json?.familiarityTier||g?.game_rules_snapshot?.familiarityTier||'NORMAL').toUpperCase(),
+          familiarity_tier:expectedModule===MORE_LESS_MODULE?null:String(g?.rules_json?.familiarityTier||g?.game_rules_snapshot?.familiarityTier||'NORMAL').toUpperCase(),
           occurrence_threshold:Number(g?.rules_json?.occurrenceThreshold||g?.game_rules_snapshot?.occurrenceThreshold||35),
           time_limit_seconds:Number(g?.rules_json?.timeLimitSeconds||g?.game_rules_snapshot?.timeLimitSeconds||15),
           difficulty_required:expectedModule===WORD_CHAIN_MODULE,
@@ -1040,6 +1047,8 @@ window.skielsenInApp={
   openFullscreen:()=>openInAppFullscreen('push')||forceOpenActiveInApp('push'),
   openActive:()=>forceOpenActiveInApp('push'),
   finishAndExit:finishInAppSurface,
+  completeAndExit:()=>window.skielsenBuzzerBridge?.completePendingInAppGame?.()||finishInAppSurface(),
+  flowContract:GAME_FLOW_STEPS,
   get fullscreen(){return inAppFullscreen()},
   get minimized(){return inAppMinimized},
   get live(){return inAppSurfaceLive},

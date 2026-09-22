@@ -110,7 +110,7 @@ function shell(){
           <div class="wc-result-columns"><span>POSITION</span><span>NAME</span><span>ZEIT</span><span>SCORE</span></div>
           <div class="wc-result-rows" data-wc-result-rows></div>
         </section>
-        <button class="wc-result-primary" type="button" data-wc-finish hidden>TURNIER ANSEHEN →</button>
+        <button class="wc-result-primary" type="button" data-wc-finish hidden>SPIEL SCHLIESSEN →</button>
       </main>
     </section>
   </div>`;
@@ -166,6 +166,7 @@ async function setDifficulty(){
       word_chain_rules_version:data?.rules_version||4
     };
     busy=false;
+    if(String(session?.status||'').toUpperCase()!=='ACTIVE'){void window.skielsenInApp?.poll?.();return true}
     await loadState(true);
     window.skielsenInApp?.poll?.();
     return true;
@@ -472,7 +473,7 @@ function bind(){
     if(e.target.closest('button'))return;
     setTimeout(focusInput,0);
   });
-  q('[data-wc-finish]')?.addEventListener('click',()=>window.skielsenInApp?.finishAndExit?.());
+  q('[data-wc-finish]')?.addEventListener('click',()=>window.skielsenInApp?.completeAndExit?.());
   window.addEventListener('resize',onResize);
 }
 function onResize(){

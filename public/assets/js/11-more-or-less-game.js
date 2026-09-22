@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0,recoveryTimer=0;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -18,6 +18,8 @@ const playerById=id=>(state?.players||[]).find(p=>p.participant_id===id)||null;
 const colorOf=p=>COLORS[String(p?.identity_color||'').toUpperCase()]||'var(--theme-accent)';
 const tierLabel=t=>String(t||'NORMAL').toUpperCase();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function scheduleRecoveryPoll(delay=700){clearTimeout(recoveryTimer);recoveryTimer=setTimeout(()=>{recoveryTimer=0;void poll()},delay)}
+function questionPayloadReady(){return !!(state?.category&&state?.reference&&state?.current)}
 const selectedTier=()=>String(session?.public_state?.familiarity_tier||'').toUpperCase();
 const isAdmin=()=>!!window.skielsenV15?.runtime?.is_admin;
 const isTestBotTournament=()=>{
@@ -180,6 +182,7 @@ async function setTier(tier){
     if(r.error)throw r.error;
     session={...session,public_state:{...(session.public_state||{}),familiarity_tier:tierLabel(tier)}};
     state=null;animatedCategoryNo=0;categoryAnimating=false;animationToken++;
+    if(String(session?.status||'').toUpperCase()!=='ACTIVE'){render();void window.skielsenInApp?.poll?.();return true}
     await poll();
     return true;
   }catch(err){
@@ -279,7 +282,8 @@ function completeMarkup(){
           return `<div class="mol-full-final-row" style="--mol-player:${colorOf(p)}"><span>${Number(r.placement||i+1)}.</span><i></i><strong>${esc(String(p?.display_name||'TEILNEHMER').toUpperCase())}</strong><b>${Number(r.category_wins||0)}</b></div>`;
         }).join('')}
       </div>
-      <p class="mol-full-finished-note">ERGEBNIS WIRD AN DAS TURNIER ÜBERGEBEN.</p>
+      <p class="mol-full-finished-note">ERGEBNIS IST GESPEICHERT.</p>
+      <button type="button" class="mol-setup-start" id="molCloseGame">SPIEL SCHLIESSEN →</button>
     </main>
   </section>`;
 }
@@ -298,6 +302,11 @@ function render(){
     root.innerHTML=`<section class="mol-full-app">${header()}<main class="mol-full-content"><div class="mol-full-wait">SPIELDATEN WERDEN GELADEN…</div></main></section>`;
     bindChrome();
     return;
+  }
+  if(state.phase==='QUESTION'&&!questionPayloadReady()){
+    clearTimeout(feedbackTimer);feedbackKey='';
+    root.innerHTML=`<section class="mol-full-app">${header()}<main class="mol-full-content"><div class="mol-full-wait">NÄCHSTER VERGLEICH WIRD GELADEN…</div></main></section>`;
+    bindChrome();scheduleRecoveryPoll();return;
   }
   if(state.phase==='QUESTION'&&Number(state.category_no||1)!==animatedCategoryNo){
     if(!categoryAnimating)void animateCategoryPick();
@@ -329,16 +338,23 @@ function render(){
         if(feedbackKey!==key)return;
         card?.classList.add('is-promoting');
         const mine=state?.viewer?.member_id===lr.answer_member_id;
-        if(mine)feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},480);
+        const revealActor=playerByMemberId(lr.answer_member_id)||playerById(lr.participant_id)||{};
+        const botReveal=!!(revealActor?.is_bot||state?.current_player?.is_bot);
+        const viewerKey=String(state?.viewer?.member_id||state?.viewer?.participant_id||'viewer');
+        const jitter=[...viewerKey].reduce((n,ch)=>(n+ch.charCodeAt(0))%401,0);
+        const delay=mine?480:((botReveal||isAdmin())?900:2200+jitter);
+        feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},delay);
       }));
     });
     return;
   }
 
   feedbackKey='';clearTimeout(feedbackTimer);
-  if(state.phase==='COMPLETE'||state.status==='FINISHED')root.innerHTML=completeMarkup();
-  else root.innerHTML=questionMarkup();
-  bindChrome();
+  if(state.phase==='COMPLETE'||state.status==='FINISHED'){
+    clearTimeout(recoveryTimer);recoveryTimer=0;root.innerHTML=completeMarkup();bindChrome();
+    root.querySelector('#molCloseGame')?.addEventListener('click',()=>window.skielsenInApp?.completeAndExit?.());return;
+  }
+  root.innerHTML=questionMarkup();bindChrome();
   root.querySelectorAll('[data-mol-choice]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.molChoice)));
   scheduleBotTurn();
 }
@@ -363,7 +379,7 @@ async function poll(){
     const r=await db.rpc('get_higher_lower_state',{p_session_id:session.session_id});
     if(r.error){console.warn('More or Less state',r.error);return}
     if(!r.data)return;
-    state=r.data;
+    state=r.data;clearTimeout(recoveryTimer);recoveryTimer=0;
     if((state.phase==='COMPLETE'||state.status==='FINISHED')&&state.result&&!resultIngested){
       resultIngested=!!window.skielsenV15?.ingestInAppGameResult?.(session.tournament_game_id,state.result);
     }
@@ -372,7 +388,7 @@ async function poll(){
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession?.session_id||!nextDb)return false;
-  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(botTimer);botTimer=0;botTurnKey=''}
+  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(recoveryTimer);recoveryTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey=''}
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
@@ -394,7 +410,7 @@ function updateSession(nextSession){
   if(!before&&after)void poll();
 }
 function unmount(){
-  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';animationToken++;clearTimeout(feedbackTimer);feedbackKey='';root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
+  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';animationToken++;clearTimeout(feedbackTimer);feedbackKey='';clearTimeout(recoveryTimer);recoveryTimer=0;root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
 }
-window.skielsenMoreLess={mount,updateSession,unmount,poll,setTier};
+window.skielsenMoreLess={mount,updateSession,unmount,poll,setTier,get resultOpen(){return !!root&&(state?.phase==='COMPLETE'||state?.status==='FINISHED')}};
 })();

@@ -89,11 +89,8 @@ function ingestHigherLowerResult(tournamentGameId,result){
     addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));
     addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'MEHR ODER WENIGER').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${Number(r.category_wins||0)} KATEGORIE-SIEGE`).join(' · '));
   }
+  g.awaitingInAppResultClose=true;
   engine.render();persistLocalState();
-  if(gi===Number(st.currentGameIndex||0)&&!g.postGameServerComplete){
-    window.skielsenInApp?.finishAndExit?.();
-    if(typeof engine.beginPostGameFlow==='function')engine.beginPostGameFlow(g,m,placements[0]);else continuePostGame(g);
-  }
   return true;
 }
 
@@ -121,12 +118,18 @@ function ingestWordChainResult(tournamentGameId,result){
     addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));
     addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'WORTKETTE').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${Number(r.minus_points??Math.abs(Math.min(Number(r.score||0),0)))} MINUSPUNKTE`).join(' · '));
   }
+  g.awaitingInAppResultClose=true;
   engine.render();persistLocalState();
-  if(gi===Number(st.currentGameIndex||0)&&!g.postGameServerComplete){
-    window.skielsenInApp?.finishAndExit?.();
-    if(typeof engine.beginPostGameFlow==='function')engine.beginPostGameFlow(g,m,placements[0]);else continuePostGame(g);
-  }
   return true;
+}
+
+function completePendingInAppGame(){
+  const st=engine?.state;if(!st)return false;
+  const gi=Number(st.currentGameIndex||0),g=st.games?.[gi];if(!g?.awaitingInAppResultClose)return false;
+  const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0],winnerId=Array.isArray(g.placements)?g.placements[0]:null;
+  g.awaitingInAppResultClose=false;persistLocalState();
+  if(typeof engine.beginPostGameFlow==='function'){engine.beginPostGameFlow(g,m,winnerId);return true}
+  window.skielsenInApp?.finishAndExit?.();void continuePostGame(g);return true;
 }
 
 function ingestTicTacToeResult(tournamentGameId,result){
@@ -188,5 +191,5 @@ function attach(){
   return true;
 }
 let tries=0;const boot=setInterval(()=>{tries++;if(attach()||tries>80)clearInterval(boot)},250);
-window.skielsenBuzzerBridge={version:VERSION,attach,ingestInAppGameResult,enhanceDetails};
+window.skielsenBuzzerBridge={version:VERSION,attach,ingestInAppGameResult,completePendingInAppGame,enhanceDetails};
 })();

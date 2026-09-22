@@ -227,3 +227,24 @@ Optional tournament systems are hard workflow gates, not cosmetic switches.
 - LVP voting exists only in TEAM mode and while `feature.lvp_voting` is enabled.
 - In SOLO mode MVP/LVP settings are unavailable and server-side vote RPCs reject attempts to open or submit those votes.
 - Disabled features must not leave placeholder workflow steps such as a Joker round or Betting gate in Match Control.
+
+## Canonical In-App Game Lifecycle
+
+Every In-App game follows one ordered lifecycle. Optional setup steps are skipped only when the game does not require them:
+
+1. **MODE_SELECTION** — choose the play type (for example ALTERNATING / SIMULTANEOUS) only for games that require a play-mode choice.
+2. **DIFFICULTY_SELECTION** — choose the difficulty only for games that expose difficulty.
+3. **READY** — show all assigned players, a short game description/rule summary, and explicit player readiness. No gameplay starts before this gate, except a game-specific QA force-start override.
+4. **GAME** — the actual playable state.
+5. **RANKING** — after the server finalizes the result, keep the game surface open and show the game ranking/live final table.
+6. **CLOSE** — the player explicitly closes the finished game. Only then may tournament post-game flow (bet settlement UI, MVP/LVP, awards, next game routing) take over.
+
+### Lifecycle invariants
+
+- Setup pages are real states/pages, never overlays over gameplay.
+- Setup order is fixed: mode before difficulty, difficulty before ready.
+- A game must never jump directly from GAME to tournament post-game UI.
+- Result ingestion may persist placements and points while RANKING is visible, but it must not close the In-App surface.
+- RANKING must survive a missing/finished active-session poll until the user closes it.
+- Every transient state must have a recovery path. A client may re-poll incomplete QUESTION/REVEAL state, and a lost transition must not create a permanent dead end.
+- `window.skielsenInApp.flowContract` is the runtime source for the canonical stage order.
