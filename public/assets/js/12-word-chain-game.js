@@ -436,12 +436,13 @@ function renderWordMerge(){
   showPage('result');const pg=canonicalPostgame(),rows=[...(pg?.rows||[])].sort((a,b)=>Number(a.old_rank||999)-Number(b.old_rank||999));
   const title=q('[data-wc-result-title]'),meta=q('[data-wc-result-meta]'),columns=q('.wc-result-columns'),host=q('[data-wc-result-rows]'),finish=q('[data-wc-finish]');
   if(title)title.textContent='TURNIERSTAND';if(meta)meta.textContent='NACH WORTKETTE';
-  if(columns){columns.className='wc-result-columns wc-merge-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span>'}
+  if(columns){columns.className='wc-result-columns wc-merge-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ZEIT</span><span>SCORE</span>'}
   if(host){host.closest('.wc-result-card')?.classList.add('is-game');host.closest('.wc-result-card')?.setAttribute('data-wc-merge-card','');host.innerHTML=rows.map((r,i)=>`<div class="wc-result-row wc-merge-row" data-wc-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
     <b><span class="wc-rank-value">${Number(r.old_rank||i+1)}.</span><small class="wc-rank-move"></small></b>
     <span><i style="--wc-player:${colorVar(r.identity_color)}"></i><strong>${esc(r.display_name||'TEILNEHMER')}</strong></span>
-    <strong class="wc-merge-points"><span class="wc-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="wc-award-points">${Number(r.added_points||0)}</span><b class="wc-total-points">${Number(r.new_points||0)}</b></strong>
-    <strong class="wc-added-points">+${Number(r.added_points||0)}</strong>
+    <strong class="wc-merge-points"><span class="wc-award-value">+${Number(r.added_points||0)}</span><span class="wc-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="wc-award-points">${Number(r.added_points||0)}</span><b class="wc-total-points">${Number(r.new_points||0)}</b></strong>
+    <strong>${formatDuration((finalResult?.standings||[]).find(x=>x.participant_id===r.participant_id)?.duration_ms)}</strong>
+    <strong>${Number((finalResult?.standings||[]).find(x=>x.participant_id===r.participant_id)?.score??0)}</strong>
   </div>`).join('')}
   if(finish){finish.hidden=true;finish.disabled=true;finish.textContent='SPIEL SCHLIESSEN →'}
   animateWordMerge();
