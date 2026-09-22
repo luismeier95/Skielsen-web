@@ -647,3 +647,44 @@
   .wc-slot{height:36px}
   .wc-feedback{left:6px;right:6px;bottom:4px;height:auto;font-size:6.5px}
 }
+
+
+/* ===== Standardized game flow · Wortkette ===== */
+.wc-standard-columns,.wc-standard-row{
+  grid-template-columns:64px minmax(0,1fr) 96px 72px 72px!important;
+}
+.wc-standard-row{
+  opacity:0;transform:translateY(10px);animation:wcStdRowIn .36s cubic-bezier(.2,.82,.2,1) forwards;
+  animation-delay:var(--wc-row-delay,0ms)
+}
+.wc-added-points{text-align:right;justify-content:flex-end}
+.wc-joker-card{
+  padding:22px;border:1px solid var(--wc-joker-owner,var(--theme-accent));border-left:6px solid var(--wc-joker-owner,var(--theme-accent));
+  background:var(--theme-surface);color:var(--theme-on-surface)
+}
+.wc-joker-card>small{color:var(--theme-muted);font:900 7px/1 var(--ui);letter-spacing:.9px}
+.wc-joker-card h2{margin:9px 0 10px;font:900 38px/.95 var(--display,var(--ui))}
+.wc-joker-card p{margin:0;color:var(--theme-muted);font:800 10px/1.45 var(--ui)}
+.wc-joker-owner{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px;border:1px solid var(--theme-border);background:var(--theme-surface-soft)}
+.wc-joker-owner>i{width:6px;height:34px;background:var(--wc-joker-owner,var(--theme-accent))}
+.wc-joker-owner>span{display:grid;gap:4px}.wc-joker-owner small{color:var(--theme-muted);font:900 6px/1 var(--ui)}.wc-joker-owner strong{font:900 10px/1 var(--ui)}
+.wc-joker-value{display:flex;align-items:center;gap:10px;margin-top:12px;padding:16px;background:var(--theme-surface-soft);font:900 24px/1 var(--display,var(--ui))}
+.wc-joker-value b{color:var(--theme-accent)}
+.wc-merge-columns,.wc-merge-row{grid-template-columns:64px minmax(0,1fr) 100px 72px!important}
+.wc-merge-row>b{display:flex;align-items:center;gap:6px}
+.wc-rank-move{font:900 6px/1 var(--ui);color:var(--theme-muted);opacity:0;transition:opacity .2s ease}
+.wc-rank-move.visible{opacity:1}
+.wc-merge-points{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important}
+.wc-merge-points em{font-style:normal;color:var(--theme-muted);font-size:8px}
+.wc-merge-points b{font-size:16px}
+@keyframes wcStdRowIn{to{opacity:1;transform:none}}
+@media(max-width:720px){
+  .wc-standard-columns,.wc-standard-row{grid-template-columns:42px minmax(0,1fr) 68px 50px 50px!important}
+  .wc-merge-columns,.wc-merge-row{grid-template-columns:42px minmax(0,1fr) 70px 50px!important}
+  .wc-joker-card{padding:16px}.wc-joker-card h2{font-size:30px}.wc-joker-value{font-size:20px}
+  .wc-rank-move{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .wc-standard-row{animation:none!important;opacity:1!important;transform:none!important}
+  .wc-merge-row{transition:none!important}
+}
