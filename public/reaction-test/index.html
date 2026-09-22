@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de" data-theme-pack="theme.skielsen.core">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e9">
+<title>SKIELSEN · Reaction · Standalone</title>
+<link rel="stylesheet" href="../assets/css/app.css?v=15.1.123">
+<link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.123">
+<link rel="stylesheet" href="./style.css?v=1.0.0">
+</head>
+<body class="v15-tournament-active rx-body" data-theme-pack="theme.skielsen.core">
+<section class="rx-shell" id="rxApp">
+  <header class="rx-header">
+    <div class="rx-brand">
+      <img src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
+      <strong>REACTION</strong>
+    </div>
+    <div class="rx-header-meta">
+      <b id="rxHeaderState">SCHWIERIGKEIT</b>
+      <span id="rxHeaderMode">SOLO</span>
+    </div>
+  </header>
+
+  <div class="rx-progress" aria-hidden="true"><i id="rxProgress"></i></div>
+
+  <main class="rx-content">
+    <section class="rx-page rx-setup" id="rxSetup">
+      <section class="rx-hero">
+        <small>REAKTIONSZEIT · WENIGER IST BESSER</small>
+        <h1>REACTION.</h1>
+      </section>
+
+      <section class="rx-card">
+        <small class="rx-kicker">SCHWIERIGKEIT</small>
+        <div class="rx-choice" role="group" aria-label="Schwierigkeit">
+          <button type="button" class="active" data-difficulty="EASY">
+            <strong>EASY</strong>
+            <span>F1-Startampel. Drücken, sobald alle Lichter ausgehen.</span>
+          </button>
+          <button type="button" data-difficulty="NORMAL">
+            <strong>NORMAL</strong>
+            <span>Keine Vorwarnung. Der weiße Bereich wechselt plötzlich die Farbe.</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="rx-rule-note">
+        <div><strong>2</strong><span>VERSUCHE PRO SPIELER</span></div>
+        <div><strong>BEST</strong><span>BESSERE ZEIT ZÄHLT</span></div>
+        <div><strong>ms</strong><span>WENIGER IST BESSER</span></div>
+      </section>
+
+      <button class="rx-primary" id="rxToReady" type="button">WEITER →</button>
+    </section>
+
+    <section class="rx-page rx-ready" id="rxReady" hidden>
+      <section class="rx-status rx-result-status"><strong>BEREIT?</strong></section>
+      <section class="rx-card rx-ready-card">
+        <small class="rx-kicker">PLAYER STATUS</small>
+        <div class="rx-player-list" id="rxReadyPlayers"></div>
+      </section>
+      <section class="rx-ready-copy">
+        <strong id="rxReadyTitle">AUF DAS SIGNAL REAGIEREN.</strong>
+        <span id="rxReadyCopy">Du hast zwei Versuche direkt hintereinander. Die schnellere gültige Reaktionszeit zählt.</span>
+      </section>
+      <button class="rx-primary" id="rxReadyButton" type="button">ICH BIN BEREIT</button>
+    </section>
+
+    <section class="rx-page rx-play" id="rxPlay" hidden>
+      <section class="rx-status" aria-label="Spielstatus">
+        <div><small>PLAYER</small><strong id="rxPlayerName">DJEELOI</strong></div>
+        <div><small>VERSUCH</small><strong id="rxAttempt">1 / 2</strong></div>
+        <div><small>BEST</small><strong id="rxBest">—</strong></div>
+      </section>
+
+      <section class="rx-mechanic" id="rxMechanic" aria-live="polite">
+        <div class="rx-easy" id="rxEasy" hidden>
+          <div class="rx-lights" id="rxLights" aria-label="F1 Startampel">
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <strong class="rx-instruction" id="rxEasyInstruction">WARTEN.</strong>
+        </div>
+
+        <button class="rx-normal" id="rxNormal" type="button" hidden aria-label="Reaktionsfläche">
+          <strong id="rxNormalInstruction">WARTEN.</strong>
+        </button>
+
+        <div class="rx-feedback" id="rxFeedback" hidden>
+          <strong id="rxFeedbackValue">198 ms</strong>
+          <span id="rxFeedbackLabel">REAKTIONSZEIT</span>
+        </div>
+      </section>
+    </section>
+
+    <section class="rx-page rx-result" id="rxResult" hidden>
+      <section class="rx-status rx-result-status"><strong>ERGEBNIS</strong></section>
+      <section class="rx-result-card">
+        <header>
+          <strong>FINALES ERGEBNIS</strong>
+          <span id="rxResultMeta">EASY · SOLO</span>
+        </header>
+        <div class="rx-result-columns" id="rxResultColumns"></div>
+        <div id="rxResultRows"></div>
+      </section>
+      <button class="rx-primary rx-result-action" id="rxClose" type="button">SPIEL SCHLIESSEN →</button>
+    </section>
+  </main>
+</section>
+<script src="./app.js?v=1.0.0"></script>
+</body>
+</html>
