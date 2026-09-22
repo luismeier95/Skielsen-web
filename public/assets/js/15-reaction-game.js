@@ -53,12 +53,15 @@ function playerRows(){
 function renderDifficulty(){
   resultOpen=false;
   const admin=isAdmin();
+  const options=[
+    ['EASY','F1-Startampel. Lichter aus = drücken.'],
+    ['NORMAL','Keine Vorwarnung. Farbwechsel nach 2–4 Sekunden.']
+  ];
   root.innerHTML=`<main class="rxp-page rxp-setup">
     <section class="rxp-hero"><small>SCHWIERIGKEIT</small><h2>REACTION.</h2></section>
     <section class="rxp-card">
-      <div class="rxp-choice">
-        <button type="button" data-rx-difficulty="EASY" ${admin?'':'disabled'}><strong>EASY</strong><span>F1-Startampel. Lichter aus = drücken.</span></button>
-        <button type="button" data-rx-difficulty="NORMAL" ${admin?'':'disabled'}><strong>NORMAL</strong><span>Keine Vorwarnung. Farbwechsel nach 2–4 Sekunden.</span></button>
+      <div class="rxp-choice" style="--difficulty-count:${options.length}">
+        ${options.map(([key,copy])=>`<button type="button" data-rx-difficulty="${key}" ${admin?'':'disabled'}><strong>${key}</strong><span>${copy}</span></button>`).join('')}
       </div>
     </section>
     <div class="rxp-note">${admin?'SCHWIERIGKEIT WÄHLEN.':'WARTET AUF DIE AUSWAHL DES ADMINS.'}</div>
