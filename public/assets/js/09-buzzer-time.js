@@ -136,13 +136,13 @@ function buzzerRankingMarkup(){
       <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>ERGEBNIS</h2></section>
       <section class="bzt-standard-card">
         <header><strong>FINALES ERGEBNIS</strong><span>NIEDRIGSTE ABWEICHUNG GEWINNT</span></header>
-        <div class="bzt-standard-columns"><span>POSITION</span><span>NAME</span><span>ABW.</span><span>PUNKTE</span></div>
+        <div class="bzt-standard-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ABW.</span></div>
         <div class="bzt-standard-rows">
           ${standings.map((r,i)=>{const m=byId.get(r.participant_id)||{};return `<div class="bzt-standard-row" style="--bzt-row-delay:${i*120}ms">
             <b>${Number(r.placement||i+1)}.</b>
             <span><i style="background:${teamColor(r.identity_color)}"></i><strong>${esc(String(r.team_name||m.display_name||teamFallback(r.identity_color)).replace(/^TEAM\\s+/i,''))}</strong></span>
-            <strong>${fmtSec(r.total_deviation_ms)}</strong>
             <strong class="bzt-added-points">+${Number(m.added_points||0)}</strong>
+            <strong>${fmtSec(r.total_deviation_ms)}</strong>
           </div>`}).join('')}
         </div>
       </section>
@@ -195,7 +195,7 @@ function animateBuzzerMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.bzt-merge-rows');if(!host)return;
   const rows=[...host.querySelectorAll('[data-bzt-merge-row]')],card=root?.querySelector('[data-bzt-merge-card]');
   postgameBusy=true;
-  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.bzt-merge-card'))},350);
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.bzt-merge-card'),teamColor((state?.result?.standings||[]).find(r=>Number(r.placement)===1)?.identity_color))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
