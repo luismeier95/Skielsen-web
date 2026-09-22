@@ -73,3 +73,55 @@
   .tttp-standard-row{animation:none!important;opacity:1!important;transform:none!important}
   .tttp-merge-row{transition:none!important}
 }
+
+
+/* ===== V15.1.130 · Canonical rounded/flexible setup + postgame ===== */
+.tttp-root{
+  --tttp-radius-outer:16px;
+  --tttp-radius-card:12px;
+  --tttp-radius-small:9px;
+}
+.tttp-mode-grid{
+  grid-template-columns:repeat(var(--game-mode-count,1),minmax(0,1fr))!important;
+}
+.tttp-difficulty-grid{
+  grid-template-columns:repeat(var(--difficulty-count,1),minmax(0,1fr))!important;
+}
+.tttp-choice,
+.tttp-player-pick,
+.tttp-team-ready,
+.tttp-result-card,
+.tttp-joker-card,
+.tttp-board,
+.tttp-turn-note,
+.tttp-wait{
+  border-radius:var(--tttp-radius-outer)!important;
+  overflow:hidden;
+}
+.tttp-primary,
+.tttp-cell{
+  border-radius:var(--tttp-radius-card)!important;
+}
+.tttp-choice{
+  min-height:0!important;
+  padding:18px!important;
+}
+@media(max-width:720px){
+  .tttp-root{
+    --tttp-radius-outer:14px;
+    --tttp-radius-card:11px;
+    --tttp-radius-small:8px;
+  }
+  .tttp-choice-grid,
+  .tttp-mode-grid,
+  .tttp-difficulty-grid{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  .tttp-choice{
+    min-height:0!important;
+    padding:14px!important;
+    gap:10px!important;
+  }
+  .tttp-stage{padding-left:10px!important;padding-right:10px!important}
+}
