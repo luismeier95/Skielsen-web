@@ -162,6 +162,41 @@ function completePendingInAppGame(){
   void continuePostGame(g);return true;
 }
 
+function completeReactionPostgame(mergePayload=null,jokerReveal=null){
+  const st=engine?.state;if(!st)return false;
+  const gi=Number(st.currentGameIndex||0),g=st.games?.[gi];
+  if(!g||!(g.game_id==='game.reaction.tap'||/^REACTION$/i.test(String(g.name||''))))return false;
+  const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0];
+  const winnerId=Array.isArray(g.placements)?g.placements[0]:null;
+  g.awaitingInAppResultClose=false;
+  const rows=Array.isArray(mergePayload?.rows)?mergePayload.rows:[];
+  rows.forEach(row=>{
+    const r=st.rankings?.[row.participant_id];if(!r)return;
+    if(Number.isFinite(Number(row.new_points)))r.points=Number(row.new_points);
+    if(Number.isFinite(Number(row.first)))r.first=Number(row.first);
+    if(Number.isFinite(Number(row.second)))r.second=Number(row.second);
+    if(Number.isFinite(Number(row.third)))r.third=Number(row.third);
+    if(Number.isFinite(Number(row.last)))r.last=Number(row.last);
+  });
+  if(rows.length)g.resultsCommitted=true;
+  if(jokerReveal?.joker?.type&&jokerReveal?.owner?.participant_id){
+    g.joker=g.joker||{};
+    g.joker.accepted=g.joker.accepted||{participantId:jokerReveal.owner.participant_id,type:jokerReveal.joker.type,status:'ACCEPTED',isBot:false};
+  }
+  if(g.joker){g.joker.revealed=true;g.joker.revealAcknowledged=true;g.joker.resolved=true;g.joker.locked=true}
+  persistLocalState();
+  window.skielsenInApp?.finishAndExit?.();
+  if(typeof engine.beginCanonicalMergedPostGameFlow==='function'){
+    engine.beginCanonicalMergedPostGameFlow(g,m,winnerId);
+    return true;
+  }
+  if(typeof engine.startPostGameVote==='function'){
+    engine.startPostGameVote(g);
+    return true;
+  }
+  return false;
+}
+
 function ingestTicTacToeResult(tournamentGameId,result){
   const st=engine?.state,rt=engine?.runtime;
   if(!st||!rt||!result||result.game_key!=='tic_tac_toe'||!Array.isArray(result.standings))return false;
@@ -222,5 +257,5 @@ function attach(){
   return true;
 }
 let tries=0;const boot=setInterval(()=>{tries++;if(attach()||tries>80)clearInterval(boot)},250);
-window.skielsenBuzzerBridge={version:VERSION,attach,ingestInAppGameResult,completePendingInAppGame,enhanceDetails};
+window.skielsenBuzzerBridge={version:VERSION,attach,ingestInAppGameResult,completePendingInAppGame,completeReactionPostgame,enhanceDetails};
 })();
