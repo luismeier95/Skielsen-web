@@ -211,7 +211,7 @@ function animateBuzzerMerge(){
     rows.forEach(r=>{
       const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.bzt-rank-value'),mv=r.querySelector('.bzt-rank-move');
       if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
-      if(mv){mv.textContent=buzzerMovement(oldRank-newRank);mv.classList.add('visible')}
+      if(mv){const delta=oldRank-newRank;mv.textContent=buzzerMovement(delta);mv.className='bzt-rank-move '+(delta>0?'up':delta<0?'down':'same')+' visible'}
     });
   },5340);
   postgameLater(()=>{
