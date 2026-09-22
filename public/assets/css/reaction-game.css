@@ -196,3 +196,23 @@
     padding:14px 12px!important;
   }
 }
+
+
+/* V15.1.131 · Mobile uses the same result column geometry as desktop */
+@media(max-width:720px){
+  #v15ReactionRoot .rxp-result-columns,
+  #v15ReactionRoot .rxp-result-row{
+    grid-template-columns:76px minmax(0,1fr) 100px minmax(130px,1fr)!important;
+  }
+  #v15ReactionRoot .rxp-ranking-columns,
+  #v15ReactionRoot .rxp-ranking-row,
+  #v15ReactionRoot .rxp-merge-columns,
+  #v15ReactionRoot .rxp-merge-row{
+    grid-template-columns:76px minmax(0,1fr) 100px 82px!important;
+  }
+  #v15ReactionRoot .rxp-merge-card.is-tournament .rxp-merge-columns,
+  #v15ReactionRoot .rxp-merge-card.is-tournament .rxp-merge-row{
+    grid-template-columns:76px minmax(0,1fr) 100px 0!important;
+  }
+  #v15ReactionRoot .rxp-ranking-rows::before{left:109px!important}
+}
