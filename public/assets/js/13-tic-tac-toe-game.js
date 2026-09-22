@@ -581,6 +581,23 @@ function renderLocalBoard(){
     </main>`;
   root.querySelectorAll('[data-local-cell]').forEach(btn=>btn.addEventListener('click',()=>localMove(Number(btn.dataset.localCell),localTest.human.id)));
 }
+function submitLocalResult(){
+  if(!localTest||localTest.resultSubmitting)return;
+  const done=localTest?.onComplete,winnerId=localTest?.game?.winner;
+  if(typeof done!=='function'||!winnerId)return;
+  localTest.resultSubmitting=true;
+  try{
+    const accepted=done(winnerId);
+    if(accepted===false)throw new Error('RESULT_HANDOFF_REJECTED');
+  }catch(err){
+    console.warn('Tic Tac Toe local result handoff',err);
+    localTest.resultSubmitting=false;
+    const feedback=root?.querySelector('[data-local-result-feedback]');
+    if(feedback)feedback.textContent='ERGEBNIS KONNTE NICHT ÜBERNOMMEN WERDEN.';
+    const retry=root?.querySelector('[data-local-result-retry]');
+    if(retry)retry.hidden=false;
+  }
+}
 function renderLocalResult(){
   if(!root||!localTest)return;
   const g=localTest.game,winner=localPlayer(g.winner),loser=localPlayer(localOther(g.winner));
@@ -591,13 +608,11 @@ function renderLocalResult(){
         <div class="tttp-result-row"><b>1.</b><span class="tttp-participant"><i style="--tttp-team:${colorVar(winner.color)}"></i><b>${esc(winner.name)}</b></span><strong>SIEG</strong></div>
         <div class="tttp-result-row"><b>2.</b><span class="tttp-participant"><i style="--tttp-team:${colorVar(loser.color)}"></i><b>${esc(loser.name)}</b></span><strong>NIEDERLAGE</strong></div>
       </section>
-      <button type="button" class="tttp-primary" data-local-complete>ERGEBNIS ÜBERNEHMEN →</button>
+      <div class="tttp-wait" data-local-result-feedback>ERGEBNIS WIRD ÜBERNOMMEN …</div>
+      <button type="button" class="tttp-primary" data-local-result-retry hidden>ERNEUT VERSUCHEN →</button>
     </main>`;
-  root.querySelector('[data-local-complete]')?.addEventListener('click',()=>{
-    const done=localTest?.onComplete;
-    const winnerId=localTest?.game?.winner;
-    if(typeof done==='function'&&winnerId)done(winnerId);
-  });
+  root.querySelector('[data-local-result-retry]')?.addEventListener('click',submitLocalResult);
+  setTimeout(submitLocalResult,320);
 }
 function showLocalPostgame(config){
   if(!root||!localTest||!config?.result||!config?.payload)return false;
@@ -617,6 +632,7 @@ function mountTestBot(nextRoot,config){
     human:{id:human.id,name:human.name||'PLAYER',color:human.color||'RED'},
     bot:{id:bot.id,name:bot.name||'BOT',color:bot.color||'BLUE'},
     onComplete:config?.onComplete,
+    resultSubmitting:false,
     game:{mode:'NORMAL',phase:'SETUP',board:[],active:{},starter:null,current:null,boardIndex:1,boardMoves:0,movesTotal:0,winner:null,winning:[],locked:false}
   };
   root.classList.add('tttp-root');
