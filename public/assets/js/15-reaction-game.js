@@ -318,8 +318,8 @@ function reorderMergeRows(run){
   rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
   rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
   void host.offsetHeight;
-  rows.forEach(r=>{r.style.transition='transform 760ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
-  postgameLater(()=>finalizeMergeUi(run),950);
+  rows.forEach(r=>{r.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  postgameLater(()=>finalizeMergeUi(run),1850);
 }
 function renderMerge(payload,result,animate=true){
   const rows=resultRows(result),mergeRows=Array.isArray(payload?.rows)?payload.rows:[],byId=new Map(mergeRows.map(r=>[r.participant_id,r]));
@@ -348,15 +348,15 @@ function renderMerge(payload,result,animate=true){
     postgameBusy=false;phase='MERGE_COMPLETE';return;
   }
   postgameBusy=true;
-  postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-merging')},650);
-  postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-total')},1650);
+  postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-merging')},900);
+  postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-total')},2500);
   postgameLater(()=>{
     if(run!==postgameAnimationRun)return;
     const card=root.querySelector('[data-rx-merge-card]');card?.classList.remove('is-game');card?.classList.add('is-tournament');
     const title=root.querySelector('[data-rx-merge-title]'),meta=root.querySelector('[data-rx-merge-meta]');
     if(title)title.textContent='TURNIERSTAND';if(meta)meta.textContent='NACH REACTION';
     reorderMergeRows(run);
-  },2800);
+  },4100);
 }
 function setPostgameFeedback(message){
   const el=root?.querySelector('[data-rx-postgame-feedback]');if(el)el.textContent=String(message||'');
