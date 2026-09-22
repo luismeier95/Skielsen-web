@@ -10,7 +10,7 @@ const MOCK_PLAYERS=[
 ];
 let difficulty='EASY';
 let mode=new URLSearchParams(location.search).get('mode')?.toUpperCase()==='TEAM'?'TEAM':'SOLO';
-let page='SETUP', playerIndex=0, attempt=1, roundState='READY', armed=false, signalAt=0, timer=0, lightTimer=0, locked=false;
+let page='SETUP', playerIndex=0, attempt=1, roundState='READY', armed=false, signalAt=0, timer=0, lightTimer=0, locked=false, resultAnimationRun=0;
 let players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));
 
 const $=s=>document.querySelector(s);
@@ -22,6 +22,40 @@ function current(){return players[playerIndex]}
 function validTimes(p){return p.attempts.filter(x=>Number.isFinite(x))}
 function best(p){const v=validTimes(p);return v.length?Math.min(...v):null}
 function fmt(v){return Number.isFinite(v)?Math.round(v)+' ms':'—'}
+function gamePoints(place,valid=true){
+  if(!valid)return 0;
+  return [5,4,2,0][Math.max(0,Number(place)-1)]??0;
+}
+function countPoints(el,target,delay,run){
+  el.textContent='0';
+  setTimeout(()=>{
+    if(run!==resultAnimationRun||!document.body.contains(el))return;
+    if(target<=0){el.textContent='0';return}
+    const started=performance.now(),duration=520;
+    const step=now=>{
+      if(run!==resultAnimationRun||!document.body.contains(el))return;
+      const p=Math.min(1,(now-started)/duration);
+      const eased=1-Math.pow(1-p,3);
+      el.textContent=String(Math.round(target*eased));
+      if(p<1)requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  },delay);
+}
+function animateResultRanking(){
+  const card=$('.rx-result-card');
+  if(!card)return;
+  const run=++resultAnimationRun;
+  card.classList.remove('is-revealing');
+  void card.offsetWidth;
+  card.classList.add('is-revealing');
+  [...card.querySelectorAll('.rx-result-row')].forEach((row,i)=>{
+    const delay=180+i*150;
+    row.style.setProperty('--rx-row-delay',delay+'ms');
+    const points=row.querySelector('[data-rx-points]');
+    if(points)countPoints(points,Number(points.dataset.rxPoints||0),delay+260,run);
+  });
+}
 function setPage(next){
   page=next;setup.hidden=next!=='SETUP';ready.hidden=next!=='READY';play.hidden=next!=='PLAY';result.hidden=next!=='RESULT';
   $('#rxProgress').style.width=next==='SETUP'?'20%':next==='READY'?'40%':next==='PLAY'?'75%':'100%';
@@ -114,17 +148,43 @@ function teamRows(){
 }
 function renderResult(){
   $('#rxResultMeta').textContent=difficulty+' · '+mode;
+  $('#rxResultColumns').innerHTML=mode==='TEAM'
+    ?'<span>POSITION</span><span>TEAM</span><span>SUMME</span><span>PUNKTE</span>'
+    :'<span>POSITION</span><span>NAME</span><span>BEST</span><span>PUNKTE</span>';
   if(mode==='TEAM'){
-    $('#rxResultColumns').innerHTML='<span>POSITION</span><span>TEAM</span><span>SUMME</span><span>DETAIL</span>';
-    $('#rxResultRows').innerHTML=teamRows().map((r,i)=>`<div class="rx-result-row"><b>${i+1}.</b><span class="rx-result-player"><i style="--rx-player:${r.color}"></i><strong>${r.name}</strong></span><strong>${fmt(r.sum)}</strong><strong>${r.times.map(fmt).join(' + ')}</strong></div>`).join('');
+    $('#rxResultRows').innerHTML=teamRows().map((r,i)=>{
+      const pts=gamePoints(i+1,Number.isFinite(r.sum));
+      const detail=r.times.map(fmt).join(' + ');
+      return `<div class="rx-result-row">
+        <b>${String(i+1).padStart(2,'0')}</b>
+        <span class="rx-result-player">
+          <i style="--rx-player:${r.color}"></i>
+          <span class="rx-result-identity"><strong>${r.name}</strong><small>${r.members} · ${detail}</small></span>
+        </span>
+        <strong class="rx-result-metric">${fmt(r.sum)}</strong>
+        <span class="rx-result-points"><b data-rx-points="${pts}">0</b><small>PTS</small></span>
+      </div>`;
+    }).join('');
   }else{
     const sorted=[...players].sort((a,b)=>(best(a)??Infinity)-(best(b)??Infinity));
-    $('#rxResultColumns').innerHTML='<span>POSITION</span><span>NAME</span><span>BEST</span><span>VERSUCHE</span>';
-    $('#rxResultRows').innerHTML=sorted.map((p,i)=>`<div class="rx-result-row"><b>${i+1}.</b><span class="rx-result-player"><i style="--rx-player:${p.color}"></i><strong>${p.name}</strong></span><strong>${fmt(best(p))}</strong><strong>${p.attempts.map(fmt).join(' / ')}</strong></div>`).join('');
+    $('#rxResultRows').innerHTML=sorted.map((p,i)=>{
+      const value=best(p),pts=gamePoints(i+1,Number.isFinite(value));
+      const detail=p.attempts.map(fmt).join(' / ');
+      return `<div class="rx-result-row">
+        <b>${String(i+1).padStart(2,'0')}</b>
+        <span class="rx-result-player">
+          <i style="--rx-player:${p.color}"></i>
+          <span class="rx-result-identity"><strong>${p.name}</strong><small>${detail}</small></span>
+        </span>
+        <strong class="rx-result-metric">${fmt(value)}</strong>
+        <span class="rx-result-points"><b data-rx-points="${pts}">0</b><small>PTS</small></span>
+      </div>`;
+    }).join('');
   }
+  requestAnimationFrame(animateResultRanking);
 }
 function reset(){
-  clearRound();players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));playerIndex=0;attempt=1;setPage('SETUP');
+  resultAnimationRun++;clearRound();players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));playerIndex=0;attempt=1;setPage('SETUP');
 }
 document.querySelectorAll('[data-difficulty]').forEach(btn=>btn.addEventListener('click',()=>{
   difficulty=btn.dataset.difficulty;
