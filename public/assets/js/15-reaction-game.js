@@ -348,6 +348,7 @@ function renderMerge(payload,result,animate=true){
     postgameBusy=false;phase='MERGE_COMPLETE';return;
   }
   postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameAnimationRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.rxp-merge-card'))},350);
   postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-total')},2500);
   postgameLater(()=>{
