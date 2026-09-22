@@ -7,7 +7,7 @@ const POLL_MS=500,REVEAL_MS=10000;
 
 let root=null,session=null,db=null,state=null,pollTimer=0,raf=0,busy=false;
 let localStartPerf=null,lastStartToken=null,serverOffsetMs=0,revealEndPerf=0,engineResultIngested=false;
-let testMode=false,testCtx=null,testEngine=null,testRevealAdvanced=false,revealToken=null,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0;
+let testMode=false,testCtx=null,testEngine=null,testRevealAdvanced=false,revealToken=null,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0,postgameRendered=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad2=n=>String(Math.max(0,Math.floor(Number(n)||0))).padStart(2,'0');
@@ -215,6 +215,7 @@ function advanceBuzzerPostgame(){
   postgamePhase='MERGE';render();
 }
 function renderBuzzerPostgame(){
+  postgameRendered=true;
   const reveal=canonicalPostgame()?.joker_reveal||state?.result?.tournament_handoff?.joker_reveal||null;
   if(postgamePhase==='JOKER'&&buzzerJokerAllowed(reveal))root.innerHTML=buzzerJokerMarkup(reveal);
   else if(postgamePhase==='MERGE'||postgamePhase==='MERGE_COMPLETE')root.innerHTML=buzzerMergeMarkup();
@@ -315,7 +316,7 @@ async function poll(){
         engineResultIngested=!!window.skielsenV15?.ingestInAppGameResult?.(session.tournament_game_id,next.result);
       }catch(err){console.warn('Buzzer tournament sync',err)}
     }
-    render();
+    if(next.phase!=='COMPLETE'||!postgameRendered)render();
   }finally{busy=false}
 }
 
@@ -423,7 +424,7 @@ function mountTest(host,runtime,game,engine){
   let participantIds=(m?.participantIds||[]).filter(Boolean);
   if(!participantIds.length)participantIds=(st.participants||[]).map(p=>p.id);
   testCtx={key,game,tournamentGameId:game.tournament_game_id||null,participantIds:[...participantIds],teamMode:String(runtime.mode||'').toUpperCase()==='TEAM',round:1,roundCount:Number(game.rules_json?.rounds||5),participantPos:0,relayIndex:0,target:null,targets:[],order:[],roundResults:{},history:[]};
-  state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;postgamePhase='RANKING';postgameBusy=false;clearPostgameTimers();postgameRun++;
+  state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;postgamePhase='RANKING';postgameBusy=false;postgameRendered=false;postgameRendered=false;clearPostgameTimers();postgameRun++;
   testPrepareRound();
 }
 
