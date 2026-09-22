@@ -198,3 +198,32 @@
   .bzt-standard-row{animation:none!important;opacity:1!important;transform:none!important}
   .bzt-merge-row{transition:none!important}
 }
+
+
+/* ===== V15.1.130 · Rounded mobile/postgame contract ===== */
+#v15InAppLayer.buzzer-mode{
+  --bzt-radius-outer:16px;
+  --bzt-radius-card:12px;
+  --bzt-radius-small:9px;
+}
+#v15InAppLayer.buzzer-mode :where(.bzt-now,.bzt-info,.bzt-message,.bzt-display-shell,.bzt-countdown,.bzt-table-wrap,.bzt-standard-card,.bzt-joker-card,.bzt-reveal-head){
+  border-radius:var(--bzt-radius-outer)!important;
+  overflow:hidden;
+}
+#v15InAppLayer.buzzer-mode :where(.bzt-action,.bzt-postgame-primary){
+  border-radius:var(--bzt-radius-card)!important;
+}
+@media(max-width:720px){
+  #v15InAppLayer.buzzer-mode{
+    --bzt-radius-outer:14px;
+    --bzt-radius-card:11px;
+    --bzt-radius-small:8px;
+  }
+  #v15InAppLayer.buzzer-mode .bzt-app{
+    width:100%!important;
+    border-left:0!important;
+    border-right:0!important;
+    border-radius:0!important;
+  }
+  #v15InAppLayer.buzzer-mode .bzt-reveal-content{padding:10px}
+}
