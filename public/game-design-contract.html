@@ -7,13 +7,13 @@
 <title>SKIELSEN · Game Design Contract</title>
 <link rel="stylesheet" href="assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.0">
+<link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.1">
 </head>
 <body class="v15-tournament-active gdc-body" data-theme-pack="theme.skielsen.core">
 <header class="gdc-topbar">
   <div>
     <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
-    <span>GAME DESIGN CONTRACT · V1.3</span>
+    <span>GAME DESIGN CONTRACT · V1.4</span>
   </div>
   <div class="gdc-controls">
     <label>THEME
@@ -75,6 +75,7 @@
   </section>
 
   <section class="gdc-statebar" aria-label="Game State auswählen">
+    <button data-gdc-state="MODE">MODE</button>
     <button class="active" data-gdc-state="SETUP">SETUP</button>
     <button data-gdc-state="READY">READY</button>
     <button data-gdc-state="PLAY">PLAY</button>
@@ -104,6 +105,18 @@
         <div><small>SCHRITT</small><strong>04 / 10</strong></div>
         <div><small>PUNKTE</small><strong>-3</strong></div>
         <div><small>ZEIT</small><strong>00:42</strong></div>
+      </section>
+
+      <section class="gdc-demo-state" data-gdc-panel="MODE">
+        <section class="skg-card">
+          <small class="skg-kicker">GAME MODE</small>
+          <h2>MODUS WÄHLEN.</h2>
+          <div class="skg-game-mode-grid" style="--game-mode-count:3">
+            <button class="skg-game-mode-card" type="button"><strong>ALTERNATING</strong><span>Spieler wechseln sich innerhalb des Teams ab.</span></button>
+            <button class="skg-game-mode-card" type="button"><strong>SELECTED PLAYER</strong><span>Ein ausgewählter Spieler übernimmt das Match.</span></button>
+            <button class="skg-game-mode-card" type="button"><strong>SIMULTANEOUS</strong><span>Mehrere Duelle laufen gleichzeitig.</span></button>
+          </div>
+        </section>
       </section>
 
       <section class="gdc-demo-state active" data-gdc-panel="SETUP">
@@ -179,7 +192,7 @@
   </section>
 
   <section class="gdc-docs">
-    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.3</h2></header>
+    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.4</h2></header>
 
     <div class="gdc-rule-grid">
       <article><b>01</b><h3>HIERARCHIE</h3><p><strong>Theme Contract</strong> = Farben und Kontraste. <strong>Game Design Contract</strong> = Layout und Komponenten. <strong>Game Module</strong> = Mechanik.</p></article>
@@ -215,6 +228,7 @@
       <article><b>31</b><h3>RESULT PAGE</h3><p>Result ist eine eigene Page: Header → 100 % Progress → ERGEBNIS → Tabelle → Primary Action. Standardreihenfolge: POSITION → Identity Accent + NAME → Game-Metriken.</p></article>
       <article><b>32</b><h3>ENTITY LEVEL</h3><p>Result-Zeilen müssen auf derselben Ebene liegen wie Placements. Keine Player-Zeilen mit Participant-/Team-Placements mischen.</p></article>
       <article><b>33</b><h3>HIDDEN INFORMATION</h3><p>Standalone-Mockdaten definieren explizit, was Production sehen darf. Verdeckte Lösungen, zukünftige Antworten oder nicht freigegebene Metadaten bleiben serverseitig.</p></article>
+      <article><b>34</b><h3>GAME MODE PAGE</h3><p><strong>1 Mode = Page überspringen.</strong> Desktop: alle Modes in einer Reihe; der Canvas wird nach Abzug der Gaps gleichmäßig durch die Anzahl der Modes geteilt. Mobile: immer eine Spalte, alle Modes untereinander.</p></article>
     </div>
   </section>
 
@@ -225,6 +239,6 @@
   </section>
 </main>
 
-<script src="assets/js/game-design-contract.js?v=1.0"></script>
+<script src="assets/js/game-design-contract.js?v=1.1"></script>
 </body>
 </html>
