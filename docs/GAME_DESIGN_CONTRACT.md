@@ -1,6 +1,6 @@
 # SKIELSEN · GLOBAL GAME DESIGN & IMPLEMENTATION CONTRACT
 
-Stand: V1.4  
+Stand: V1.5  
 Geltung: **alle zukünftigen SKIELSEN Games ab der ersten Standalone-Version**
 
 ## 1. Hierarchie
@@ -184,7 +184,38 @@ Beispiele:
 
 Die Mode-Anzahl wird aus der tatsächlich verfügbaren Mode-Liste abgeleitet und als `--game-mode-count` oder äquivalenter Shared-Component-Parameter an das Grid übergeben. Sie darf nicht im Game-CSS hardcodiert werden.
 
-## 14. Result Page Contract
+## 14. Difficulty Selection Page Contract
+
+Die Difficulty Selection Page folgt exakt derselben Layoutlogik wie die Game Mode Page.
+
+Die Page wird nur angezeigt, wenn ein Game mindestens **zwei auswählbare Schwierigkeitsgrade** besitzt. Bei genau einem zulässigen Schwierigkeitsgrad wird die Page übersprungen.
+
+### Desktop > 720 px
+
+- gemeinsamer Canvas: maximal 760 px
+- alle verfügbaren Difficulties stehen in genau einer Reihe
+- Anzahl der Spalten = Anzahl der verfügbaren Difficulties
+- Grid-Gaps werden zuerst vom verfügbaren Canvas abgezogen
+- der verbleibende Platz wird gleichmäßig auf alle Difficulty-Cards verteilt
+- alle Difficulty-Cards einer Page haben dieselbe Höhe
+- verbindliches Grid: `grid-template-columns: repeat(var(--difficulty-count), minmax(0, 1fr))`
+- Standard-Gap: 10 px
+- keine gamespezifisch fest codierten 2-, 3- oder 4-Spalten-Layouts
+
+### Mobile <= 720 px
+
+- immer genau eine Spalte
+- alle Difficulties untereinander
+- Reihenfolge entspricht der vom Game gelieferten Difficulty-Reihenfolge
+- Cards nutzen die verfügbare Canvas-Breite
+- gleicher vertikaler Abstand zwischen allen Cards
+- verbindliches Grid: `grid-template-columns: 1fr`
+
+### Datenbindung
+
+Die Difficulty-Anzahl wird aus der tatsächlich verfügbaren Difficulty-Liste abgeleitet und als `--difficulty-count` oder äquivalenter Shared-Component-Parameter an das Grid übergeben. Sie darf nicht im Game-CSS hardcodiert werden.
+
+## 15. Result Page Contract
 
 Result is a separate page/state, never an inline replacement inside the active gameplay mechanic.
 
@@ -203,7 +234,7 @@ Default result column order:
 
 Final result rows must use the same entity level as Tournament Placements. Do not mix Player-level rows with Participant-/Team-level placements.
 
-## 15. Hidden Information Contract
+## 16. Hidden Information Contract
 
 Standalone mock data must explicitly mark which information is allowed to reach the production client.
 
@@ -215,7 +246,7 @@ Examples:
 - target length: only when the game mode explicitly allows it
 - input buffer / animation state: client only, never persisted
 
-## 16. Standalone Implementation Gate
+## 17. Standalone Implementation Gate
 
 Vor Merge müssen geprüft sein:
 
@@ -242,7 +273,7 @@ Vor Merge müssen geprüft sein:
 - Produktionsmodul auf dieselben Contract-Regeln gemappt
 - GitHub Validation/Deploy erfolgreich
 
-## 17. Referenz-Testseiten
+## 18. Referenz-Testseiten
 
 - Game Design Contract: `/game-design-contract.html`
 - Mehr oder Weniger: `/more-or-less-contract-test/`
