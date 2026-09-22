@@ -403,15 +403,15 @@ function renderWordRanking(){
   const pg=canonicalPostgame(),byId=new Map((pg?.rows||[]).map(r=>[r.participant_id,r]));
   const title=q('[data-wc-result-title]'),meta=q('[data-wc-result-meta]'),columns=q('.wc-result-columns'),host=q('[data-wc-result-rows]'),finish=q('[data-wc-finish]');
   if(title)title.textContent='FINALES ERGEBNIS';if(meta)meta.textContent=rows.length?rows.length+' PARTICIPANTS':'—';
-  if(columns){columns.className='wc-result-columns wc-standard-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>ZEIT</span><span>SCORE</span><span>PUNKTE</span>'}
+  if(columns){columns.className='wc-result-columns wc-standard-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ZEIT</span><span>SCORE</span>'}
   if(host)host.innerHTML=rows.map((row,i)=>{
     const m=byId.get(row.participant_id)||{};
     return `<div class="wc-result-row wc-standard-row" style="--wc-row-delay:${i*120}ms">
       <b>${esc(row.placement||i+1)}.</b>
       <span><i style="--wc-player:${colorVar(row.identity_color)}"></i><strong>${esc(row.display_name||m.display_name||'PLAYER')}</strong></span>
+      <strong class="wc-added-points">+${Number(m.added_points||0)}</strong>
       <strong>${formatDuration(row.duration_ms)}</strong>
       <strong>${Number(row.score??0)>0?'+':''}${esc(row.score??0)}</strong>
-      <strong class="wc-added-points">+${Number(m.added_points||0)}</strong>
     </div>`;
   }).join('');
   if(finish){finish.hidden=!rows.length;finish.disabled=false;finish.textContent='WEITER →'}
@@ -450,7 +450,7 @@ function animateWordMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('[data-wc-result-rows]');if(!host)return;
   const rows=[...host.querySelectorAll('[data-wc-merge-row]')],card=root?.querySelector('[data-wc-merge-card]');
   postgameBusy=true;
-  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.wc-merge-card'))},350);
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.wc-merge-card'),colorVar((finalResult?.standings||[]).find(r=>Number(r.placement)===1)?.identity_color))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
