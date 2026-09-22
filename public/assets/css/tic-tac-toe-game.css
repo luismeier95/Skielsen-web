@@ -32,3 +32,44 @@
 @media(max-width:390px){
  .tttp-statusbar strong{font-size:10px}.tttp-board{width:min(100%,calc(100dvh - 190px))}.tttp-turn-note strong{font-size:8px}
 }
+
+/* ===== Standardized game flow · Tic Tac Toe ===== */
+.tttp-standard-columns,.tttp-standard-row,.tttp-merge-columns,.tttp-merge-row{
+  display:grid;grid-template-columns:64px minmax(0,1fr) 100px 74px;gap:10px;align-items:center;padding:0 16px
+}
+.tttp-standard-columns{
+  min-height:34px;border-bottom:1px solid var(--theme-border);background:var(--theme-surface-soft);
+  color:var(--theme-muted);font-size:7px;font-weight:900;letter-spacing:.06em
+}
+.tttp-standard-columns span:nth-child(3),.tttp-standard-columns span:nth-child(4){text-align:right}
+.tttp-standard-row{opacity:0;transform:translateY(10px);animation:tttpStdRowIn .36s cubic-bezier(.2,.82,.2,1) forwards;animation-delay:var(--tttp-row-delay,0ms)}
+.tttp-standard-row>strong,.tttp-added-points{justify-self:end;text-align:right}
+.tttp-joker-card{
+  padding:22px;border:1px solid var(--tttp-joker-owner,var(--theme-accent));border-left:6px solid var(--tttp-joker-owner,var(--theme-accent));
+  background:var(--theme-surface);color:var(--theme-on-surface)
+}
+.tttp-joker-card>small{color:var(--theme-muted);font-size:7px;font-weight:900;letter-spacing:.09em}
+.tttp-joker-card h2{margin:9px 0 10px;font:950 38px/.95 var(--display,var(--ui))}
+.tttp-joker-card p{margin:0;color:var(--theme-muted);font-size:10px;line-height:1.45}
+.tttp-joker-owner{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px;border:1px solid var(--theme-border);background:var(--theme-surface-soft)}
+.tttp-joker-owner>i{width:6px;height:34px;background:var(--tttp-joker-owner,var(--theme-accent))}
+.tttp-joker-owner>span{display:grid;gap:4px}.tttp-joker-owner small{color:var(--theme-muted);font-size:6px;font-weight:900}.tttp-joker-owner strong{font-size:10px}
+.tttp-joker-value{display:flex;align-items:center;gap:10px;margin-top:12px;padding:16px;background:var(--theme-surface-soft);font:950 24px/1 var(--display,var(--ui))}
+.tttp-joker-value b{color:var(--theme-accent)}
+.tttp-merge-rows{position:relative}
+.tttp-merge-row>b{display:flex;align-items:center;gap:6px}
+.tttp-rank-move{font-size:6px;font-weight:900;color:var(--theme-muted);opacity:0;transition:opacity .2s ease}
+.tttp-rank-move.visible{opacity:1}
+.tttp-merge-points{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important}
+.tttp-merge-points em{font-style:normal;color:var(--theme-muted);font-size:8px}
+.tttp-merge-points b{font-size:16px}
+@keyframes tttpStdRowIn{to{opacity:1;transform:none}}
+@media(max-width:720px){
+  .tttp-standard-columns,.tttp-standard-row,.tttp-merge-columns,.tttp-merge-row{grid-template-columns:42px minmax(0,1fr) 72px 52px;padding:0 9px;gap:6px}
+  .tttp-joker-card{padding:16px}.tttp-joker-card h2{font-size:30px}.tttp-joker-value{font-size:20px}
+  .tttp-rank-move{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .tttp-standard-row{animation:none!important;opacity:1!important;transform:none!important}
+  .tttp-merge-row{transition:none!important}
+}
