@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.122';
+const VERSION=window.SKIELSEN_VERSION||'15.1.124';
 const GAME_ID='game.buzzer_time_stop';
 const RESULT_RPC='get_buzzer_time_game_result';
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
@@ -123,6 +123,35 @@ function ingestWordChainResult(tournamentGameId,result){
   return true;
 }
 
+function ingestReactionResult(tournamentGameId,result){
+  const st=engine?.state,rt=engine?.runtime;
+  if(!st||!rt||!result||result.game_key!=='reaction'||!Array.isArray(result.standings))return false;
+  const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);if(gi<0)return false;
+  const g=st.games[gi],rows=[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999));
+  const placements=rows.map(r=>r.participant_id),valid=new Set((st.participants||[]).map(p=>p.id));
+  if(placements.length!==(st.participants||[]).length||new Set(placements).size!==placements.length||placements.some(id=>!valid.has(id)))return false;
+  if(g.inAppResult?.finalized_at===result.finalized_at&&g.resultsCommitted)return true;
+  g.inAppResult=result;g.placements=[...placements];g.phase='RESULTS';
+  const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0];
+  if(m){
+    m.participantIds=Array.isArray(m.participantIds)&&m.participantIds.length?m.participantIds:[...placements];
+    m.placements=[...placements];
+    m.values=Object.fromEntries(rows.map(r=>[r.participant_id,r.aggregate_ms==null?null:Number(r.aggregate_ms)]));
+    m.status='CONCLUDED';
+  }
+  if(!g.resultsCommitted){
+    if(m)settleLocalBets(st,m,placements[0]);
+    commitLocalPoints(st,rt,g,placements);
+    st.matchHistory=Array.isArray(st.matchHistory)?st.matchHistory:[];
+    st.matchHistory.unshift({gameIndex:gi,game:g.name,stage:m?.stage||'MULTI_PARTICIPANT',participantIds:[...placements],placements:[...placements],values:m?.values?{...m.values}:null,winner:placements[0],at:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}),source:'IN_APP_REACTION'});
+    addAudit(st,'IN-APP RESULT · '+g.name+' · '+placements.map((pid,i)=>`${i+1}:${teamName(st,pid)}`).join(' / '));
+    addNews(st,`${teamName(st,placements[0])} GEWINNT ${String(g.name||'REACTION').toUpperCase()}.`,rows.map(r=>`${Number(r.placement)}. ${teamName(st,r.participant_id)} · ${r.aggregate_ms==null?'DNF':fmtMs(r.aggregate_ms)}`).join(' · '));
+  }
+  g.awaitingInAppResultClose=true;
+  engine.render();persistLocalState();
+  return true;
+}
+
 function completePendingInAppGame(){
   const st=engine?.state;if(!st)return false;
   const gi=Number(st.currentGameIndex||0),g=st.games?.[gi];if(!g?.awaitingInAppResultClose)return false;
@@ -163,6 +192,7 @@ function ingestInAppGameResult(tournamentGameId,result){
   if(result?.game_key==='higher_lower')return ingestHigherLowerResult(tournamentGameId,result);
   if(result?.game_key==='word_chain')return ingestWordChainResult(tournamentGameId,result);
   if(result?.game_key==='tic_tac_toe')return ingestTicTacToeResult(tournamentGameId,result);
+  if(result?.game_key==='reaction')return ingestReactionResult(tournamentGameId,result);
   const st=engine?.state,rt=engine?.runtime;if(!st||!rt||!result||result.game_key!=='buzzer_time_stoppen'||!Array.isArray(result.standings))return false;
   const gi=(st.games||[]).findIndex(g=>g.tournament_game_id===tournamentGameId);if(gi<0)return false;const g=st.games[gi],rows=[...result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)),placements=rows.map(r=>r.participant_id),valid=new Set((st.participants||[]).map(p=>p.id));
   if(placements.length!==(st.participants||[]).length||new Set(placements).size!==placements.length||placements.some(id=>!valid.has(id)))return false;

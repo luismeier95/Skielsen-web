@@ -356,6 +356,19 @@ if '--theme-accent' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text
 if '--theme-less-action' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8') or '--theme-more-action' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less Funktionsrollen fehlen')
 
 
+reaction_js=PUBLIC/'assets/js/15-reaction-game.js'
+reaction_css=PUBLIC/'assets/css/reaction-game.css'
+if not reaction_js.exists() or not reaction_css.exists(): fail('Reaction Vollversion fehlt')
+_rx_js=reaction_js.read_text(encoding='utf-8')
+_rx_css=reaction_css.read_text(encoding='utf-8')
+for _rpc in ['get_reaction_state','set_reaction_difficulty','begin_reaction_attempt','submit_reaction_attempt']:
+ if _rpc not in _rx_js: fail('Reaction Server-Sync fehlt: '+_rpc)
+for _needle in ["REACTION_MODULE='reaction'","ensureReactionAssets","renderReactionSession","get_reaction_game_result"]:
+ if _needle not in runtime_text: fail('Reaction In-App Runtime unvollständig: '+_needle)
+if "result?.game_key==='reaction'" not in bridge_text or 'ingestReactionResult' not in bridge_text: fail('Reaction Result-Handoff fehlt')
+for _needle in ['--theme-surface','--theme-on-surface','--theme-success-bg','--theme-on-success','--theme-danger-bg','--theme-on-danger']:
+ if _needle not in _rx_css: fail('Reaction Theme Contract fehlt: '+_needle)
+
 if "document.body.dataset.themePack=theme" not in engine_text: fail('Runtime setzt ausgewähltes Tournament Theme nicht')
 
 if 'data-mol-minimize' not in (PUBLIC/'assets/js/11-more-or-less-game.js').read_text(encoding='utf-8'): fail('More-or-Less Minimieren-Button fehlt')
