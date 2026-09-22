@@ -144,3 +144,57 @@
 #v15InAppLayer.buzzer-mode .bzt-reveal-head span,
 #v15InAppLayer.buzzer-mode .bzt-header-row>span,
 #v15InAppLayer.buzzer-mode .bzt-now span{color:color-mix(in srgb,var(--inapp-dark-text) 68%,transparent)!important}
+
+
+/* ===== Standardized game flow · Buzzer ===== */
+.bzt-standard-card,.bzt-joker-card{
+  background:var(--inapp-surface);color:var(--inapp-text);border:1px solid var(--inapp-border);overflow:hidden
+}
+.bzt-standard-card>header{
+  min-height:54px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--inapp-border)
+}
+.bzt-standard-card>header strong{font:900 10px/1 var(--ui)}.bzt-standard-card>header span{color:var(--inapp-muted);font:900 7px/1 var(--ui)}
+.bzt-standard-columns,.bzt-standard-row{
+  display:grid;grid-template-columns:56px minmax(0,1fr) 74px 62px;gap:8px;align-items:center;padding:0 10px
+}
+.bzt-standard-columns{
+  min-height:32px;background:var(--theme-surface-soft);color:var(--inapp-muted);font:900 6px/1 var(--ui);letter-spacing:.55px;border-bottom:1px solid var(--inapp-border)
+}
+.bzt-standard-columns span:nth-child(3),.bzt-standard-columns span:nth-child(4){text-align:right}
+.bzt-standard-row{
+  min-height:58px;border-bottom:1px solid var(--inapp-border);opacity:0;transform:translateY(9px);
+  animation:bztStdRowIn .36s cubic-bezier(.2,.82,.2,1) forwards;animation-delay:var(--bzt-row-delay,0ms)
+}
+.bzt-standard-row:last-child{border-bottom:0}
+.bzt-standard-row>b{font:900 13px/1 var(--display)}
+.bzt-standard-row>span{display:flex;align-items:center;gap:8px;min-width:0}.bzt-standard-row>span i{width:6px;height:28px;flex:0 0 6px}.bzt-standard-row>span strong{font:900 9px/1 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bzt-standard-row>strong{justify-self:end;text-align:right;font:900 10px/1 var(--ui)}
+.bzt-added-points{font-family:var(--display)!important;font-size:14px!important}
+.bzt-postgame-primary{
+  width:100%;min-height:58px;border:1px solid var(--theme-primary-action);background:var(--theme-primary-action);color:var(--theme-on-primary-action);
+  font:900 9px/1 var(--ui);letter-spacing:.65px;cursor:pointer
+}
+.bzt-joker-card{padding:18px;border-left:6px solid var(--bzt-joker-owner,var(--theme-accent))}
+.bzt-joker-card>small{color:var(--inapp-muted);font:900 7px/1 var(--ui);letter-spacing:.8px}
+.bzt-joker-card h2{margin:9px 0 10px;font:900 32px/.95 var(--display)}
+.bzt-joker-card p{margin:0;color:var(--inapp-muted);font:800 10px/1.45 var(--ui)}
+.bzt-joker-owner{display:flex;align-items:center;gap:9px;margin-top:16px;padding:11px;border:1px solid var(--inapp-border);background:var(--theme-surface-soft)}
+.bzt-joker-owner>i{width:6px;height:32px;background:var(--bzt-joker-owner,var(--theme-accent))}
+.bzt-joker-owner>span{display:grid;gap:4px}.bzt-joker-owner small{color:var(--inapp-muted);font:900 6px/1 var(--ui)}.bzt-joker-owner strong{font:900 9px/1 var(--ui)}
+.bzt-joker-value{display:flex;align-items:center;gap:9px;margin-top:11px;padding:14px;background:var(--theme-surface-soft);font:900 22px/1 var(--display)}
+.bzt-joker-value b{color:var(--theme-accent)}
+.bzt-merge-row>b{display:flex;align-items:center;gap:5px}
+.bzt-rank-move{font:900 6px/1 var(--ui);color:var(--inapp-muted);opacity:0;transition:opacity .2s ease}
+.bzt-rank-move.visible{opacity:1}
+.bzt-merge-points{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important}
+.bzt-merge-points em{font-style:normal;color:var(--inapp-muted);font-size:7px}.bzt-merge-points b{font-size:14px}
+@keyframes bztStdRowIn{to{opacity:1;transform:none}}
+@media(max-width:380px){
+  .bzt-standard-columns,.bzt-standard-row{grid-template-columns:46px minmax(0,1fr) 62px 52px;gap:6px;padding:0 8px}
+  .bzt-joker-card h2{font-size:28px}.bzt-joker-value{font-size:19px}
+  .bzt-rank-move{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .bzt-standard-row{animation:none!important;opacity:1!important;transform:none!important}
+  .bzt-merge-row{transition:none!important}
+}
