@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0,recoveryTimer=0,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0,recoveryTimer=0,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0,postgameRendered=false;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -380,6 +380,7 @@ function animateMerge(){
   },1550);
 }
 function renderPostgame(){
+  postgameRendered=true;
   window.skielsenInApp?.markConcluded?.();
   const reveal=canonicalPostgame()?.joker_reveal||state?.result?.tournament_handoff?.joker_reveal||null;
   if(postgamePhase==='JOKER'&&jokerRevealAllowed(reveal))root.innerHTML=jokerMarkup(reveal);
@@ -499,12 +500,12 @@ async function poll(){
     if((state.phase==='COMPLETE'||state.status==='FINISHED')&&state.result&&!resultIngested){
       resultIngested=!!window.skielsenV15?.ingestInAppGameResult?.(session.tournament_game_id,state.result);
     }
-    render();
+    if(!(state.phase==='COMPLETE'||state.status==='FINISHED')||!postgameRendered)render();
   }finally{busy=false}
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession?.session_id||!nextDb)return false;
-  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(recoveryTimer);recoveryTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';postgamePhase='RANKING';postgameBusy=false;clearPostgameTimers();postgameRun++}
+  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(recoveryTimer);recoveryTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';postgamePhase='RANKING';postgameBusy=false;postgameRendered=false;postgameRendered=false;clearPostgameTimers();postgameRun++}
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
