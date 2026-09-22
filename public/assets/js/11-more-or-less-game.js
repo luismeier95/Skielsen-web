@@ -360,6 +360,7 @@ function animateMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.mol-merge-rows');if(!host)return;
   const rows=[...host.querySelectorAll('[data-mol-merge-row]')],card=root?.querySelector('[data-mol-merge-card]');
   postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.mol-merge-card'))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
