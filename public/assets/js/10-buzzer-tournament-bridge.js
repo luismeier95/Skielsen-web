@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=window.SKIELSEN_VERSION||'15.1.81';
+const VERSION=window.SKIELSEN_VERSION||'15.1.122';
 const GAME_ID='game.buzzer_time_stop';
 const RESULT_RPC='get_buzzer_time_game_result';
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
@@ -128,8 +128,9 @@ function completePendingInAppGame(){
   const gi=Number(st.currentGameIndex||0),g=st.games?.[gi];if(!g?.awaitingInAppResultClose)return false;
   const m=(g.matches||[])[g.matchIndex||0]||(g.matches||[])[0],winnerId=Array.isArray(g.placements)?g.placements[0]:null;
   g.awaitingInAppResultClose=false;persistLocalState();
+  window.skielsenInApp?.finishAndExit?.();
   if(typeof engine.beginPostGameFlow==='function'){engine.beginPostGameFlow(g,m,winnerId);return true}
-  window.skielsenInApp?.finishAndExit?.();void continuePostGame(g);return true;
+  void continuePostGame(g);return true;
 }
 
 function ingestTicTacToeResult(tournamentGameId,result){

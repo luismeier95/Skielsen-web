@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.81';
+const VERSION=window.SKIELSEN_VERSION||'15.1.122';
 const POLL_MS=1600;
 const DIFFICULTIES={
   EASY:{threshold:50,showWordLength:true},
@@ -391,6 +391,7 @@ function liveResultRowsHtml(rows){
 }
 function renderResult(result){
   finalResult=result||finalResult;
+  window.skielsenInApp?.markConcluded?.();
   showPage('result');
   const rows=Array.isArray(finalResult?.standings)?finalResult.standings:[];
   const meta=q('[data-wc-result-meta]');

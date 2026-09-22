@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.120';
+const VERSION=window.SKIELSEN_VERSION||'15.1.122';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -16,7 +16,7 @@ const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;
 let playerSession=null,adminSession=null,adminCandidates=[],adminGameId=null,buzzerAssetsPromise=null,buzzerBridgePromise=null,moreLessAssetsPromise=null,wordChainAssetsPromise=null,ticTacToeAssetsPromise=null,autoLifecycleBusy=false,lastRecoveredResultKey=null,playerSessionMisses=0;
-let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceLabel='IN-APP GAME',localTestTicTacToeActive=false;
+let inAppMinimized=false,inAppManualMinimized=false,inAppSurfaceKey=null,inAppSurfaceLive=false,inAppSurfaceConcluded=false,inAppSurfaceLabel='IN-APP GAME',localTestTicTacToeActive=false;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusDE=s=>({ASSIGNED:'ZUGEWIESEN',CONNECTED:'VERBUNDEN',READY:'BEREIT',PLAYING:'IM SPIEL',FINISHED:'FERTIG',DISCONNECTED:'GETRENNT',WAITING_FOR_PLAYERS:'WARTET AUF PLAYER',COUNTDOWN:'COUNTDOWN',ACTIVE:'LIVE'}[s]||s||'—');
@@ -50,7 +50,7 @@ function updateInAppChrome(){
   const layer=document.getElementById('v15InAppLayer');
   const strip=ensureLiveStrip();
   const hasSurface=hasInAppSurface();
-  const showStrip=!!(hasSurface&&inAppMinimized);
+  const showStrip=!!(hasSurface&&inAppMinimized&&!inAppSurfaceConcluded);
   strip.hidden=!showStrip;
   document.body.classList.toggle('v15-inapp-minimized-live',showStrip);
   const title=document.getElementById('v15InAppLiveTitle');
@@ -68,7 +68,7 @@ function ensureInAppHistory(){
   window.skielsenHistory?.push('inapp','game',{tournamentId:rt?.tournament_id||null,surfaceKey:inAppSurfaceKey||null});
 }
 function openInAppFullscreen(historyMode='push'){
-  if(!hasInAppSurface())return false;
+  if(!hasInAppSurface()||(inAppSurfaceConcluded&&inAppMinimized))return false;
   window.skielsenV15?.restorePresentationForInApp?.();
   inAppManualMinimized=false;
   inAppMinimized=false;
@@ -119,6 +119,7 @@ async function forceOpenActiveInApp(historyMode='push'){
 }
 function minimizeInApp(useHistory=true){
   if(!hasInAppSurface())return false;
+  if(inAppSurfaceConcluded){finishInAppSurface();return true}
   inAppManualMinimized=true;
   inAppMinimized=true;
   const layer=ensureLayer();
@@ -133,15 +134,24 @@ function prepareInAppSurface(key,label,live){
     inAppSurfaceKey=nextKey;
     inAppManualMinimized=false;
     inAppMinimized=false;
+    inAppSurfaceConcluded=false;
   }
-  inAppSurfaceLive=!!live;
+  inAppSurfaceLive=inAppSurfaceConcluded?false:!!live;
   inAppSurfaceLabel=String(label||'IN-APP GAME');
   updateInAppChrome();
   if(inAppSurfaceLive&&!inAppMinimized)ensureInAppHistory();
 }
-function clearInAppSurface(){
-  const wasLive=inAppSurfaceLive;
+function markInAppConcluded(){
+  if(!hasInAppSurface())return false;
+  inAppSurfaceConcluded=true;
   inAppSurfaceLive=false;
+  updateInAppChrome();
+  return true;
+}
+function clearInAppSurface(){
+  const hadInAppHistory=window.skielsenHistory?.current()?.area==='inapp';
+  inAppSurfaceLive=false;
+  inAppSurfaceConcluded=false;
   inAppSurfaceKey=null;
   inAppSurfaceLabel='IN-APP GAME';
   inAppMinimized=false;
@@ -149,7 +159,7 @@ function clearInAppSurface(){
   const strip=document.getElementById('v15InAppLiveStrip');
   if(strip)strip.hidden=true;
   document.body.classList.remove('v15-inapp-minimized-live','v15-inapp-fullscreen-open','v15-word-chain-inapp-open');
-  if(wasLive&&window.skielsenHistory?.current()?.area==='inapp')window.skielsenHistory.back();
+  if(hadInAppHistory)window.skielsenHistory.back();
 }
 function ensureLayer(){
   let layer=document.getElementById('v15InAppLayer');
@@ -1047,6 +1057,7 @@ window.skielsenInApp={
   openFullscreen:()=>openInAppFullscreen('push')||forceOpenActiveInApp('push'),
   openActive:()=>forceOpenActiveInApp('push'),
   finishAndExit:finishInAppSurface,
+  markConcluded:markInAppConcluded,
   completeAndExit:()=>window.skielsenBuzzerBridge?.completePendingInAppGame?.()||finishInAppSurface(),
   flowContract:GAME_FLOW_STEPS,
   get fullscreen(){return inAppFullscreen()},

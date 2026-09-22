@@ -371,7 +371,9 @@ function render(){
 
   feedbackKey='';clearTimeout(feedbackTimer);
   if(state.phase==='COMPLETE'||state.status==='FINISHED'){
-    clearTimeout(recoveryTimer);recoveryTimer=0;root.innerHTML=completeMarkup();bindChrome();
+    clearTimeout(recoveryTimer);recoveryTimer=0;
+    window.skielsenInApp?.markConcluded?.();
+    root.innerHTML=completeMarkup();bindChrome();
     root.querySelector('#molCloseGame')?.addEventListener('click',()=>window.skielsenInApp?.completeAndExit?.());return;
   }
   root.innerHTML=questionMarkup();bindChrome();
