@@ -141,16 +141,17 @@ function renderPlayerSelection(selection='MATCH'){
   }));
 }
 function renderDifficulty(){
+  const options=[
+    ['NORMAL','Klassisches Tic Tac Toe. Drei eigene Symbole in einer Reihe gewinnen.'],
+    ['DISAPPEAR','Beim vierten eigenen Symbol verschwindet das älteste. Maximal drei bleiben aktiv.']
+  ];
   root.innerHTML=`${header('SCHWIERIGKEIT','3 / 3')}
     <main class="tttp-stage tttp-prestart">
       <section class="tttp-title"><small>SPIELREGEL FESTLEGEN</small><h2>VARIANTE WÄHLEN.</h2></section>
-      <div class="tttp-choice-grid">
-        <button type="button" class="tttp-choice ${variant()==='NORMAL'?'is-selected':''}" data-variant="NORMAL" ${isAdmin()?'':'disabled'}>
-          <strong>NORMAL</strong><span>Klassisches Tic Tac Toe. Drei eigene Symbole in einer Reihe gewinnen.</span>
-        </button>
-        <button type="button" class="tttp-choice ${variant()==='DISAPPEAR'?'is-selected':''}" data-variant="DISAPPEAR" ${isAdmin()?'':'disabled'}>
-          <strong>DISAPPEAR</strong><span>Beim vierten eigenen Symbol verschwindet das älteste. Maximal drei bleiben aktiv.</span>
-        </button>
+      <div class="tttp-choice-grid tttp-difficulty-grid" style="--difficulty-count:${options.length}">
+        ${options.map(([key,copy])=>`<button type="button" class="tttp-choice ${variant()===key?'is-selected':''}" data-variant="${key}" ${isAdmin()?'':'disabled'}>
+          <strong>${key}</strong><span>${copy}</span>
+        </button>`).join('')}
       </div>
       <p class="tttp-feedback" data-ttt-feedback>${esc(isAdmin()?message:'WARTET AUF DIE AUSWAHL DES ADMINS.')}</p>
     </main>`;
