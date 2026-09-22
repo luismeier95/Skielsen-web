@@ -233,8 +233,8 @@ function rankingRowMarkup(result,row,index){
   return `<div class="rxp-ranking-row" data-rx-rank-row style="--rxp-row-delay:${180+index*150}ms">
     <b>${String(Number(row.placement||index+1)).padStart(2,'0')}</b>
     <span class="rxp-ranking-player"><i style="--rxp-player:${colorVar(row.identity_color)}"></i><span><strong>${esc(row.display_name||'TEILNEHMER')}</strong><small>${resultDetail(result,row)}</small></span></span>
-    <strong class="rxp-ranking-metric">${valid?fmt(row.aggregate_ms):'DNF'}</strong>
     <span class="rxp-ranking-points"><b>+${pts}</b><small>PTS</small></span>
+    <strong class="rxp-ranking-metric">${valid?fmt(row.aggregate_ms):'DNF'}</strong>
   </div>`;
 }
 function renderRanking(result){
@@ -244,7 +244,7 @@ function renderRanking(result){
     <section class="rxp-result-status"><strong>ERGEBNIS</strong></section>
     <section class="rxp-ranking-card is-revealing">
       <header><strong>FINALES ERGEBNIS</strong><span>${esc(result.difficulty||difficulty())} · WENIGER IST BESSER</span></header>
-      <div class="rxp-ranking-columns"><span>POSITION</span><span>NAME</span><span>ZEIT</span><span>PUNKTE</span></div>
+      <div class="rxp-ranking-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ZEIT</span></div>
       <div class="rxp-ranking-rows">${rows.map((r,i)=>rankingRowMarkup(result,r,i)).join('')}</div>
     </section>
     <button class="rxp-primary" data-rx-ranking-continue type="button">WEITER →</button>
@@ -348,7 +348,7 @@ function renderMerge(payload,result,animate=true){
     postgameBusy=false;phase='MERGE_COMPLETE';return;
   }
   postgameBusy=true;
-  postgameLater(()=>{if(run!==postgameAnimationRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.rxp-merge-card'))},350);
+  postgameLater(()=>{if(run!==postgameAnimationRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.rxp-merge-card'),colorVar(resultRows(result)[0]?.identity_color))},350);
   postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameAnimationRun)return;root.querySelector('[data-rx-merge-card]')?.classList.add('is-total')},2500);
   postgameLater(()=>{
