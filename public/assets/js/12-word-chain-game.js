@@ -17,7 +17,7 @@ const COLOR_VAR={
 
 let root=null,session=null,db=null,state=null;
 let pollTimer=0,tickTimer=0,busy=false,serverOffsetMs=0,lastTimeoutDeadline=null;
-let resultIngested=false,finalResult=null,pendingTier='NORMAL';
+let resultIngested=false,finalResult=null,pendingTier='NORMAL',postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0;
 let inputBuffer='',acceptedBuffer='',lastWordKey='';
 
 const q=sel=>root?.querySelector(sel)||null;
@@ -390,17 +390,85 @@ function liveResultRowsHtml(rows){
     </div>`;
   }).join('');
 }
+function clearPostgameTimers(){postgameTimers.forEach(clearTimeout);postgameTimers=[]}
+function postgameLater(fn,ms){const id=setTimeout(fn,ms);postgameTimers.push(id);return id}
+function canonicalPostgame(){
+  return window.skielsenBuzzerBridge?.getCanonicalPostgame?.(session?.tournament_game_id,finalResult)||null;
+}
+function wordJokerAllowed(reveal){return !!reveal&&String(reveal?.joker?.category||'').toUpperCase()!=='ACTION'}
+function wordMovement(delta){delta=Number(delta||0);return delta>0?'▲ '+delta:(delta<0?'▼ '+Math.abs(delta):'—')}
+function renderWordRanking(){
+  showPage('result');window.skielsenInApp?.markConcluded?.();
+  const rows=Array.isArray(finalResult?.standings)?[...finalResult.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)):[];
+  const pg=canonicalPostgame(),byId=new Map((pg?.rows||[]).map(r=>[r.participant_id,r]));
+  const title=q('[data-wc-result-title]'),meta=q('[data-wc-result-meta]'),columns=q('.wc-result-columns'),host=q('[data-wc-result-rows]'),finish=q('[data-wc-finish]');
+  if(title)title.textContent='FINALES ERGEBNIS';if(meta)meta.textContent=rows.length?rows.length+' PARTICIPANTS':'—';
+  if(columns){columns.className='wc-result-columns wc-standard-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>ZEIT</span><span>SCORE</span><span>PUNKTE</span>'}
+  if(host)host.innerHTML=rows.map((row,i)=>{
+    const m=byId.get(row.participant_id)||{};
+    return `<div class="wc-result-row wc-standard-row" style="--wc-row-delay:${i*120}ms">
+      <b>${esc(row.placement||i+1)}.</b>
+      <span><i style="--wc-player:${colorVar(row.identity_color)}"></i><strong>${esc(row.display_name||m.display_name||'PLAYER')}</strong></span>
+      <strong>${formatDuration(row.duration_ms)}</strong>
+      <strong>${Number(row.score??0)>0?'+':''}${esc(row.score??0)}</strong>
+      <strong class="wc-added-points">+${Number(m.added_points||0)}</strong>
+    </div>`;
+  }).join('');
+  if(finish){finish.hidden=!rows.length;finish.disabled=false;finish.textContent='WEITER →'}
+}
+function renderWordJoker(reveal){
+  showPage('result');const title=q('[data-wc-result-title]'),meta=q('[data-wc-result-meta]'),columns=q('.wc-result-columns'),host=q('[data-wc-result-rows]'),finish=q('[data-wc-finish]');
+  const j=reveal?.joker||{},o=reveal?.owner||{},r=reveal?.result||{};
+  const before=r.before_text??(r.before!=null?String(r.before)+(r.unit?' '+r.unit:''):'—');
+  const after=r.after_text??(r.after!=null?String(r.after)+(r.unit?' '+r.unit:''):(r.text||'—'));
+  if(title)title.textContent='JOKER AUFLÖSUNG';if(meta)meta.textContent=String(j.category||'SECRET').toUpperCase();
+  if(columns)columns.innerHTML='';
+  if(host)host.innerHTML=`<section class="wc-joker-card" style="--wc-joker-owner:${esc(o.color||colorVar(o.color_key))}">
+    <small>${esc(String(j.category||'SECRET').toUpperCase())} JOKER</small>
+    <h2>${esc(j.title||j.type||'JOKER')}</h2>
+    <p>${esc(j.description||'Der Joker wurde auf die finale Wertung angewendet.')}</p>
+    <div class="wc-joker-owner"><i></i><span><small>JOKER GESETZT VON</small><strong>${esc(o.display_name||'TEILNEHMER')}</strong></span></div>
+    <div class="wc-joker-value"><span>${esc(before)}</span><b>→</b><strong>${esc(after)}</strong></div>
+  </section>`;
+  if(finish){finish.hidden=false;finish.disabled=false;finish.textContent='WEITER ZUM TURNIERSTAND →'}
+}
+function renderWordMerge(){
+  showPage('result');const pg=canonicalPostgame(),rows=[...(pg?.rows||[])].sort((a,b)=>Number(a.old_rank||999)-Number(b.old_rank||999));
+  const title=q('[data-wc-result-title]'),meta=q('[data-wc-result-meta]'),columns=q('.wc-result-columns'),host=q('[data-wc-result-rows]'),finish=q('[data-wc-finish]');
+  if(title)title.textContent='TURNIERSTAND';if(meta)meta.textContent='NACH WORTKETTE';
+  if(columns){columns.className='wc-result-columns wc-merge-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span>'}
+  if(host)host.innerHTML=rows.map((r,i)=>`<div class="wc-result-row wc-merge-row" data-wc-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
+    <b><span class="wc-rank-value">${Number(r.old_rank||i+1)}.</span><small class="wc-rank-move"></small></b>
+    <span><i style="--wc-player:${colorVar(r.identity_color)}"></i><strong>${esc(r.display_name||'TEILNEHMER')}</strong></span>
+    <strong class="wc-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
+    <strong class="wc-added-points">+${Number(r.added_points||0)}</strong>
+  </div>`).join('');
+  if(finish){finish.hidden=true;finish.disabled=true;finish.textContent='SPIEL SCHLIESSEN →'}
+  animateWordMerge();
+}
+function animateWordMerge(){
+  clearPostgameTimers();const run=++postgameRun,host=q('[data-wc-result-rows]');if(!host)return;
+  const rows=[...host.querySelectorAll('[data-wc-merge-row]')];postgameBusy=true;
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
+    rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
+    rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
+    void host.offsetHeight;rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },600);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    rows.forEach(r=>{const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.wc-rank-value'),mv=r.querySelector('.wc-rank-move');if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=wordMovement(oldRank-newRank);mv.classList.add('visible')}});
+    const finish=q('[data-wc-finish]');if(finish){finish.hidden=false;finish.disabled=false}
+    postgamePhase='MERGE_COMPLETE';postgameBusy=false;
+  },1500);
+}
 function renderResult(result){
   finalResult=result||finalResult;
-  window.skielsenInApp?.markConcluded?.();
-  showPage('result');
-  const rows=Array.isArray(finalResult?.standings)?finalResult.standings:[];
-  const meta=q('[data-wc-result-meta]');
-  if(meta)meta.textContent=rows.length?rows.length+' PARTICIPANTS':'ERGEBNIS WIRD GELADEN';
-  const host=q('[data-wc-result-rows]');
-  if(host)host.innerHTML=rows.length?resultRowsHtml(rows):'<div class="wc-result-wait">ERGEBNIS WIRD GELADEN …</div>';
-  const finish=q('[data-wc-finish]');
-  if(finish)finish.hidden=!rows.length;
+  const reveal=canonicalPostgame()?.joker_reveal||finalResult?.tournament_handoff?.joker_reveal||null;
+  if(postgamePhase==='JOKER'&&wordJokerAllowed(reveal)){renderWordJoker(reveal);return}
+  if(postgamePhase==='MERGE'||postgamePhase==='MERGE_COMPLETE'){renderWordMerge();return}
+  renderWordRanking();
 }
 function renderResultWaiting(nextState=state){
   state=nextState||state;
@@ -475,7 +543,17 @@ function bind(){
     if(e.target.closest('button'))return;
     setTimeout(focusInput,0);
   });
-  q('[data-wc-finish]')?.addEventListener('click',()=>window.skielsenInApp?.completeAndExit?.());
+  q('[data-wc-finish]')?.addEventListener('click',()=>{
+    if(!finalResult||postgameBusy)return;
+    const reveal=canonicalPostgame()?.joker_reveal||finalResult?.tournament_handoff?.joker_reveal||null;
+    if(postgamePhase==='RANKING'&&wordJokerAllowed(reveal)){postgamePhase='JOKER';renderResult(finalResult);return}
+    if(postgamePhase==='RANKING'||postgamePhase==='JOKER'){postgamePhase='MERGE';renderResult(finalResult);return}
+    if(postgamePhase==='MERGE_COMPLETE'){
+      const btn=q('[data-wc-finish]');if(btn){btn.disabled=true;btn.textContent='WIRD GESCHLOSSEN …'}
+      const ok=window.skielsenBuzzerBridge?.completeCanonicalInAppPostgame?.(session?.tournament_game_id);
+      if(!ok)window.skielsenInApp?.completeAndExit?.();
+    }
+  });
   window.addEventListener('resize',onResize);
 }
 function onResize(){
@@ -508,7 +586,7 @@ function mount(nextRoot,nextSession,nextDb){
   root=nextRoot;session=nextSession;db=nextDb;
   if(changed){
     clearInterval(pollTimer);clearInterval(tickTimer);
-    state=null;finalResult=null;resultIngested=false;busy=false;lastTimeoutDeadline=null;
+    state=null;finalResult=null;resultIngested=false;busy=false;lastTimeoutDeadline=null;postgamePhase='RANKING';postgameBusy=false;clearPostgameTimers();postgameRun++;
     inputBuffer='';acceptedBuffer='';lastWordKey='';pendingTier='NORMAL';
     root.innerHTML=shell();
     bind();
@@ -523,7 +601,7 @@ function unmount(){
   clearInterval(pollTimer);clearInterval(tickTimer);
   pollTimer=0;tickTimer=0;
   window.removeEventListener('resize',onResize);
-  root=null;session=null;db=null;state=null;busy=false;
+  clearPostgameTimers();postgameRun++;root=null;session=null;db=null;state=null;busy=false;postgameBusy=false;postgamePhase='RANKING';
   finalResult=null;inputBuffer='';acceptedBuffer='';lastWordKey='';
 }
 window.skielsenWordChain={version:VERSION,mount,updateSession,unmount,poll,setDifficulty:async tier=>{const next=String(tier||'').toUpperCase();if(!DIFFICULTIES[next]||!isAdmin())return false;pendingTier=next;return !!(await setDifficulty())},get resultOpen(){return !!q('[data-wc-page="result"]')&&!q('[data-wc-page="result"]').hidden}};
