@@ -450,6 +450,7 @@ function animateWordMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('[data-wc-result-rows]');if(!host)return;
   const rows=[...host.querySelectorAll('[data-wc-merge-row]')],card=root?.querySelector('[data-wc-merge-card]');
   postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.wc-merge-card'))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
