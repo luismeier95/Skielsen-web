@@ -70,8 +70,8 @@ body.rx-body{min-height:100dvh;background:var(--theme-page);color:var(--theme-on
 }
 .rx-pad strong{
   font-family:var(--display,var(--ui));
-  font-size:clamp(58px,11vw,112px);
-  line-height:.9;
+  font-size:clamp(48px,8vw,82px);
+  line-height:.94;
   letter-spacing:-.045em;
   font-weight:950;
   text-align:center;
@@ -94,6 +94,11 @@ body.rx-body{min-height:100dvh;background:var(--theme-page);color:var(--theme-on
 .rx-pad.false-start{
   background:var(--theme-danger-bg);
   color:var(--theme-on-danger);
+}
+.rx-pad.false-start strong{
+  font-size:clamp(40px,6.5vw,62px);
+  letter-spacing:-.035em;
+  white-space:nowrap;
 }
 .rx-pad:focus-visible{outline:3px solid var(--theme-focus);outline-offset:2px}
 
@@ -120,7 +125,8 @@ body.rx-body{min-height:100dvh;background:var(--theme-page);color:var(--theme-on
     flex:1 1 auto;
     padding:20px 14px;
   }
-  .rx-pad strong{font-size:clamp(56px,18vw,96px)}
+  .rx-pad strong{font-size:clamp(40px,14vw,64px)}
+  .rx-pad.false-start strong{font-size:clamp(32px,11vw,46px)}
   .rx-pad span{font-size:7px}
   .rx-result-columns,.rx-result-row{grid-template-columns:42px minmax(0,1fr) 74px 74px;padding:0 9px;gap:6px}.rx-result-columns{font-size:6px}.rx-result-row{min-height:56px}.rx-result-row>b,.rx-result-row>strong,.rx-result-player strong{font-size:9px}
 }

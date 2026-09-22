@@ -64,11 +64,8 @@ function startEasy(){
       lightTimer=setTimeout(step,420);
       return;
     }
-    const hold=700+Math.random()*1800;
-    timer=setTimeout(()=>{
-      lights.forEach(x=>x.classList.remove('on'));
-      armSignal();
-    },hold);
+    lights.forEach(x=>x.classList.remove('on'));
+    armSignal();
   };
   lightTimer=setTimeout(step,350);
 }
