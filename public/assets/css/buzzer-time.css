@@ -227,3 +227,30 @@
   }
   #v15InAppLayer.buzzer-mode .bzt-reveal-content{padding:10px}
 }
+
+
+/* Canonical merge morph states */
+.bzt-merge-card .bzt-merge-columns,
+.bzt-merge-card .bzt-merge-row{transition:grid-template-columns 1300ms cubic-bezier(.2,.8,.2,1)}
+.bzt-merge-card .bzt-merge-points span,
+.bzt-merge-card .bzt-merge-points em,
+.bzt-merge-card .bzt-merge-points b{opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)}
+.bzt-merge-card .bzt-added-points{color:var(--theme-accent);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)}
+.bzt-merge-card.is-merging .bzt-added-points{opacity:0;transform:scale(.78)}
+.bzt-merge-card.is-merging .bzt-merge-points span,
+.bzt-merge-card.is-merging .bzt-merge-points em,
+.bzt-merge-card.is-merging .bzt-merge-points b{opacity:1;transform:none}
+.bzt-merge-card.is-total .bzt-merge-points span,
+.bzt-merge-card.is-total .bzt-merge-points em{opacity:0;transform:translateY(-6px)}
+.bzt-merge-card.is-total .bzt-merge-points b{opacity:1;transform:scale(1.08)}
+.bzt-merge-card.is-tournament .bzt-merge-columns,
+.bzt-merge-card.is-tournament .bzt-merge-row{grid-template-columns:56px minmax(0,1fr) 74px 0!important}
+.bzt-merge-card.is-tournament .bzt-merge-columns>span:nth-child(4),
+.bzt-merge-card.is-tournament .bzt-added-points{opacity:0;overflow:hidden}
+.bzt-rank-move.up{color:var(--theme-success-bg)}.bzt-rank-move.down{color:var(--theme-danger-bg)}.bzt-rank-move.same{color:var(--theme-warning-bg,var(--theme-warning))}
+.bzt-rank-value.is-updating{animation:bztRankUpdate .84s ease}
+@keyframes bztRankUpdate{0%{opacity:.2;transform:scale(.7)}65%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+@media(max-width:720px){
+  .bzt-merge-card.is-tournament .bzt-merge-columns,
+  .bzt-merge-card.is-tournament .bzt-merge-row{grid-template-columns:46px minmax(0,1fr) 62px 0!important}
+}
