@@ -167,3 +167,18 @@
     grid-template-columns:64px minmax(0,1fr) 100px 0!important;
   }
 }
+
+
+/* Mobile keeps desktop column proportions without fixed-pixel overflow. */
+@media(max-width:720px){
+  .tttp-standard-columns,
+  .tttp-standard-row,
+  .tttp-merge-columns,
+  .tttp-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2.1fr) minmax(64px,1fr) minmax(48px,.75fr)!important;
+  }
+  .tttp-merge-card.is-tournament .tttp-merge-columns,
+  .tttp-merge-card.is-tournament .tttp-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2.1fr) minmax(64px,1fr) 0!important;
+  }
+}
