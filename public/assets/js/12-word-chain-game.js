@@ -122,12 +122,13 @@ function showPage(name){
 }
 function difficultyMarkup(){
   const admin=isAdmin();
+  const options=Object.keys(DIFFICULTIES);
   return `<main class="wc-setup-main">
     <section class="wc-setup-hero"><h1>WORT<br>KETTE.</h1></section>
     <section class="wc-setup-card">
       <small>MODUS</small>
-      <div class="wc-difficulty" data-wc-difficulty>
-        ${['EASY','NORMAL','HARDCORE'].map(t=>`<button type="button" data-wc-tier="${t}" class="${pendingTier===t?'active':''}" ${admin?'':'disabled'}>
+      <div class="wc-difficulty" data-wc-difficulty style="--difficulty-count:${options.length}">
+        ${options.map(t=>`<button type="button" data-wc-tier="${t}" class="${pendingTier===t?'active':''}" ${admin?'':'disabled'}>
           <b>${t}</b><span>THRESHOLD ${DIFFICULTIES[t].threshold}</span>
         </button>`).join('')}
       </div>
