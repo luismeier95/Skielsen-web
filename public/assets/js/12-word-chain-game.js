@@ -437,31 +437,43 @@ function renderWordMerge(){
   const title=q('[data-wc-result-title]'),meta=q('[data-wc-result-meta]'),columns=q('.wc-result-columns'),host=q('[data-wc-result-rows]'),finish=q('[data-wc-finish]');
   if(title)title.textContent='TURNIERSTAND';if(meta)meta.textContent='NACH WORTKETTE';
   if(columns){columns.className='wc-result-columns wc-merge-columns';columns.innerHTML='<span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span>'}
-  if(host)host.innerHTML=rows.map((r,i)=>`<div class="wc-result-row wc-merge-row" data-wc-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
+  if(host){host.closest('.wc-result-card')?.classList.add('is-game');host.closest('.wc-result-card')?.setAttribute('data-wc-merge-card','');host.innerHTML=rows.map((r,i)=>`<div class="wc-result-row wc-merge-row" data-wc-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
     <b><span class="wc-rank-value">${Number(r.old_rank||i+1)}.</span><small class="wc-rank-move"></small></b>
     <span><i style="--wc-player:${colorVar(r.identity_color)}"></i><strong>${esc(r.display_name||'TEILNEHMER')}</strong></span>
     <strong class="wc-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
     <strong class="wc-added-points">+${Number(r.added_points||0)}</strong>
-  </div>`).join('');
+  </div>`).join('')}
   if(finish){finish.hidden=true;finish.disabled=true;finish.textContent='SPIEL SCHLIESSEN →'}
   animateWordMerge();
 }
 function animateWordMerge(){
-  clearPostgameTimers();const run=++postgameRun,host=q('[data-wc-result-rows]');if(!host)return;
-  const rows=[...host.querySelectorAll('[data-wc-merge-row]')];postgameBusy=true;
+  clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('[data-wc-result-rows]');if(!host)return;
+  const rows=[...host.querySelectorAll('[data-wc-merge-row]')],card=root?.querySelector('[data-wc-merge-card]');
+  postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
     if(run!==postgameRun)return;
+    card?.classList.remove('is-game');card?.classList.add('is-tournament');
     const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
     rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
     rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
-    void host.offsetHeight;rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
-  },600);
+    void host.offsetHeight;
+    rows.forEach(r=>{r.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },4100);
   postgameLater(()=>{
     if(run!==postgameRun)return;
-    rows.forEach(r=>{const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.wc-rank-value'),mv=r.querySelector('.wc-rank-move');if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=wordMovement(oldRank-newRank);mv.classList.add('visible')}});
-    const finish=q('[data-wc-finish]');if(finish){finish.hidden=false;finish.disabled=false}
-    postgamePhase='MERGE_COMPLETE';postgameBusy=false;
-  },1500);
+    rows.forEach(r=>{
+      const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.wc-rank-value'),mv=r.querySelector('.wc-rank-move');
+      if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
+      if(mv){mv.textContent=wordMovement(oldRank-newRank);mv.classList.add('visible')}
+    });
+  },5340);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const close=root?.querySelector('[data-wc-finish]');if(close){close.hidden=false;close.disabled=false}
+    postgameBusy=false;postgamePhase='MERGE_COMPLETE';
+  },6100);
 }
 function renderResult(result){
   finalResult=result||finalResult;
