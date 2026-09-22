@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKIELSEN · End Game Merge Template</title>
+
+<!--
+  SKIELSEN · CANONICAL END GAME MERGE TEMPLATE
+  Updated: 2026-09-22
+
+  Locked reference behavior:
+  - Placement points: 1st +10 / 2nd +5 / 3rd +3 / 4th +0.
+  - Phase 1 through confetti uses the original reveal timing.
+  - The tournament-merge phase after confetti uses the expanded 200%-timing reference.
+  - Old tournament points are black.
+  - Newly earned placement points are Skielsen purple.
+  - Final total is black.
+  - Rows reorder with FLIP animation.
+  - Semantic movement indicator after reorder:
+      green ▲ n = gained places
+      red   ▼ n = lost places
+      orange — = unchanged
+  - This file is the canonical visual/animation reference for future End Game Merge integrations.
+-->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&display=swap');
+
+:root{
+  --theme-page:#e9e9e9;
+  --theme-surface:#ffffff;
+  --theme-surface-soft:#f6f6f6;
+  --theme-on-surface:#050505;
+  --theme-muted:#777777;
+  --theme-border:#dddddd;
+
+  --core-red:#ff1717;
+  --core-blue:#1515ff;
+  --core-green:#00a65a;
+  --core-yellow:#f2b705;
+
+  --skielsen-purple:rgb(124,92,255);
+
+  --rank-up:#18a957;
+  --rank-down:#e24545;
+  --rank-same:#f29f05;
+
+  --ui:"Archivo",sans-serif;
+  --display:"Archivo",sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+
+body{
+  min-height:100vh;
+  padding:32px 16px;
+  background:var(--theme-page);
+  color:var(--theme-on-surface);
+  font-family:var(--ui);
+}
+
+#confettiCanvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:9999;
+}
+
+.animation-controls{
+  width:min(680px,100%);
+  margin:0 auto 10px;
+}
+
+.animation-controls button{
+  width:100%;
+  min-height:46px;
+  border:0;
+  border-radius:12px;
+  background:#050505;
+  color:#fff;
+  font:900 9px/1 var(--ui);
+  letter-spacing:.7px;
+  cursor:pointer;
+}
+
+.result{
+  width:min(680px,100%);
+  margin:0 auto;
+  border:1px solid var(--theme-border);
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+}
+
+.result>header{
+  height:58px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--theme-border);
+}
+
+.result>header strong{font:900 10px/1 var(--ui)}
+.result>header span{color:var(--theme-muted);font:900 7px/1 var(--ui)}
+
+.result-columns,
+.result-row{
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) 72px 126px 96px;
+  align-items:center;
+  padding:0 14px;
+  transition:grid-template-columns 1300ms cubic-bezier(.2,.8,.2,1);
+}
+
+.result.is-tournament .result-columns,
+.result.is-tournament .result-row{
+  grid-template-columns:92px minmax(0,1fr) 100px 0 0;
+}
+
+.result-columns{
+  height:34px;
+  background:var(--theme-surface-soft);
+  color:var(--theme-muted);
+  font:900 6px/1 var(--ui);
+  letter-spacing:.8px;
+}
+
+.result-columns>span{
+  transition:opacity 600ms ease,transform 600ms ease;
+}
+
+.result-columns>span:nth-child(1){text-align:center}
+.result-columns>span:nth-child(2),
+.result-columns>span:nth-child(3){text-align:left}
+.result-columns>span:nth-child(4),
+.result-columns>span:nth-child(5){text-align:center}
+
+.result.is-tournament .result-columns>span:nth-child(4),
+.result.is-tournament .result-columns>span:nth-child(5){
+  opacity:0;
+  transform:scale(.8);
+}
+
+.result-row{
+  height:62px;
+  border-top:1px solid var(--theme-border);
+  will-change:transform;
+}
+
+.position{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+
+.position-number{font:900 14px/1 var(--display)}
+
+.position.is-updating .position-number{
+  animation:positionUpdate 840ms ease;
+}
+
+@keyframes positionUpdate{
+  0%{opacity:.2;transform:scale(.7)}
+  65%{opacity:1;transform:scale(1.18)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+.movement-indicator{
+  min-width:20px;
+  opacity:0;
+  transform:translateY(4px) scale(.8);
+  font:900 9px/1 var(--ui);
+  transition:opacity 420ms ease,transform 420ms ease;
+  white-space:nowrap;
+}
+
+.movement-indicator.is-visible{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+.movement-indicator.is-up{color:var(--rank-up)}
+.movement-indicator.is-down{color:var(--rank-down)}
+.movement-indicator.is-same{color:var(--rank-same)}
+
+.player{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  overflow:hidden;
+  color:var(--theme-on-surface);
+  font:900 9px/1 var(--ui);
+}
+
+.player-accent{
+  width:6px;
+  height:32px;
+  flex:0 0 6px;
+  border-radius:3px;
+  background:var(--player);
+}
+
+.player-name{
+  min-width:0;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.points-cell{
+  position:relative;
+  min-width:0;
+  height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  font:900 14px/1 var(--display);
+  overflow:visible;
+}
+
+.points-cell>span{
+  position:absolute;
+  left:0;
+  white-space:nowrap;
+}
+
+.award-value{
+  opacity:1;
+  color:var(--skielsen-purple);
+  transform:scale(1);
+  transform-origin:left center;
+  transition:opacity 640ms ease,transform 960ms cubic-bezier(.2,.8,.2,1);
+}
+
+.points-cell.is-pending .award-value{
+  opacity:0;
+  transform:scale(.72);
+}
+
+.points-cell.is-revealing .award-value{
+  animation:rankingPointsReveal 520ms cubic-bezier(.16,.9,.25,1.22) forwards;
+}
+
+@keyframes rankingPointsReveal{
+  0%{opacity:0;transform:scale(.72)}
+  45%{opacity:1;transform:scale(1.28)}
+  72%{opacity:1;transform:scale(1.10)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+.points-merge{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  opacity:0;
+  transform:scale(.8);
+  transform-origin:left center;
+  transition:opacity 700ms ease,transform 1000ms cubic-bezier(.2,.8,.2,1);
+}
+
+.points-merge b{font:inherit}
+.points-merge .base-points{color:var(--theme-on-surface)}
+.points-merge .plus-sign,
+.points-merge .award-points{color:var(--skielsen-purple)}
+
+.points-cell.is-merging .award-value{
+  opacity:0;
+  transform:translateX(18px) scale(.72);
+}
+
+.points-cell.is-merging .points-merge{
+  opacity:1;
+  transform:scale(1);
+}
+
+.total-value{
+  opacity:0;
+  color:var(--theme-on-surface);
+  transform:scale(.72);
+  transform-origin:left center;
+}
+
+.points-cell.is-total .points-merge{
+  opacity:0;
+  transform:scale(.76);
+}
+
+.points-cell.is-total .total-value{
+  animation:totalPointsReveal 1040ms cubic-bezier(.16,.9,.25,1.2) forwards;
+}
+
+@keyframes totalPointsReveal{
+  0%{opacity:0;transform:scale(.72)}
+  55%{opacity:1;transform:scale(1.22)}
+  100%{opacity:1;transform:scale(1)}
+}
+
+.metric-pair{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);
+  align-items:center;
+  font:900 12px/1 var(--display);
+  transition:opacity 600ms ease,transform 800ms ease;
+}
+
+.metric-left{text-align:right}
+.metric-axis{text-align:center;color:var(--theme-muted)}
+.metric-right{text-align:left}
+
+.score{
+  text-align:center;
+  font:900 12px/1 var(--display);
+  transition:opacity 600ms ease,transform 800ms ease;
+}
+
+.result.is-tournament .metric-pair,
+.result.is-tournament .score{
+  opacity:0;
+  transform:scale(.75);
+  pointer-events:none;
+}
+
+@media(max-width:720px){
+  body{padding:12px 8px}
+
+  .animation-controls,
+  .result{width:100%}
+
+  .animation-controls button{
+    min-height:44px;
+    border-radius:11px;
+  }
+
+  .result{border-radius:14px}
+
+  .result-columns,
+  .result-row{
+    grid-template-columns:72px minmax(0,1fr) 54px 98px 72px;
+    padding:0 9px;
+  }
+
+  .result.is-tournament .result-columns,
+  .result.is-tournament .result-row{
+    grid-template-columns:72px minmax(0,1fr) 76px 0 0;
+  }
+
+  .result-columns{height:32px}
+
+  .result-row,
+  .points-cell{height:58px}
+
+  .player{gap:7px;font-size:8px}
+
+  .player-accent{
+    width:5px;
+    height:28px;
+    flex-basis:5px;
+  }
+
+  .position-number,
+  .points-cell{font-size:12px}
+
+  .movement-indicator{
+    min-width:16px;
+    font-size:8px;
+  }
+
+  .metric-pair,
+  .score{font-size:11px}
+
+  .metric-pair{
+    grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+<canvas id="confettiCanvas"></canvas>
+
+<div class="animation-controls">
+  <button id="replayAnimation" type="button">ANIMATION ERNEUT ABSPIELEN</button>
+</div>
+
+<section class="result" id="rankingTable">
+  <header>
+    <strong id="tableTitle">FINALES ERGEBNIS</strong>
+    <span id="tableMeta">SPIEL 4</span>
+  </header>
+
+  <div class="result-columns">
+    <span>POSITION</span>
+    <span>NAME</span>
+    <span id="pointsHeading"></span>
+    <span>VERSUCHE</span>
+    <span>BESTZEIT</span>
+  </div>
+
+  <div id="rankingRows">
+
+    <div class="result-row" data-row data-old-rank="1" data-new-rank="3">
+      <div class="position">
+        <span class="position-number">1.</span>
+        <span class="movement-indicator" data-movement></span>
+      </div>
+      <div class="player">
+        <i class="player-accent" style="--player:var(--core-red)"></i>
+        <span class="player-name">DJEELOI</span>
+      </div>
+      <div class="points-cell" data-ranking-points>
+        <span class="award-value">+10</span>
+        <span class="points-merge">
+          <b class="base-points">12</b>
+          <b class="plus-sign">+</b>
+          <b class="award-points">10</b>
+        </span>
+        <span class="total-value">22</span>
+      </div>
+      <div class="metric-pair">
+        <span class="metric-left">-</span>
+        <span class="metric-axis">/</span>
+        <span class="metric-right">233ms</span>
+      </div>
+      <div class="score">198ms</div>
+    </div>
+
+    <div class="result-row" data-row data-old-rank="2" data-new-rank="2">
+      <div class="position">
+        <span class="position-number">2.</span>
+        <span class="movement-indicator" data-movement></span>
+      </div>
+      <div class="player">
+        <i class="player-accent" style="--player:var(--core-blue)"></i>
+        <span class="player-name">SOFYA</span>
+      </div>
+      <div class="points-cell" data-ranking-points>
+        <span class="award-value">+5</span>
+        <span class="points-merge">
+          <b class="base-points">19</b>
+          <b class="plus-sign">+</b>
+          <b class="award-points">5</b>
+        </span>
+        <span class="total-value">24</span>
+      </div>
+      <div class="metric-pair">
+        <span class="metric-left">-</span>
+        <span class="metric-axis">/</span>
+        <span class="metric-right">-</span>
+      </div>
+      <div class="score">214ms</div>
+    </div>
+
+    <div class="result-row" data-row data-old-rank="3" data-new-rank="4">
+      <div class="position">
+        <span class="position-number">3.</span>
+        <span class="movement-indicator" data-movement></span>
+      </div>
+      <div class="player">
+        <i class="player-accent" style="--player:var(--core-green)"></i>
+        <span class="player-name">HANNES</span>
+      </div>
+      <div class="points-cell" data-ranking-points>
+        <span class="award-value">+3</span>
+        <span class="points-merge">
+          <b class="base-points">16</b>
+          <b class="plus-sign">+</b>
+          <b class="award-points">3</b>
+        </span>
+        <span class="total-value">19</span>
+      </div>
+      <div class="metric-pair">
+        <span class="metric-left">233ms</span>
+        <span class="metric-axis">/</span>
+        <span class="metric-right">-</span>
+      </div>
+      <div class="score">237ms</div>
+    </div>
+
+    <div class="result-row" data-row data-old-rank="4" data-new-rank="1">
+      <div class="position">
+        <span class="position-number">4.</span>
+        <span class="movement-indicator" data-movement></span>
+      </div>
+      <div class="player">
+        <i class="player-accent" style="--player:var(--core-yellow)"></i>
+        <span class="player-name">PIA</span>
+      </div>
+      <div class="points-cell" data-ranking-points>
+        <span class="award-value">+0</span>
+        <span class="points-merge">
+          <b class="base-points">25</b>
+          <b class="plus-sign">+</b>
+          <b class="award-points">0</b>
+        </span>
+        <span class="total-value">25</span>
+      </div>
+      <div class="metric-pair">
+        <span class="metric-left">245ms</span>
+        <span class="metric-axis">/</span>
+        <span class="metric-right">271ms</span>
+      </div>
+      <div class="score">245ms</div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+const tournamentFeatures={inAppAnimations:true};
+
+const rankingTable=document.querySelector('#rankingTable');
+const rankingRows=document.querySelector('#rankingRows');
+const tableTitle=document.querySelector('#tableTitle');
+const tableMeta=document.querySelector('#tableMeta');
+const pointsHeading=document.querySelector('#pointsHeading');
+const replayButton=document.querySelector('#replayAnimation');
+
+let rows=[...document.querySelectorAll('[data-row]')];
+let pointCells=[...document.querySelectorAll('[data-ranking-points]')];
+let animationTimers=[];
+const originalOrder=[...rows];
+
+function clearTimers(){
+  animationTimers.forEach(clearTimeout);
+  animationTimers=[];
+}
+
+function later(callback,delay){
+  const timer=setTimeout(callback,delay);
+  animationTimers.push(timer);
+}
+
+const canvas=document.querySelector('#confettiCanvas');
+const ctx=canvas.getContext('2d');
+let confettiParticles=[];
+let confettiFrame=null;
+
+function resizeCanvas(){
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=window.innerWidth*ratio;
+  canvas.height=window.innerHeight*ratio;
+  canvas.style.width=window.innerWidth+'px';
+  canvas.style.height=window.innerHeight+'px';
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+}
+
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+
+function clearConfetti(){
+  if(confettiFrame)cancelAnimationFrame(confettiFrame);
+  confettiFrame=null;
+  confettiParticles=[];
+  ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+}
+
+function winnerColor(){
+  const accent=originalOrder[0].querySelector('.player-accent');
+  return getComputedStyle(accent).backgroundColor;
+}
+
+function makeParticle(x,y,side,color){
+  return {
+    x,y,
+    vx:(side==='left'?1:-1)*(2+Math.random()*8),
+    vy:-8-Math.random()*10,
+    gravity:.22+Math.random()*.09,
+    drag:.988,
+    rotation:Math.random()*Math.PI*2,
+    rotationSpeed:(Math.random()-.5)*.3,
+    width:5+Math.random()*6,
+    height:8+Math.random()*9,
+    color,
+    life:1,
+    decay:.007+Math.random()*.004
+  };
+}
+
+function launchConfetti(){
+  if(!tournamentFeatures.inAppAnimations)return;
+
+  clearConfetti();
+
+  const rect=rankingTable.getBoundingClientRect();
+  const color=winnerColor();
+  const amount=window.innerWidth<=720?110:180;
+
+  for(let i=0;i<amount;i++){
+    const left=i%2===0;
+    confettiParticles.push(
+      makeParticle(
+        left?rect.left:rect.right,
+        rect.bottom,
+        left?'left':'right',
+        color
+      )
+    );
+  }
+
+  animateConfetti();
+}
+
+function animateConfetti(){
+  function frame(){
+    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+    confettiParticles=confettiParticles.filter(
+      p=>p.life>0&&p.y<window.innerHeight+100
+    );
+
+    confettiParticles.forEach(p=>{
+      p.vx*=p.drag;
+      p.vy+=p.gravity;
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.rotation+=p.rotationSpeed;
+      p.life-=p.decay;
+
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rotation);
+      ctx.globalAlpha=Math.max(0,p.life);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.width/2,-p.height/2,p.width,p.height);
+      ctx.restore();
+    });
+
+    if(confettiParticles.length){
+      confettiFrame=requestAnimationFrame(frame);
+    }
+  }
+
+  frame();
+}
+
+function hideMovementIndicators(){
+  rows.forEach(row=>{
+    const indicator=row.querySelector('[data-movement]');
+    indicator.className='movement-indicator';
+    indicator.textContent='';
+  });
+}
+
+function showMovementIndicators(){
+  rows.forEach(row=>{
+    const oldRank=Number(row.dataset.oldRank);
+    const newRank=Number(row.dataset.newRank);
+    const delta=oldRank-newRank;
+    const indicator=row.querySelector('[data-movement]');
+
+    indicator.className='movement-indicator';
+
+    if(delta>0){
+      indicator.textContent='▲ '+delta;
+      indicator.classList.add('is-up');
+    }else if(delta<0){
+      indicator.textContent='▼ '+Math.abs(delta);
+      indicator.classList.add('is-down');
+    }else{
+      indicator.textContent='—';
+      indicator.classList.add('is-same');
+    }
+
+    void indicator.offsetWidth;
+    indicator.classList.add('is-visible');
+  });
+}
+
+function resetAnimation(){
+  clearTimers();
+  clearConfetti();
+
+  originalOrder.forEach(row=>rankingRows.appendChild(row));
+
+  rankingTable.classList.remove('is-tournament');
+  tableTitle.textContent='FINALES ERGEBNIS';
+  tableMeta.textContent='SPIEL 4';
+  pointsHeading.textContent='';
+
+  rows=[...document.querySelectorAll('[data-row]')];
+  pointCells=[...document.querySelectorAll('[data-ranking-points]')];
+
+  rows.forEach((row,index)=>{
+    row.style.transition='';
+    row.style.transform='';
+
+    const position=row.querySelector('.position');
+    const number=row.querySelector('.position-number');
+
+    position.classList.remove('is-updating');
+    number.textContent=(index+1)+'.';
+  });
+
+  hideMovementIndicators();
+
+  pointCells.forEach(cell=>{
+    cell.classList.remove('is-pending','is-revealing','is-merging','is-total');
+  });
+}
+
+/* Phase 1: original speed through confetti. */
+function revealGamePoints(){
+  document.body.classList.add('in-app-animations');
+
+  pointCells.forEach(cell=>cell.classList.add('is-pending'));
+
+  [...pointCells].reverse().forEach((cell,index)=>{
+    later(()=>{
+      cell.classList.remove('is-pending');
+      void cell.offsetWidth;
+      cell.classList.add('is-revealing');
+    },350+index*480);
+  });
+
+  later(launchConfetti,350+3*480+520);
+  later(startTournamentTransition,350+3*480+1250);
+}
+
+/* Phase 2: expanded 200%-timing reference after confetti. */
+function startTournamentTransition(){
+  tableTitle.textContent='TURNIERSTAND';
+  tableMeta.textContent='NACH SPIEL 4';
+  pointsHeading.textContent='PUNKTE';
+
+  rankingTable.classList.add('is-tournament');
+
+  later(()=>{
+    pointCells.forEach(cell=>{
+      cell.classList.remove('is-revealing');
+      cell.classList.add('is-merging');
+    });
+  },900);
+
+  later(()=>{
+    pointCells.forEach(cell=>cell.classList.add('is-total'));
+  },2500);
+
+  later(reorderTournamentRows,4100);
+}
+
+function reorderTournamentRows(){
+  const currentRows=[...rankingRows.children];
+  const before=new Map();
+
+  currentRows.forEach(row=>{
+    before.set(row,row.getBoundingClientRect().top);
+  });
+
+  const sorted=[...currentRows].sort(
+    (a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)
+  );
+
+  sorted.forEach(row=>rankingRows.appendChild(row));
+
+  sorted.forEach(row=>{
+    const after=row.getBoundingClientRect().top;
+    const delta=before.get(row)-after;
+
+    row.style.transition='none';
+    row.style.transform='translateY('+delta+'px)';
+  });
+
+  void rankingRows.offsetHeight;
+
+  sorted.forEach(row=>{
+    row.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';
+    row.style.transform='translateY(0)';
+  });
+
+  later(()=>{
+    sorted.forEach((row,index)=>{
+      const position=row.querySelector('.position');
+      const number=row.querySelector('.position-number');
+
+      number.textContent=(index+1)+'.';
+      position.classList.remove('is-updating');
+      void position.offsetWidth;
+      position.classList.add('is-updating');
+    });
+  },1240);
+
+  later(showMovementIndicators,1850);
+}
+
+function playAnimation(){
+  resetAnimation();
+
+  if(!tournamentFeatures.inAppAnimations){
+    rankingTable.classList.add('is-tournament');
+    tableTitle.textContent='TURNIERSTAND';
+    tableMeta.textContent='NACH SPIEL 4';
+    pointsHeading.textContent='PUNKTE';
+
+    pointCells.forEach(cell=>{
+      cell.classList.add('is-merging','is-total');
+    });
+
+    reorderTournamentRows();
+    return;
+  }
+
+  revealGamePoints();
+}
+
+replayButton.addEventListener('click',playAnimation);
+playAnimation();
+</script>
+
+</body>
+</html>
