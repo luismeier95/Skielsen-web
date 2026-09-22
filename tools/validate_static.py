@@ -202,7 +202,7 @@ for _mode in ['ALTERNATING','SELECTED_PLAYER','SIMULTANEOUS']:
 _ttt_prod_css_text=_ttt_prod_css.read_text(encoding='utf-8')
 if '--game-mode-count:${options.length}' not in _ttt_prod_text: fail('Game Mode Page übergibt die dynamische Mode-Anzahl nicht')
 if 'repeat(var(--game-mode-count,2),minmax(0,1fr))' not in _ttt_prod_css_text: fail('Game Mode Desktop-Grid ist nicht dynamisch')
-if '.tttp-choice-grid,.tttp-mode-grid{grid-template-columns:1fr}' not in _ttt_prod_css_text: fail('Game Mode Mobile-Grid ist nicht einspaltig')
+if '.tttp-choice-grid,.tttp-mode-grid,.tttp-difficulty-grid{grid-template-columns:1fr}' not in _ttt_prod_css_text: fail('Game Mode/Difficulty Mobile-Grid ist nicht einspaltig')
 _gdc_doc=(ROOT/'docs/GAME_DESIGN_CONTRACT.md').read_text(encoding='utf-8')
 for _needle in ['Game Mode Page Contract','mindestens **zwei auswählbare Game Modes**','repeat(var(--game-mode-count), minmax(0, 1fr))','Mobile <= 720 px']:
  if _needle not in _gdc_doc: fail('Verbindlicher Game Mode Page Contract fehlt: '+_needle)

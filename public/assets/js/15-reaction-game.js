@@ -4,6 +4,8 @@
 const POLL_MS=800;
 const EASY_INTERVAL_MS=420;
 const EASY_INITIAL_MS=350;
+const EASY_HOLD_MIN_MS=700;
+const EASY_HOLD_MAX_MS=2200;
 const NORMAL_MIN_MS=2000;
 const NORMAL_MAX_MS=4000;
 
@@ -146,8 +148,11 @@ function runEasy(){
       sleepTimer(step,EASY_INTERVAL_MS);
       return;
     }
-    lights.forEach(x=>x.classList.remove('on'));
-    arm();
+    sleepTimer(()=>{
+      if(phase!=='WAITING')return;
+      lights.forEach(x=>x.classList.remove('on'));
+      arm();
+    },EASY_HOLD_MIN_MS+Math.random()*(EASY_HOLD_MAX_MS-EASY_HOLD_MIN_MS));
   };
   sleepTimer(step,EASY_INITIAL_MS);
 }
@@ -156,7 +161,10 @@ function runNormal(){
   sleepTimer(()=>{if(phase==='WAITING')arm()},delay);
 }
 function arm(){
-  phase='ARMED';signalAt=performance.now();setPad('signal','JETZT!','DRÜCKEN');
+  phase='ARMED';
+  signalAt=performance.now();
+  if(difficulty()==='EASY')setPad('waiting','','');
+  else setPad('signal','','');
 }
 async function beginAttempt(){
   if(busy||phase!=='START')return;
@@ -165,7 +173,7 @@ async function beginAttempt(){
     const data=await rpc('begin_reaction_attempt',{p_session_id:session.session_id});
     attemptToken=data?.attempt_token||null;
     if(!attemptToken)throw new Error('REACTION_ATTEMPT_TOKEN_MISSING');
-    phase='WAITING';setPad('waiting','WARTEN','AUF DAS SIGNAL WARTEN');
+    phase='WAITING';setPad('waiting','','');
     if(difficulty()==='EASY')runEasy();else runNormal();
   }catch(err){
     console.warn('Reaction begin',err);
