@@ -284,3 +284,20 @@
     grid-template-columns:minmax(42px,.8fr) minmax(0,2fr) minmax(54px,1fr) 0!important;
   }
 }
+
+.bzt-merge-points{position:relative}
+.bzt-base-points{color:var(--inapp-text)!important}
+.bzt-award-points{color:rgb(124,92,255)!important}
+.bzt-total-points{color:var(--inapp-text)!important}
+.bzt-merge-card .bzt-merge-points .bzt-base-points,
+.bzt-merge-card .bzt-merge-points em,
+.bzt-merge-card .bzt-merge-points .bzt-award-points{opacity:0;transform:translateY(6px)}
+.bzt-merge-card .bzt-merge-points .bzt-total-points{opacity:0;transform:scale(.8)}
+.bzt-merge-card.is-merging .bzt-merge-points .bzt-base-points,
+.bzt-merge-card.is-merging .bzt-merge-points em,
+.bzt-merge-card.is-merging .bzt-merge-points .bzt-award-points{opacity:1;transform:none}
+.bzt-merge-card.is-merging .bzt-merge-points .bzt-total-points{opacity:0}
+.bzt-merge-card.is-total .bzt-merge-points .bzt-base-points,
+.bzt-merge-card.is-total .bzt-merge-points em,
+.bzt-merge-card.is-total .bzt-merge-points .bzt-award-points{opacity:0;transform:translateY(-6px)}
+.bzt-merge-card.is-total .bzt-merge-points .bzt-total-points{opacity:1;transform:scale(1.08)}
