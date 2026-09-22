@@ -310,7 +310,7 @@ function renderFinalMerge(result){
   const pg=canonicalPostgame(result),rows=[...(pg?.rows||[])].sort((a,b)=>Number(a.old_rank||999)-Number(b.old_rank||999));
   root.innerHTML=`${header('TURNIERSTAND','NACH TIC TAC TOE')}
     <main class="tttp-stage tttp-result">
-      <section class="tttp-result-card tttp-merge-card">
+      <section class="tttp-result-card tttp-merge-card is-game" data-ttt-merge-card>
         <header><strong>GAME → TURNIER</strong><span>GESAMTRANKING</span></header>
         <div class="tttp-standard-columns tttp-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
         <div class="tttp-merge-rows">
@@ -334,20 +334,32 @@ function renderFinalMerge(result){
 }
 function animateTttMerge(){
   postgameTimers.forEach(clearTimeout);postgameTimers=[];const run=++postgameRun,host=root?.querySelector('.tttp-merge-rows');if(!host)return;
-  const rows=[...host.querySelectorAll('[data-ttt-merge-row]')];postgameBusy=true;
+  const rows=[...host.querySelectorAll('[data-ttt-merge-row]')],card=root?.querySelector('[data-ttt-merge-card]');
+  postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
     if(run!==postgameRun)return;
+    card?.classList.remove('is-game');card?.classList.add('is-tournament');
     const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
     rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
     rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
-    void host.offsetHeight;rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
-  },600);
+    void host.offsetHeight;
+    rows.forEach(r=>{r.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },4100);
   postgameLater(()=>{
     if(run!==postgameRun)return;
-    rows.forEach(r=>{const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.tttp-rank-value'),mv=r.querySelector('.tttp-rank-move');if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=tttMovement(oldRank-newRank);mv.classList.add('visible')}});
-    const btn=root?.querySelector('[data-ttt-postgame-close]');if(btn){btn.hidden=false;btn.disabled=false}
-    postgamePhase='MERGE_COMPLETE';postgameBusy=false;
-  },1500);
+    rows.forEach(r=>{
+      const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.tttp-rank-value'),mv=r.querySelector('.tttp-rank-move');
+      if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
+      if(mv){mv.textContent=tttMovement(oldRank-newRank);mv.classList.add('visible')}
+    });
+  },5340);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const close=root?.querySelector('[data-ttt-postgame-close]');if(close){close.hidden=false;close.disabled=false}
+    postgameBusy=false;postgamePhase='MERGE_COMPLETE';
+  },6100);
 }
 function advanceTttPostgame(){
   if(postgameBusy)return;
