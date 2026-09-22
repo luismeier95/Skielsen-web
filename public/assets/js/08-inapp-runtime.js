@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION=window.SKIELSEN_VERSION||'15.1.125';
+const VERSION=window.SKIELSEN_VERSION||'15.1.126';
 const POLL_MS=2500,HEARTBEAT_MS=12000;
 const BUZZER_MODULE='buzzer-time-stoppen';
 const BUZZER_GAME_KEY='buzzer_time_stoppen';
@@ -979,7 +979,7 @@ async function ensureNativeLifecycle(g){
           difficulty_required:expectedModule===WORD_CHAIN_MODULE||expectedModule===REACTION_MODULE,
           word_chain_rules_version:expectedModule===WORD_CHAIN_MODULE?4:null,
           reaction_difficulty:expectedModule===REACTION_MODULE?null:undefined,
-          reaction_rules_version:expectedModule===REACTION_MODULE?2:null,
+          reaction_rules_version:expectedModule===REACTION_MODULE?3:null,
           auto_created:true
         }
       });

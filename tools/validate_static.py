@@ -363,7 +363,7 @@ _rx_js=reaction_js.read_text(encoding='utf-8')
 _rx_css=reaction_css.read_text(encoding='utf-8')
 for _rpc in ['get_reaction_state','set_reaction_difficulty','begin_reaction_attempt','submit_reaction_attempt']:
  if _rpc not in _rx_js: fail('Reaction Server-Sync fehlt: '+_rpc)
-for _needle in ["REACTION_MODULE='reaction'","ensureReactionAssets","renderReactionSession","get_reaction_game_result"]:
+for _needle in ["REACTION_MODULE='reaction'","ensureReactionAssets","renderReactionSession","get_reaction_game_result","reaction_rules_version:expectedModule===REACTION_MODULE?3:null"]:
  if _needle not in runtime_text: fail('Reaction In-App Runtime unvollständig: '+_needle)
 if "result?.game_key==='reaction'" not in bridge_text or 'ingestReactionResult' not in bridge_text: fail('Reaction Result-Handoff fehlt')
 for _needle in ['--theme-surface','--theme-on-surface','--theme-success-bg','--theme-on-success','--theme-danger-bg','--theme-on-danger']:
