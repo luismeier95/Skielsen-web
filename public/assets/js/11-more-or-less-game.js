@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -54,15 +54,30 @@ function categoryLabel(){
 }
 function playerByMemberId(id){return (state?.players||[]).find(p=>p.member_id===id)||null}
 function scheduleBotTurn(){
-  clearTimeout(botTimer);botTimer=0;
-  if(!isAdmin()||!isTestBotTournament()||state?.phase!=='QUESTION'||!state?.current_player?.is_bot)return;
+  const eligible=isTestBotTournament()&&state?.phase==='QUESTION'&&state?.current_player?.is_bot;
+  if(!eligible){
+    clearTimeout(botTimer);botTimer=0;botTurnKey='';
+    return;
+  }
   const key=[state?.category_no,state?.turn_no,state?.current_player?.participant_id].join('|');
-  botTimer=setTimeout(()=>{
+  if(botTimer&&botTurnKey===key)return;
+  if(botTimer){clearTimeout(botTimer);botTimer=0}
+  botTurnKey=key;
+  const decide=()=>{
     botTimer=0;
-    if(busy||!isAdmin()||!isTestBotTournament()||state?.phase!=='QUESTION'||!state?.current_player?.is_bot)return;
+    const stillSame=isTestBotTournament()
+      &&state?.phase==='QUESTION'
+      &&state?.current_player?.is_bot
+      &&[state?.category_no,state?.turn_no,state?.current_player?.participant_id].join('|')===key;
+    if(!stillSame){botTurnKey='';return}
+    if(busy){
+      botTimer=setTimeout(decide,180);
+      return;
+    }
     const seed=String(key).split('').reduce((n,ch)=>((n*33)+ch.charCodeAt(0))>>>0,5381);
     void act((seed%2)===0?'MORE':'LESS');
-  },850);
+  };
+  botTimer=setTimeout(decide,850);
 }
 function playStatusMarkup(player){
   const name=String(player?.display_name||player?.member_name||'PLAYER').toUpperCase();
@@ -108,10 +123,10 @@ function bindChrome(){
   root?.querySelectorAll('[data-mol-minimize]').forEach(btn=>btn.addEventListener('click',minimizeGame));
 }
 function header(){
-  return `<header class="mol-full-header"><div><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MEHR ODER WENIGER</span></div><div class="mol-full-header-right"><div class="mol-full-meta"><b>${esc(tierLabel(state?.tier))}</b><span>KATEGORIE ${Number(state?.category_no||1)} / ${Number(state?.category_count||5)}</span></div><button class="mol-minimize" data-mol-minimize type="button" aria-label="Spiel minimieren" title="Spiel minimieren">⌄</button></div></header>`;
+  return `<div class="mol-game-toolbar"><div class="mol-full-meta"><b>${esc(tierLabel(state?.tier))}</b><span>KATEGORIE ${Number(state?.category_no||1)} / ${Number(state?.category_count||5)}</span></div><button class="mol-minimize" data-mol-minimize type="button" aria-label="Spiel minimieren" title="Spiel minimieren">⌄</button></div>`;
 }
 function setupHeader(){
-  return `<header class="mol-full-header"><div><img src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MEHR ODER WENIGER</span></div><div class="mol-full-header-right"><div class="mol-full-meta"><b>SETUP</b><span>5 KATEGORIEN</span></div><button class="mol-minimize" data-mol-minimize type="button" aria-label="Spiel minimieren" title="Spiel minimieren">⌄</button></div></header>`;
+  return `<div class="mol-game-toolbar"><div class="mol-full-meta"><b>SETUP</b><span>5 KATEGORIEN</span></div><button class="mol-minimize" data-mol-minimize type="button" aria-label="Spiel minimieren" title="Spiel minimieren">⌄</button></div>`;
 }
 function difficultyMarkup(){
   const admin=isAdmin();
@@ -210,7 +225,7 @@ function questionMarkup(){
     <main class="mol-full-content">
       <div class="mol-full-play-layout">
         ${playStatusMarkup(current)}
-        <div class="mol-full-scoreboard">${scoreboard()}</div>
+        <div class="mol-full-scoreboard" data-player-count="${Math.min(4,(state?.players||[]).length)}">${scoreboard()}</div>
         <section class="mol-full-compare" id="molFullCompare">
           <div class="mol-full-reference"><strong>${esc(ref.label||'—')}</strong><b>${esc(ref.display_value||ref.value||'—')}</b></div>
           <div class="mol-full-vs" id="molFullCenterCircle">VS</div>
@@ -237,7 +252,7 @@ function revealMarkup(){
     <main class="mol-full-content">
       <div class="mol-full-play-layout">
         ${playStatusMarkup(actor)}
-        <div class="mol-full-scoreboard">${scoreboard()}</div>
+        <div class="mol-full-scoreboard" data-player-count="${Math.min(4,(state?.players||[]).length)}">${scoreboard()}</div>
         <section class="mol-full-compare is-feedback ${ok?'is-correct':'is-wrong'}" id="molFullCompare">
           <div class="mol-full-reference"><strong>${esc(refLabel)}</strong><b>${esc(refValue)}</b></div>
           <div class="mol-full-vs mol-full-outcome" id="molFullCenterCircle">VS</div>
@@ -357,7 +372,7 @@ async function poll(){
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession?.session_id||!nextDb)return false;
-  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(botTimer);botTimer=0}
+  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(botTimer);botTimer=0;botTurnKey=''}
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
@@ -379,7 +394,7 @@ function updateSession(nextSession){
   if(!before&&after)void poll();
 }
 function unmount(){
-  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;animationToken++;clearTimeout(feedbackTimer);feedbackKey='';root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
+  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';animationToken++;clearTimeout(feedbackTimer);feedbackKey='';root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
 }
 window.skielsenMoreLess={mount,updateSession,unmount,poll,setTier};
 })();
