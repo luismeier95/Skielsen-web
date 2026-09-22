@@ -352,7 +352,7 @@ function animateTttMerge(){
     rows.forEach(r=>{
       const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.tttp-rank-value'),mv=r.querySelector('.tttp-rank-move');
       if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
-      if(mv){mv.textContent=tttMovement(oldRank-newRank);mv.classList.add('visible')}
+      if(mv){const delta=oldRank-newRank;mv.textContent=tttMovement(delta);mv.className='tttp-rank-move '+(delta>0?'up':delta<0?'down':'same')+' visible'}
     });
   },5340);
   postgameLater(()=>{
