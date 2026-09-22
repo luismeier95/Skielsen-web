@@ -166,3 +166,33 @@
   .rxp-movement{display:none}
   .rxp-joker-card{padding:18px}.rxp-joker-card>h2{font-size:34px}.rxp-joker-result>strong{font-size:24px}
 }
+
+
+/* ===== V15.1.130 · Rounded/flexible mobile contract ===== */
+#v15ReactionRoot{
+  --rxp-radius-outer:16px;
+  --rxp-radius-card:12px;
+  --rxp-radius-small:9px;
+}
+#v15ReactionRoot :where(.rxp-status,.rxp-ranking-card,.rxp-merge-card,.rxp-joker-card,.rxp-ready-card,.rxp-panel){
+  border-radius:var(--rxp-radius-outer)!important;
+  overflow:hidden;
+}
+#v15ReactionRoot :where(.rxp-primary,.rxp-choice button,.rxp-pad){
+  border-radius:var(--rxp-radius-card)!important;
+}
+@media(max-width:720px){
+  #v15ReactionRoot{
+    --rxp-radius-outer:14px;
+    --rxp-radius-card:11px;
+    --rxp-radius-small:8px;
+  }
+  #v15ReactionRoot .rxp-choice{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  #v15ReactionRoot .rxp-choice button{
+    min-height:0!important;
+    padding:14px 12px!important;
+  }
+}
