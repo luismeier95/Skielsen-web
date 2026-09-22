@@ -440,7 +440,7 @@ function renderWordMerge(){
   if(host){host.closest('.wc-result-card')?.classList.add('is-game');host.closest('.wc-result-card')?.setAttribute('data-wc-merge-card','');host.innerHTML=rows.map((r,i)=>`<div class="wc-result-row wc-merge-row" data-wc-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
     <b><span class="wc-rank-value">${Number(r.old_rank||i+1)}.</span><small class="wc-rank-move"></small></b>
     <span><i style="--wc-player:${colorVar(r.identity_color)}"></i><strong>${esc(r.display_name||'TEILNEHMER')}</strong></span>
-    <strong class="wc-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
+    <strong class="wc-merge-points"><span class="wc-base-points">${Number(r.old_points||0)}</span><em>+</em><span class="wc-award-points">${Number(r.added_points||0)}</span><b class="wc-total-points">${Number(r.new_points||0)}</b></strong>
     <strong class="wc-added-points">+${Number(r.added_points||0)}</strong>
   </div>`).join('')}
   if(finish){finish.hidden=true;finish.disabled=true;finish.textContent='SPIEL SCHLIESSEN →'}
