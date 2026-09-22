@@ -10,7 +10,7 @@ const MOCK_PLAYERS=[
 ];
 let difficulty='EASY';
 let mode=new URLSearchParams(location.search).get('mode')?.toUpperCase()==='TEAM'?'TEAM':'SOLO';
-let page='SETUP', playerIndex=0, attempt=1, roundState='READY', armed=false, signalAt=0, timer=0, lightTimer=0, locked=false, resultAnimationRun=0;
+let page='SETUP', playerIndex=0, attempt=1, roundState='READY', armed=false, signalAt=0, timer=0, lightTimer=0, advanceTimer=0, locked=false, resultAnimationRun=0;
 let players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));
 
 const $=s=>document.querySelector(s);
@@ -68,7 +68,7 @@ function renderReady(){
   $('#rxReadyCopy').textContent='Jeder Spieler hat zwei Versuche direkt hintereinander. Die schnellere gültige Reaktionszeit zählt. Zu frühes Drücken ist ein Fehlstart und verbraucht den Versuch.';
 }
 function clearRound(){
-  clearTimeout(timer);clearTimeout(lightTimer);timer=0;lightTimer=0;armed=false;locked=false;roundState='READY';
+  clearTimeout(timer);clearTimeout(lightTimer);clearTimeout(advanceTimer);timer=0;lightTimer=0;advanceTimer=0;armed=false;locked=false;roundState='READY';
   lights.forEach(x=>x.classList.remove('on'));
   pad.className='rx-pad start';
   padValue.textContent='VERSUCH STARTEN';
@@ -133,7 +133,9 @@ function finishAttempt(ms,falseStart){
   pad.className='rx-pad '+(falseStart?'false-start':'result');
   padValue.textContent=falseStart?'FEHLSTART':fmt(ms);
   padLabel.textContent=falseStart?'VERSUCH VERBRAUCHT':'REAKTIONSZEIT';
-  setTimeout(()=>{
+  advanceTimer=setTimeout(()=>{
+    advanceTimer=0;
+    if(page!=='PLAY'||roundState!=='RESULT')return;
     if(attempt<2){attempt++;showPlay();return}
     if(playerIndex<players.length-1){playerIndex++;attempt=1;showPlay();return}
     renderResult();setPage('RESULT');
@@ -193,6 +195,11 @@ document.querySelectorAll('[data-difficulty]').forEach(btn=>btn.addEventListener
 $('#rxToReady').addEventListener('click',()=>{renderReady();setPage('READY')});
 $('#rxReadyButton').addEventListener('click',()=>{setPage('PLAY');showPlay()});
 pad.addEventListener('pointerdown',press,{passive:false});
+pad.addEventListener('keydown',e=>{
+  if(e.repeat||!['Enter',' '].includes(e.key))return;
+  e.preventDefault();
+  press(e);
+});
 $('#rxClose').addEventListener('click',reset);
 setPage('SETUP');
 })();
