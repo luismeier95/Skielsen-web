@@ -5646,3 +5646,42 @@ body.v15-inapp-fullscreen-open #adminCommandBar{display:none!important}
   /* Author-level display rules must never override feature-gated [hidden] entries. */
   #mobileMoreMenu .mobile-more-grid a[hidden]{display:none!important}
 }
+
+
+/* ===== V15.1.130 · Canonical rounded In-App Ready geometry ===== */
+.v15-wordchain-ready-page{
+  --game-radius-outer:16px;
+  --game-radius-card:12px;
+  --game-radius-small:9px;
+}
+.v15-wordchain-ready-card,
+.v15-wordchain-ready-message:not([hidden]){
+  border-radius:var(--game-radius-outer)!important;
+  overflow:hidden;
+}
+.v15-wordchain-ready-player,
+.v15-wordchain-ready-demo,
+.v15-wordchain-ready-rules-list>div>b,
+.v15-wordchain-ready-player-copy>strong>small{
+  border-radius:var(--game-radius-small)!important;
+}
+.v15-wordchain-ready-footer .v15-inapp-btn{
+  border-radius:var(--game-radius-card)!important;
+}
+@media(max-width:720px){
+  .v15-wordchain-ready-page{
+    --game-radius-outer:14px;
+    --game-radius-card:11px;
+    --game-radius-small:8px;
+    gap:10px;
+  }
+  .v15-wordchain-ready-card{padding:12px}
+  .v15-wordchain-ready-player{
+    min-height:0;
+    padding:11px 10px;
+  }
+  .v15-wordchain-ready-rules-list>div{
+    min-height:0;
+    padding:11px 0;
+  }
+}
