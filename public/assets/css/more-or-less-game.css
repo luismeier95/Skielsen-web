@@ -707,3 +707,36 @@
   #v15MoreLessRoot .mol-setup-card{padding:14px!important}
   #v15MoreLessRoot .mol-result-main{padding-left:8px;padding-right:8px}
 }
+
+
+/* Canonical merge morph states */
+.mol-merge-card .mol-merge-columns,
+.mol-merge-card .mol-merge-row{
+  transition:grid-template-columns 1300ms cubic-bezier(.2,.8,.2,1);
+}
+.mol-merge-card .mol-merge-points span,
+.mol-merge-card .mol-merge-points em,
+.mol-merge-card .mol-merge-points b{
+  opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)
+}
+.mol-merge-card .mol-added-points{
+  color:var(--theme-accent);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)
+}
+.mol-merge-card.is-merging .mol-added-points{opacity:0;transform:scale(.78)}
+.mol-merge-card.is-merging .mol-merge-points span,
+.mol-merge-card.is-merging .mol-merge-points em,
+.mol-merge-card.is-merging .mol-merge-points b{opacity:1;transform:none}
+.mol-merge-card.is-total .mol-merge-points span,
+.mol-merge-card.is-total .mol-merge-points em{opacity:0;transform:translateY(-6px)}
+.mol-merge-card.is-total .mol-merge-points b{opacity:1;transform:scale(1.08)}
+.mol-merge-card.is-tournament .mol-merge-columns,
+.mol-merge-card.is-tournament .mol-merge-row{grid-template-columns:72px minmax(0,1fr) 88px 0!important}
+.mol-merge-card.is-tournament .mol-merge-columns>span:nth-child(4),
+.mol-merge-card.is-tournament .mol-added-points{opacity:0;overflow:hidden}
+.mol-rank-move.up{color:var(--theme-success-bg)}.mol-rank-move.down{color:var(--theme-danger-bg)}.mol-rank-move.same{color:var(--theme-warning-bg,var(--theme-warning))}
+.mol-rank-value.is-updating{animation:molRankUpdate .84s ease}
+@keyframes molRankUpdate{0%{opacity:.2;transform:scale(.7)}65%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+@media(max-width:720px){
+  .mol-merge-card.is-tournament .mol-merge-columns,
+  .mol-merge-card.is-tournament .mol-merge-row{grid-template-columns:46px minmax(0,1fr) 64px 0!important}
+}
