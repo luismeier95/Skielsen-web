@@ -15,15 +15,15 @@ let players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));
 
 const $=s=>document.querySelector(s);
 const setup=$('#rxSetup'),ready=$('#rxReady'),play=$('#rxPlay'),result=$('#rxResult');
-const mechanic=$('#rxMechanic'),easy=$('#rxEasy'),normal=$('#rxNormal'),feedback=$('#rxFeedback');
-const lights=[...document.querySelectorAll('#rxLights i')];
+const lightZone=$('#rxLightZone'),lights=[...document.querySelectorAll('#rxLights i')];
+const pad=$('#rxPad'),padValue=$('#rxPadValue'),padLabel=$('#rxPadLabel');
 
 function current(){return players[playerIndex]}
 function validTimes(p){return p.attempts.filter(x=>Number.isFinite(x))}
 function best(p){const v=validTimes(p);return v.length?Math.min(...v):null}
 function fmt(v){return Number.isFinite(v)?Math.round(v)+' ms':'—'}
 function setPage(next){
-  page=next; setup.hidden=next!=='SETUP'; ready.hidden=next!=='READY'; play.hidden=next!=='PLAY'; result.hidden=next!=='RESULT';
+  page=next;setup.hidden=next!=='SETUP';ready.hidden=next!=='READY';play.hidden=next!=='PLAY';result.hidden=next!=='RESULT';
   $('#rxProgress').style.width=next==='SETUP'?'20%':next==='READY'?'40%':next==='PLAY'?'75%':'100%';
   $('#rxHeaderState').textContent=next==='SETUP'?'SCHWIERIGKEIT':next==='READY'?'READY':next==='PLAY'?'GAME':'RANKING';
   $('#rxHeaderMode').textContent=mode;
@@ -35,49 +35,66 @@ function renderReady(){
 }
 function clearRound(){
   clearTimeout(timer);clearTimeout(lightTimer);timer=0;lightTimer=0;armed=false;locked=false;
-  lights.forEach(x=>x.classList.remove('on'));$('#rxLights').classList.remove('go');
+  lights.forEach(x=>x.classList.remove('on'));
+  pad.className='rx-pad waiting';
+  padValue.textContent='WARTEN';
+  padLabel.textContent='AUF DAS SIGNAL WARTEN';
 }
 function showPlay(){
-  clearRound();feedback.hidden=true;easy.hidden=difficulty!=='EASY';normal.hidden=difficulty!=='NORMAL';
-  $('#rxPlayerName').textContent=current().name;$('#rxAttempt').textContent=attempt+' / 2';$('#rxBest').textContent=fmt(best(current()));
+  clearRound();
+  $('#rxPlayerName').textContent=current().name;
+  $('#rxAttempt').textContent=attempt+' / 2';
+  $('#rxBest').textContent=fmt(best(current()));
+  lightZone.hidden=difficulty!=='EASY';
   if(difficulty==='EASY')startEasy();else startNormal();
 }
+function armSignal(){
+  pad.className='rx-pad signal';
+  padValue.textContent='JETZT!';
+  padLabel.textContent='DRÜCKEN';
+  signalAt=performance.now();
+  armed=true;
+}
 function startEasy(){
-  easy.hidden=false;normal.hidden=true;$('#rxEasyInstruction').textContent='WARTEN.';
   let idx=0;
   const step=()=>{
-    if(idx<5){lights[idx].classList.add('on');idx++;lightTimer=setTimeout(step,420);return}
+    if(idx<5){
+      lights[idx].classList.add('on');
+      idx++;
+      lightTimer=setTimeout(step,420);
+      return;
+    }
     const hold=700+Math.random()*1800;
     timer=setTimeout(()=>{
-      lights.forEach(x=>x.classList.remove('on'));$('#rxLights').classList.add('go');$('#rxEasyInstruction').textContent='JETZT!';
-      signalAt=performance.now();armed=true;
+      lights.forEach(x=>x.classList.remove('on'));
+      armSignal();
     },hold);
   };
   lightTimer=setTimeout(step,350);
 }
 function startNormal(){
-  easy.hidden=true;normal.hidden=false;normal.classList.remove('signal');$('#rxNormalInstruction').textContent='WARTEN.';
   const wait=1400+Math.random()*3000;
-  timer=setTimeout(()=>{normal.classList.add('signal');$('#rxNormalInstruction').textContent='JETZT!';signalAt=performance.now();armed=true},wait);
+  timer=setTimeout(armSignal,wait);
 }
 function press(e){
   if(page!=='PLAY'||locked)return;
   if(e)e.preventDefault();
-  locked=true;clearTimeout(timer);clearTimeout(lightTimer);
+  locked=true;
+  clearTimeout(timer);clearTimeout(lightTimer);
   if(!armed){finishAttempt(null,true);return}
-  const ms=performance.now()-signalAt;
-  finishAttempt(ms,false);
+  finishAttempt(performance.now()-signalAt,false);
 }
 function finishAttempt(ms,falseStart){
   current().attempts.push(Number.isFinite(ms)?ms:null);
-  easy.hidden=true;normal.hidden=true;feedback.hidden=false;
-  $('#rxFeedbackValue').textContent=falseStart?'FEHLSTART':fmt(ms);
-  $('#rxFeedbackLabel').textContent=falseStart?'VERSUCH VERBRAUCHT':'REAKTIONSZEIT';
+  armed=false;
+  pad.className='rx-pad '+(falseStart?'false-start':'result');
+  padValue.textContent=falseStart?'FEHLSTART':fmt(ms);
+  padLabel.textContent=falseStart?'VERSUCH VERBRAUCHT':'REAKTIONSZEIT';
   setTimeout(()=>{
     if(attempt<2){attempt++;showPlay();return}
     if(playerIndex<players.length-1){playerIndex++;attempt=1;showPlay();return}
     renderResult();setPage('RESULT');
-  },1100);
+  },1200);
 }
 function teamRows(){
   const pairs=[[players[0],players[1]],[players[2],players[3]]];
@@ -101,11 +118,12 @@ function reset(){
   clearRound();players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));playerIndex=0;attempt=1;setPage('SETUP');
 }
 document.querySelectorAll('[data-difficulty]').forEach(btn=>btn.addEventListener('click',()=>{
-  difficulty=btn.dataset.difficulty;document.querySelectorAll('[data-difficulty]').forEach(x=>x.classList.toggle('active',x===btn));
+  difficulty=btn.dataset.difficulty;
+  document.querySelectorAll('[data-difficulty]').forEach(x=>x.classList.toggle('active',x===btn));
 }));
 $('#rxToReady').addEventListener('click',()=>{renderReady();setPage('READY')});
 $('#rxReadyButton').addEventListener('click',()=>{setPage('PLAY');showPlay()});
-mechanic.addEventListener('pointerdown',press,{passive:false});
+pad.addEventListener('pointerdown',press,{passive:false});
 $('#rxClose').addEventListener('click',reset);
 setPage('SETUP');
 })();

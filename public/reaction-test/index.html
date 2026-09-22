@@ -7,7 +7,7 @@
 <title>SKIELSEN · Reaction · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.123">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.123">
-<link rel="stylesheet" href="./style.css?v=1.0.0">
+<link rel="stylesheet" href="./style.css?v=1.1.0">
 </head>
 <body class="v15-tournament-active rx-body" data-theme-pack="theme.skielsen.core">
 <section class="rx-shell" id="rxApp">
@@ -74,22 +74,17 @@
         <div><small>BEST</small><strong id="rxBest">—</strong></div>
       </section>
 
-      <section class="rx-mechanic" id="rxMechanic" aria-live="polite">
-        <div class="rx-easy" id="rxEasy" hidden>
+      <section class="rx-mechanic" aria-live="polite">
+        <div class="rx-light-zone" id="rxLightZone">
           <div class="rx-lights" id="rxLights" aria-label="F1 Startampel">
             <i></i><i></i><i></i><i></i><i></i>
           </div>
-          <strong class="rx-instruction" id="rxEasyInstruction">WARTEN.</strong>
         </div>
 
-        <button class="rx-normal" id="rxNormal" type="button" hidden aria-label="Reaktionsfläche">
-          <strong id="rxNormalInstruction">WARTEN.</strong>
+        <button class="rx-pad waiting" id="rxPad" type="button" aria-label="Reaktionsfläche">
+          <strong id="rxPadValue">WARTEN</strong>
+          <span id="rxPadLabel">AUF DAS SIGNAL WARTEN</span>
         </button>
-
-        <div class="rx-feedback" id="rxFeedback" hidden>
-          <strong id="rxFeedbackValue">198 ms</strong>
-          <span id="rxFeedbackLabel">REAKTIONSZEIT</span>
-        </div>
       </section>
     </section>
 
@@ -107,6 +102,6 @@
     </section>
   </main>
 </section>
-<script src="./app.js?v=1.0.0"></script>
+<script src="./app.js?v=1.1.0"></script>
 </body>
 </html>
