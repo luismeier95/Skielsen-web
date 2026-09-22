@@ -10,7 +10,7 @@ const TEAM_MODE_COPY={
   SIMULTANEOUS:{title:'SIMULTANEOUS',copy:'Zwei Duelle laufen gleichzeitig. Bei 1:1 entscheidet ein Decider.'}
 };
 
-let root=null,session=null,db=null,state=null,pollTimer=0,countdownTimer=0,pollBusy=false,lastSignature='',message='',localTest=null,localBotTimer=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,countdownTimer=0,pollBusy=false,lastSignature='',message='',localTest=null,localBotTimer=0,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0,finalResultIngested=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const colorVar=c=>({BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'})[String(c||'').toUpperCase()]||'var(--theme-accent)';
 const uuid=()=>crypto?.randomUUID?.()||('ttt-'+Date.now()+'-'+Math.random().toString(16).slice(2));
@@ -19,6 +19,7 @@ function clearTimers(){
   clearInterval(pollTimer);pollTimer=0;
   clearInterval(countdownTimer);countdownTimer=0;
   clearTimeout(localBotTimer);localBotTimer=0;
+  postgameTimers.forEach(clearTimeout);postgameTimers=[];postgameRun++;
 }
 function participantInfo(pid){
   const rows=(state?.players||[]).filter(p=>p.participant_id===pid);
@@ -260,16 +261,119 @@ async function submitMove(index,btn){
 function renderWaiting(){
   root.innerHTML=`${header('WARTET','SYNC')}<main class="tttp-stage"><div class="tttp-wait">MATCH WIRD VORBEREITET …</div><p class="tttp-feedback" data-ttt-feedback>${esc(message)}</p></main>`;
 }
-function renderComplete(){
-  const result=state?.result||{},rows=Array.isArray(result.standings)?[...result.standings].sort((a,b)=>Number(a.placement)-Number(b.placement)):[];
+function canonicalPostgame(result=state?.result){
+  return window.skielsenBuzzerBridge?.getCanonicalPostgame?.(session?.tournament_game_id,result)||null;
+}
+function tttJokerAllowed(reveal){return !!reveal&&String(reveal?.joker?.category||'').toUpperCase()!=='ACTION'}
+function tttMovement(delta){delta=Number(delta||0);return delta>0?'▲ '+delta:(delta<0?'▼ '+Math.abs(delta):'—')}
+function postgameLater(fn,ms){const id=setTimeout(fn,ms);postgameTimers.push(id);return id}
+function ensureFinalResultIngested(result){
+  if(finalResultIngested||!result?.tournament_handoff?.finalized)return;
+  finalResultIngested=!!window.skielsenV15?.ingestInAppGameResult?.(session?.tournament_game_id,result);
+}
+function renderFinalRanking(result){
+  const pg=canonicalPostgame(result),rows=[...(pg?.rows||[])].filter(r=>Number(r.game_placement||0)>0).sort((a,b)=>Number(a.game_placement)-Number(b.game_placement));
   root.innerHTML=`${header('ERGEBNIS',variant())}
     <main class="tttp-stage tttp-result">
-      <section class="tttp-result-card">
-        <header><strong>FINALES MATCH-ERGEBNIS</strong><span>${esc(result.completion_reason||'WIN')}</span></header>
-        ${rows.map(r=>`<div class="tttp-result-row"><b>${Number(r.placement)}.</b>${participantBadge(r.participant_id)}<strong>${Number(r.placement)===1?'SIEG':'NIEDERLAGE'}</strong></div>`).join('')}
+      <section class="tttp-result-card tttp-standard-card">
+        <header><strong>FINALES ERGEBNIS</strong><span>TIC TAC TOE</span></header>
+        <div class="tttp-standard-columns"><span>POSITION</span><span>NAME</span><span>ERGEBNIS</span><span>PUNKTE</span></div>
+        ${rows.map((r,i)=>`<div class="tttp-result-row tttp-standard-row" style="--tttp-row-delay:${i*120}ms">
+          <b>${Number(r.game_placement||i+1)}.</b>
+          <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b>${esc(r.display_name||'TEILNEHMER')}</b></span>
+          <strong>${Number(r.game_placement)===1?'SIEG':'PLATZ '+Number(r.game_placement||i+1)}</strong>
+          <strong class="tttp-added-points">+${Number(r.added_points||0)}</strong>
+        </div>`).join('')}
       </section>
-      <div class="tttp-wait">ERGEBNIS WIRD AN DAS TURNIER ÜBERGEBEN …</div>
+      <button type="button" class="tttp-primary" data-ttt-postgame-next>WEITER →</button>
     </main>`;
+  root.querySelector('[data-ttt-postgame-next]')?.addEventListener('click',advanceTttPostgame);
+}
+function renderFinalJoker(result,reveal){
+  const j=reveal?.joker||{},o=reveal?.owner||{},r=reveal?.result||{};
+  const before=r.before_text??(r.before!=null?String(r.before)+(r.unit?' '+r.unit:''):'—');
+  const after=r.after_text??(r.after!=null?String(r.after)+(r.unit?' '+r.unit:''):(r.text||'—'));
+  root.innerHTML=`${header('JOKER AUFLÖSUNG',variant())}
+    <main class="tttp-stage tttp-result">
+      <section class="tttp-joker-card" style="--tttp-joker-owner:${esc(o.color||colorVar(o.color_key))}">
+        <small>${esc(String(j.category||'SECRET').toUpperCase())} JOKER</small>
+        <h2>${esc(j.title||j.type||'JOKER')}</h2>
+        <p>${esc(j.description||'Der Joker wurde auf die finale Wertung angewendet.')}</p>
+        <div class="tttp-joker-owner"><i></i><span><small>JOKER GESETZT VON</small><strong>${esc(o.display_name||'TEILNEHMER')}</strong></span></div>
+        <div class="tttp-joker-value"><span>${esc(before)}</span><b>→</b><strong>${esc(after)}</strong></div>
+      </section>
+      <button type="button" class="tttp-primary" data-ttt-postgame-next>WEITER ZUM TURNIERSTAND →</button>
+    </main>`;
+  root.querySelector('[data-ttt-postgame-next]')?.addEventListener('click',advanceTttPostgame);
+}
+function renderFinalMerge(result){
+  const pg=canonicalPostgame(result),rows=[...(pg?.rows||[])].sort((a,b)=>Number(a.old_rank||999)-Number(b.old_rank||999));
+  root.innerHTML=`${header('TURNIERSTAND','NACH TIC TAC TOE')}
+    <main class="tttp-stage tttp-result">
+      <section class="tttp-result-card tttp-merge-card">
+        <header><strong>GAME → TURNIER</strong><span>GESAMTRANKING</span></header>
+        <div class="tttp-standard-columns tttp-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
+        <div class="tttp-merge-rows">
+          ${rows.map((r,i)=>`<div class="tttp-result-row tttp-merge-row" data-ttt-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
+            <b><span class="tttp-rank-value">${Number(r.old_rank||i+1)}.</span><small class="tttp-rank-move"></small></b>
+            <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b>${esc(r.display_name||'TEILNEHMER')}</b></span>
+            <strong class="tttp-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
+            <strong class="tttp-added-points">+${Number(r.added_points||0)}</strong>
+          </div>`).join('')}
+        </div>
+      </section>
+      <button type="button" class="tttp-primary" data-ttt-postgame-close hidden disabled>SPIEL SCHLIESSEN →</button>
+    </main>`;
+  animateTttMerge();
+  root.querySelector('[data-ttt-postgame-close]')?.addEventListener('click',()=>{
+    if(postgameBusy||postgamePhase!=='MERGE_COMPLETE')return;
+    const btn=root.querySelector('[data-ttt-postgame-close]');if(btn){btn.disabled=true;btn.textContent='WIRD GESCHLOSSEN …'}
+    const ok=window.skielsenBuzzerBridge?.completeCanonicalInAppPostgame?.(session?.tournament_game_id);
+    if(!ok)window.skielsenInApp?.completeAndExit?.();
+  });
+}
+function animateTttMerge(){
+  postgameTimers.forEach(clearTimeout);postgameTimers=[];const run=++postgameRun,host=root?.querySelector('.tttp-merge-rows');if(!host)return;
+  const rows=[...host.querySelectorAll('[data-ttt-merge-row]')];postgameBusy=true;
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
+    rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
+    rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
+    void host.offsetHeight;rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },600);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    rows.forEach(r=>{const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.tttp-rank-value'),mv=r.querySelector('.tttp-rank-move');if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=tttMovement(oldRank-newRank);mv.classList.add('visible')}});
+    const btn=root?.querySelector('[data-ttt-postgame-close]');if(btn){btn.hidden=false;btn.disabled=false}
+    postgamePhase='MERGE_COMPLETE';postgameBusy=false;
+  },1500);
+}
+function advanceTttPostgame(){
+  if(postgameBusy)return;
+  const result=state?.result||{},reveal=canonicalPostgame(result)?.joker_reveal||result?.tournament_handoff?.joker_reveal||null;
+  if(postgamePhase==='RANKING'&&tttJokerAllowed(reveal)){postgamePhase='JOKER';renderComplete();return}
+  postgamePhase='MERGE';renderComplete();
+}
+function renderComplete(){
+  const result=state?.result||{},handoff=result?.tournament_handoff||{},finalized=!!handoff.finalized;
+  if(!finalized){
+    const rows=Array.isArray(result.standings)?[...result.standings].sort((a,b)=>Number(a.placement)-Number(b.placement)):[];
+    root.innerHTML=`${header('ERGEBNIS',variant())}
+      <main class="tttp-stage tttp-result">
+        <section class="tttp-result-card">
+          <header><strong>FINALES MATCH-ERGEBNIS</strong><span>${esc(result.completion_reason||'WIN')}</span></header>
+          ${rows.map(r=>`<div class="tttp-result-row"><b>${Number(r.placement)}.</b>${participantBadge(r.participant_id)}<strong>${Number(r.placement)===1?'SIEG':'NIEDERLAGE'}</strong></div>`).join('')}
+        </section>
+        <div class="tttp-wait">NÄCHSTES MATCH WIRD VORBEREITET …</div>
+      </main>`;
+    return;
+  }
+  ensureFinalResultIngested(result);window.skielsenInApp?.markConcluded?.();
+  const reveal=canonicalPostgame(result)?.joker_reveal||handoff.joker_reveal||null;
+  if(postgamePhase==='JOKER'&&tttJokerAllowed(reveal)){renderFinalJoker(result,reveal);return}
+  if(postgamePhase==='MERGE'||postgamePhase==='MERGE_COMPLETE'){renderFinalMerge(result);return}
+  renderFinalRanking(result);
 }
 function render(){
   if(!root||!state)return;
@@ -494,7 +598,7 @@ function mountTestBot(nextRoot,config){
 
 function mount(nextRoot,nextSession,nextDb){
   unmount();
-  root=nextRoot;session=nextSession;db=nextDb;message='';lastSignature='';
+  root=nextRoot;session=nextSession;db=nextDb;message='';lastSignature='';postgamePhase='RANKING';postgameBusy=false;finalResultIngested=false;
   root.classList.add('tttp-root');
   void refresh(true);
   pollTimer=setInterval(()=>void refresh(false),POLL_MS);
@@ -504,7 +608,7 @@ function updateSession(next){session=next||session}
 function unmount(){
   clearTimers();
   if(root){root.classList.remove('tttp-root');root.innerHTML=''}
-  root=null;session=null;db=null;state=null;localTest=null;pollBusy=false;lastSignature='';message='';
+  root=null;session=null;db=null;state=null;localTest=null;pollBusy=false;lastSignature='';message='';postgamePhase='RANKING';postgameBusy=false;finalResultIngested=false;
 }
 window.skielsenTicTacToe={mount,mountTestBot,updateSession,unmount,get state(){return state},get testBot(){return localTest}};
 })();
