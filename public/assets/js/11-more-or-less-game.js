@@ -298,15 +298,15 @@ function rankingMarkup(){
       <section class="mol-result-status"><strong>ERGEBNIS</strong></section>
       <section class="mol-result-card mol-standard-ranking">
         <header><strong>FINALES ERGEBNIS</strong><span>${standings.length?standings.length+' PARTICIPANTS':'—'}</span></header>
-        <div class="mol-result-columns mol-standard-columns"><span>POSITION</span><span>NAME</span><span>SIEGE</span><span>PUNKTE</span></div>
+        <div class="mol-result-columns mol-standard-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>SIEGE</span></div>
         <div class="mol-result-rows">
           ${standings.map((r,i)=>{
             const p=playerById(r.participant_id),m=byId.get(r.participant_id)||{};
             return `<div class="mol-result-row mol-standard-row" style="--mol-row-delay:${i*120}ms">
               <b>${Number(r.placement||i+1)}.</b>
               <span><i style="--mol-player:${colorOf(p)}"></i><strong>${esc(String(p?.display_name||m.display_name||'TEILNEHMER').toUpperCase())}</strong></span>
-              <strong>${Number(r.category_wins||0)}</strong>
               <strong class="mol-added-points">+${Number(m.added_points||0)}</strong>
+              <strong>${Number(r.category_wins||0)}</strong>
             </div>`;
           }).join('')}
         </div>
@@ -360,7 +360,7 @@ function animateMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.mol-merge-rows');if(!host)return;
   const rows=[...host.querySelectorAll('[data-mol-merge-row]')],card=root?.querySelector('[data-mol-merge-card]');
   postgameBusy=true;
-  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.mol-merge-card'))},350);
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.mol-merge-card'),colorOf(playerById((state?.result?.standings||[]).find(r=>Number(r.placement)===1)?.participant_id)))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
