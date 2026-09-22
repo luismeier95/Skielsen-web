@@ -165,7 +165,10 @@ async function beginAttempt(){
     phase='WAITING';setPad('waiting','WARTEN','AUF DAS SIGNAL WARTEN');
     if(difficulty()==='EASY')runEasy();else runNormal();
   }catch(err){
-    console.warn('Reaction begin',err);phase='START';setPad('start','VERSUCH STARTEN','ZUM STARTEN DRÜCKEN');
+    console.warn('Reaction begin',err);
+    phase='START';
+    if(String(err?.message||err).includes('REACTION_ATTEMPT_ALREADY_PENDING'))void loadState(true);
+    else setPad('start','VERSUCH STARTEN','ZUM STARTEN DRÜCKEN');
   }finally{busy=false}
 }
 async function submitAttempt(ms,falseStart){
@@ -186,10 +189,11 @@ async function submitAttempt(ms,falseStart){
       renderResult(data.tournament_result);
       return;
     }
-    sleepTimer(()=>loadState(true),1100);
+    sleepTimer(()=>{phase='START';void loadState(true)},1100);
   }catch(err){
     console.warn('Reaction submit',err);
     setPad('false-start','SYNC-FEHLER','VERSUCH NICHT GESPEICHERT');
+    phase='START';
     sleepTimer(()=>loadState(true),1200);
   }finally{busy=false}
 }
@@ -233,6 +237,15 @@ function renderFromState(force=false){
   const status=currentStatus();
   if(status!=='ACTIVE'){
     if(!difficulty())renderDifficulty();else renderReady();
+    return;
+  }
+  const pending=state?.viewer?.pending;
+  if(phase==='START'&&pending?.attempt_token){
+    root.innerHTML=basePlayMarkup();
+    attemptToken=pending.attempt_token;
+    phase='WAITING';
+    setPad('false-start','UNTERBROCHEN','VERSUCH WIRD ALS FEHLSTART GEWERTET');
+    void submitAttempt(null,true);
     return;
   }
   if(viewerAttempts().length>=2){renderDoneWaiting();return}
