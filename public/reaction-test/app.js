@@ -10,7 +10,7 @@ const MOCK_PLAYERS=[
 ];
 let difficulty='EASY';
 let mode=new URLSearchParams(location.search).get('mode')?.toUpperCase()==='TEAM'?'TEAM':'SOLO';
-let page='SETUP', playerIndex=0, attempt=1, armed=false, signalAt=0, timer=0, lightTimer=0, locked=false;
+let page='SETUP', playerIndex=0, attempt=1, roundState='READY', armed=false, signalAt=0, timer=0, lightTimer=0, locked=false;
 let players=MOCK_PLAYERS.map(p=>({...p,attempts:[]}));
 
 const $=s=>document.querySelector(s);
@@ -34,11 +34,11 @@ function renderReady(){
   $('#rxReadyCopy').textContent='Jeder Spieler hat zwei Versuche direkt hintereinander. Die schnellere gültige Reaktionszeit zählt. Zu frühes Drücken ist ein Fehlstart und verbraucht den Versuch.';
 }
 function clearRound(){
-  clearTimeout(timer);clearTimeout(lightTimer);timer=0;lightTimer=0;armed=false;locked=false;
+  clearTimeout(timer);clearTimeout(lightTimer);timer=0;lightTimer=0;armed=false;locked=false;roundState='READY';
   lights.forEach(x=>x.classList.remove('on'));
-  pad.className='rx-pad waiting';
-  padValue.textContent='WARTEN';
-  padLabel.textContent='AUF DAS SIGNAL WARTEN';
+  pad.className='rx-pad start';
+  padValue.textContent='VERSUCH STARTEN';
+  padLabel.textContent='ZUM STARTEN DRÜCKEN';
 }
 function showPlay(){
   clearRound();
@@ -46,14 +46,24 @@ function showPlay(){
   $('#rxAttempt').textContent=attempt+' / 2';
   $('#rxBest').textContent=fmt(best(current()));
   lightZone.hidden=difficulty!=='EASY';
-  if(difficulty==='EASY')startEasy();else startNormal();
 }
 function armSignal(){
+  roundState='ARMED';
   pad.className='rx-pad signal';
   padValue.textContent='JETZT!';
   padLabel.textContent='DRÜCKEN';
   signalAt=performance.now();
   armed=true;
+}
+function beginAttempt(){
+  if(roundState!=='READY')return;
+  roundState='WAITING';
+  locked=false;
+  armed=false;
+  pad.className='rx-pad waiting';
+  padValue.textContent='WARTEN';
+  padLabel.textContent='AUF DAS SIGNAL WARTEN';
+  if(difficulty==='EASY')startEasy();else startNormal();
 }
 function startEasy(){
   let idx=0;
@@ -76,14 +86,16 @@ function startNormal(){
 function press(e){
   if(page!=='PLAY'||locked)return;
   if(e)e.preventDefault();
+  if(roundState==='READY'){beginAttempt();return}
   locked=true;
   clearTimeout(timer);clearTimeout(lightTimer);
-  if(!armed){finishAttempt(null,true);return}
-  finishAttempt(performance.now()-signalAt,false);
+  if(roundState==='WAITING'||!armed){finishAttempt(null,true);return}
+  if(roundState==='ARMED')finishAttempt(performance.now()-signalAt,false);
 }
 function finishAttempt(ms,falseStart){
   current().attempts.push(Number.isFinite(ms)?ms:null);
   armed=false;
+  roundState='RESULT';
   pad.className='rx-pad '+(falseStart?'false-start':'result');
   padValue.textContent=falseStart?'FEHLSTART':fmt(ms);
   padLabel.textContent=falseStart?'VERSUCH VERBRAUCHT':'REAKTIONSZEIT';
