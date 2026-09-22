@@ -668,3 +668,42 @@
   .mol-standard-row{animation:none!important;opacity:1!important;transform:none!important}
   .mol-merge-row{transition:none!important}
 }
+
+
+/* ===== V15.1.130 · Rounded/flexible mobile contract ===== */
+#v15MoreLessRoot{
+  --mol-radius-outer:16px;
+  --mol-radius-card:12px;
+  --mol-radius-small:9px;
+}
+#v15MoreLessRoot :where(.mol-setup-card,.mol-result-card,.mol-joker-card,.mol-full-play-status,.mol-full-compare,.mol-full-scoreboard){
+  border-radius:var(--mol-radius-outer)!important;
+  overflow:hidden;
+}
+#v15MoreLessRoot :where(.mol-difficulty-picker button,.mol-setup-start,.mol-result-primary,.mol-full-score,.mol-full-choice button,.mol-full-wait){
+  border-radius:var(--mol-radius-card)!important;
+}
+#v15MoreLessRoot .mol-difficulty-picker button{
+  min-height:0!important;
+  padding:14px 12px!important;
+}
+@media(max-width:720px){
+  #v15MoreLessRoot{
+    --mol-radius-outer:14px;
+    --mol-radius-card:11px;
+    --mol-radius-small:8px;
+  }
+  #v15MoreLessRoot .mol-difficulty-picker{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  #v15MoreLessRoot .mol-difficulty-picker button{
+    min-height:0!important;
+    grid-template-columns:minmax(74px,auto) minmax(0,1fr)!important;
+    align-items:center;
+    gap:12px;
+    padding:13px 12px!important;
+  }
+  #v15MoreLessRoot .mol-setup-card{padding:14px!important}
+  #v15MoreLessRoot .mol-result-main{padding-left:8px;padding-right:8px}
+}
