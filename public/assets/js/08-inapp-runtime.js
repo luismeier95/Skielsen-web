@@ -1082,13 +1082,23 @@ function clearGameConfetti(){
   if(gameConfettiCanvas){gameConfettiCanvas.remove();gameConfettiCanvas=null;gameConfettiCtx=null}
 }
 function gameConfettiColor(anchor,explicitColor){
-  if(explicitColor)return explicitColor;
-  const accent=anchor?.querySelector?.('i');
+  const resolveColor=value=>{
+    if(!value)return '';
+    const probe=document.createElement('span');
+    probe.style.cssText='position:fixed;left:-9999px;top:-9999px;pointer-events:none;color:'+value;
+    (anchor||document.body).appendChild(probe);
+    const resolved=getComputedStyle(probe).color;
+    probe.remove();
+    return resolved&&resolved!=='rgba(0, 0, 0, 0)'?resolved:'';
+  };
+  const explicit=resolveColor(explicitColor);
+  if(explicit)return explicit;
+  const accent=anchor?.querySelector?.('[data-winner-accent],i');
   if(accent){
     const c=getComputedStyle(accent).backgroundColor;
     if(c&&c!=='rgba(0, 0, 0, 0)'&&c!=='transparent')return c;
   }
-  return getComputedStyle(document.documentElement).getPropertyValue('--theme-accent').trim()||'rgb(124, 92, 255)';
+  return resolveColor('var(--theme-accent)')||'rgb(124, 92, 255)';
 }
 function launchGameConfetti(anchor,explicitColor=null){
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
