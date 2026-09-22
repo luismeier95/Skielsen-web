@@ -305,16 +305,31 @@ function ingestTicTacToeResult(tournamentGameId,result){
   if(rows.length!==2)return false;
   const ids=new Set(rows.map(r=>r.participant_id));
   if(!ids.has(m.a)||!ids.has(m.b))return false;
-  const resultKey=String(result._session_id||result.finalized_at||result.completed_at||'')+'|'+String(m.id||g.matchIndex||0);
+  const resultKey=String(result._session_id||result.finalized_at||result.completed_at||result.tournament_handoff?.completed_at||'')+'|'+String(m.id||g.matchIndex||0);
   g.ticTacToeHandledResults=g.ticTacToeHandledResults||{};
   if(resultKey&&g.ticTacToeHandledResults[resultKey])return true;
   const winnerId=rows[0]?.participant_id;
   if(winnerId!==m.a&&winnerId!==m.b)return false;
   if(typeof engine.concludeCurrentMatch!=='function')return false;
-  const ok=winnerId===m.a?engine.concludeCurrentMatch(1,0):engine.concludeCurrentMatch(0,1);
+  const finalized=!!result?.tournament_handoff?.finalized;
+  const canonicalBefore=finalized?canonicalRankingSnapshot(st):null;
+  const ok=winnerId===m.a
+    ?engine.concludeCurrentMatch(1,0,{deferCanonicalPostgame:finalized})
+    :engine.concludeCurrentMatch(0,1,{deferCanonicalPostgame:finalized});
   if(ok){
     if(resultKey)g.ticTacToeHandledResults[resultKey]=true;
     g.inAppMatchResult=result;
+    if(finalized){
+      const finalPlacements=[...(result?.tournament_handoff?.placements||[])]
+        .sort((a,b)=>Number(a.placement||999)-Number(b.placement||999))
+        .map(x=>x.participant_id);
+      if(finalPlacements.length){
+        g.placements=[...finalPlacements];
+        g.inAppResult=result;
+        captureCanonicalPostgame(st,rt,g,canonicalBefore,result,finalPlacements);
+        g.awaitingInAppResultClose=true;
+      }
+    }
     persistLocalState();
   }
   return !!ok;
