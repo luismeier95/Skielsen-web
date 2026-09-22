@@ -13,7 +13,7 @@ const TIC_TAC_TOE_MODULE='tic-tac-toe';
 const TIC_TAC_TOE_GAME_KEY='tic_tac_toe';
 const REACTION_MODULE='reaction';
 const REACTION_GAME_KEY='reaction';
-const GAME_FLOW_STEPS=Object.freeze(['MODE_SELECTION','DIFFICULTY_SELECTION','READY','GAME','RANKING','CLOSE']);
+const GAME_FLOW_STEPS=Object.freeze(['MODE_SELECTION','DIFFICULTY_SELECTION','READY','GAME','RANKING','JOKER_RESOLUTION','MERGE','CLOSE']);
 const colorHex={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
 
 let db=null,rt=null,pollTimer=null,pollBusy=false,lastHeartbeat=0;

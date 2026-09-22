@@ -297,19 +297,27 @@ Optional tournament systems are hard workflow gates, not cosmetic switches.
 
 Every In-App game follows one ordered lifecycle. Optional setup steps are skipped only when the game does not require them:
 
-1. **MODE_SELECTION** — choose the play type (for example ALTERNATING / SIMULTANEOUS) only for games that require a play-mode choice.
-2. **DIFFICULTY_SELECTION** — choose the difficulty only for games that expose difficulty.
-3. **READY** — show all assigned players, a short game description/rule summary, and explicit player readiness. No gameplay starts before this gate, except a game-specific QA force-start override.
+1. **MODE_SELECTION** — Admin chooses the play type (for example ALTERNATING / SIMULTANEOUS) only for games that require a play-mode choice.
+2. **DIFFICULTY_SELECTION** — Admin chooses the difficulty only for games that expose difficulty.
+3. **READY** — mandatory final pre-game gate. Show all assigned players, a short game description/rule summary, and explicit player readiness. No gameplay starts before this gate, except a game-specific QA force-start override.
 4. **GAME** — the actual playable state.
-5. **RANKING** — after the server finalizes the result, keep the game surface open and show the game ranking/live final table.
-6. **CLOSE** — the player explicitly closes the finished game. Only then may tournament post-game flow (bet settlement UI, MVP/LVP, awards, next game routing) take over.
+5. **RANKING** — after the server finalizes the game result, keep the game surface open and show the End Game Ranking using the game-specific result metric.
+6. **JOKER_RESOLUTION** — conditional. If `feature.joker` is enabled and a pending result-affecting Joker exists for this game, resolve/reveal it here. Example: DOUBLE_POINTS changes the placement points before the tournament merge. If no post-game Joker is pending, skip this state.
+7. **MERGE** — play the canonical End Game Merge animation. Merge the game placement points (including any resolved Joker effect) into the existing tournament points, then animate the updated tournament order and semantic movement indicators.
+8. **CLOSE** — only after MERGE is complete may the user explicitly close the finished game. Only then may later tournament flow (MVP/LVP, awards, next game routing, etc.) take over.
 
 ### Lifecycle invariants
 
 - Setup pages are real states/pages, never overlays over gameplay.
 - Setup order is fixed: mode before difficulty, difficulty before ready.
-- A game must never jump directly from GAME to tournament post-game UI.
-- Result ingestion may persist placements and points while RANKING is visible, but it must not close the In-App surface.
-- RANKING must survive a missing/finished active-session poll until the user closes it.
-- Every transient state must have a recovery path. A client may re-poll incomplete QUESTION/REVEAL state, and a lost transition must not create a permanent dead end.
+- READY is always the last gate before GAME, even when MODE_SELECTION and/or DIFFICULTY_SELECTION are skipped.
+- A game must never jump directly from GAME or RANKING to tournament post-game UI.
+- RANKING is the unmodified End Game Ranking. Tournament points are not merged into the visible tournament standings before the Joker gate has completed or been skipped.
+- Result-affecting Joker resolution belongs between RANKING and MERGE. DOUBLE_POINTS therefore changes the points consumed by MERGE, not the already-finished game metric/placement.
+- A Joker whose mechanic must affect gameplay setup itself (for example an opponent-selection mechanic) may require an earlier preparation action; that exception must not remove READY as the final gate before GAME.
+- MERGE is mandatory after RANKING, even when Joker is disabled; with no Joker it uses the normal placement points directly.
+- CLOSE stays unavailable until MERGE has reached its final state.
+- RANKING / JOKER_RESOLUTION / MERGE must survive a missing or already-finished active-session poll until CLOSE.
+- Every transient state must have a recovery path. A client may re-poll incomplete resolution/merge state, and a lost transition must not create a permanent dead end.
+- `docs/END_GAME_MERGE_TEMPLATE.html` is the canonical visual/animation reference for MERGE.
 - `window.skielsenInApp.flowContract` is the runtime source for the canonical stage order.
