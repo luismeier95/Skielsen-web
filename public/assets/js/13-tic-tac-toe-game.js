@@ -88,7 +88,7 @@ function renderModeSelection(){
   root.innerHTML=`${header('TEAMMODUS','1 / 3')}
     <main class="tttp-stage tttp-prestart">
       <section class="tttp-title"><small>WIE SOLL DAS TEAM ANTRETEN?</small><h2>TEAMMODUS WÄHLEN.</h2></section>
-      <div class="tttp-choice-grid tttp-mode-grid">
+      <div class="tttp-choice-grid tttp-mode-grid" style="--game-mode-count:${options.length}">
         ${options.map(k=>`<button type="button" class="tttp-choice" data-team-mode="${k}" ${isAdmin()?'':'disabled'}>
           <strong>${TEAM_MODE_COPY[k].title}</strong><span>${TEAM_MODE_COPY[k].copy}</span>
         </button>`).join('')}
