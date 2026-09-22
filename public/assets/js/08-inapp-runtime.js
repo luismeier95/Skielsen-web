@@ -1074,7 +1074,69 @@ async function startTestTicTacToe(runtime,g,m){
   }
 }
 
+
+let gameConfettiCanvas=null,gameConfettiCtx=null,gameConfettiFrame=0,gameConfettiParticles=[];
+function clearGameConfetti(){
+  if(gameConfettiFrame)cancelAnimationFrame(gameConfettiFrame);
+  gameConfettiFrame=0;gameConfettiParticles=[];
+  if(gameConfettiCanvas){gameConfettiCanvas.remove();gameConfettiCanvas=null;gameConfettiCtx=null}
+}
+function gameConfettiColor(anchor,explicitColor){
+  if(explicitColor)return explicitColor;
+  const accent=anchor?.querySelector?.('i');
+  if(accent){
+    const c=getComputedStyle(accent).backgroundColor;
+    if(c&&c!=='rgba(0, 0, 0, 0)'&&c!=='transparent')return c;
+  }
+  return getComputedStyle(document.documentElement).getPropertyValue('--theme-accent').trim()||'rgb(124, 92, 255)';
+}
+function launchGameConfetti(anchor,explicitColor=null){
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches)return false;
+  const rect=anchor?.getBoundingClientRect?.();
+  if(!rect||rect.width<=0||rect.height<=0)return false;
+  clearGameConfetti();
+  const canvas=document.createElement('canvas');
+  canvas.className='v15-game-confetti';
+  Object.assign(canvas.style,{position:'fixed',inset:'0',width:'100vw',height:'100dvh',pointerEvents:'none',zIndex:'27050'});
+  document.body.appendChild(canvas);
+  const ctx=canvas.getContext('2d');if(!ctx){canvas.remove();return false}
+  gameConfettiCanvas=canvas;gameConfettiCtx=ctx;
+  const ratio=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+  const resize=()=>{
+    if(!gameConfettiCanvas||!gameConfettiCtx)return;
+    canvas.width=Math.round(window.innerWidth*ratio);canvas.height=Math.round(window.innerHeight*ratio);
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+  };
+  resize();
+  const color=gameConfettiColor(anchor,explicitColor);
+  const amount=window.innerWidth<=720?110:180;
+  const makeParticle=(x,y,side)=>({
+    x,y,vx:(side==='left'?1:-1)*(2+Math.random()*8),vy:-8-Math.random()*10,
+    gravity:.22+Math.random()*.09,drag:.988,rotation:Math.random()*Math.PI*2,
+    rotationSpeed:(Math.random()-.5)*.3,width:5+Math.random()*6,height:8+Math.random()*9,
+    color,life:1,decay:.007+Math.random()*.004
+  });
+  for(let i=0;i<amount;i++){
+    const left=i%2===0;
+    gameConfettiParticles.push(makeParticle(left?rect.left:rect.right,Math.min(window.innerHeight-8,rect.bottom),left?'left':'right'));
+  }
+  const frame=()=>{
+    if(!gameConfettiCtx||!gameConfettiCanvas)return;
+    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    gameConfettiParticles=gameConfettiParticles.filter(p=>p.life>0&&p.y<window.innerHeight+100&&p.x>-120&&p.x<window.innerWidth+120);
+    gameConfettiParticles.forEach(p=>{
+      p.vx*=p.drag;p.vy+=p.gravity;p.x+=p.vx;p.y+=p.vy;p.rotation+=p.rotationSpeed;p.life-=p.decay;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;
+      ctx.fillRect(-p.width/2,-p.height/2,p.width,p.height);ctx.restore();
+    });
+    if(gameConfettiParticles.length)gameConfettiFrame=requestAnimationFrame(frame);
+    else clearGameConfetti();
+  };
+  gameConfettiFrame=requestAnimationFrame(frame);
+  return true;
+}
 function finishInAppSurface(){
+  clearGameConfetti();
   localTestTicTacToeActive=false;
   const layer=ensureLayer();
   layer.hidden=true;
@@ -1117,6 +1179,7 @@ window.addEventListener('popstate',()=>{
 });
 
 window.addEventListener('beforeunload',()=>{
+  clearGameConfetti();
   clearInterval(pollTimer);clearInterval(boot);window.skielsenBuzzerTime?.unmount?.();window.skielsenMoreLess?.unmount?.();window.skielsenWordChain?.unmount?.();window.skielsenTicTacToe?.unmount?.();window.skielsenReaction?.unmount?.();
 });
 window.skielsenInApp={
@@ -1129,6 +1192,8 @@ window.skielsenInApp={
   openFullscreen:()=>openInAppFullscreen('push')||forceOpenActiveInApp('push'),
   openActive:()=>forceOpenActiveInApp('push'),
   finishAndExit:finishInAppSurface,
+  launchConfetti:launchGameConfetti,
+  clearConfetti:clearGameConfetti,
   markConcluded:markInAppConcluded,
   completeAndExit:()=>window.skielsenBuzzerBridge?.completePendingInAppGame?.()||finishInAppSurface(),
   flowContract:GAME_FLOW_STEPS,
