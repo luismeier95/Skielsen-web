@@ -146,7 +146,7 @@ if "client.rpc('reset_tournament_runtime_state'" not in engine_text or 'TURNIER 
 if "sg.status==='ACTIVE'" not in engine_text or "liveMatch.status='LIVE'" not in engine_text: fail('Server ACTIVE wird nicht auf Player-Clients gespiegelt')
 if 'Server lifecycle is authoritative' not in engine_text or 'finishJokerPreparation(g);' not in engine_text: fail('Cross-device PREPARING→ACTIVE Sync fehlt')
 if "addEventListener('click',revealVoteWinner)" not in engine_text or "addEventListener('click',continueVoteReveal)" not in engine_text: fail('MVP/LVP Reveal Controls fehlen')
-if "engine.beginPostGameFlow(g,m,placements[0])" not in bridge_text: fail('In-App Games übergeben Ergebnis nicht an Standard Post-Game Flow')
+if 'completeCanonicalInAppPostgame' not in bridge_text or 'beginCanonicalMergedPostGameFlow' not in engine_text: fail('In-App Games übergeben Ergebnis nicht an Standard Post-Game Flow')
 if 'ingestHigherLowerResult' not in bridge_text: fail('Mehr-oder-Weniger Result-Handoff fehlt')
 
 # Optional feature context contract: disabled tournament features must not leak into active pages/popups.
