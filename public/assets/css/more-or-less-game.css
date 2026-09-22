@@ -805,3 +805,14 @@
     grid-template-columns:minmax(48px,.75fr) minmax(0,2.25fr) minmax(54px,.8fr) 0!important;
   }
 }
+
+.mol-merge-points{display:grid!important;justify-items:end;align-items:center;min-width:0}
+.mol-merge-points>.mol-award-value,
+.mol-merge-points>.mol-points-equation,
+.mol-merge-points>.mol-total-points{grid-area:1/1}
+.mol-points-equation{display:flex;align-items:baseline;justify-content:flex-end;gap:5px;opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)}
+.mol-merge-card.is-merging .mol-points-equation{opacity:1;transform:none}
+.mol-merge-card.is-total .mol-points-equation{opacity:0;transform:translateY(-6px)}
+.mol-base-points{color:var(--theme-on-surface)!important}
+.mol-award-points{color:rgb(124,92,255)!important}
+.mol-total-points{color:var(--theme-on-surface)!important}
