@@ -175,7 +175,7 @@ function buzzerMergeMarkup(){
     <header class="bzt-header"><div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MERGE</span></div></header>
     <main class="bzt-reveal-content">
       <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>TURNIERSTAND</h2></section>
-      <section class="bzt-standard-card bzt-merge-card">
+      <section class="bzt-standard-card bzt-merge-card is-game" data-bzt-merge-card>
         <header><strong>GAME → TURNIER</strong><span>GESAMTRANKING</span></header>
         <div class="bzt-standard-columns bzt-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
         <div class="bzt-standard-rows bzt-merge-rows">
@@ -193,20 +193,32 @@ function buzzerMergeMarkup(){
 }
 function animateBuzzerMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.bzt-merge-rows');if(!host)return;
-  const rows=[...host.querySelectorAll('[data-bzt-merge-row]')];postgameBusy=true;
+  const rows=[...host.querySelectorAll('[data-bzt-merge-row]')],card=root?.querySelector('[data-bzt-merge-card]');
+  postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
     if(run!==postgameRun)return;
+    card?.classList.remove('is-game');card?.classList.add('is-tournament');
     const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
     rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
     rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
-    void host.offsetHeight;rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
-  },600);
+    void host.offsetHeight;
+    rows.forEach(r=>{r.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },4100);
   postgameLater(()=>{
     if(run!==postgameRun)return;
-    rows.forEach(r=>{const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.bzt-rank-value'),mv=r.querySelector('.bzt-rank-move');if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=buzzerMovement(oldRank-newRank);mv.classList.add('visible')}});
-    const btn=root?.querySelector('[data-bzt-postgame-close]');if(btn){btn.hidden=false;btn.disabled=false}
-    postgamePhase='MERGE_COMPLETE';postgameBusy=false;
-  },1500);
+    rows.forEach(r=>{
+      const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.bzt-rank-value'),mv=r.querySelector('.bzt-rank-move');
+      if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
+      if(mv){mv.textContent=buzzerMovement(oldRank-newRank);mv.classList.add('visible')}
+    });
+  },5340);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const close=root?.querySelector('[data-bzt-postgame-close]');if(close){close.hidden=false;close.disabled=false}
+    postgameBusy=false;postgamePhase='MERGE_COMPLETE';
+  },6100);
 }
 function advanceBuzzerPostgame(){
   if(postgameBusy)return;
