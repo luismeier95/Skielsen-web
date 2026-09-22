@@ -148,7 +148,7 @@ function difficultyMarkup(){
         </div>
         <p class="mol-difficulty-hint">${esc(difficultyHint(pendingTier))}</p>
       </section>
-      ${admin?`<button type="button" class="mol-setup-start" id="molStartTier" ${tierBusy?'disabled':''}>${tierBusy?'WIRD GESTARTET…':'KATEGORIE ZIEHEN →'}</button>`:`<div class="mol-full-wait">ADMIN WÄHLT DEN SCHWIERIGKEITSGRAD</div>`}
+      ${admin?`<button type="button" class="mol-setup-start" id="molStartTier" ${tierBusy?'disabled':''}>${tierBusy?'WIRD GESPEICHERT…':'WEITER →'}</button>`:`<div class="mol-full-wait">ADMIN WÄHLT DEN SCHWIERIGKEITSGRAD</div>`}
       <p class="mol-setup-feedback" id="molSetupFeedback"></p>
     </main>
   </section>`;
