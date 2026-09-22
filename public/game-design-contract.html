@@ -7,13 +7,13 @@
 <title>SKIELSEN · Game Design Contract</title>
 <link rel="stylesheet" href="assets/css/app.css?v=15.1.65">
 <link rel="stylesheet" href="assets/css/tournament-theme-runtime.css?v=15.1.65">
-<link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.1">
+<link rel="stylesheet" href="assets/css/game-design-contract.css?v=1.2">
 </head>
 <body class="v15-tournament-active gdc-body" data-theme-pack="theme.skielsen.core">
 <header class="gdc-topbar">
   <div>
     <img src="assets/images/skielsen-logo.png" alt="SKIELSEN">
-    <span>GAME DESIGN CONTRACT · V1.4</span>
+    <span>GAME DESIGN CONTRACT · V1.5</span>
   </div>
   <div class="gdc-controls">
     <label>THEME
@@ -124,7 +124,7 @@
           <small class="skg-kicker">SPIELVORBEREITUNG</small>
           <h2>DEMO GAME</h2>
           <p class="skg-copy">Spielmechanik erklären, optionale Spielparameter wählen und anschließend mit einer eindeutigen Primary Action starten.</p>
-          <div class="skg-choice-set">
+          <div class="skg-choice-set" style="--difficulty-count:3">
             <button type="button">EASY</button>
             <button type="button" class="active">NORMAL</button>
             <button type="button">HARDCORE</button>
@@ -192,7 +192,7 @@
   </section>
 
   <section class="gdc-docs">
-    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.4</h2></header>
+    <header><small>VERBINDLICHE REGELN</small><h2>CONTRACT V1.5</h2></header>
 
     <div class="gdc-rule-grid">
       <article><b>01</b><h3>HIERARCHIE</h3><p><strong>Theme Contract</strong> = Farben und Kontraste. <strong>Game Design Contract</strong> = Layout und Komponenten. <strong>Game Module</strong> = Mechanik.</p></article>
@@ -229,6 +229,7 @@
       <article><b>32</b><h3>ENTITY LEVEL</h3><p>Result-Zeilen müssen auf derselben Ebene liegen wie Placements. Keine Player-Zeilen mit Participant-/Team-Placements mischen.</p></article>
       <article><b>33</b><h3>HIDDEN INFORMATION</h3><p>Standalone-Mockdaten definieren explizit, was Production sehen darf. Verdeckte Lösungen, zukünftige Antworten oder nicht freigegebene Metadaten bleiben serverseitig.</p></article>
       <article><b>34</b><h3>GAME MODE PAGE</h3><p><strong>1 Mode = Page überspringen.</strong> Desktop: alle Modes in einer Reihe; der Canvas wird nach Abzug der Gaps gleichmäßig durch die Anzahl der Modes geteilt. Mobile: immer eine Spalte, alle Modes untereinander.</p></article>
+      <article><b>35</b><h3>DIFFICULTY PAGE</h3><p><strong>1 Difficulty = Page überspringen.</strong> Desktop: alle Difficulties in einer Reihe und gleich breit. Mobile: immer eine Spalte, alle Difficulties untereinander.</p></article>
     </div>
   </section>
 
