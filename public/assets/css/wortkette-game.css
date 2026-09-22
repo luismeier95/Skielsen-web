@@ -767,3 +767,20 @@
     grid-template-columns:64px minmax(0,1fr) 100px 0!important;
   }
 }
+
+
+/* Mobile keeps desktop column proportions without fixed-pixel overflow. */
+@media(max-width:720px){
+  #v15WordChainRoot .wc-standard-columns,
+  #v15WordChainRoot .wc-standard-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2fr) minmax(58px,1fr) minmax(44px,.75fr) minmax(46px,.75fr)!important;
+  }
+  #v15WordChainRoot .wc-merge-columns,
+  #v15WordChainRoot .wc-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2.1fr) minmax(64px,1fr) minmax(46px,.75fr)!important;
+  }
+  #v15WordChainRoot .wc-merge-card.is-tournament .wc-merge-columns,
+  #v15WordChainRoot .wc-merge-card.is-tournament .wc-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2.1fr) minmax(64px,1fr) 0!important;
+  }
+}
