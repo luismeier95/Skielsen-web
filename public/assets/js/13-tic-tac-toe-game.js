@@ -336,6 +336,7 @@ function animateTttMerge(){
   postgameTimers.forEach(clearTimeout);postgameTimers=[];const run=++postgameRun,host=root?.querySelector('.tttp-merge-rows');if(!host)return;
   const rows=[...host.querySelectorAll('[data-ttt-merge-row]')],card=root?.querySelector('[data-ttt-merge-card]');
   postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;window.skielsenInApp?.launchConfetti?.(root?.querySelector('.tttp-merge-card'))},350);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
   postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
