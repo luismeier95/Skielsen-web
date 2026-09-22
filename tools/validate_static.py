@@ -214,7 +214,7 @@ if 'concludeCurrentMatch' not in engine_text.split('window.skielsenV15=',1)[-1]:
 if "actors.filter(a=>a.isBot&&a.soloColor&&!byColor.has(a.soloColor))" not in engine_text or "isBotParticipant:true" not in engine_text: fail('SOLO Test-Bots werden nicht als Turnier-Participants materialisiert')
 if 'localTicTacToeBotMatch' not in engine_text or 'startTestTicTacToe' not in engine_text: fail('Tic Tac Toe Test-Bot Routing fehlt in der Tournament Engine')
 if 'startTestTicTacToe' not in runtime_text or 'currentMatchHasSoloTestBot' not in runtime_text or 'localTestTicTacToeActive' not in runtime_text: fail('Tic Tac Toe Test-Bot Lifecycle fehlt in der In-App Runtime')
-if 'mountTestBot' not in _ttt_prod_text or 'localChooseBotMove' not in _ttt_prod_text or 'ERGEBNIS ÜBERNEHMEN' not in _ttt_prod_text: fail('Tic Tac Toe lokaler Test-Bot fehlt')
+if 'mountTestBot' not in _ttt_prod_text or 'localChooseBotMove' not in _ttt_prod_text or 'submitLocalResult' not in _ttt_prod_text or 'showLocalPostgame' not in _ttt_prod_text: fail('Tic Tac Toe lokaler Test-Bot fehlt')
 mobile_nav_text=(PUBLIC/'assets/js/04-mobile-navigation.js').read_text(encoding='utf-8')
 mobile_nav_css=(PUBLIC/'assets/css/app.css').read_text(encoding='utf-8')
 if "document.body.classList.add('mobile-more-open')" not in mobile_nav_text or "document.body.classList.remove('mobile-more-open')" not in mobile_nav_text: fail('Mobile MORE Drawer setzt keinen Overlay-State')
