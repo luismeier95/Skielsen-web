@@ -293,7 +293,7 @@ function ensureReactionAssets(){
   reactionAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-reaction-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/reaction-game.css?v=${VERSION}&rx=2`;link.dataset.reactionCss='1';
+      link.rel='stylesheet';link.href=`assets/css/reaction-game.css?v=${VERSION}`;link.dataset.reactionCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-reaction-js]');
@@ -304,7 +304,7 @@ function ensureReactionAssets(){
       return;
     }
     const script=document.createElement('script');
-    script.src=`assets/js/15-reaction-game.js?v=${VERSION}&rx=2`;
+    script.src=`assets/js/15-reaction-game.js?v=${VERSION}`;
     script.defer=true;script.dataset.reactionJs='1';
     script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
   }).catch(err=>{reactionAssetsPromise=null;throw err});
