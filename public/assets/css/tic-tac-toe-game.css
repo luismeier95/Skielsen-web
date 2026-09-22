@@ -199,3 +199,21 @@
 .tttp-merge-card.is-total .tttp-merge-points em,
 .tttp-merge-card.is-total .tttp-merge-points .tttp-award-points{opacity:0;transform:translateY(-6px)}
 .tttp-merge-card.is-total .tttp-merge-points .tttp-total-points{opacity:1;transform:scale(1.08)}
+
+/* V15.1.133 · Points never leave column 3 during the morph */
+.tttp-merge-points .tttp-award-value{
+  display:inline-block;color:rgb(124,92,255)!important;opacity:1!important;transform:none!important;
+  transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)
+}
+.tttp-merge-card.is-merging .tttp-merge-points .tttp-award-value{opacity:0!important;transform:scale(.78)!important}
+.tttp-merge-card.is-total .tttp-merge-points .tttp-award-value{opacity:0!important}
+.tttp-merge-card.is-tournament .tttp-merge-columns,
+.tttp-merge-card.is-tournament .tttp-merge-row{grid-template-columns:64px minmax(0,1fr) 100px 0!important}
+.tttp-merge-card.is-tournament .tttp-merge-columns>span:nth-child(4),
+.tttp-merge-card.is-tournament .tttp-merge-row>strong:nth-child(4){opacity:0;overflow:hidden}
+@media(max-width:720px){
+  .tttp-merge-card.is-tournament .tttp-merge-columns,
+  .tttp-merge-card.is-tournament .tttp-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2.1fr) minmax(64px,1fr) 0!important;
+  }
+}
