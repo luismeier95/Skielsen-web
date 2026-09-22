@@ -254,3 +254,18 @@
   .bzt-merge-card.is-tournament .bzt-merge-columns,
   .bzt-merge-card.is-tournament .bzt-merge-row{grid-template-columns:46px minmax(0,1fr) 62px 0!important}
 }
+
+
+/* V15.1.131 · Mobile uses the same result column geometry as desktop */
+@media(max-width:720px){
+  #v15InAppLayer.buzzer-mode .bzt-standard-columns,
+  #v15InAppLayer.buzzer-mode .bzt-standard-row,
+  #v15InAppLayer.buzzer-mode .bzt-merge-columns,
+  #v15InAppLayer.buzzer-mode .bzt-merge-row{
+    grid-template-columns:56px minmax(0,1fr) 74px 62px!important;
+  }
+  #v15InAppLayer.buzzer-mode .bzt-merge-card.is-tournament .bzt-merge-columns,
+  #v15InAppLayer.buzzer-mode .bzt-merge-card.is-tournament .bzt-merge-row{
+    grid-template-columns:56px minmax(0,1fr) 74px 0!important;
+  }
+}
