@@ -801,3 +801,28 @@
 .wc-merge-card.is-total .wc-merge-points em,
 .wc-merge-card.is-total .wc-merge-points .wc-award-points{opacity:0;transform:translateY(-6px)}
 .wc-merge-card.is-total .wc-merge-points .wc-total-points{opacity:1;transform:scale(1.08)}
+
+/* V15.1.133 · Points never leave column 3 during the morph */
+.wc-merge-points .wc-award-value{
+  display:inline-block;color:rgb(124,92,255)!important;opacity:1!important;transform:none!important;
+  transition:opacity .45s ease,transform .65s cubic-bezier(.2,.8,.2,1)
+}
+.wc-merge-card.is-merging .wc-merge-points .wc-award-value{opacity:0!important;transform:scale(.78)!important}
+.wc-merge-card.is-total .wc-merge-points .wc-award-value{opacity:0!important}
+.wc-merge-columns,.wc-merge-row{grid-template-columns:64px minmax(0,1fr) 96px 72px 72px!important}
+.wc-merge-card.is-tournament .wc-merge-columns,
+.wc-merge-card.is-tournament .wc-merge-row{grid-template-columns:64px minmax(0,1fr) 96px 0 0!important}
+.wc-merge-card.is-tournament .wc-merge-columns>span:nth-child(4),
+.wc-merge-card.is-tournament .wc-merge-columns>span:nth-child(5),
+.wc-merge-card.is-tournament .wc-merge-row>strong:nth-child(4),
+.wc-merge-card.is-tournament .wc-merge-row>strong:nth-child(5){opacity:0;overflow:hidden}
+@media(max-width:720px){
+  #v15WordChainRoot .wc-merge-columns,
+  #v15WordChainRoot .wc-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2fr) minmax(58px,1fr) minmax(44px,.75fr) minmax(46px,.75fr)!important;
+  }
+  #v15WordChainRoot .wc-merge-card.is-tournament .wc-merge-columns,
+  #v15WordChainRoot .wc-merge-card.is-tournament .wc-merge-row{
+    grid-template-columns:minmax(42px,.7fr) minmax(0,2fr) minmax(58px,1fr) 0 0!important;
+  }
+}
