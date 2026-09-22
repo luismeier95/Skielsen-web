@@ -628,3 +628,43 @@
   .mol-result-primary{min-height:58px;margin-top:8px}
 }
 
+
+
+/* ===== Standardized game flow · More or Less ===== */
+.mol-standard-columns,.mol-standard-row,.mol-merge-columns,.mol-merge-row{
+  grid-template-columns:72px minmax(0,1fr) 78px 78px!important;
+}
+.mol-standard-row{
+  opacity:0;transform:translateY(10px);animation:molStdRowIn .36s cubic-bezier(.2,.82,.2,1) forwards;
+  animation-delay:var(--mol-row-delay,0ms)
+}
+.mol-added-points{justify-content:flex-end;text-align:right}
+.mol-joker-card{
+  padding:22px;border:1px solid var(--mol-joker-owner,var(--theme-accent));
+  border-left:6px solid var(--mol-joker-owner,var(--theme-accent));
+  background:var(--theme-surface);color:var(--theme-on-surface)
+}
+.mol-joker-card>small{color:var(--theme-muted);font:900 7px/1 var(--mol-ui);letter-spacing:.9px}
+.mol-joker-card h2{margin:9px 0 10px;font:900 38px/.95 var(--mol-display)}
+.mol-joker-card p{margin:0;color:var(--theme-muted);font:800 10px/1.45 var(--mol-ui)}
+.mol-joker-owner{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px;border:1px solid var(--theme-border);background:var(--theme-surface-soft)}
+.mol-joker-owner>i{width:6px;height:34px;background:var(--mol-joker-owner,var(--theme-accent))}
+.mol-joker-owner>span{display:grid;gap:4px}.mol-joker-owner small{color:var(--theme-muted);font:900 6px/1 var(--mol-ui)}.mol-joker-owner strong{font:900 10px/1 var(--mol-ui)}
+.mol-joker-value{display:flex;align-items:center;gap:10px;margin-top:12px;padding:16px;background:var(--theme-surface-soft);font:900 24px/1 var(--mol-display)}
+.mol-joker-value b{color:var(--theme-accent)}
+.mol-merge-row>b{display:flex;align-items:center;gap:6px}
+.mol-rank-move{font:900 6px/1 var(--mol-ui);color:var(--theme-muted);opacity:0;transition:opacity .2s ease}
+.mol-rank-move.visible{opacity:1}
+.mol-merge-points{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important}
+.mol-merge-points em{font-style:normal;color:var(--theme-muted);font-size:8px}
+.mol-merge-points b{font-size:16px}
+@keyframes molStdRowIn{to{opacity:1;transform:none}}
+@media(max-width:720px){
+  .mol-standard-columns,.mol-standard-row,.mol-merge-columns,.mol-merge-row{grid-template-columns:46px minmax(0,1fr) 54px 54px!important}
+  .mol-joker-card{padding:16px}.mol-joker-card h2{font-size:30px}.mol-joker-value{font-size:20px}
+  .mol-rank-move{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .mol-standard-row{animation:none!important;opacity:1!important;transform:none!important}
+  .mol-merge-row{transition:none!important}
+}
