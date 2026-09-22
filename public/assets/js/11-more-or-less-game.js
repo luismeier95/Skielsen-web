@@ -340,7 +340,7 @@ function mergeMarkup(){
     ${header()}
     <main class="mol-result-main">
       <section class="mol-result-status"><strong>TURNIERSTAND</strong></section>
-      <section class="mol-result-card mol-merge-card" data-mol-merge-card>
+      <section class="mol-result-card mol-merge-card is-game" data-mol-merge-card>
         <header><strong>GAME → TURNIER</strong><span>NACH MEHR ODER WENIGER</span></header>
         <div class="mol-result-columns mol-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
         <div class="mol-result-rows mol-merge-rows">
@@ -358,26 +358,32 @@ function mergeMarkup(){
 }
 function animateMerge(){
   clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.mol-merge-rows');if(!host)return;
-  const rows=[...host.querySelectorAll('[data-mol-merge-row]')];
+  const rows=[...host.querySelectorAll('[data-mol-merge-row]')],card=root?.querySelector('[data-mol-merge-card]');
   postgameBusy=true;
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-merging')},900);
+  postgameLater(()=>{if(run!==postgameRun)return;card?.classList.add('is-total')},2500);
   postgameLater(()=>{
     if(run!==postgameRun)return;
+    card?.classList.remove('is-game');card?.classList.add('is-tournament');
     const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
     rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
     rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
     void host.offsetHeight;
-    rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
-  },650);
+    rows.forEach(r=>{r.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },4100);
   postgameLater(()=>{
     if(run!==postgameRun)return;
     rows.forEach(r=>{
-      const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank);
-      const rv=r.querySelector('.mol-rank-value'),mv=r.querySelector('.mol-rank-move');
-      if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=movementText(oldRank-newRank);mv.classList.add('visible')}
+      const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.mol-rank-value'),mv=r.querySelector('.mol-rank-move');
+      if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
+      if(mv){mv.textContent=movementText(oldRank-newRank);mv.classList.add('visible')}
     });
+  },5340);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
     const close=root?.querySelector('#molCloseGame');if(close){close.hidden=false;close.disabled=false}
     postgameBusy=false;postgamePhase='MERGE_COMPLETE';
-  },1550);
+  },6100);
 }
 function renderPostgame(){
   postgameRendered=true;
