@@ -80,7 +80,7 @@ function startEasy(){
   lightTimer=setTimeout(step,350);
 }
 function startNormal(){
-  const wait=1400+Math.random()*3000;
+  const wait=2000+Math.random()*2000;
   timer=setTimeout(armSignal,wait);
 }
 function press(e){
