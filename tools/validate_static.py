@@ -363,6 +363,24 @@ if '--theme-accent' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text
 if '--theme-less-action' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8') or '--theme-more-action' not in (PUBLIC/'assets/css/more-or-less-game.css').read_text(encoding='utf-8'): fail('More-or-Less Funktionsrollen fehlen')
 
 
+# Shared Difficulty Selection page contract.
+_gdc_doc=(ROOT/'docs/GAME_DESIGN_CONTRACT.md').read_text(encoding='utf-8')
+for _needle in ['Difficulty Selection Page Contract','mindestens **zwei auswählbare Schwierigkeitsgrade**','repeat(var(--difficulty-count), minmax(0, 1fr))','Mobile <= 720 px']:
+ if _needle not in _gdc_doc: fail('Verbindlicher Difficulty Selection Contract fehlt: '+_needle)
+for _js_name in ['11-more-or-less-game.js','12-word-chain-game.js','13-tic-tac-toe-game.js','15-reaction-game.js']:
+ _txt=(PUBLIC/'assets/js'/ _js_name).read_text(encoding='utf-8')
+ if '--difficulty-count:${options.length}' not in _txt: fail('Dynamische Difficulty-Anzahl fehlt: '+_js_name)
+_diff_css={
+ 'more-or-less-game.css':'.mol-difficulty-picker{grid-template-columns:1fr}',
+ 'wortkette-game.css':'.wc-difficulty{grid-template-columns:1fr',
+ 'tic-tac-toe-game.css':'.tttp-choice-grid,.tttp-mode-grid,.tttp-difficulty-grid{grid-template-columns:1fr}',
+ 'reaction-game.css':'.rxp-choice{grid-template-columns:1fr}'
+}
+for _css_name,_mobile in _diff_css.items():
+ _txt=(PUBLIC/'assets/css'/ _css_name).read_text(encoding='utf-8')
+ if 'repeat(var(--difficulty-count,2),minmax(0,1fr))' not in _txt: fail('Dynamisches Difficulty Desktop-Grid fehlt: '+_css_name)
+ if _mobile not in _txt: fail('Einspaltiges Difficulty Mobile-Grid fehlt: '+_css_name)
+
 reaction_js=PUBLIC/'assets/js/15-reaction-game.js'
 reaction_css=PUBLIC/'assets/css/reaction-game.css'
 if not reaction_js.exists() or not reaction_css.exists(): fail('Reaction Vollversion fehlt')
