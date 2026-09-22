@@ -20,6 +20,16 @@ const tierLabel=t=>String(t||'NORMAL').toUpperCase();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function scheduleRecoveryPoll(delay=700){clearTimeout(recoveryTimer);recoveryTimer=setTimeout(()=>{recoveryTimer=0;void poll()},delay)}
 function questionPayloadReady(){return !!(state?.category&&state?.reference&&state?.current)}
+function scheduleRevealContinue(key,delay=300){
+  clearTimeout(feedbackTimer);
+  const attempt=()=>{
+    feedbackTimer=0;
+    if(feedbackKey!==key||state?.phase!=='REVEAL')return;
+    if(busy){feedbackTimer=setTimeout(attempt,120);return}
+    void act('CONTINUE');
+  };
+  feedbackTimer=setTimeout(attempt,delay);
+}
 const selectedTier=()=>String(session?.public_state?.familiarity_tier||'').toUpperCase();
 const isAdmin=()=>!!window.skielsenV15?.runtime?.is_admin;
 const isTestBotTournament=()=>{
@@ -318,7 +328,12 @@ function render(){
     clearTimeout(botTimer);botTimer=0;
     const lr=state?.last_result||{};
     const key=[state.category_no,lr.answer_member_id,lr.current_label,lr.current_display_value,lr.ok].join('|');
-    if(feedbackKey===key&&root.querySelector('.mol-full-compare.is-feedback')){bindChrome();return}
+    if(feedbackKey===key&&root.querySelector('.mol-full-compare.is-feedback')){
+      bindChrome();
+      const existingCard=root.querySelector('.mol-full-compare.is-feedback');
+      if(existingCard?.classList.contains('is-resolved')&&!feedbackTimer)scheduleRevealContinue(key,300);
+      return;
+    }
     feedbackKey=key;clearTimeout(feedbackTimer);
     root.innerHTML=revealMarkup();
     bindChrome();
@@ -343,7 +358,7 @@ function render(){
         const viewerKey=String(state?.viewer?.member_id||state?.viewer?.participant_id||'viewer');
         const jitter=[...viewerKey].reduce((n,ch)=>(n+ch.charCodeAt(0))%401,0);
         const delay=mine?480:((botReveal||isAdmin())?900:2200+jitter);
-        feedbackTimer=setTimeout(()=>{if(feedbackKey===key)void act('CONTINUE')},delay);
+        scheduleRevealContinue(key,delay);
       }));
     });
     return;
