@@ -3,7 +3,7 @@
 
 const POLL_MS=650;
 const COLORS={BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'};
-let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0,recoveryTimer=0;
+let root=null,session=null,db=null,state=null,pollTimer=0,botTimer=0,botTurnKey='',busy=false,resultIngested=false,pendingTier='NORMAL',tierBusy=false,animatedCategoryNo=0,categoryAnimating=false,animationToken=0,feedbackKey='',feedbackTimer=0,recoveryTimer=0,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0;
 const CATEGORY_POOL=[
   {category_key:'HEIGHT',display_name:'HÖHE',unit:'m'},
   {category_key:'POPULATION',display_name:'BEVÖLKERUNG',unit:'Einwohner'},
@@ -278,29 +278,126 @@ function revealMarkup(){
     </main>
   </section>`;
 }
-function completeMarkup(){
-  const standings=Array.isArray(state?.result?.standings)?state.result.standings:[];
+function clearPostgameTimers(){postgameTimers.forEach(clearTimeout);postgameTimers=[]}
+function postgameLater(fn,ms){const id=setTimeout(fn,ms);postgameTimers.push(id);return id}
+function canonicalPostgame(){
+  return window.skielsenBuzzerBridge?.getCanonicalPostgame?.(session?.tournament_game_id,state?.result)||null;
+}
+function jokerRevealAllowed(reveal){
+  return !!reveal&&String(reveal?.joker?.category||'').toUpperCase()!=='ACTION';
+}
+function movementText(delta){
+  delta=Number(delta||0);return delta>0?'▲ '+delta:(delta<0?'▼ '+Math.abs(delta):'—');
+}
+function rankingMarkup(){
+  const standings=Array.isArray(state?.result?.standings)?[...state.result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)):[];
+  const pg=canonicalPostgame(),byId=new Map((pg?.rows||[]).map(r=>[r.participant_id,r]));
   return `<section class="mol-full-app mol-result-page">
     ${header()}
     <main class="mol-result-main">
       <section class="mol-result-status"><strong>ERGEBNIS</strong></section>
-      <section class="mol-result-card">
+      <section class="mol-result-card mol-standard-ranking">
         <header><strong>FINALES ERGEBNIS</strong><span>${standings.length?standings.length+' PARTICIPANTS':'—'}</span></header>
-        <div class="mol-result-columns"><span>POSITION</span><span>NAME</span><span>SIEGE</span></div>
+        <div class="mol-result-columns mol-standard-columns"><span>POSITION</span><span>NAME</span><span>SIEGE</span><span>PUNKTE</span></div>
         <div class="mol-result-rows">
           ${standings.map((r,i)=>{
-            const p=playerById(r.participant_id);
-            return `<div class="mol-result-row">
+            const p=playerById(r.participant_id),m=byId.get(r.participant_id)||{};
+            return `<div class="mol-result-row mol-standard-row" style="--mol-row-delay:${i*120}ms">
               <b>${Number(r.placement||i+1)}.</b>
-              <span><i style="--mol-player:${colorOf(p)}"></i><strong>${esc(String(p?.display_name||'TEILNEHMER').toUpperCase())}</strong></span>
+              <span><i style="--mol-player:${colorOf(p)}"></i><strong>${esc(String(p?.display_name||m.display_name||'TEILNEHMER').toUpperCase())}</strong></span>
               <strong>${Number(r.category_wins||0)}</strong>
+              <strong class="mol-added-points">+${Number(m.added_points||0)}</strong>
             </div>`;
           }).join('')}
         </div>
       </section>
-      <button type="button" class="mol-result-primary" id="molCloseGame">SPIEL SCHLIESSEN →</button>
+      <button type="button" class="mol-result-primary" id="molPostgameContinue">WEITER →</button>
     </main>
   </section>`;
+}
+function jokerMarkup(reveal){
+  const j=reveal?.joker||{},o=reveal?.owner||{},r=reveal?.result||{};
+  const before=r.before_text??(r.before!=null?String(r.before)+(r.unit?' '+r.unit:''):'—');
+  const after=r.after_text??(r.after!=null?String(r.after)+(r.unit?' '+r.unit:''):(r.text||'—'));
+  return `<section class="mol-full-app mol-result-page">
+    ${header()}
+    <main class="mol-result-main">
+      <section class="mol-result-status"><strong>JOKER AUFLÖSUNG</strong></section>
+      <section class="mol-joker-card" style="--mol-joker-owner:${esc(o.color||colorOf({identity_color:o.color_key}))}">
+        <small>${esc(String(j.category||'SECRET').toUpperCase())} JOKER</small>
+        <h2>${esc(j.title||j.type||'JOKER')}</h2>
+        <p>${esc(j.description||'Der Joker wurde auf das finale Ergebnis angewendet.')}</p>
+        <div class="mol-joker-owner"><i></i><span><small>JOKER GESETZT VON</small><strong>${esc(o.display_name||'TEILNEHMER')}</strong></span></div>
+        <div class="mol-joker-value"><span>${esc(before)}</span><b>→</b><strong>${esc(after)}</strong></div>
+      </section>
+      <button type="button" class="mol-result-primary" id="molPostgameContinue">WEITER ZUM TURNIERSTAND →</button>
+    </main>
+  </section>`;
+}
+function mergeMarkup(){
+  const pg=canonicalPostgame(),rows=[...(pg?.rows||[])].sort((a,b)=>Number(a.old_rank||999)-Number(b.old_rank||999));
+  return `<section class="mol-full-app mol-result-page">
+    ${header()}
+    <main class="mol-result-main">
+      <section class="mol-result-status"><strong>TURNIERSTAND</strong></section>
+      <section class="mol-result-card mol-merge-card" data-mol-merge-card>
+        <header><strong>GAME → TURNIER</strong><span>NACH MEHR ODER WENIGER</span></header>
+        <div class="mol-result-columns mol-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
+        <div class="mol-result-rows mol-merge-rows">
+          ${rows.map((r,i)=>`<div class="mol-result-row mol-merge-row" data-mol-merge-row data-new-rank="${Number(r.new_rank||i+1)}" data-old-rank="${Number(r.old_rank||i+1)}" style="--mol-player:${colorOf({identity_color:r.identity_color})}">
+            <b><span class="mol-rank-value">${Number(r.old_rank||i+1)}.</span><small class="mol-rank-move"></small></b>
+            <span><i style="--mol-player:${colorOf({identity_color:r.identity_color})}"></i><strong>${esc(String(r.display_name||'TEILNEHMER').toUpperCase())}</strong></span>
+            <strong class="mol-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
+            <strong class="mol-added-points">+${Number(r.added_points||0)}</strong>
+          </div>`).join('')}
+        </div>
+      </section>
+      <button type="button" class="mol-result-primary" id="molCloseGame" hidden disabled>SPIEL SCHLIESSEN →</button>
+    </main>
+  </section>`;
+}
+function animateMerge(){
+  clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.mol-merge-rows');if(!host)return;
+  const rows=[...host.querySelectorAll('[data-mol-merge-row]')];
+  postgameBusy=true;
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
+    rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
+    rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
+    void host.offsetHeight;
+    rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },650);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    rows.forEach(r=>{
+      const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank);
+      const rv=r.querySelector('.mol-rank-value'),mv=r.querySelector('.mol-rank-move');
+      if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=movementText(oldRank-newRank);mv.classList.add('visible')}
+    });
+    const close=root?.querySelector('#molCloseGame');if(close){close.hidden=false;close.disabled=false}
+    postgameBusy=false;postgamePhase='MERGE_COMPLETE';
+  },1550);
+}
+function renderPostgame(){
+  window.skielsenInApp?.markConcluded?.();
+  const reveal=canonicalPostgame()?.joker_reveal||state?.result?.tournament_handoff?.joker_reveal||null;
+  if(postgamePhase==='JOKER'&&jokerRevealAllowed(reveal))root.innerHTML=jokerMarkup(reveal);
+  else if(postgamePhase==='MERGE'||postgamePhase==='MERGE_COMPLETE')root.innerHTML=mergeMarkup();
+  else root.innerHTML=rankingMarkup();
+  bindChrome();
+  root.querySelector('#molPostgameContinue')?.addEventListener('click',()=>{
+    if(postgameBusy)return;
+    if(postgamePhase==='RANKING'&&jokerRevealAllowed(reveal)){postgamePhase='JOKER';renderPostgame();return}
+    postgamePhase='MERGE';renderPostgame();animateMerge();
+  });
+  root.querySelector('#molCloseGame')?.addEventListener('click',()=>{
+    if(postgameBusy||postgamePhase!=='MERGE_COMPLETE')return;
+    const btn=root.querySelector('#molCloseGame');if(btn){btn.disabled=true;btn.textContent='WIRD GESCHLOSSEN …'}
+    const ok=window.skielsenBuzzerBridge?.completeCanonicalInAppPostgame?.(session?.tournament_game_id);
+    if(!ok)window.skielsenInApp?.completeAndExit?.();
+  });
+  if(postgamePhase==='MERGE')animateMerge();
 }
 function render(){
   if(!root)return;
@@ -371,10 +468,7 @@ function render(){
 
   feedbackKey='';clearTimeout(feedbackTimer);
   if(state.phase==='COMPLETE'||state.status==='FINISHED'){
-    clearTimeout(recoveryTimer);recoveryTimer=0;
-    window.skielsenInApp?.markConcluded?.();
-    root.innerHTML=completeMarkup();bindChrome();
-    root.querySelector('#molCloseGame')?.addEventListener('click',()=>window.skielsenInApp?.completeAndExit?.());return;
+    clearTimeout(recoveryTimer);recoveryTimer=0;renderPostgame();return;
   }
   root.innerHTML=questionMarkup();bindChrome();
   root.querySelectorAll('[data-mol-choice]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.molChoice)));
@@ -410,7 +504,7 @@ async function poll(){
 }
 function mount(nextRoot,nextSession,nextDb){
   if(!nextRoot||!nextSession?.session_id||!nextDb)return false;
-  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(recoveryTimer);recoveryTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey=''}
+  if(session?.session_id!==nextSession.session_id){state=null;resultIngested=false;pendingTier='NORMAL';tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;animationToken++;feedbackKey='';clearTimeout(feedbackTimer);clearTimeout(recoveryTimer);recoveryTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';postgamePhase='RANKING';postgameBusy=false;clearPostgameTimers();postgameRun++}
   root=nextRoot;session=nextSession;db=nextDb;
   const existingTier=selectedTier();if(existingTier)pendingTier=existingTier;
   clearInterval(pollTimer);
@@ -432,7 +526,7 @@ function updateSession(nextSession){
   if(!before&&after)void poll();
 }
 function unmount(){
-  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';animationToken++;clearTimeout(feedbackTimer);feedbackKey='';clearTimeout(recoveryTimer);recoveryTimer=0;root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;
+  clearInterval(pollTimer);pollTimer=0;clearTimeout(botTimer);botTimer=0;botTurnKey='';animationToken++;clearTimeout(feedbackTimer);feedbackKey='';clearTimeout(recoveryTimer);recoveryTimer=0;clearPostgameTimers();postgameRun++;root=null;session=null;db=null;state=null;busy=false;resultIngested=false;tierBusy=false;animatedCategoryNo=0;categoryAnimating=false;postgamePhase='RANKING';postgameBusy=false;
 }
 window.skielsenMoreLess={mount,updateSession,unmount,poll,setTier,get resultOpen(){return !!root&&(state?.phase==='COMPLETE'||state?.status==='FINISHED')}};
 })();
