@@ -7,7 +7,7 @@ const POLL_MS=500,REVEAL_MS=10000;
 
 let root=null,session=null,db=null,state=null,pollTimer=0,raf=0,busy=false;
 let localStartPerf=null,lastStartToken=null,serverOffsetMs=0,revealEndPerf=0,engineResultIngested=false;
-let testMode=false,testCtx=null,testEngine=null,testRevealAdvanced=false,revealToken=null;
+let testMode=false,testCtx=null,testEngine=null,testRevealAdvanced=false,revealToken=null,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0;
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad2=n=>String(Math.max(0,Math.floor(Number(n)||0))).padStart(2,'0');
@@ -120,31 +120,120 @@ function revealMarkup(){
     </main>
   </section>`;
 }
-function completeMarkup(){
-  const standings=Array.isArray(state?.result?.standings)?state.result.standings:[];
+function clearPostgameTimers(){postgameTimers.forEach(clearTimeout);postgameTimers=[]}
+function postgameLater(fn,ms){const id=setTimeout(fn,ms);postgameTimers.push(id);return id}
+function canonicalPostgame(){
+  return window.skielsenBuzzerBridge?.getCanonicalPostgame?.(session?.tournament_game_id,state?.result)||null;
+}
+function buzzerJokerAllowed(reveal){return !!reveal&&String(reveal?.joker?.category||'').toUpperCase()!=='ACTION'}
+function buzzerMovement(delta){delta=Number(delta||0);return delta>0?'▲ '+delta:(delta<0?'▼ '+Math.abs(delta):'—')}
+function buzzerRankingMarkup(){
+  const standings=Array.isArray(state?.result?.standings)?[...state.result.standings].sort((a,b)=>Number(a.placement||999)-Number(b.placement||999)):[];
+  const pg=canonicalPostgame(),byId=new Map((pg?.rows||[]).map(r=>[r.participant_id,r]));
   return `<section class="bzt-app bzt-complete">
     <header class="bzt-header"><div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>5 / 5</span></div></header>
     <main class="bzt-reveal-content">
-      <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>SPIEL BEENDET</h2></section>
-      <section class="bzt-table-wrap final">
-        <div class="bzt-table-title">GESAMTABWEICHUNG · 5 RUNDEN</div>
-        <table><thead><tr><th>TEAM</th><th colspan="3"></th><th>ABW.</th></tr></thead>
-        <tbody>${standings.map((r,i)=>`<tr class="${i===0?'best':''}">
-          <td><i style="background:${teamColor(r.identity_color)}"></i>${esc(String(r.team_name||teamFallback(r.identity_color)).replace(/^TEAM\s+/i,''))}</td>
-          <td colspan="3">${Number(r.placement||i+1)}. PLATZ</td>
-          <td>${fmtSec(r.total_deviation_ms)}</td>
-        </tr>`).join('')}</tbody></table>
+      <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>ERGEBNIS</h2></section>
+      <section class="bzt-standard-card">
+        <header><strong>FINALES ERGEBNIS</strong><span>NIEDRIGSTE ABWEICHUNG GEWINNT</span></header>
+        <div class="bzt-standard-columns"><span>POSITION</span><span>NAME</span><span>ABW.</span><span>PUNKTE</span></div>
+        <div class="bzt-standard-rows">
+          ${standings.map((r,i)=>{const m=byId.get(r.participant_id)||{};return `<div class="bzt-standard-row" style="--bzt-row-delay:${i*120}ms">
+            <b>${Number(r.placement||i+1)}.</b>
+            <span><i style="background:${teamColor(r.identity_color)}"></i><strong>${esc(String(r.team_name||m.display_name||teamFallback(r.identity_color)).replace(/^TEAM\\s+/i,''))}</strong></span>
+            <strong>${fmtSec(r.total_deviation_ms)}</strong>
+            <strong class="bzt-added-points">+${Number(m.added_points||0)}</strong>
+          </div>`}).join('')}
+        </div>
       </section>
-      <p class="bzt-auto-note">Ergebnis ans Turnier übergeben · Rundentabellen gespeichert.</p>
+      <button class="bzt-postgame-primary" type="button" data-bzt-postgame-next>WEITER →</button>
     </main>
   </section>`;
+}
+function buzzerJokerMarkup(reveal){
+  const j=reveal?.joker||{},o=reveal?.owner||{},r=reveal?.result||{};
+  const before=r.before_text??(r.before!=null?String(r.before)+(r.unit?' '+r.unit:''):'—');
+  const after=r.after_text??(r.after!=null?String(r.after)+(r.unit?' '+r.unit:''):(r.text||'—'));
+  return `<section class="bzt-app bzt-complete">
+    <header class="bzt-header"><div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>JOKER</span></div></header>
+    <main class="bzt-reveal-content">
+      <section class="bzt-reveal-head"><span>POST GAME</span><h2>JOKER AUFLÖSUNG</h2></section>
+      <section class="bzt-joker-card" style="--bzt-joker-owner:${esc(o.color||teamColor(o.color_key))}">
+        <small>${esc(String(j.category||'SECRET').toUpperCase())} JOKER</small>
+        <h2>${esc(j.title||j.type||'JOKER')}</h2>
+        <p>${esc(j.description||'Der Joker wurde auf die finale Wertung angewendet.')}</p>
+        <div class="bzt-joker-owner"><i></i><span><small>JOKER GESETZT VON</small><strong>${esc(o.display_name||'TEILNEHMER')}</strong></span></div>
+        <div class="bzt-joker-value"><span>${esc(before)}</span><b>→</b><strong>${esc(after)}</strong></div>
+      </section>
+      <button class="bzt-postgame-primary" type="button" data-bzt-postgame-next>WEITER ZUM TURNIERSTAND →</button>
+    </main>
+  </section>`;
+}
+function buzzerMergeMarkup(){
+  const pg=canonicalPostgame(),rows=[...(pg?.rows||[])].sort((a,b)=>Number(a.old_rank||999)-Number(b.old_rank||999));
+  return `<section class="bzt-app bzt-complete">
+    <header class="bzt-header"><div class="bzt-header-row"><img class="bzt-logo" src="assets/images/skielsen-logo.png" alt="SKIELSEN"><span>MERGE</span></div></header>
+    <main class="bzt-reveal-content">
+      <section class="bzt-reveal-head"><span>BUZZER ZEIT STOPPEN</span><h2>TURNIERSTAND</h2></section>
+      <section class="bzt-standard-card bzt-merge-card">
+        <header><strong>GAME → TURNIER</strong><span>GESAMTRANKING</span></header>
+        <div class="bzt-standard-columns bzt-merge-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>+ GAME</span></div>
+        <div class="bzt-standard-rows bzt-merge-rows">
+          ${rows.map((r,i)=>`<div class="bzt-standard-row bzt-merge-row" data-bzt-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
+            <b><span class="bzt-rank-value">${Number(r.old_rank||i+1)}.</span><small class="bzt-rank-move"></small></b>
+            <span><i style="background:${teamColor(r.identity_color)}"></i><strong>${esc(String(r.display_name||'TEILNEHMER').replace(/^TEAM\\s+/i,''))}</strong></span>
+            <strong class="bzt-merge-points"><span>${Number(r.old_points||0)}</span><em>→</em><b>${Number(r.new_points||0)}</b></strong>
+            <strong class="bzt-added-points">+${Number(r.added_points||0)}</strong>
+          </div>`).join('')}
+        </div>
+      </section>
+      <button class="bzt-postgame-primary" type="button" data-bzt-postgame-close hidden disabled>SPIEL SCHLIESSEN →</button>
+    </main>
+  </section>`;
+}
+function animateBuzzerMerge(){
+  clearPostgameTimers();const run=++postgameRun,host=root?.querySelector('.bzt-merge-rows');if(!host)return;
+  const rows=[...host.querySelectorAll('[data-bzt-merge-row]')];postgameBusy=true;
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    const before=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
+    rows.sort((a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)).forEach(r=>host.appendChild(r));
+    rows.forEach(r=>{const dy=before.get(r)-r.getBoundingClientRect().top;r.style.transition='none';r.style.transform=`translateY(${dy}px)`});
+    void host.offsetHeight;rows.forEach(r=>{r.style.transition='transform 720ms cubic-bezier(.2,.85,.2,1)';r.style.transform='translateY(0)'});
+  },600);
+  postgameLater(()=>{
+    if(run!==postgameRun)return;
+    rows.forEach(r=>{const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.bzt-rank-value'),mv=r.querySelector('.bzt-rank-move');if(rv)rv.textContent=newRank+'.';if(mv){mv.textContent=buzzerMovement(oldRank-newRank);mv.classList.add('visible')}});
+    const btn=root?.querySelector('[data-bzt-postgame-close]');if(btn){btn.hidden=false;btn.disabled=false}
+    postgamePhase='MERGE_COMPLETE';postgameBusy=false;
+  },1500);
+}
+function advanceBuzzerPostgame(){
+  if(postgameBusy)return;
+  const reveal=canonicalPostgame()?.joker_reveal||state?.result?.tournament_handoff?.joker_reveal||null;
+  if(postgamePhase==='RANKING'&&buzzerJokerAllowed(reveal)){postgamePhase='JOKER';render();return}
+  postgamePhase='MERGE';render();
+}
+function renderBuzzerPostgame(){
+  const reveal=canonicalPostgame()?.joker_reveal||state?.result?.tournament_handoff?.joker_reveal||null;
+  if(postgamePhase==='JOKER'&&buzzerJokerAllowed(reveal))root.innerHTML=buzzerJokerMarkup(reveal);
+  else if(postgamePhase==='MERGE'||postgamePhase==='MERGE_COMPLETE')root.innerHTML=buzzerMergeMarkup();
+  else root.innerHTML=buzzerRankingMarkup();
+  root.querySelector('[data-bzt-postgame-next]')?.addEventListener('click',advanceBuzzerPostgame);
+  root.querySelector('[data-bzt-postgame-close]')?.addEventListener('click',()=>{
+    if(postgameBusy||postgamePhase!=='MERGE_COMPLETE')return;
+    const btn=root.querySelector('[data-bzt-postgame-close]');if(btn){btn.disabled=true;btn.textContent='WIRD GESCHLOSSEN …'}
+    const ok=window.skielsenBuzzerBridge?.completeCanonicalInAppPostgame?.(session?.tournament_game_id);
+    if(!ok)window.skielsenInApp?.completeAndExit?.();
+  });
+  if(postgamePhase==='MERGE')animateBuzzerMerge();
 }
 function render(){
   if(!root||!state)return;
   setTheme();
   root.closest('#v15InAppLayer')?.classList.add('buzzer-mode');
   if(state.phase==='REVEAL')root.innerHTML=revealMarkup();
-  else if(state.phase==='COMPLETE')root.innerHTML=completeMarkup();
+  else if(state.phase==='COMPLETE')renderBuzzerPostgame();
   else root.innerHTML=playMarkup();
 
   document.getElementById('bztAction')?.addEventListener('click',handleAction);
@@ -304,7 +393,7 @@ function testFinalize(){
   state={phase:'COMPLETE',round:testCtx.roundCount,round_count:testCtx.roundCount,target_seconds:testCtx.target,current:state?.current||{},viewer:state?.viewer||{},reveal:null,result};
   render();
   if(!engineResultIngested){
-    try{engineResultIngested=!!testEngine?.ingestInAppGameResult?.(testCtx.tournamentGameId,result)}catch(err){console.warn('Buzzer test tournament sync',err)}
+    try{engineResultIngested=!!testEngine?.ingestInAppGameResult?.(testCtx.tournamentGameId,result)}catch(err){console.warn('Buzzer test tournament sync',err)};if(engineResultIngested)render()
   }
 }
 function testHandleAction(){
@@ -334,7 +423,7 @@ function mountTest(host,runtime,game,engine){
   let participantIds=(m?.participantIds||[]).filter(Boolean);
   if(!participantIds.length)participantIds=(st.participants||[]).map(p=>p.id);
   testCtx={key,game,tournamentGameId:game.tournament_game_id||null,participantIds:[...participantIds],teamMode:String(runtime.mode||'').toUpperCase()==='TEAM',round:1,roundCount:Number(game.rules_json?.rounds||5),participantPos:0,relayIndex:0,target:null,targets:[],order:[],roundResults:{},history:[]};
-  state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;
+  state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;postgamePhase='RANKING';postgameBusy=false;clearPostgameTimers();postgameRun++;
   testPrepareRound();
 }
 
@@ -344,7 +433,7 @@ function mount(host,s,client){
   root=host;session=s;db=client;
   if(changed){
     clearInterval(pollTimer);cancelAnimationFrame(raf);
-    state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;revealToken=null;revealEndPerf=0;
+    state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;revealToken=null;revealEndPerf=0;postgamePhase='RANKING';postgameBusy=false;clearPostgameTimers();postgameRun++;
     root.innerHTML='<div class="bzt-loading">BUZZER WIRD GELADEN …</div>';
     poll();
     pollTimer=setInterval(poll,POLL_MS);
@@ -353,7 +442,7 @@ function mount(host,s,client){
 function updateSession(s){session=s||session}
 function unmount(){
   clearInterval(pollTimer);cancelAnimationFrame(raf);
-  testMode=false;testCtx=null;testEngine=null;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;
+  testMode=false;testCtx=null;testEngine=null;testRevealAdvanced=false;revealToken=null;revealEndPerf=0;clearPostgameTimers();postgameRun++;postgamePhase='RANKING';postgameBusy=false;
   root?.closest('#v15InAppLayer')?.classList.remove('buzzer-mode');
   root=null;session=null;db=null;state=null;localStartPerf=null;lastStartToken=null;engineResultIngested=false;
 }
