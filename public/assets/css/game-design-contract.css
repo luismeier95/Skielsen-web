@@ -17,7 +17,7 @@ body.gdc-body{background:var(--theme-page)!important;color:var(--theme-text)!imp
 .skg-status.is-result{display:block}.skg-status.is-result>div{display:none}.skg-status.is-result:after{content:"ERGEBNIS";min-height:92px;padding:18px 20px;display:flex;align-items:center;font:clamp(40px,9vw,64px)/.9 var(--display);letter-spacing:-1px}
 .gdc-demo-state{display:none}.gdc-demo-state.active{display:block;animation:gdcIn .22s ease both}@keyframes gdcIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .skg-card{background:var(--theme-surface);color:var(--theme-text);border:1px solid var(--theme-border);box-shadow:var(--theme-shadow-soft);padding:22px}.skg-card h2{margin:9px 0 12px;font:clamp(34px,8vw,56px)/.9 var(--display)}.skg-kicker{color:var(--theme-muted);font:900 7px/1 var(--ui);letter-spacing:1px}.skg-copy{margin:0;color:var(--theme-muted);font:700 11px/1.6 var(--ui)}
-.skg-choice-set{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:18px}
+.skg-choice-set{display:grid;grid-template-columns:repeat(var(--difficulty-count,2),minmax(0,1fr));gap:10px;margin-top:18px}
 .skg-game-mode-grid{display:grid;grid-template-columns:repeat(var(--game-mode-count,2),minmax(0,1fr));gap:10px;margin-top:18px}
 .skg-game-mode-card{min-height:150px;padding:18px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:22px;border:1px solid var(--theme-border-strong);background:var(--theme-surface);color:var(--theme-text);font-family:var(--ui);cursor:pointer}
 .skg-game-mode-card strong{font:900 16px/1 var(--display)}
