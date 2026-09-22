@@ -199,6 +199,13 @@ for _rpc in ['get_tic_tac_toe_state','set_tic_tac_toe_team_mode','select_tic_tac
  if _rpc not in _ttt_prod_text: fail('Tic Tac Toe Production RPC fehlt: '+_rpc)
 for _mode in ['ALTERNATING','SELECTED_PLAYER','SIMULTANEOUS']:
  if _mode not in _ttt_prod_text: fail('Tic Tac Toe Teammodus fehlt: '+_mode)
+_ttt_prod_css_text=_ttt_prod_css.read_text(encoding='utf-8')
+if '--game-mode-count:${options.length}' not in _ttt_prod_text: fail('Game Mode Page übergibt die dynamische Mode-Anzahl nicht')
+if 'repeat(var(--game-mode-count,2),minmax(0,1fr))' not in _ttt_prod_css_text: fail('Game Mode Desktop-Grid ist nicht dynamisch')
+if '.tttp-choice-grid,.tttp-mode-grid{grid-template-columns:1fr}' not in _ttt_prod_css_text: fail('Game Mode Mobile-Grid ist nicht einspaltig')
+_gdc_doc=(ROOT/'docs/GAME_DESIGN_CONTRACT.md').read_text(encoding='utf-8')
+for _needle in ['Game Mode Page Contract','mindestens **zwei auswählbare Game Modes**','repeat(var(--game-mode-count), minmax(0, 1fr))','Mobile <= 720 px']:
+ if _needle not in _gdc_doc: fail('Verbindlicher Game Mode Page Contract fehlt: '+_needle)
 if "data-ttt-countdown" not in _ttt_prod_text or "DECIDER_PLAYING" not in _ttt_prod_text: fail('Tic Tac Toe 5-Sekunden-Decider UI fehlt')
 if "TIC_TAC_TOE_MODULE='tic-tac-toe'" not in runtime_text or 'ensureTicTacToeAssets' not in runtime_text or 'renderTicTacToeSession' not in runtime_text: fail('Tic Tac Toe ist nicht in die In-App Runtime integriert')
 if 'create_tic_tac_toe_match_session' not in runtime_text or 'get_tic_tac_toe_result' not in runtime_text: fail('Tic Tac Toe Match-Lifecycle fehlt in der Runtime')
