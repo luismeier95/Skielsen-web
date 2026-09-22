@@ -466,7 +466,7 @@ function animateWordMerge(){
     rows.forEach(r=>{
       const oldRank=Number(r.dataset.oldRank||0),newRank=Number(r.dataset.newRank||oldRank),rv=r.querySelector('.wc-rank-value'),mv=r.querySelector('.wc-rank-move');
       if(rv){rv.textContent=newRank+'.';rv.classList.add('is-updating')}
-      if(mv){mv.textContent=wordMovement(oldRank-newRank);mv.classList.add('visible')}
+      if(mv){const delta=oldRank-newRank;mv.textContent=wordMovement(delta);mv.className='wc-rank-move '+(delta>0?'up':delta<0?'down':'same')+' visible'}
     });
   },5340);
   postgameLater(()=>{
