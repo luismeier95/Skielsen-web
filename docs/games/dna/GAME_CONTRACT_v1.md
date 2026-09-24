@@ -474,16 +474,47 @@ must be handled idempotently and must never produce duplicate points or duplicat
 
 Answer validation is server-side.
 
-Minimum normalization:
+Validation order:
+
+1. canonical answer / explicit accepted alias,
+2. normalized exact comparison,
+3. typo-tolerant fuzzy comparison,
+4. substantial title/name-fragment comparison for long multi-word answers.
+
+Normalization includes:
 
 - case-insensitive comparison,
+- Unicode normalization,
+- removal of diacritics for comparison,
 - trim leading/trailing spaces,
 - collapse repeated spaces,
-- explicit accepted aliases.
+- ignore punctuation/separator differences.
 
-No generic fuzzy matching is used in v1.
+### Typo tolerance
 
-Accents, abbreviations, alternative spellings, translations, and naming variants are handled by explicit aliases in the content catalog.
+A near-identical answer is accepted when normalized similarity is approximately **90% or higher**.
+
+This explicitly covers obvious misspellings / transpositions such as:
+
+- `Micheal Jackson` → `Michael Jackson`
+
+### Long title / name fragments
+
+For long multi-word titles or names, a substantial contained fragment may be accepted when it is clearly specific enough to identify the intended answer.
+
+Examples:
+
+- `Breath of the Wild` → `The Legend of Zelda: Breath of the Wild`
+- `Zelda Breath of the Wild` → `The Legend of Zelda: Breath of the Wild`
+- `Red Dead Redemption` → `Red Dead Redemption 2`
+
+Very short or generic fragments must still be rejected.
+
+Example:
+
+- `Legend of Zelda` alone is not automatically sufficient for `The Legend of Zelda: Breath of the Wild`.
+
+Explicit aliases remain the preferred content-level mechanism for known variants. Fuzzy validation is a fallback and must not expose the canonical answer or aliases to the client.
 
 ## 20. Content secrecy
 
