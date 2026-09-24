@@ -74,7 +74,26 @@ function startVote(){clearTimers();const solved=s.current.redSolved;if(solved){s
  content.querySelectorAll('[data-vote]').forEach(btn=>btn.addEventListener('click',()=>{s.userVote=btn.dataset.vote;renderVotes();scheduleReconsider()}));$('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;renderVotes()});$('#dnaSubmit').addEventListener('click',submitVote);
  later(()=>{const ownIdea=s.teammateIdea?normalize(s.teammateIdea):'__NO__';const found=[...content.querySelectorAll('[data-vote]')].find(x=>normalize(x.dataset.vote)===ownIdea);s.teammateVote=found?.dataset.vote||'__NO__';renderVotes()},650+Math.random()*550);later(()=>{s.opponentsReady=true;if(s.submitted)resolveVote(false)},1300+Math.random()*1100);startTimer(VOTE_PHASE_MS,()=>{if(s.submitted)return;if(phaseTimer){clearTimeout(phaseTimer);phaseTimer=0}submitNoAnswerTimeout()})}
 function voteCard(value,source,key){const display=value==='__NO__'?'KEINE ANTWORT':value;return `<button class="dna-vote" type="button" data-vote="${esc(value)}" data-key="${key}"><span><strong>${esc(display)}</strong><small>${esc(source)}</small></span><span class="dna-voters"><i data-voter="D">D</i><i data-voter="S">S</i></span></button>`}
-let reconsiderTimer=0;function scheduleReconsider(){clearTimeout(reconsiderTimer);if(!s.userVote||s.submitted)return;const original=s.teammateVote;reconsiderTimer=setTimeout(()=>{if(s.submitted||!s.userVote)return;if(s.userVote===s.teammateVote)return;const roll=Math.random();if(roll<.52)s.teammateVote=s.userVote;else if(roll<.68)s.teammateVote='__NO__';else s.teammateVote=original;renderVotes()},2200+Math.random()*900)}
+let reconsiderTimer=0,teammateVoteSeq=0;
+function scheduleReconsider(){
+  clearTimeout(reconsiderTimer);
+  if(!s.userVote||s.submitted)return;
+  const seq=++teammateVoteSeq;
+  const requestedVote=s.userVote;
+  const line=$('#dnaConsensus');
+  if(line&&!s.teammateVote)line.textContent='TEAMKOLLEGE PRÜFT …';
+  reconsiderTimer=setTimeout(async()=>{
+    if(s.submitted||!s.userVote||s.userVote!==requestedVote||seq!==teammateVoteSeq)return;
+    try{
+      const res=await api('teammate_vote',{state:s.token,userVote:requestedVote,teammateIdea:s.teammateIdea||''});
+      if(s.submitted||s.userVote!==requestedVote||seq!==teammateVoteSeq)return;
+      if(res?.vote)s.teammateVote=res.vote;
+      renderVotes();
+    }catch(_){
+      renderVotes();
+    }
+  },700+Math.random()*500);
+}
 function renderVotes(){content.querySelectorAll('[data-vote]').forEach(btn=>{const v=btn.dataset.vote;btn.classList.toggle('active',s.userVote===v);const ds=btn.querySelector('[data-voter="D"]'),ss=btn.querySelector('[data-voter="S"]');ds?.classList.toggle('on',s.userVote===v);ss?.classList.toggle('on',s.teammateVote===v)});const consensus=Boolean(s.userVote&&s.teammateVote&&s.userVote===s.teammateVote);const line=$('#dnaConsensus'),submit=$('#dnaSubmit');if(line){line.textContent=consensus?'EINIGKEIT · SUBMIT IST FREIGEGEBEN':'NOCH KEINE EINIGKEIT';line.classList.toggle('dna-submit-ok',consensus)}if(submit)submit.disabled=!consensus||s.submitted}
 async function submitVote(){if(s.submitted||!s.userVote||s.userVote!==s.teammateVote)return;s.submitted=true;renderVotes();const noAnswer=s.userVote==='__NO__';try{const res=await api('submit',{state:s.token,answer:noAnswer?'':s.userVote,noAnswer});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted(noAnswer?s.userVote:s.userVote);if(s.opponentsReady)resolveVote(false)}catch(err){showFatal(err)}}
 async function submitNoAnswerTimeout(){if(s.submitted)return;s.submitted=true;try{const res=await api('submit',{state:s.token,answer:'',noAnswer:true});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted('__NO__');resolveVote(false)}catch(err){showFatal(err)}}
