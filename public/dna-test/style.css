@@ -227,3 +227,6 @@ html:not(.dna-scroll-lock) body.dna-body *{
 
 /* DNA_MERGE_INPLACE_V1: result rows persist into merge; no blank/re-appear transition. */
 /* DNA_POINT_ARRIVAL_CLEAN_V2: bonus fades before final sum/pulse becomes dominant. */
+
+/* DNA_MOTION_SCALE_30625_V1: visual motion timing is extended by another factor 1.75 over v2.5. */
+/* DNA_TRUE_SWAP_V2: rows stay in original DOM order during travel and reorder only after visual arrival. */
