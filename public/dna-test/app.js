@@ -110,30 +110,124 @@ function placementPoints(i){return [5,4,2,0][i]??0}
 function showRanking(scores){clearTimers();setScrollLock(false);s.screen='RANKING';s.gameScores=scores||{};const rows=TEAM_ORDER.map((k,idx)=>({key:k,score:Number(s.gameScores[k]||0),stable:idx})).sort((a,b)=>b.score-a.score||a.stable-b.stable).map((r,i)=>({...r,place:i+1,points:placementPoints(i)}));s.ranking=rows;setChrome('RANKING','DNA SCORE · FINAL',100);page(`<section class="dna-hero"><span class="dna-kicker">GAME RANKING</span><h1>ERGEBNIS.</h1></section><section class="dna-result-card" id="dnaResultCard"><header><strong>DNA · FINALES ERGEBNIS</strong><span>HÖHER IST BESSER</span></header><div class="dna-columns"><span>POSITION</span><span>TEAM</span><span>DNA</span><span></span></div><div class="dna-result-rows">${rows.map((r,i)=>resultRow(r,i)).join('')}</div></section><div class="dna-actions"><button class="dna-btn primary" id="dnaToMerge" type="button">WEITER ZUR TURNIERTABELLE →</button></div>`);requestAnimationFrame(()=>{$('#dnaResultCard')?.classList.add('is-revealing');const resultRows=[...content.querySelectorAll('.dna-result-row')];[...resultRows].reverse().forEach((row,i)=>later(()=>row.classList.add('is-plus-visible'),2000+motionMs(i*260)))});$('#dnaToMerge').addEventListener('click',showMerge)}
 function resultRow(r,i){return `<div class="dna-result-row" data-team="${r.key}" style="--delay:${motionMs(160+i*130)}ms"><b class="dna-place">${String(r.place).padStart(2,'0')}</b><span class="dna-result-team" style="--team:${TEAMS[r.key].color}"><i></i><span><strong>${TEAMS[r.key].name}</strong><small>${TEAMS[r.key].members}</small></span></span><b class="dna-metric">${r.score}</b><span class="dna-placement-points"><b>+${r.points}</b></span></div>`}
 function showMerge(){
- clearTimers();s.screen='MERGE';s.mergeComplete=false;
+ clearTimers();s.screen='MERGE';s.mergeComplete=false;setScrollLock(false);
  const oldOrder=TEAM_ORDER.map((k,idx)=>({key:k,points:TEAMS[k].existing,stable:idx})).sort((a,b)=>b.points-a.points||a.stable-b.stable);
  const oldPos=Object.fromEntries(oldOrder.map((r,i)=>[r.key,i+1]));
  const add=Object.fromEntries(s.ranking.map(r=>[r.key,r.points]));
  const byTeam=Object.fromEntries(TEAM_ORDER.map((k,idx)=>[k,{key:k,old:TEAMS[k].existing,add:add[k]||0,final:TEAMS[k].existing+(add[k]||0),stable:idx,before:oldPos[k]}]));
- const initial=s.ranking.map(r=>({...byTeam[r.key],displayPlace:r.place}));
  const finalRows=Object.values(byTeam).sort((a,b)=>b.final-a.final||a.stable-b.stable).map((r,i)=>({...r,after:i+1}));
+
  setChrome('MERGE','TURNIER RANKING',100);
- page(`<section class="dna-hero"><span class="dna-kicker">END GAME MERGE</span><h1>PUNKTE.</h1></section><section class="dna-merge-card" id="dnaMergeCard"><header><strong>TURNIERSTAND</strong><span>DNA → TURNIERPUNKTE</span></header><div class="dna-columns"><span>POSITION</span><span>TEAM</span><span>PUNKTE</span><span id="dnaMovementHeader"></span></div><div class="dna-merge-rows" id="dnaMergeRows">${initial.map((r,i)=>mergeRow(r,i)).join('')}</div></section><div class="dna-actions"><button class="dna-btn primary" id="dnaClose" type="button" disabled>MERGE LÄUFT …</button></div><div class="dna-confetti" id="dnaConfetti" aria-hidden="true"></div>`);
- requestAnimationFrame(()=>$('#dnaMergeCard')?.classList.add('is-revealing'));
- later(()=>startPointMorph(finalRows,oldPos),motionMs(750));
+
+ const pageEl=content.querySelector('.dna-page');
+ const hero=pageEl?.querySelector('.dna-hero');
+ const kicker=hero?.querySelector('.dna-kicker');
+ const title=hero?.querySelector('h1');
+ const card=$('#dnaResultCard');
+ const rowsHost=card?.querySelector('.dna-result-rows');
+ const columns=card?.querySelector('.dna-columns');
+ const headerStrong=card?.querySelector('header strong');
+ const headerMeta=card?.querySelector('header span');
+ const action=$('#dnaToMerge');
+
+ if(!pageEl||!hero||!card||!rowsHost||!columns||!action){
+   showFatal(new Error('Merge surface unavailable'));
+   return;
+ }
+
+ // Keep the exact visible result table; mutate it in place instead of re-rendering.
+ card.classList.remove('is-revealing');
+ card.classList.remove('dna-result-card');
+ card.classList.add('dna-merge-card');
+ card.id='dnaMergeCard';
+ rowsHost.classList.remove('dna-result-rows');
+ rowsHost.classList.add('dna-merge-rows');
+ rowsHost.id='dnaMergeRows';
+ if(kicker)kicker.textContent='END GAME MERGE';
+ if(title)title.textContent='PUNKTE.';
+ if(headerStrong)headerStrong.textContent='TURNIERSTAND';
+ if(headerMeta)headerMeta.textContent='DNA → TURNIERPUNKTE';
+
+ const heads=[...columns.children];
+ if(heads[2])heads[2].textContent='PUNKTE';
+ if(heads[3]){heads[3].textContent='';heads[3].id='dnaMovementHeader'}
+
+ [...rowsHost.children].forEach(row=>{
+   const key=row.dataset.team;
+   const data=byTeam[key];
+   if(!data)return;
+   row.classList.remove('dna-result-row');
+   row.classList.add('dna-merge-row','is-stable','is-plus-visible');
+
+   const metric=row.querySelector('.dna-metric');
+   if(metric){
+     const stack=document.createElement('span');
+     stack.className='dna-points-stack';
+     stack.innerHTML=`<b class="dna-old-points">${data.old}</b><b class="dna-final-points">${data.final}</b>`;
+     metric.replaceWith(stack);
+   }
+
+   const placement=row.querySelector('.dna-placement-points');
+   if(placement){
+     placement.className='dna-merge-stage';
+     const plus=placement.querySelector('b');
+     if(plus){plus.className='dna-plus-points';plus.textContent='+'+data.add}
+     if(!placement.querySelector('.dna-movement')){
+       const movement=document.createElement('b');
+       movement.className='dna-movement';
+       placement.appendChild(movement);
+     }
+   }
+ });
+
+ action.id='dnaClose';
+ action.disabled=true;
+ action.textContent='MERGE LÄUFT …';
+ let confettiHost=$('#dnaConfetti');
+ if(!confettiHost){
+   confettiHost=document.createElement('div');
+   confettiHost.className='dna-confetti';
+   confettiHost.id='dnaConfetti';
+   confettiHost.setAttribute('aria-hidden','true');
+   pageEl.appendChild(confettiHost);
+ }
+
+ // No second row/plus appear pass: the same visible rows continue straight into the morph.
+ later(()=>startPointMorph(finalRows,oldPos),motionMs(420));
 }
-function mergeRow(r,i){return `<div class="dna-merge-row" data-team="${r.key}" style="--delay:${motionMs(100+i*90)}ms"><b class="dna-place">${String(r.displayPlace??i+1).padStart(2,'0')}</b><span class="dna-result-team" style="--team:${TEAMS[r.key].color}"><i></i><span><strong>${TEAMS[r.key].name}</strong><small>${TEAMS[r.key].members}</small></span></span><span class="dna-points-stack"><b class="dna-old-points">${r.old}</b><b class="dna-final-points">${r.final}</b></span><span class="dna-merge-stage"><b class="dna-plus-points">+${r.add}</b><b class="dna-movement"></b></span></div>`}
 function startPointMorph(finalRows,oldPos){
+ const card=$('#dnaMergeCard');
  const rows=[...content.querySelectorAll('.dna-merge-row')];
+ if(!card||!rows.length)return;
  rows.forEach(row=>row.classList.add('is-stable'));
- rows.forEach(row=>{const plus=row.querySelector('.dna-plus-points'),old=row.querySelector('.dna-old-points');if(!plus||!old)return;const pr=plus.getBoundingClientRect(),or=old.getBoundingClientRect();plus.style.setProperty('--merge-shift',(or.left+or.width/2-pr.left-pr.width/2)+'px')});
- requestAnimationFrame(()=>$('#dnaMergeCard')?.classList.add('is-morphing'));
- later(()=>{
-   rows.forEach(row=>row.classList.add('is-arrived'));
-   $('#dnaMergeCard')?.classList.add('is-summed');
-   const header=$('#dnaMovementHeader');if(header)header.textContent='BEWEGUNG';
-   later(()=>reorderMergeRows(finalRows,oldPos),motionMs(360));
- },motionMs(620));
+
+ const morphs=rows.map(row=>{
+   const plus=row.querySelector('.dna-plus-points');
+   const old=row.querySelector('.dna-old-points');
+   if(!plus||!old)return Promise.resolve();
+   const pr=plus.getBoundingClientRect(),or=old.getBoundingClientRect();
+   const dx=(or.left+or.width/2)-(pr.left+pr.width/2);
+   const anim=plus.animate(
+     [
+       {transform:'translate3d(0,0,0)',opacity:1,offset:0},
+       {transform:`translate3d(${dx*.82}px,0,0)`,opacity:1,offset:.76},
+       {transform:`translate3d(${dx}px,0,0)`,opacity:0,offset:1}
+     ],
+     {duration:motionMs(620),easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}
+   );
+   return anim.finished.catch(()=>{}).then(()=>{
+     try{anim.cancel()}catch(_){}
+     row.classList.add('is-summed','is-arrived');
+     plus.style.opacity='0';
+     plus.style.transform='none';
+   });
+ });
+
+ Promise.all(morphs).then(()=>{
+   const header=$('#dnaMovementHeader');
+   if(header)header.textContent='BEWEGUNG';
+   later(()=>reorderMergeRows(finalRows,oldPos),motionMs(300));
+ });
 }
 function reorderMergeRows(finalRows,oldPos){
  const host=$('#dnaMergeRows');if(!host)return;
