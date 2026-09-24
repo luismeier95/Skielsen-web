@@ -350,6 +350,8 @@ The canonical answer is the primary reveal element.
 
 The reveal shows every team's **net score for the current term** in one vertical list.
 
+Reveal row appear animations and merge morph/reorder animations run at approximately **175% of the previous timing** to improve readability.
+
 Cards are ordered by term score descending.
 
 For equal term scores, the fixed visual tie order is:
