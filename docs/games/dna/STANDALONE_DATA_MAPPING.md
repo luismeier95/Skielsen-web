@@ -27,6 +27,10 @@ This document maps the DNA standalone UI to the production data model. It exists
 | Wrong-answer penalty | Edge Function state | `public.dna_sessions.wrong_penalty` | Server | -1 |
 | Hint points | Edge Function response | `private.dna_hints.points_value` / session rules | Server | +3 / +2 / +1 |
 | Phase timer | IDEA 20 s / VOTE 10 s standalone visual timer | `phase_started_at` / `phase_deadline_at` | Production server | Contract defaults: IDEA 20 s, VOTE 10 s |
+| Scroll scope | Client page state | shared game surface state | Client layout contract | No-scroll only for GAME / REVEAL |
+| Header category | current content category | session/current term category | Server content + client layout | Large, centered in active header |
+| Reveal team order | current term net scores + identity slot order | authoritative term score aggregate | Server score / client display sort | score desc, tie Blue → Red → Yellow → Green |
+| Team row accent | team identity slot / theme mapping | tournament participant identity | Theme/identity contract | vertical accent; no center axis |
 | Early phase completion | Standalone simulated participant readiness | authoritative completion of required actors | Production server | Deadline |
 | Opponent correct solve | Edge Function returns team + points only | `public.dna_public_solves` | Server | Hidden until event |
 | Opponent wrong attempt | Never returned | private submission state | Server only | Hidden |
