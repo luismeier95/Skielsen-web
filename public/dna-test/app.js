@@ -315,7 +315,28 @@ function reorderMergeRows(finalRows,oldPos){
    },motionMs(120));
  });
 }
-function confetti(key){const host=$('#dnaConfetti');if(!host||!key)return;for(let i=0;i<42;i++){const el=document.createElement('i');el.style.setProperty('--team',TEAMS[key].color);el.style.left=(Math.random()*100)+'%';el.style.setProperty('--dur',(1.3+Math.random()*1.1)+'s');el.style.setProperty('--wait',(Math.random()*.45)+'s');el.style.setProperty('--drift',(-80+Math.random()*160)+'px');host.appendChild(el)}later(()=>host.remove(),3000)}
+function confetti(key){
+ const host=$('#dnaConfetti');if(!host||!key)return;
+ const waves=6;
+ const piecesPerWave=18;
+ const waveGap=560;
+ for(let wave=0;wave<waves;wave++){
+   later(()=>{
+     if(!host.isConnected)return;
+     for(let i=0;i<piecesPerWave;i++){
+       const el=document.createElement('i');
+       el.style.setProperty('--team',TEAMS[key].color);
+       el.style.left=(Math.random()*100)+'%';
+       el.style.setProperty('--dur',(2.15+Math.random()*1.15)+'s');
+       el.style.setProperty('--wait',(Math.random()*.24)+'s');
+       el.style.setProperty('--drift',(-95+Math.random()*190)+'px');
+       host.appendChild(el);
+     }
+   },wave*waveGap);
+ }
+ // Long rain: keep the host alive until the final wave has fully fallen.
+ later(()=>host.remove(),waves*waveGap+3800);
+}
 function resetAll(){clearTimers();resolving=false;clearTimeout(reconsiderTimer);s={screen:'SETUP',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false};setup()}
 async function boot(){const session=await authSession();if(!session)return authGate();setup()}
 boot();
