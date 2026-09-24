@@ -137,33 +137,43 @@ function startPointMorph(finalRows,oldPos){
 function reorderMergeRows(finalRows,oldPos){
  const host=$('#dnaMergeRows');if(!host)return;
  const current=[...host.children];
- const slotTops=current.map(el=>el.getBoundingClientRect().top);
  const rowByTeam=Object.fromEntries(current.map(el=>[el.dataset.team,el]));
+ const slotTops=current.map(el=>el.getBoundingClientRect().top);
  const duration=motionMs(580);
+ const animations=[];
+
  finalRows.forEach((r,targetIndex)=>{
    const el=rowByTeam[r.key];if(!el)return;
    const currentTop=el.getBoundingClientRect().top;
    const shift=(slotTops[targetIndex]??currentTop)-currentTop;
    el.classList.add('is-swapping');
-   el.style.transition=`transform ${duration}ms cubic-bezier(.2,.8,.2,1)`;
-   el.style.transform=`translateY(${shift}px)`;
+   const anim=el.animate(
+     [{transform:'translate3d(0,0,0)'},{transform:`translate3d(0,${shift}px,0)`}],
+     {duration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}
+   );
+   animations.push(anim.finished.catch(()=>{}));
  });
- later(()=>{
-   finalRows.forEach((r,i)=>{
-     const el=rowByTeam[r.key];if(!el)return;
-     host.appendChild(el);
-     el.style.transition='none';
-     el.style.transform='none';
-     el.classList.remove('is-swapping');
-     const place=el.querySelector('.dna-place');if(place)place.textContent=String(i+1).padStart(2,'0');
+
+ Promise.all(animations).then(()=>{
+   requestAnimationFrame(()=>{
+     finalRows.forEach((r,i)=>{
+       const el=rowByTeam[r.key];if(!el)return;
+       host.appendChild(el);
+       const place=el.querySelector('.dna-place');
+       if(place)place.textContent=String(i+1).padStart(2,'0');
+     });
+     current.forEach(el=>{
+       el.getAnimations().forEach(anim=>anim.cancel());
+       el.classList.remove('is-swapping');
+       el.style.transform='';
+     });
+     host.getBoundingClientRect();
+     later(()=>{
+       finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
+       later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
+     },motionMs(120));
    });
-   host.getBoundingClientRect();
-   finalRows.forEach(r=>{const el=rowByTeam[r.key];if(el)el.style.transition=''});
-   later(()=>{
-     finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
-     later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
-   },motionMs(120));
- },duration);
+ });
 }
 function confetti(key){const host=$('#dnaConfetti');if(!host||!key)return;for(let i=0;i<42;i++){const el=document.createElement('i');el.style.setProperty('--team',TEAMS[key].color);el.style.left=(Math.random()*100)+'%';el.style.setProperty('--dur',(1.3+Math.random()*1.1)+'s');el.style.setProperty('--wait',(Math.random()*.45)+'s');el.style.setProperty('--drift',(-80+Math.random()*160)+'px');host.appendChild(el)}later(()=>host.remove(),3000)}
 function resetAll(){clearTimers();resolving=false;clearTimeout(reconsiderTimer);s={screen:'SETUP',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false};setup()}
