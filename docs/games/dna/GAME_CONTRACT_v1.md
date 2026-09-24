@@ -373,6 +373,8 @@ This tie order is a **Reveal display ordering rule**, not a replacement for any 
 
 Each team row/card uses its vertical participant/team color accent.
 
+Reveal team score typography is intentionally larger than the prior standalone version so the between-term score table remains readable at a glance.
+
 Example net score:
 
 - H1 wrong: -1
@@ -553,7 +555,9 @@ The primary action is:
 
 `WEITER ZUR TURNIERTABELLE`
 
-Placement points appear sequentially from the bottom row upward.
+Before any placement points appear, the final DNA result table remains completely unchanged for **2 seconds**.
+
+Placement points then appear sequentially from the bottom row upward.
 
 ### Tournament Merge sequence
 
@@ -565,9 +569,9 @@ The Merge is one staged animation and follows this exact order:
 4. Existing tournament points are visible in the `PUNKTE` column.
 5. The placement plus-points from the previous result view remain visible in the right-most column.
 6. The plus-points morph visually from right to left into the existing tournament-points value.
-7. The summed tournament-points result replaces the old points value.
+7. The summed tournament-points result replaces the old points value. At the moment the placement bonus reaches the points column, the new summed value performs a short **arrival pulse** (brief scale-up and return) while the `+X` fades out so the two values do not visually overlap.
 8. Only now does the right-most column heading `BEWEGUNG` appear.
-9. The table reorders to the new tournament placement.
+9. The table reorders to the new tournament placement. The reorder animation must visually **swap/move rows into their new slots**; it must not look like a blink, hide/show, or abrupt re-render.
 10. **Only after the reorder animation has fully completed** are the movement-cell contents populated and revealed:
    - `↑ N` for a gain,
    - `↓ N` for a loss,
