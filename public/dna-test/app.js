@@ -125,6 +125,7 @@ function showMerge(){
 function mergeRow(r,i){return `<div class="dna-merge-row" data-team="${r.key}" style="--delay:${motionMs(100+i*90)}ms"><b class="dna-place">${String(r.displayPlace??i+1).padStart(2,'0')}</b><span class="dna-result-team" style="--team:${TEAMS[r.key].color}"><i></i><span><strong>${TEAMS[r.key].name}</strong><small>${TEAMS[r.key].members}</small></span></span><span class="dna-points-stack"><b class="dna-old-points">${r.old}</b><b class="dna-final-points">${r.final}</b></span><span class="dna-merge-stage"><b class="dna-plus-points">+${r.add}</b><b class="dna-movement"></b></span></div>`}
 function startPointMorph(finalRows,oldPos){
  const rows=[...content.querySelectorAll('.dna-merge-row')];
+ rows.forEach(row=>row.classList.add('is-stable'));
  rows.forEach(row=>{const plus=row.querySelector('.dna-plus-points'),old=row.querySelector('.dna-old-points');if(!plus||!old)return;const pr=plus.getBoundingClientRect(),or=old.getBoundingClientRect();plus.style.setProperty('--merge-shift',(or.left+or.width/2-pr.left-pr.width/2)+'px')});
  requestAnimationFrame(()=>$('#dnaMergeCard')?.classList.add('is-morphing'));
  later(()=>{
@@ -138,41 +139,39 @@ function reorderMergeRows(finalRows,oldPos){
  const host=$('#dnaMergeRows');if(!host)return;
  const current=[...host.children];
  const rowByTeam=Object.fromEntries(current.map(el=>[el.dataset.team,el]));
- const slotTops=current.map(el=>el.getBoundingClientRect().top);
- const duration=motionMs(580);
- const animations=[];
+ current.forEach(el=>el.classList.add('is-stable'));
+ const first=new Map(current.map(el=>[el.dataset.team,el.getBoundingClientRect()]));
 
- finalRows.forEach((r,targetIndex)=>{
-   const el=rowByTeam[r.key];if(!el)return;
-   const currentTop=el.getBoundingClientRect().top;
-   const shift=(slotTops[targetIndex]??currentTop)-currentTop;
+ finalRows.forEach(r=>{const el=rowByTeam[r.key];if(el)host.appendChild(el)});
+ const last=new Map([...host.children].map(el=>[el.dataset.team,el.getBoundingClientRect()]));
+ const duration=motionMs(580);
+ const swapAnimations=[];
+
+ finalRows.forEach(r=>{
+   const el=rowByTeam[r.key],a=first.get(r.key),b=last.get(r.key);
+   if(!el||!a||!b)return;
+   const dy=a.top-b.top;
    el.classList.add('is-swapping');
    const anim=el.animate(
-     [{transform:'translate3d(0,0,0)'},{transform:`translate3d(0,${shift}px,0)`}],
-     {duration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}
+     [{transform:`translate3d(0,${dy}px,0)`},{transform:'translate3d(0,0,0)'}],
+     {duration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'}
    );
-   animations.push(anim.finished.catch(()=>{}));
+   swapAnimations.push(anim);
  });
 
- Promise.all(animations).then(()=>{
-   requestAnimationFrame(()=>{
-     finalRows.forEach((r,i)=>{
-       const el=rowByTeam[r.key];if(!el)return;
-       host.appendChild(el);
-       const place=el.querySelector('.dna-place');
-       if(place)place.textContent=String(i+1).padStart(2,'0');
-     });
-     current.forEach(el=>{
-       el.getAnimations().forEach(anim=>anim.cancel());
-       el.classList.remove('is-swapping');
-       el.style.transform='';
-     });
-     host.getBoundingClientRect();
-     later(()=>{
-       finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
-       later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
-     },motionMs(120));
+ Promise.all(swapAnimations.map(anim=>anim.finished.catch(()=>{}))).then(()=>{
+   swapAnimations.forEach(anim=>{try{anim.cancel()}catch(_){}});
+   finalRows.forEach((r,i)=>{
+     const el=rowByTeam[r.key];if(!el)return;
+     el.classList.remove('is-swapping');
+     el.classList.add('is-stable');
+     const place=el.querySelector('.dna-place');
+     if(place)place.textContent=String(i+1).padStart(2,'0');
    });
+   later(()=>{
+     finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
+     later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
+   },motionMs(120));
  });
 }
 function confetti(key){const host=$('#dnaConfetti');if(!host||!key)return;for(let i=0;i<42;i++){const el=document.createElement('i');el.style.setProperty('--team',TEAMS[key].color);el.style.left=(Math.random()*100)+'%';el.style.setProperty('--dur',(1.3+Math.random()*1.1)+'s');el.style.setProperty('--wait',(Math.random()*.45)+'s');el.style.setProperty('--drift',(-80+Math.random()*160)+'px');host.appendChild(el)}later(()=>host.remove(),3000)}
