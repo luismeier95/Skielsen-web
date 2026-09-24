@@ -107,7 +107,7 @@ function showOwnFeedback(outcome,spectator){const host=$('#dnaInteraction');if(!
 function showReveal(c){clearTimers();setScrollLock(true);setChrome('REVEAL',`${String(c.termNo).padStart(2,'0')} / ${String(c.termCount).padStart(2,'0')} · ${c.categoryName}`,Math.min(98,(c.termNo/c.termCount)*100));const tieRank=Object.fromEntries(REVEAL_TIE_ORDER.map((k,i)=>[k,i]));const revealRows=TEAM_ORDER.map(k=>({key:k,score:Number(c.termScores?.[k]||0)})).sort((a,b)=>b.score-a.score||(tieRank[a.key]??99)-(tieRank[b.key]??99));content.innerHTML=`<section class="dna-reveal"><section class="dna-reveal-answer"><div><small>DIE LÖSUNG</small><h1>${esc(c.answer)}</h1></div></section><section class="dna-term-scores">${revealRows.map((r,i)=>`<div class="dna-term-score" data-team="${r.key}" style="--team:${TEAMS[r.key].color};--delay:${motionMs(90+i*80)}ms"><i></i><span><small>${TEAMS[r.key].name}</small><strong>${signed(r.score)}</strong></span></div>`).join('')}</section></section>`;requestAnimationFrame(()=>content.querySelector('.dna-term-scores')?.classList.add('is-revealing'));later(async()=>{try{const next=await api('advance',{state:s.token});s.token=next.state;enterContent(next.content)}catch(err){showFatal(err)}},3000)}
 function signed(n){n=Number(n||0);return n>0?'+'+n:String(n)}
 function placementPoints(i){return [5,4,2,0][i]??0}
-function showRanking(scores){clearTimers();setScrollLock(false);s.screen='RANKING';s.gameScores=scores||{};const rows=TEAM_ORDER.map((k,idx)=>({key:k,score:Number(s.gameScores[k]||0),stable:idx})).sort((a,b)=>b.score-a.score||a.stable-b.stable).map((r,i)=>({...r,place:i+1,points:placementPoints(i)}));s.ranking=rows;setChrome('RANKING','DNA SCORE · FINAL',100);page(`<section class="dna-hero"><span class="dna-kicker">GAME RANKING</span><h1>ERGEBNIS.</h1></section><section class="dna-result-card" id="dnaResultCard"><header><strong>DNA · FINALES ERGEBNIS</strong><span>HÖHER IST BESSER</span></header><div class="dna-columns"><span>POSITION</span><span>TEAM</span><span>DNA</span><span></span></div><div class="dna-result-rows">${rows.map((r,i)=>resultRow(r,i)).join('')}</div></section><div class="dna-actions"><button class="dna-btn primary" id="dnaToMerge" type="button">WEITER ZUR TURNIERTABELLE →</button></div>`);requestAnimationFrame(()=>{$('#dnaResultCard')?.classList.add('is-revealing');const resultRows=[...content.querySelectorAll('.dna-result-row')];[...resultRows].reverse().forEach((row,i)=>later(()=>row.classList.add('is-plus-visible'),motionMs(520+i*260)))});$('#dnaToMerge').addEventListener('click',showMerge)}
+function showRanking(scores){clearTimers();setScrollLock(false);s.screen='RANKING';s.gameScores=scores||{};const rows=TEAM_ORDER.map((k,idx)=>({key:k,score:Number(s.gameScores[k]||0),stable:idx})).sort((a,b)=>b.score-a.score||a.stable-b.stable).map((r,i)=>({...r,place:i+1,points:placementPoints(i)}));s.ranking=rows;setChrome('RANKING','DNA SCORE · FINAL',100);page(`<section class="dna-hero"><span class="dna-kicker">GAME RANKING</span><h1>ERGEBNIS.</h1></section><section class="dna-result-card" id="dnaResultCard"><header><strong>DNA · FINALES ERGEBNIS</strong><span>HÖHER IST BESSER</span></header><div class="dna-columns"><span>POSITION</span><span>TEAM</span><span>DNA</span><span></span></div><div class="dna-result-rows">${rows.map((r,i)=>resultRow(r,i)).join('')}</div></section><div class="dna-actions"><button class="dna-btn primary" id="dnaToMerge" type="button">WEITER ZUR TURNIERTABELLE →</button></div>`);requestAnimationFrame(()=>{$('#dnaResultCard')?.classList.add('is-revealing');const resultRows=[...content.querySelectorAll('.dna-result-row')];[...resultRows].reverse().forEach((row,i)=>later(()=>row.classList.add('is-plus-visible'),2000+motionMs(i*260)))});$('#dnaToMerge').addEventListener('click',showMerge)}
 function resultRow(r,i){return `<div class="dna-result-row" data-team="${r.key}" style="--delay:${motionMs(160+i*130)}ms"><b class="dna-place">${String(r.place).padStart(2,'0')}</b><span class="dna-result-team" style="--team:${TEAMS[r.key].color}"><i></i><span><strong>${TEAMS[r.key].name}</strong><small>${TEAMS[r.key].members}</small></span></span><b class="dna-metric">${r.score}</b><span class="dna-placement-points"><b>+${r.points}</b></span></div>`}
 function showMerge(){
  clearTimers();s.screen='MERGE';s.mergeComplete=false;
@@ -128,6 +128,7 @@ function startPointMorph(finalRows,oldPos){
  rows.forEach(row=>{const plus=row.querySelector('.dna-plus-points'),old=row.querySelector('.dna-old-points');if(!plus||!old)return;const pr=plus.getBoundingClientRect(),or=old.getBoundingClientRect();plus.style.setProperty('--merge-shift',(or.left+or.width/2-pr.left-pr.width/2)+'px')});
  requestAnimationFrame(()=>$('#dnaMergeCard')?.classList.add('is-morphing'));
  later(()=>{
+   rows.forEach(row=>row.classList.add('is-arrived'));
    $('#dnaMergeCard')?.classList.add('is-summed');
    const header=$('#dnaMovementHeader');if(header)header.textContent='BEWEGUNG';
    later(()=>reorderMergeRows(finalRows,oldPos),motionMs(360));
@@ -135,14 +136,34 @@ function startPointMorph(finalRows,oldPos){
 }
 function reorderMergeRows(finalRows,oldPos){
  const host=$('#dnaMergeRows');if(!host)return;
- const before=new Map([...host.children].map(el=>[el.dataset.team,el.getBoundingClientRect()]));
- finalRows.forEach((r,i)=>{const el=host.querySelector(`[data-team="${r.key}"]`);if(!el)return;host.appendChild(el);const place=el.querySelector('.dna-place');if(place)place.textContent=String(i+1).padStart(2,'0')});
- const after=new Map([...host.children].map(el=>[el.dataset.team,el.getBoundingClientRect()]));
- [...host.children].forEach(el=>{const b=before.get(el.dataset.team),a=after.get(el.dataset.team);if(!b||!a)return;el.style.transition='none';el.style.transform=`translateY(${b.top-a.top}px)`;el.getBoundingClientRect();el.style.transition='transform 1.02s cubic-bezier(.2,.8,.2,1)';el.style.transform='translateY(0)'});
+ const current=[...host.children];
+ const slotTops=current.map(el=>el.getBoundingClientRect().top);
+ const rowByTeam=Object.fromEntries(current.map(el=>[el.dataset.team,el]));
+ const duration=motionMs(580);
+ finalRows.forEach((r,targetIndex)=>{
+   const el=rowByTeam[r.key];if(!el)return;
+   const currentTop=el.getBoundingClientRect().top;
+   const shift=(slotTops[targetIndex]??currentTop)-currentTop;
+   el.classList.add('is-swapping');
+   el.style.transition=`transform ${duration}ms cubic-bezier(.2,.8,.2,1)`;
+   el.style.transform=`translateY(${shift}px)`;
+ });
  later(()=>{
-   finalRows.forEach(r=>{const el=host.querySelector(`[data-team="${r.key}"]`);if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
-   later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
- },motionMs(650));
+   finalRows.forEach((r,i)=>{
+     const el=rowByTeam[r.key];if(!el)return;
+     host.appendChild(el);
+     el.style.transition='none';
+     el.style.transform='none';
+     el.classList.remove('is-swapping');
+     const place=el.querySelector('.dna-place');if(place)place.textContent=String(i+1).padStart(2,'0');
+   });
+   host.getBoundingClientRect();
+   finalRows.forEach(r=>{const el=rowByTeam[r.key];if(el)el.style.transition=''});
+   later(()=>{
+     finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
+     later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
+   },motionMs(120));
+ },duration);
 }
 function confetti(key){const host=$('#dnaConfetti');if(!host||!key)return;for(let i=0;i<42;i++){const el=document.createElement('i');el.style.setProperty('--team',TEAMS[key].color);el.style.left=(Math.random()*100)+'%';el.style.setProperty('--dur',(1.3+Math.random()*1.1)+'s');el.style.setProperty('--wait',(Math.random()*.45)+'s');el.style.setProperty('--drift',(-80+Math.random()*160)+'px');host.appendChild(el)}later(()=>host.remove(),3000)}
 function resetAll(){clearTimers();resolving=false;clearTimeout(reconsiderTimer);s={screen:'SETUP',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false};setup()}
