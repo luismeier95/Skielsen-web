@@ -74,14 +74,27 @@ function normalize(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUp
 function candidates(){const map=new Map();const add=(value,who)=>{if(!value)return;const key=normalize(value);if(!key)return;const row=map.get(key)||{value,who:[]};if(!row.who.includes(who))row.who.push(who);map.set(key,row)};add(s.idea,'D');add(s.teammateIdea,'S');return [...map.values()]}
 function startVote(){clearTimers();const solved=s.current.redSolved;if(solved){s.teammateReady=true;s.opponentsReady=false;gameShell(`<div class="dna-lock-state"><div><strong>TEAMABSTIMMUNG LÄUFT</strong><span>DEIN TEAM HAT BEREITS GELÖST.</span></div></div>`,'ABSTIMMUNG');later(()=>{s.opponentsReady=true;clearTimers();resolveVote(true)},900+Math.random()*600);startTimer(VOTE_PHASE_MS,()=>resolveVote(true));return}
  const list=candidates();s.userVote=null;s.teammateVote=null;s.submitted=false;s.opponentsReady=false;gameShell(`<div class="dna-interaction-head"><strong>TEAM-ANTWORT</strong><span>ANTIPPEN ≠ ABSENDEN</span></div><div class="dna-vote-list" id="dnaVoteList">${list.map((c,i)=>voteCard(c.value,c.who.join(' + '),'v'+i)).join('')}${voteCard('__NO__','SICHER PASSEN','no')}</div><div class="dna-consensus" id="dnaConsensus">NOCH KEINE EINIGKEIT</div><div class="dna-vote-actions"><button class="dna-btn" id="dnaVoteClear" type="button">AUSWAHL LÖSEN</button><button class="dna-btn primary" id="dnaSubmit" type="button" disabled>ANTWORT ABSENDEN</button></div>`,'ABSTIMMUNG');
- content.querySelectorAll('[data-vote]').forEach(btn=>btn.addEventListener('click',()=>{s.userVote=btn.dataset.vote;renderVotes();scheduleReconsider()}));$('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;renderVotes()});$('#dnaSubmit').addEventListener('click',submitVote);
- later(()=>{const ownIdea=s.teammateIdea?normalize(s.teammateIdea):'__NO__';const found=[...content.querySelectorAll('[data-vote]')].find(x=>normalize(x.dataset.vote)===ownIdea);s.teammateVote=found?.dataset.vote||'__NO__';renderVotes()},650+Math.random()*550);later(()=>{s.opponentsReady=true;if(s.submitted)resolveVote(false)},1300+Math.random()*1100);startTimer(VOTE_PHASE_MS,()=>{if(s.submitted)return;if(phaseTimer){clearTimeout(phaseTimer);phaseTimer=0}submitNoAnswerTimeout()})}
+ content.querySelectorAll('[data-vote]').forEach(btn=>btn.addEventListener('click',()=>{
+  s.userVote=btn.dataset.vote;
+  // Any user choice invalidates the pending initial bot decision.
+  teammateVoteSeq++;
+  renderVotes();
+  scheduleReconsider();
+}));$('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;renderVotes()});$('#dnaSubmit').addEventListener('click',submitVote);
+ later(()=>{
+   // Never overwrite a user-triggered reconsideration with the stale initial bot vote.
+   if(s.userVote||s.submitted||teammateVoteSeq>0)return;
+   const ownIdea=s.teammateIdea?normalize(s.teammateIdea):'__NO__';
+   const found=[...content.querySelectorAll('[data-vote]')].find(x=>normalize(x.dataset.vote)===ownIdea);
+   s.teammateVote=found?.dataset.vote||'__NO__';
+   renderVotes();
+ },650+Math.random()*550);later(()=>{s.opponentsReady=true;if(s.submitted)resolveVote(false)},1300+Math.random()*1100);startTimer(VOTE_PHASE_MS,()=>{if(s.submitted)return;if(phaseTimer){clearTimeout(phaseTimer);phaseTimer=0}submitNoAnswerTimeout()})}
 function voteCard(value,source,key){const display=value==='__NO__'?'KEINE ANTWORT':value;return `<button class="dna-vote" type="button" data-vote="${esc(value)}" data-key="${key}"><span><strong>${esc(display)}</strong><small>${esc(source)}</small></span><span class="dna-voters"><i data-voter="D">D</i><i data-voter="S">S</i></span></button>`}
 let reconsiderTimer=0,teammateVoteSeq=0;
 function scheduleReconsider(){
   clearTimeout(reconsiderTimer);
   if(!s.userVote||s.submitted)return;
-  const seq=++teammateVoteSeq;
+  const seq=teammateVoteSeq;
   const requestedVote=s.userVote;
   const line=$('#dnaConsensus');
   if(line&&!s.teammateVote)line.textContent='TEAMKOLLEGE PRÜFT …';
@@ -92,7 +105,8 @@ function scheduleReconsider(){
       if(s.submitted||s.userVote!==requestedVote||seq!==teammateVoteSeq)return;
       if(res?.vote)s.teammateVote=res.vote;
       renderVotes();
-    }catch(_){
+    }catch(err){
+      console.error('DNA teammate_vote failed',err);
       renderVotes();
     }
   },700+Math.random()*500);
