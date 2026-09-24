@@ -47,7 +47,7 @@ dna_js=(PUBLIC/'dna-test/app.js').read_text(encoding='utf-8')
 dna_css=(PUBLIC/'dna-test/style.css').read_text(encoding='utf-8')
 if 'interactive-widget=resizes-content' not in dna_html: fail('DNA Standalone fehlt keyboard-sicherer Viewport Contract')
 if 'DNA_STANDALONE_MOBILE_CONTRACT' not in dna_css: fail('DNA Standalone Mobile Contract Marker fehlt')
-for token in ['PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints']:
+for token in ['IDEA_PHASE_MS=15000','VOTE_PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints']:
  if token not in dna_js: fail(f'DNA Standalone Contract fehlt: {token}')
 if 'canonical_answer' in dna_js or 'dna_answer_aliases' in dna_js or 'dna_hints' in dna_js:
  fail('DNA Standalone darf private Content-/Loesungsdaten nicht im Client enthalten')
