@@ -26,7 +26,7 @@ This document maps the DNA standalone UI to the production data model. It exists
 | Correctness | Edge Function database validation | canonical answer + aliases | Server | Never client-evaluated |
 | Wrong-answer penalty | Edge Function state | `public.dna_sessions.wrong_penalty` | Server | -1 |
 | Hint points | Edge Function response | `private.dna_hints.points_value` / session rules | Server | +3 / +2 / +1 |
-| Phase timer | 10 s standalone visual timer | `phase_started_at` / `phase_deadline_at` | Production server | Contract default 10 s |
+| Phase timer | IDEA 20 s / VOTE 10 s standalone visual timer | `phase_started_at` / `phase_deadline_at` | Production server | Contract defaults: IDEA 20 s, VOTE 10 s |
 | Early phase completion | Standalone simulated participant readiness | authoritative completion of required actors | Production server | Deadline |
 | Opponent correct solve | Edge Function returns team + points only | `public.dna_public_solves` | Server | Hidden until event |
 | Opponent wrong attempt | Never returned | private submission state | Server only | Hidden |
