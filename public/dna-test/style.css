@@ -249,6 +249,21 @@ html:not(.dna-scroll-lock) body.dna-body *{
   inset:0;
   text-align:center;
 }
+.dna-countdown-round{
+  position:absolute;
+  left:50%;
+  top:24%;
+  transform:translate(-50%,-50%);
+  display:block;
+  font-family:var(--ui);
+  font-size:clamp(13px,3.8vw,20px);
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.08em;
+  color:var(--theme-muted);
+  text-align:center;
+  white-space:nowrap;
+}
 .dna-countdown-category{
   position:absolute;
   left:50%;
@@ -279,3 +294,5 @@ html:not(.dna-scroll-lock) body.dna-body *{
 }
 
 /* DNA_COUNTDOWN_POSITION_V2: category at end of first third; countdown exactly centered. */
+
+/* DNA_COUNTDOWN_ROUND_V1: round X / Y sits centered above the next category. */
