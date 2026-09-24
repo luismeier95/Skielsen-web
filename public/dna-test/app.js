@@ -5,7 +5,7 @@ const FUNCTION_URL=SUPABASE_URL+'/functions/v1/dna-standalone';
 const SESSION_KEY='skielsen.native.supabase.session';
 const IDEA_PHASE_MS=20000;
 const VOTE_PHASE_MS=10000;
-const MOTION_SCALE=1.75;
+const MOTION_SCALE=3.0625;
 const REVEAL_TIE_ORDER=['BLUE','RED','YELLOW','GREEN'];
 const CATEGORIES=[
   ['countries','LÄNDER'],['cities','STÄDTE'],['animals','TIERE'],['movies','FILME'],['car_brands','AUTOMARKEN'],['companies','UNTERNEHMEN'],['football_clubs','FUSSBALLVEREINE'],['food','ESSEN & GERICHTE'],['technology','TECHNOLOGIE'],['professions','BERUFE'],['video_games','VIDEOSPIELE'],['historical_people','HISTORISCHE PERSONEN'],['music','MUSIK']
@@ -234,34 +234,45 @@ function reorderMergeRows(finalRows,oldPos){
  const current=[...host.children];
  const rowByTeam=Object.fromEntries(current.map(el=>[el.dataset.team,el]));
  current.forEach(el=>el.classList.add('is-stable'));
- const first=new Map(current.map(el=>[el.dataset.team,el.getBoundingClientRect()]));
 
- finalRows.forEach(r=>{const el=rowByTeam[r.key];if(el)host.appendChild(el)});
- const last=new Map([...host.children].map(el=>[el.dataset.team,el.getBoundingClientRect()]));
+ // Keep DOM order unchanged while rows visibly travel to their target slots.
+ const slotTops=current.map(el=>el.getBoundingClientRect().top);
  const duration=motionMs(580);
  const swapAnimations=[];
 
- finalRows.forEach(r=>{
-   const el=rowByTeam[r.key],a=first.get(r.key),b=last.get(r.key);
-   if(!el||!a||!b)return;
-   const dy=a.top-b.top;
+ finalRows.forEach((r,targetIndex)=>{
+   const el=rowByTeam[r.key];if(!el)return;
+   const currentTop=el.getBoundingClientRect().top;
+   const targetTop=slotTops[targetIndex]??currentTop;
+   const dy=targetTop-currentTop;
    el.classList.add('is-swapping');
    const anim=el.animate(
-     [{transform:`translate3d(0,${dy}px,0)`},{transform:'translate3d(0,0,0)'}],
-     {duration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'}
+     [
+       {transform:'translate3d(0,0,0)'},
+       {transform:`translate3d(0,${dy}px,0)`}
+     ],
+     {duration,easing:'cubic-bezier(.2,.72,.18,1)',fill:'forwards'}
    );
-   swapAnimations.push(anim);
+   swapAnimations.push({el,anim});
  });
 
- Promise.all(swapAnimations.map(anim=>anim.finished.catch(()=>{}))).then(()=>{
-   swapAnimations.forEach(anim=>{try{anim.cancel()}catch(_){}});
+ Promise.all(swapAnimations.map(({anim})=>anim.finished.catch(()=>{}))).then(()=>{
+   // Freeze rows at their visual destination, then swap DOM order in the same task.
+   swapAnimations.forEach(({anim})=>{try{anim.commitStyles()}catch(_){}});
+   swapAnimations.forEach(({anim})=>{try{anim.cancel()}catch(_){}});
    finalRows.forEach((r,i)=>{
      const el=rowByTeam[r.key];if(!el)return;
-     el.classList.remove('is-swapping');
-     el.classList.add('is-stable');
+     host.appendChild(el);
      const place=el.querySelector('.dna-place');
      if(place)place.textContent=String(i+1).padStart(2,'0');
    });
+   swapAnimations.forEach(({el})=>{
+     el.style.transform='none';
+     el.classList.remove('is-swapping');
+     el.classList.add('is-stable');
+   });
+   host.getBoundingClientRect();
+
    later(()=>{
      finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
      later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
