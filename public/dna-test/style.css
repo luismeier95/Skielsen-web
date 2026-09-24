@@ -216,8 +216,10 @@ html:not(.dna-scroll-lock) body.dna-body *{
 
 .dna-merge-row.is-stable{
   opacity:1!important;
-  transform:none!important;
   animation:none!important;
+}
+.dna-merge-row.is-stable:not(.is-swapping){
+  transform:none!important;
 }
 
 /* DNA_REVEAL_EQUAL_TYPE_V1: reveal team name and score use equal visual type size. */
@@ -230,3 +232,7 @@ html:not(.dna-scroll-lock) body.dna-body *{
 
 /* DNA_MOTION_SCALE_30625_V1: visual motion timing is extended by another factor 1.75 over v2.5. */
 /* DNA_TRUE_SWAP_V2: rows stay in original DOM order during travel and reorder only after visual arrival. */
+
+/* DNA_MERGE_CHOREOGRAPHY_V3: point additions are staged bottom-up with breathing room between concepts. */
+/* DNA_SCORE_COLLISION_GUARD_V1: +X stops beside the score and fully fades before the final value appears. */
+/* DNA_SWAP_TRANSFORM_UNBLOCK_V1: stable rows no longer override transform while swapping. */
