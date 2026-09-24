@@ -57,7 +57,9 @@ if 'DNA_STANDALONE_ISOLATION_V1' not in dna_css: fail('DNA Standalone CSS isolat
 if 'DNA_RANKING_TEAM_ACCENT_V2' not in dna_css: fail('DNA Ranking Team Accent Contract Marker fehlt')
 if 'DNA_HINT_FIT_V2' not in dna_css: fail('DNA Hint Fit Contract Marker fehlt')
 if 'DNA_MERGE_SEQUENCE_V2' not in dna_css: fail('DNA Merge Sequence Contract Marker fehlt')
-for token in ['IDEA_PHASE_MS=20000','VOTE_PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints','--dna-visual-top','WEITER ZUR TURNIERTABELLE','dnaMovementHeader','movement.textContent=move','confetti(finalRows[0]?.key)']:
+if 'DNA_REVEAL_VERTICAL_V2' not in dna_css: fail('DNA Reveal Vertical Contract Marker fehlt')
+if 'DNA_MOTION_SCALE_175_V1' not in dna_css: fail('DNA Motion Scale Contract Marker fehlt')
+for token in ['IDEA_PHASE_MS=20000','VOTE_PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints','--dna-visual-top','WEITER ZUR TURNIERTABELLE','dnaMovementHeader','movement.textContent=move','confetti(finalRows[0]?.key)','MOTION_SCALE=1.75','REVEAL_TIE_ORDER']:
  if token not in dna_js: fail(f'DNA Standalone Contract fehlt: {token}')
 if 'canonical_answer' in dna_js or 'dna_answer_aliases' in dna_js or 'dna_hints' in dna_js:
  fail('DNA Standalone darf private Content-/Loesungsdaten nicht im Client enthalten')
