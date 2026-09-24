@@ -25,6 +25,8 @@ required_docs=[
  'docs/WORTKETTE_DATABASE.md',
  'docs/WORTKETTE_DESIGN_CONTRACT.md',
  'docs/WORTKETTE_GAME_CONTRACT.md',
+ 'docs/games/dna/GAME_CONTRACT_v1.md',
+ 'docs/games/dna/CONTENT_CONTRACT_v1.md',
 ]
 for rel in required_docs:
  if not (ROOT/rel).exists(): fail(f'Aktuelle Projektdokumentation fehlt: {rel}')
@@ -35,9 +37,20 @@ required_dev_routes=[
  'public/more-or-less-contract-test/index.html',
  'public/word-chain-test/index.html',
  'public/tic-tac-toe-test/index.html',
+ 'public/dna-test/index.html',
 ]
 for rel in required_dev_routes:
  if not (ROOT/rel).exists(): fail(f'Kanonische Test-/Contract-Route fehlt: {rel}')
+
+dna_html=(PUBLIC/'dna-test/index.html').read_text(encoding='utf-8')
+dna_js=(PUBLIC/'dna-test/app.js').read_text(encoding='utf-8')
+dna_css=(PUBLIC/'dna-test/style.css').read_text(encoding='utf-8')
+if 'interactive-widget=resizes-content' not in dna_html: fail('DNA Standalone fehlt keyboard-sicherer Viewport Contract')
+if 'DNA_STANDALONE_MOBILE_CONTRACT' not in dna_css: fail('DNA Standalone Mobile Contract Marker fehlt')
+for token in ['PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints']:
+ if token not in dna_js: fail(f'DNA Standalone Contract fehlt: {token}')
+if 'canonical_answer' in dna_js or 'dna_answer_aliases' in dna_js or 'dna_hints' in dna_js:
+ fail('DNA Standalone darf private Content-/Loesungsdaten nicht im Client enthalten')
 
 legacy_exact=[
  'public/wortkette-standalone.html',
