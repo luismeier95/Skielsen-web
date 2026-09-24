@@ -494,6 +494,10 @@ Normalization includes:
 
 A near-identical answer is accepted when normalized similarity is approximately **90% or higher**.
 
+Additionally, a single edit/transposition is accepted for normalized answers of at least five characters. For longer answers, up to two small edit errors may be accepted when the remaining similarity is still high.
+
+This prevents obvious intended answers from failing only because of a minor typo.
+
 This explicitly covers obvious misspellings / transpositions such as:
 
 - `Micheal Jackson` → `Michael Jackson`
@@ -515,6 +519,12 @@ Example:
 - `Legend of Zelda` alone is not automatically sufficient for `The Legend of Zelda: Breath of the Wild`.
 
 Explicit aliases remain the preferred content-level mechanism for known variants. Fuzzy validation is a fallback and must not expose the canonical answer or aliases to the client.
+
+### Teammate bot behavior
+
+The standalone teammate bot uses the **same server-side answer validation** as final scoring.
+
+If the user's selected answer is recognized as correct by the server, the bot must vote for that answer and must not switch to `KEINE ANTWORT` merely because of spelling variation or a tolerated typo.
 
 ## 20. Content secrecy
 
