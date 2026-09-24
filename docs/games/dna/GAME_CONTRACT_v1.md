@@ -520,9 +520,8 @@ After the final term:
 
 1. Game Ranking
 2. Joker Resolve if Joker is ON
-3. Standard End Game Merge Animation
-4. Merge into Tournament Ranking
-5. Close Game
+3. Tournament Merge
+4. Close Game
 
 DNA returns a final score per participant/team.
 
@@ -530,13 +529,60 @@ Ranking direction:
 
 `HIGHER_IS_BETTER`
 
+### Game Ranking
+
+The final DNA ranking uses these columns:
+
+1. POSITION
+2. TEAM
+3. DNA
+4. unlabeled placement-points column
+
+The placement-points values are shown as:
+
+- `+5`
+- `+4`
+- `+2`
+- `+0`
+
+The literal suffix `PTS` is not shown.
+
+The primary action is:
+
+`WEITER ZUR TURNIERTABELLE`
+
+Placement points appear sequentially from the bottom row upward.
+
+### Tournament Merge sequence
+
+The Merge is one staged animation and follows this exact order:
+
+1. The result table transitions to the tournament-points view without changing the visible team rows abruptly.
+2. The third column heading becomes `PUNKTE`.
+3. The right-most column initially has **no heading**.
+4. Existing tournament points are visible in the `PUNKTE` column.
+5. The placement plus-points from the previous result view remain visible in the right-most column.
+6. The plus-points morph visually from right to left into the existing tournament-points value.
+7. The summed tournament-points result replaces the old points value.
+8. Only now does the right-most column heading `BEWEGUNG` appear.
+9. The table reorders to the new tournament placement.
+10. **Only after the reorder animation has fully completed** are the movement-cell contents populated and revealed:
+   - `↑ N` for a gain,
+   - `↓ N` for a loss,
+   - `—` for unchanged position.
+11. After the movement contents are visible, confetti is shown in the team color of the new first-place team.
+
+Movement-cell contents must remain empty before step 10. They may not be pre-rendered invisibly as final user-visible content.
+
+The close action remains disabled until the full sequence, including movement reveal and confetti trigger, has completed.
+
 ### Ranking / Merge visual identity
 
 Game Ranking and Merge use team rows with a **vertical team-color accent**.
 
 The old semantic center/axis line is not used.
 
-Existing tournament points remain visually distinct from newly earned placement points during the canonical merge animation.
+Existing tournament points remain visually distinct from newly earned placement points until the morph step.
 
 ## 23. Non-negotiables
 
