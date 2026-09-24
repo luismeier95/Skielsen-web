@@ -236,3 +236,30 @@ html:not(.dna-scroll-lock) body.dna-body *{
 /* DNA_MERGE_CHOREOGRAPHY_V3: point additions are staged bottom-up with breathing room between concepts. */
 /* DNA_SCORE_COLLISION_GUARD_V1: +X stops beside the score and fully fades before the final value appears. */
 /* DNA_SWAP_TRANSFORM_UNBLOCK_V1: stable rows no longer override transform while swapping. */
+
+.dna-term-countdown{
+  height:calc(var(--dna-visual-height,100dvh) - 45px);
+  display:grid;
+  place-items:center;
+  padding:18px;
+}
+.dna-countdown-inner{
+  display:grid;
+  justify-items:center;
+  align-content:center;
+  gap:10px;
+  text-align:center;
+}
+.dna-countdown-category{
+  font-family:var(--display,var(--ui));
+  font-size:clamp(28px,8vw,52px);
+  line-height:1;
+  color:var(--theme-on-page);
+  letter-spacing:-.03em;
+}
+.dna-countdown-number{
+  font-family:var(--display,var(--ui));
+  font-size:clamp(96px,34vw,190px);
+  line-height:.9;
+  color:var(--theme-on-page);
+}
