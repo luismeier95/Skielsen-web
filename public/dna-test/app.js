@@ -201,33 +201,45 @@ function startPointMorph(finalRows,oldPos){
  if(!card||!rows.length)return;
  rows.forEach(row=>row.classList.add('is-stable'));
 
- const morphs=rows.map(row=>{
-   const plus=row.querySelector('.dna-plus-points');
-   const old=row.querySelector('.dna-old-points');
-   if(!plus||!old)return Promise.resolve();
-   const pr=plus.getBoundingClientRect(),or=old.getBoundingClientRect();
-   const dx=(or.left+or.width/2)-(pr.left+pr.width/2);
-   const anim=plus.animate(
-     [
-       {transform:'translate3d(0,0,0)',opacity:1,offset:0},
-       {transform:`translate3d(${dx*.82}px,0,0)`,opacity:1,offset:.76},
-       {transform:`translate3d(${dx}px,0,0)`,opacity:0,offset:1}
-     ],
-     {duration:motionMs(620),easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}
-   );
-   return anim.finished.catch(()=>{}).then(()=>{
+ const wait=ms=>new Promise(resolve=>later(resolve,ms));
+ const run=async()=>{
+   // Deliberately stage the additions bottom -> top instead of moving all bonuses at once.
+   for(const row of [...rows].reverse()){
+     const plus=row.querySelector('.dna-plus-points');
+     const old=row.querySelector('.dna-old-points');
+     if(!plus||!old)continue;
+
+     const pr=plus.getBoundingClientRect(),or=old.getBoundingClientRect();
+     // Stop just to the right of the current score. The +X must never overlap the digits.
+     const targetLeft=or.right+8;
+     const dx=targetLeft-pr.left;
+     const anim=plus.animate(
+       [
+         {transform:'translate3d(0,0,0)',opacity:1,offset:0},
+         {transform:`translate3d(${dx*.90}px,0,0)`,opacity:1,offset:.72},
+         {transform:`translate3d(${dx}px,0,0)`,opacity:.28,offset:.90},
+         {transform:`translate3d(${dx}px,0,0)`,opacity:0,offset:1}
+       ],
+       {duration:motionMs(240),easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}
+     );
+     await anim.finished.catch(()=>{});
      try{anim.cancel()}catch(_){}
-     row.classList.add('is-summed','is-arrived');
      plus.style.opacity='0';
      plus.style.transform='none';
-   });
- });
 
- Promise.all(morphs).then(()=>{
+     // Only after the bonus is fully gone do we swap to the summed value and pulse it.
+     row.classList.add('is-summed','is-arrived');
+     await wait(motionMs(100));
+   }
+
+   // Give the completed additions breathing room before introducing the next concept.
+   await wait(motionMs(180));
    const header=$('#dnaMovementHeader');
    if(header)header.textContent='BEWEGUNG';
-   later(()=>reorderMergeRows(finalRows,oldPos),motionMs(300));
- });
+   await wait(motionMs(220));
+   reorderMergeRows(finalRows,oldPos);
+ };
+ run();
 }
 function reorderMergeRows(finalRows,oldPos){
  const host=$('#dnaMergeRows');if(!host)return;
