@@ -123,7 +123,7 @@ function showTermCountdown(nextContent){
  const termNo=String(nextContent?.termNo||'').padStart(2,'0');
  const termCount=String(nextContent?.termCount||'').padStart(2,'0');
  setChrome('NÄCHSTER BEGRIFF',`${termNo} / ${termCount}`,overallPct(nextContent));
- content.innerHTML=`<section class="dna-term-countdown"><div class="dna-countdown-inner"><strong class="dna-countdown-category">${esc(String(nextContent?.categoryName||'').toUpperCase())}</strong><b class="dna-countdown-number" id="dnaCountdownNumber">3</b></div></section>`;
+ content.innerHTML=`<section class="dna-term-countdown"><div class="dna-countdown-inner"><span class="dna-countdown-round">${termNo} / ${termCount}</span><strong class="dna-countdown-category">${esc(String(nextContent?.categoryName||'').toUpperCase())}</strong><b class="dna-countdown-number" id="dnaCountdownNumber">3</b></div></section>`;
  const number=$('#dnaCountdownNumber');
  later(()=>{if(number)number.textContent='2'},1000);
  later(()=>{if(number)number.textContent='1'},2000);
