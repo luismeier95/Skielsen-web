@@ -1,7 +1,7 @@
 # SKIELSEN DNA — Content Contract v1
 
 **Status:** Approved  
-**Version:** 1.1  
+**Version:** 1.2  
 **Date:** 2026-09-24  
 **Applies to:** All DNA content categories
 
@@ -91,7 +91,30 @@ Possible aliases:
 
 Aliases are editorially maintained.
 
-Generic fuzzy matching is not part of v1.
+### Profession-category alias rule
+
+For `Berufe`, accepted aliases must also include an **unambiguous domain / institution / trade term** when ordinary players would reasonably use that term to identify the profession.
+
+Examples:
+
+- `Polizei` → `Polizist`
+- `Feuerwehr` → `Feuerwehrmann`
+- `Mechatronik` → `Mechatroniker`
+- `Journalismus` → `Journalist`
+- `Psychologie` → `Psychologe`
+- `Tischlerei` → `Tischler`
+
+This rule applies only when the broader term maps clearly enough to the intended profession.
+
+Do **not** add overly broad field names that plausibly identify several professions, for example:
+
+- `Medizin` → not automatically `Arzt`
+- `Luftfahrt` → not automatically `Pilot`
+- `Recht` → not automatically `Anwalt`
+
+If a newly accepted domain alias already appears verbatim in a hint, the hint must be revised so the accepted answer is not leaked.
+
+Server-side typo/fuzzy tolerance is allowed as a fallback for obvious spelling errors and substantial long-title fragments; explicit aliases remain the preferred content-level mechanism for semantic variants.
 
 ## 6. Technical normalization
 
@@ -101,7 +124,7 @@ Before comparison, the system may normalize:
 - leading/trailing whitespace,
 - repeated internal spaces.
 
-Accents, abbreviations, translations, alternative spellings, and naming variants require explicit aliases.
+Accents, abbreviations, translations, semantic naming variants, and profession-domain variants should be represented by explicit aliases where known. Minor typo tolerance may be handled server-side.
 
 ## 7. Three-hint progression
 
