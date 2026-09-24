@@ -36,7 +36,7 @@ The active screen consists of four fixed zones:
 
 No separate in-game banner is used.
 
-The timer is primarily represented by a horizontal progress bar. Each phase has a maximum duration of 10 seconds.
+The timer is primarily represented by a horizontal progress bar. Phase 1 (IDEA) has a maximum duration of 20 seconds; Phase 2 (VOTE) has a maximum duration of 10 seconds.
 
 Previous hints stay visible in compressed form. Only the current hint receives the dominant visual treatment.
 
@@ -87,7 +87,7 @@ Every hint consists of exactly two gameplay phases:
 
 `IDEA → VOTE`
 
-Both phases have a maximum duration of 10 seconds.
+Phase 1 (IDEA) has a maximum duration of 20 seconds. Phase 2 (VOTE) has a maximum duration of 10 seconds.
 
 A phase ends early when all required actors have explicitly completed it.
 
@@ -95,7 +95,7 @@ The server is authoritative for phase deadlines and transitions.
 
 ## 6. Phase 1 — IDEA
 
-Maximum duration: **10 seconds**.
+Maximum duration: **20 seconds**.
 
 Each active player may submit one private idea on their own device.
 
@@ -430,7 +430,8 @@ Ranking direction:
 - Mobile gameplay without scrolling.
 - Individual device per player.
 - Two phases per hint.
-- 10 seconds maximum per phase.
+- Phase 1 (IDEA): 20 seconds maximum.
+- Phase 2 (VOTE): 10 seconds maximum.
 - Early phase advance when all required actors are complete.
 - Phase 1 ideas are private.
 - Team ideas are revealed only in Phase 2.
