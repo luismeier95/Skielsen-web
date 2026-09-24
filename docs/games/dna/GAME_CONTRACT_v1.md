@@ -1,7 +1,7 @@
 # SKIELSEN DNA — Game Contract v1
 
-**Status:** Approved  
-**Version:** 1.0  
+**Status:** Approved · consolidated playtest state  
+**Version:** 1.1  
 **Date:** 2026-09-24  
 **Game key:** `dna`  
 **Platform:** Mobile-first, individual devices  
@@ -25,20 +25,90 @@ A team that answers correctly is finished for the current term. All teams re-ent
 
 ## 2. Mobile layout contract
 
-The complete active gameplay UI must fit on a normal smartphone screen without vertical scrolling.
+DNA is mobile-first.
 
-The active screen consists of four fixed zones:
+### Page scroll scope
 
-1. Game header
-2. Timer bar
-3. Hint area
-4. Interaction area
+The **No Scroll Rule applies only to active gameplay and Reveal**.
 
-No separate in-game banner is used.
+These states/pages may scroll normally:
 
-The timer is primarily represented by a horizontal progress bar. Phase 1 (IDEA) has a maximum duration of 20 seconds; Phase 2 (VOTE) has a maximum duration of 10 seconds.
+- Setup / category selection,
+- Ready,
+- Game Ranking,
+- Joker Resolution,
+- Tournament Merge.
 
-Previous hints stay visible in compressed form. Only the current hint receives the dominant visual treatment.
+Active gameplay and Reveal must fit in the currently visible smartphone viewport without vertical scrolling.
+
+### Active game viewport
+
+DNA may bypass the normal Skielsen top-banner / tournament-chrome reserve and use the full visible viewport available to the game.
+
+The active screen uses these zones:
+
+1. compact game header,
+2. overall progress directly below the header,
+3. separate mechanic timer bar,
+4. hint area,
+5. interaction area.
+
+No duplicate status card is used inside gameplay.
+
+The header is the single status source.
+
+### Header information hierarchy
+
+On active gameplay and Reveal:
+
+- left: SKIELSEN identity / DNA,
+- center: **current category**, visibly larger and horizontally centered,
+- right: phase and compact secondary progress/score information.
+
+The category must remain visually dominant enough to be recognized at a glance.
+
+### Timer
+
+Progress and time are separate channels.
+
+- overall game progress: directly below the header,
+- phase timer: separate horizontal countdown bar,
+- IDEA: maximum **20 seconds**,
+- VOTE: maximum **10 seconds**,
+- timer width must continuously decrease to zero,
+- warning/danger colors may change near the deadline but must not replace the countdown movement.
+
+### Hint area
+
+The hint container uses content-driven height within the available viewport.
+
+Rules:
+
+- the complete current hint must remain visible,
+- text must never be clipped at the bottom,
+- typography may scale within defined mobile bounds before clipping is allowed,
+- previous hints remain visible in compressed form outside keyboard-minimal mode,
+- only the current hint receives dominant visual treatment.
+
+### Keyboard state
+
+When the native mobile keyboard opens:
+
+- the layout is based on the resized visual viewport,
+- the interaction controls are docked above the actual keyboard inset,
+- the input,
+- `IDEE SPEICHERN`,
+- and `KEINE IDEE`
+
+must remain visible and usable.
+
+Secondary history may be hidden in keyboard mode.
+
+### Interaction copy
+
+Primary state text and its explanatory small copy are separate block rows.
+
+Small explanatory copy must never be placed inline after the main state text.
 
 ## 3. Team model
 
@@ -264,9 +334,44 @@ Previous hints remain visible in compressed form.
 
 After Hint 3, the canonical answer becomes visible to all players.
 
-The reveal also shows each participant/team's **net score for that term**.
+Reveal is part of the active no-scroll game surface.
 
-Example:
+### Reveal header
+
+The current category is shown **large and centered in the game banner/header**.
+
+`REVEAL` remains a secondary phase label.
+
+### Answer
+
+The canonical answer is the primary reveal element.
+
+### Per-term team ranking
+
+The reveal shows every team's **net score for the current term** in one vertical list.
+
+Cards are ordered by term score descending.
+
+For equal term scores, the fixed visual tie order is:
+
+1. Blue identity slot
+2. Red identity slot
+3. Yellow identity slot
+4. Green identity slot
+
+For Skielsen Core this corresponds to:
+
+`Blau → Rot → Gelb → Grün`
+
+For Skielsen Core 2 the same identity slots are used with their mapped colors:
+
+`#2979FF → #FF1744 → #00F5D4 → #FF2ED1`
+
+This tie order is a **Reveal display ordering rule**, not a replacement for any separate tournament/game-ranking tiebreak logic.
+
+Each team row/card uses its vertical participant/team color accent.
+
+Example net score:
 
 - H1 wrong: -1
 - H2 wrong: -1
@@ -425,9 +530,25 @@ Ranking direction:
 
 `HIGHER_IS_BETTER`
 
+### Ranking / Merge visual identity
+
+Game Ranking and Merge use team rows with a **vertical team-color accent**.
+
+The old semantic center/axis line is not used.
+
+Existing tournament points remain visually distinct from newly earned placement points during the canonical merge animation.
+
 ## 23. Non-negotiables
 
-- Mobile gameplay without scrolling.
+- Active gameplay and Reveal without scrolling.
+- Setup, Ready, Ranking, Joker Resolution and Merge remain normally scrollable.
+- DNA may use the full visible viewport and does not reserve unused space for the normal Skielsen top banner.
+- Active header shows the current category large and centered.
+- Current hint text must never clip.
+- Keyboard mode must keep input, `IDEE SPEICHERN` and `KEINE IDEE` visible above the native keyboard.
+- Small explanatory state copy always occupies its own line.
+- Reveal team list is vertical and sorted by term score descending; ties use Blue → Red → Yellow → Green identity order.
+- Result/Merge team rows use vertical team-color accents and no center axis line.
 - Individual device per player.
 - Two phases per hint.
 - Phase 1 (IDEA): 20 seconds maximum.
