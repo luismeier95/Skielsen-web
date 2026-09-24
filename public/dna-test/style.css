@@ -1,4 +1,6 @@
 body.dna-body{
+  --ui:Arial,Helvetica,sans-serif;
+  --display:"Arial Black",Arial,Helvetica,sans-serif;
   --theme-page:#e9e9e9;
   --theme-surface:#ffffff;
   --theme-surface-soft:#f7f7f7;
@@ -13,6 +15,7 @@ body.dna-body{
   --theme-muted:#666666;
   --theme-faint:#aaaaaa;
   --theme-accent:#7c5cff;
+  --theme-on-accent:#050505;
   --theme-accent-2:#1515FF;
   --theme-header:#050505;
   --theme-on-header:#ffffff;
@@ -152,14 +155,21 @@ html.dna-scroll-lock body.dna-body{
   height:100%!important;
   touch-action:none!important;
 }
-html:not(.dna-scroll-lock),
-html:not(.dna-scroll-lock) body.dna-body{
-  overflow-y:auto!important;
+html:not(.dna-scroll-lock){
   overflow-x:hidden!important;
+  overflow-y:auto!important;
   height:auto!important;
   min-height:100%!important;
   overscroll-behavior-y:auto!important;
-  touch-action:auto!important;
+  touch-action:pan-y!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+html:not(.dna-scroll-lock) body.dna-body{
+  overflow:visible!important;
+  height:auto!important;
+  min-height:100dvh!important;
+  overscroll-behavior-y:auto!important;
+  touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
 }
 html:not(.dna-scroll-lock) body.dna-body .dna-shell,
@@ -168,4 +178,10 @@ html:not(.dna-scroll-lock) body.dna-body .dna-page{
   height:auto!important;
   max-height:none!important;
   overflow:visible!important;
+}
+
+/* DNA_STANDALONE_ISOLATION_V1: no global app stylesheet participates in page scrolling. */
+html:not(.dna-scroll-lock) body.dna-body,
+html:not(.dna-scroll-lock) body.dna-body *{
+  -webkit-user-select:auto;
 }
