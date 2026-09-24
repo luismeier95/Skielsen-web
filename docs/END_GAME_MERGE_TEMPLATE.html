@@ -3,821 +3,640 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SKIELSEN · End Game Merge Template</title>
+<title>SKIELSEN · Canonical End Tables</title>
 
 <!--
-  SKIELSEN · CANONICAL END GAME MERGE TEMPLATE
-  Updated: 2026-09-22
+  SKIELSEN · CANONICAL END TABLE / MERGE TEMPLATE
+  Version: 2.0
+  Updated: 2026-09-25
+  Reference implementation: DNA standalone
 
-  Locked reference behavior:
-  - Placement points: 1st +10 / 2nd +5 / 3rd +3 / 4th +0.
-  - Phase 1 through confetti uses the original reveal timing.
-  - The tournament-merge phase after confetti uses the expanded 200%-timing reference.
-  - Old tournament points are black.
-  - Newly earned placement points are Skielsen purple.
-  - Final total is black.
-  - Rows reorder with FLIP animation.
-  - Semantic movement indicator after reorder:
-      green ▲ n = gained places
-      red   ▼ n = lost places
-      orange — = unchanged
-  - Canonical lifecycle position: RANKING -> optional JOKER_RESOLUTION -> MERGE -> CLOSE.
-  - READY is the mandatory final pre-game gate before GAME.
-  - Result-affecting Joker effects (for example DOUBLE_POINTS) must be resolved before this template receives the placement points to merge.
-  - CLOSE must remain unavailable until this merge reaches its final state.
-  - This file is the canonical visual/animation reference for future End Game Merge integrations.
+  LOCKED DESIGN / FLOW
+  ====================
+  1. Game ranking table:
+     - rounded Skielsen card
+     - vertical team-colour accent
+     - placement points: +5 / +4 / +2 / +0
+     - no "PTS" suffix
+     - placement bonuses appear bottom -> top
+     - table remains unchanged for 2 seconds before bonuses appear
+
+  2. Transition to tournament table:
+     - button text: WEITER ZUR TURNIERTABELLE →
+     - same visible rows persist; do not blank/re-render the table
+     - game metric heading becomes PUNKTE
+     - former placement column initially has no heading
+     - placement +X values remain visible
+
+  3. Point merge:
+     - one row at a time, bottom -> top
+     - +X travels toward the old tournament score
+     - +X stops beside the old score, never overlaps its glyphs
+     - +X fully fades
+     - only then old score becomes final summed score
+     - summed score pulses once
+
+  4. Reorder:
+     - BEWEGUNG heading appears only after all point merges
+     - movement cells remain empty during the swap
+     - rows physically travel to their new slots
+     - DOM order changes only after visual arrival
+     - movement values appear after the swap
+
+  5. Celebration:
+     - confetti starts last
+     - winner team colour
+     - several waves over time, not one dense burst
+
+  6. Canonical lifecycle:
+     RANKING -> optional JOKER_RESOLUTION -> MERGE -> CLOSE
+
+  Motion baseline:
+     MOTION_SCALE = 3.0625
+
+  Animation detail reference:
+     docs/style/SKIELSEN_ANIMATION_STYLE_TEMPLATE_v1.md
 -->
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&display=swap');
 
 :root{
-  --theme-page:#e9e9e9;
-  --theme-surface:#ffffff;
-  --theme-surface-soft:#f6f6f6;
-  --theme-on-surface:#050505;
-  --theme-muted:#777777;
-  --theme-border:#dddddd;
+  --page:#e9e9e9;
+  --surface:#fff;
+  --soft:#f6f6f6;
+  --text:#050505;
+  --muted:#777;
+  --border:#ddd;
+  --purple:rgb(124,92,255);
+  --success:#18a957;
+  --danger:#e24545;
 
-  --core-red:#ff1717;
-  --core-blue:#1515ff;
-  --core-green:#00a65a;
-  --core-yellow:#f2b705;
-
-  --skielsen-purple:rgb(124,92,255);
-
-  --rank-up:#18a957;
-  --rank-down:#e24545;
-  --rank-same:#f29f05;
+  --blue:#1515ff;
+  --red:#ff1717;
+  --yellow:#f2b705;
+  --green:#00a65a;
 
   --ui:"Archivo",sans-serif;
-  --display:"Archivo",sans-serif;
 }
 
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
-
 body{
   min-height:100vh;
-  padding:32px 16px;
-  background:var(--theme-page);
-  color:var(--theme-on-surface);
+  background:var(--page);
+  color:var(--text);
   font-family:var(--ui);
+  padding:24px 16px 60px;
 }
 
-#confettiCanvas{
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:9999;
-}
-
-.animation-controls{
-  width:min(680px,100%);
-  margin:0 auto 10px;
-}
-
-.animation-controls button{
-  width:100%;
-  min-height:46px;
-  border:0;
-  border-radius:12px;
-  background:#050505;
-  color:#fff;
-  font:900 9px/1 var(--ui);
-  letter-spacing:.7px;
-  cursor:pointer;
-}
-
-.result{
+.demo{
   width:min(680px,100%);
   margin:0 auto;
-  border:1px solid var(--theme-border);
-  border-radius:16px;
-  overflow:hidden;
-  background:var(--theme-surface);
-  color:var(--theme-on-surface);
 }
 
-.result>header{
-  height:58px;
-  padding:0 14px;
+.hero{margin:0 0 18px}
+.hero small{
+  display:block;
+  margin-bottom:7px;
+  color:#686868;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.15em;
+}
+.hero h1{
+  margin:0;
+  font-size:clamp(56px,14vw,104px);
+  line-height:.82;
+  letter-spacing:-.065em;
+  font-weight:900;
+}
+
+.card{
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:24px;
+  background:var(--surface);
+}
+
+.card>header{
+  min-height:86px;
+  padding:0 20px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  border-bottom:1px solid var(--theme-border);
+  gap:16px;
+  border-bottom:1px solid var(--border);
+}
+.card>header strong{
+  font-size:15px;
+  font-weight:900;
+}
+.card>header span{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:800;
+  text-align:right;
 }
 
-.result>header strong{font:900 10px/1 var(--ui)}
-.result>header span{color:var(--theme-muted);font:900 7px/1 var(--ui)}
-
-.result-columns,
-.result-row{
+.columns,
+.row{
   display:grid;
-  grid-template-columns:92px minmax(0,1fr) 72px 126px 96px;
+  grid-template-columns:62px minmax(0,1fr) 92px 94px;
   align-items:center;
+  gap:10px;
   padding:0 14px;
-  transition:grid-template-columns 1300ms cubic-bezier(.2,.8,.2,1);
 }
-
-.result.is-tournament .result-columns,
-.result.is-tournament .result-row{
-  grid-template-columns:92px minmax(0,1fr) 100px 0 0;
+.columns{
+  min-height:58px;
+  background:var(--soft);
+  color:var(--muted);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.03em;
 }
+.columns span:nth-child(3),
+.columns span:nth-child(4){text-align:right}
 
-.result-columns{
-  height:34px;
-  background:var(--theme-surface-soft);
-  color:var(--theme-muted);
-  font:900 6px/1 var(--ui);
-  letter-spacing:.8px;
-}
-
-.result-columns>span{
-  transition:opacity 600ms ease,transform 600ms ease;
-}
-
-.result-columns>span:nth-child(1){text-align:center}
-.result-columns>span:nth-child(2),
-.result-columns>span:nth-child(3){text-align:left}
-.result-columns>span:nth-child(4),
-.result-columns>span:nth-child(5){text-align:center}
-
-.result.is-tournament .result-columns>span:nth-child(4),
-.result.is-tournament .result-columns>span:nth-child(5){
-  opacity:0;
-  transform:scale(.8);
-}
-
-.result-row{
-  height:62px;
-  border-top:1px solid var(--theme-border);
+.rows{position:relative}
+.row{
+  min-height:100px;
+  border-top:1px solid var(--border);
+  background:var(--surface);
   will-change:transform;
 }
+.row:first-child{border-top:0}
 
-.position{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
+.place{
+  font-size:18px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
 }
 
-.position-number{font:900 14px/1 var(--display)}
-
-.position.is-updating .position-number{
-  animation:positionUpdate 840ms ease;
-}
-
-@keyframes positionUpdate{
-  0%{opacity:.2;transform:scale(.7)}
-  65%{opacity:1;transform:scale(1.18)}
-  100%{opacity:1;transform:scale(1)}
-}
-
-.movement-indicator{
-  min-width:20px;
-  opacity:0;
-  transform:translateY(4px) scale(.8);
-  font:900 9px/1 var(--ui);
-  transition:opacity 420ms ease,transform 420ms ease;
-  white-space:nowrap;
-}
-
-.movement-indicator.is-visible{
-  opacity:1;
-  transform:translateY(0) scale(1);
-}
-
-.movement-indicator.is-up{color:var(--rank-up)}
-.movement-indicator.is-down{color:var(--rank-down)}
-.movement-indicator.is-same{color:var(--rank-same)}
-
-.player{
+.team{
   min-width:0;
-  display:flex;
+  display:grid;
+  grid-template-columns:7px minmax(0,1fr);
   align-items:center;
-  gap:9px;
-  overflow:hidden;
-  color:var(--theme-on-surface);
-  font:900 9px/1 var(--ui);
+  gap:12px;
 }
-
-.player-accent{
-  width:6px;
-  height:32px;
-  flex:0 0 6px;
-  border-radius:3px;
-  background:var(--player);
+.team-accent{
+  width:7px;
+  height:52px;
+  border-radius:99px;
+  background:var(--team);
 }
-
-.player-name{
-  min-width:0;
+.team-copy{min-width:0}
+.team-copy strong{
+  display:block;
   overflow:hidden;
   white-space:nowrap;
   text-overflow:ellipsis;
+  font-size:14px;
+  font-weight:900;
+}
+.team-copy small{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:8px;
+  font-weight:700;
 }
 
-.points-cell{
+.metric,
+.points-stack{
+  justify-self:end;
+  font-size:22px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.points-stack{
   position:relative;
-  min-width:0;
-  height:62px;
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  font:900 14px/1 var(--display);
-  overflow:visible;
-}
-
-.points-cell>span{
-  position:absolute;
-  left:0;
-  white-space:nowrap;
-}
-
-.award-value{
-  opacity:1;
-  color:var(--skielsen-purple);
-  transform:scale(1);
-  transform-origin:left center;
-  transition:opacity 640ms ease,transform 960ms cubic-bezier(.2,.8,.2,1);
-}
-
-.points-cell.is-pending .award-value{
-  opacity:0;
-  transform:scale(.72);
-}
-
-.points-cell.is-revealing .award-value{
-  animation:rankingPointsReveal 520ms cubic-bezier(.16,.9,.25,1.22) forwards;
-}
-
-@keyframes rankingPointsReveal{
-  0%{opacity:0;transform:scale(.72)}
-  45%{opacity:1;transform:scale(1.28)}
-  72%{opacity:1;transform:scale(1.10)}
-  100%{opacity:1;transform:scale(1)}
-}
-
-.points-merge{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  opacity:0;
-  transform:scale(.8);
-  transform-origin:left center;
-  transition:opacity 700ms ease,transform 1000ms cubic-bezier(.2,.8,.2,1);
-}
-
-.points-merge b{font:inherit}
-.points-merge .base-points{color:var(--theme-on-surface)}
-.points-merge .plus-sign,
-.points-merge .award-points{color:var(--skielsen-purple)}
-
-.points-cell.is-merging .award-value{
-  opacity:0;
-  transform:translateX(18px) scale(.72);
-}
-
-.points-cell.is-merging .points-merge{
-  opacity:1;
-  transform:scale(1);
-}
-
-.total-value{
-  opacity:0;
-  color:var(--theme-on-surface);
-  transform:scale(.72);
-  transform-origin:left center;
-}
-
-.points-cell.is-total .points-merge{
-  opacity:0;
-  transform:scale(.76);
-}
-
-.points-cell.is-total .total-value{
-  animation:totalPointsReveal 1040ms cubic-bezier(.16,.9,.25,1.2) forwards;
-}
-
-@keyframes totalPointsReveal{
-  0%{opacity:0;transform:scale(.72)}
-  55%{opacity:1;transform:scale(1.22)}
-  100%{opacity:1;transform:scale(1)}
-}
-
-.metric-pair{
-  width:100%;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);
+  justify-items:end;
+  min-width:42px;
+}
+.old-points,.final-points{grid-area:1/1}
+.final-points{opacity:0;visibility:hidden}
+
+.stage{
+  min-width:70px;
+  display:flex;
+  justify-content:flex-end;
   align-items:center;
-  font:900 12px/1 var(--display);
-  transition:opacity 600ms ease,transform 800ms ease;
+  position:relative;
 }
-
-.metric-left{text-align:right}
-.metric-axis{text-align:center;color:var(--theme-muted)}
-.metric-right{text-align:left}
-
-.score{
-  text-align:center;
-  font:900 12px/1 var(--display);
-  transition:opacity 600ms ease,transform 800ms ease;
-}
-
-.result.is-tournament .metric-pair,
-.result.is-tournament .score{
+.bonus{
+  color:var(--purple);
+  font-size:20px;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
   opacity:0;
-  transform:scale(.75);
+  transform:translateY(6px);
+  transition:opacity .42s ease,transform .42s ease;
+}
+.row.bonus-visible .bonus{
+  opacity:1;
+  transform:none;
+}
+.movement{
+  position:absolute;
+  right:0;
+  opacity:0;
+  transform:translateY(4px);
+  font-size:13px;
+  font-weight:900;
+  transition:opacity .39s ease,transform .39s ease;
+}
+.movement.visible{opacity:1;transform:none}
+.movement.up{color:var(--success)}
+.movement.down{color:var(--danger)}
+.movement.same{color:var(--muted)}
+
+.row.summed .old-points{opacity:0;visibility:hidden}
+.row.summed .final-points{opacity:1;visibility:visible}
+.row.summed .bonus{opacity:0}
+
+.row.arrived .final-points{
+  animation:pointPulse .48s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes pointPulse{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.18)}
+  100%{transform:scale(1)}
+}
+
+.actions{margin-top:22px}
+button{
+  width:100%;
+  min-height:68px;
+  border:0;
+  border-radius:18px;
+  background:#050505;
+  color:#fff;
+  font:900 12px/1 var(--ui);
+  letter-spacing:.02em;
+  cursor:pointer;
+}
+button:disabled{opacity:.45;cursor:default}
+
+.confetti{
+  position:fixed;
+  inset:0;
   pointer-events:none;
+  overflow:hidden;
+  z-index:99;
+}
+.confetti i{
+  position:absolute;
+  top:-20px;
+  width:9px;
+  height:18px;
+  border-radius:2px;
+  background:var(--team);
+  animation:fall var(--dur) var(--wait) linear forwards;
+}
+@keyframes fall{
+  from{transform:translate3d(0,-20px,0) rotate(0);opacity:1}
+  to{transform:translate3d(var(--drift),105vh,0) rotate(680deg);opacity:.15}
+}
+
+.note{
+  margin-top:18px;
+  padding:15px 16px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(255,255,255,.65);
+  color:#555;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.45;
 }
 
 @media(max-width:720px){
-  body{padding:12px 8px}
-
-  .animation-controls,
-  .result{width:100%}
-
-  .animation-controls button{
-    min-height:44px;
-    border-radius:11px;
+  body{padding:16px 12px 48px}
+  .hero{margin-bottom:14px}
+  .hero h1{font-size:clamp(58px,18vw,84px)}
+  .card{border-radius:18px}
+  .card>header{min-height:62px;padding:0 14px}
+  .card>header strong{font-size:12px}
+  .card>header span{font-size:7px}
+  .columns,.row{
+    grid-template-columns:42px minmax(0,1fr) 68px 66px;
+    gap:7px;
+    padding:0 10px;
   }
-
-  .result{border-radius:14px}
-
-  .result-columns,
-  .result-row{
-    grid-template-columns:72px minmax(0,1fr) 54px 98px 72px;
-    padding:0 9px;
-  }
-
-  .result.is-tournament .result-columns,
-  .result.is-tournament .result-row{
-    grid-template-columns:72px minmax(0,1fr) 76px 0 0;
-  }
-
-  .result-columns{height:32px}
-
-  .result-row,
-  .points-cell{height:58px}
-
-  .player{gap:7px;font-size:8px}
-
-  .player-accent{
-    width:5px;
-    height:28px;
-    flex-basis:5px;
-  }
-
-  .position-number,
-  .points-cell{font-size:12px}
-
-  .movement-indicator{
-    min-width:16px;
-    font-size:8px;
-  }
-
-  .metric-pair,
-  .score{font-size:11px}
-
-  .metric-pair{
-    grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);
-  }
+  .columns{min-height:46px;font-size:6px}
+  .row{min-height:78px}
+  .place{font-size:14px}
+  .team{grid-template-columns:5px minmax(0,1fr);gap:9px}
+  .team-accent{width:5px;height:40px}
+  .team-copy strong{font-size:10px}
+  .team-copy small{font-size:6px;margin-top:4px}
+  .metric,.points-stack{font-size:17px}
+  .bonus{font-size:15px}
+  .movement{font-size:10px}
+  button{min-height:56px;border-radius:15px;font-size:9px}
 }
 </style>
 </head>
 
 <body>
-<canvas id="confettiCanvas"></canvas>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
 
-<div class="animation-controls">
-  <button id="replayAnimation" type="button">ANIMATION ERNEUT ABSPIELEN</button>
-</div>
+<main class="demo">
+  <section class="hero">
+    <small id="kicker">GAME RANKING</small>
+    <h1 id="heroTitle">ERGEBNIS.</h1>
+  </section>
 
-<section class="result" id="rankingTable">
-  <header>
-    <strong id="tableTitle">FINALES ERGEBNIS</strong>
-    <span id="tableMeta">SPIEL 4</span>
-  </header>
+  <section class="card" id="table">
+    <header>
+      <strong id="tableTitle">GAME · FINALES ERGEBNIS</strong>
+      <span id="tableMeta">HÖHER IST BESSER</span>
+    </header>
 
-  <div class="result-columns">
-    <span>POSITION</span>
-    <span>NAME</span>
-    <span id="pointsHeading"></span>
-    <span>VERSUCHE</span>
-    <span>BESTZEIT</span>
+    <div class="columns">
+      <span>POSITION</span>
+      <span>TEAM</span>
+      <span id="metricHeading">GAME</span>
+      <span id="movementHeading"></span>
+    </div>
+
+    <div class="rows" id="rows"></div>
+  </section>
+
+  <div class="actions">
+    <button id="action" type="button">WEITER ZUR TURNIERTABELLE →</button>
   </div>
 
-  <div id="rankingRows">
-
-    <div class="result-row" data-row data-old-rank="1" data-new-rank="3">
-      <div class="position">
-        <span class="position-number">1.</span>
-        <span class="movement-indicator" data-movement></span>
-      </div>
-      <div class="player">
-        <i class="player-accent" style="--player:var(--core-red)"></i>
-        <span class="player-name">DJEELOI</span>
-      </div>
-      <div class="points-cell" data-ranking-points>
-        <span class="award-value">+10</span>
-        <span class="points-merge">
-          <b class="base-points">12</b>
-          <b class="plus-sign">+</b>
-          <b class="award-points">10</b>
-        </span>
-        <span class="total-value">22</span>
-      </div>
-      <div class="metric-pair">
-        <span class="metric-left">-</span>
-        <span class="metric-axis">/</span>
-        <span class="metric-right">233ms</span>
-      </div>
-      <div class="score">198ms</div>
-    </div>
-
-    <div class="result-row" data-row data-old-rank="2" data-new-rank="2">
-      <div class="position">
-        <span class="position-number">2.</span>
-        <span class="movement-indicator" data-movement></span>
-      </div>
-      <div class="player">
-        <i class="player-accent" style="--player:var(--core-blue)"></i>
-        <span class="player-name">SOFYA</span>
-      </div>
-      <div class="points-cell" data-ranking-points>
-        <span class="award-value">+5</span>
-        <span class="points-merge">
-          <b class="base-points">19</b>
-          <b class="plus-sign">+</b>
-          <b class="award-points">5</b>
-        </span>
-        <span class="total-value">24</span>
-      </div>
-      <div class="metric-pair">
-        <span class="metric-left">-</span>
-        <span class="metric-axis">/</span>
-        <span class="metric-right">-</span>
-      </div>
-      <div class="score">214ms</div>
-    </div>
-
-    <div class="result-row" data-row data-old-rank="3" data-new-rank="4">
-      <div class="position">
-        <span class="position-number">3.</span>
-        <span class="movement-indicator" data-movement></span>
-      </div>
-      <div class="player">
-        <i class="player-accent" style="--player:var(--core-green)"></i>
-        <span class="player-name">HANNES</span>
-      </div>
-      <div class="points-cell" data-ranking-points>
-        <span class="award-value">+3</span>
-        <span class="points-merge">
-          <b class="base-points">16</b>
-          <b class="plus-sign">+</b>
-          <b class="award-points">3</b>
-        </span>
-        <span class="total-value">19</span>
-      </div>
-      <div class="metric-pair">
-        <span class="metric-left">233ms</span>
-        <span class="metric-axis">/</span>
-        <span class="metric-right">-</span>
-      </div>
-      <div class="score">237ms</div>
-    </div>
-
-    <div class="result-row" data-row data-old-rank="4" data-new-rank="1">
-      <div class="position">
-        <span class="position-number">4.</span>
-        <span class="movement-indicator" data-movement></span>
-      </div>
-      <div class="player">
-        <i class="player-accent" style="--player:var(--core-yellow)"></i>
-        <span class="player-name">PIA</span>
-      </div>
-      <div class="points-cell" data-ranking-points>
-        <span class="award-value">+0</span>
-        <span class="points-merge">
-          <b class="base-points">25</b>
-          <b class="plus-sign">+</b>
-          <b class="award-points">0</b>
-        </span>
-        <span class="total-value">25</span>
-      </div>
-      <div class="metric-pair">
-        <span class="metric-left">245ms</span>
-        <span class="metric-axis">/</span>
-        <span class="metric-right">271ms</span>
-      </div>
-      <div class="score">245ms</div>
-    </div>
-
+  <div class="note">
+    Kanonische Referenz: Die Ergebnis-Tabelle bleibt beim Merge dasselbe sichtbare Objekt.
+    Keine leere Zwischenansicht, kein zweites Row-Appear und kein Teleport-Reorder.
   </div>
-</section>
+</main>
 
 <script>
-const tournamentFeatures={inAppAnimations:true};
+const MOTION_SCALE=3.0625;
+const motionMs=ms=>Math.round(ms*MOTION_SCALE);
 
-const rankingTable=document.querySelector('#rankingTable');
-const rankingRows=document.querySelector('#rankingRows');
+const TEAMS={
+  RED:{name:'TEAM ROT',members:'DJEELOI + SOFYA',color:'#ff1717',existing:12},
+  BLUE:{name:'TEAM BLAU',members:'HANNES + PIA',color:'#1515ff',existing:11},
+  YELLOW:{name:'TEAM GELB',members:'TOM + ANNA',color:'#f2b705',existing:7},
+  GREEN:{name:'TEAM GRÜN',members:'MATS + LENA',color:'#00a65a',existing:9}
+};
+
+const STABLE_ORDER=['BLUE','RED','YELLOW','GREEN'];
+
+const gameRows=[
+  {key:'RED',score:24},
+  {key:'YELLOW',score:18},
+  {key:'BLUE',score:12},
+  {key:'GREEN',score:8}
+]
+.sort((a,b)=>b.score-a.score||STABLE_ORDER.indexOf(a.key)-STABLE_ORDER.indexOf(b.key))
+.map((r,i)=>({...r,place:i+1,bonus:[5,4,2,0][i]}));
+
+const rowsHost=document.querySelector('#rows');
+const action=document.querySelector('#action');
+const heroTitle=document.querySelector('#heroTitle');
+const kicker=document.querySelector('#kicker');
 const tableTitle=document.querySelector('#tableTitle');
 const tableMeta=document.querySelector('#tableMeta');
-const pointsHeading=document.querySelector('#pointsHeading');
-const replayButton=document.querySelector('#replayAnimation');
+const metricHeading=document.querySelector('#metricHeading');
+const movementHeading=document.querySelector('#movementHeading');
+const confettiHost=document.querySelector('#confetti');
 
-let rows=[...document.querySelectorAll('[data-row]')];
-let pointCells=[...document.querySelectorAll('[data-ranking-points]')];
-let animationTimers=[];
-const originalOrder=[...rows];
+let state='RESULT';
+let timers=[];
 
-function clearTimers(){
-  animationTimers.forEach(clearTimeout);
-  animationTimers=[];
+function later(fn,ms){
+  const id=setTimeout(fn,ms);
+  timers.push(id);
+  return id;
 }
 
-function later(callback,delay){
-  const timer=setTimeout(callback,delay);
-  animationTimers.push(timer);
+function rowMarkup(r,i){
+  const t=TEAMS[r.key];
+  return `<div class="row" data-team="${r.key}">
+    <b class="place">${String(r.place).padStart(2,'0')}</b>
+    <span class="team" style="--team:${t.color}">
+      <i class="team-accent"></i>
+      <span class="team-copy">
+        <strong>${t.name}</strong>
+        <small>${t.members}</small>
+      </span>
+    </span>
+    <b class="metric">${r.score}</b>
+    <span class="stage"><b class="bonus">+${r.bonus}</b></span>
+  </div>`;
 }
 
-const canvas=document.querySelector('#confettiCanvas');
-const ctx=canvas.getContext('2d');
-let confettiParticles=[];
-let confettiFrame=null;
-
-function resizeCanvas(){
-  const ratio=window.devicePixelRatio||1;
-  canvas.width=window.innerWidth*ratio;
-  canvas.height=window.innerHeight*ratio;
-  canvas.style.width=window.innerWidth+'px';
-  canvas.style.height=window.innerHeight+'px';
-  ctx.setTransform(ratio,0,0,ratio,0,0);
-}
-
-window.addEventListener('resize',resizeCanvas);
-resizeCanvas();
-
-function clearConfetti(){
-  if(confettiFrame)cancelAnimationFrame(confettiFrame);
-  confettiFrame=null;
-  confettiParticles=[];
-  ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-}
-
-function winnerColor(){
-  const accent=originalOrder[0].querySelector('.player-accent');
-  return getComputedStyle(accent).backgroundColor;
-}
-
-function makeParticle(x,y,side,color){
-  return {
-    x,y,
-    vx:(side==='left'?1:-1)*(2+Math.random()*8),
-    vy:-8-Math.random()*10,
-    gravity:.22+Math.random()*.09,
-    drag:.988,
-    rotation:Math.random()*Math.PI*2,
-    rotationSpeed:(Math.random()-.5)*.3,
-    width:5+Math.random()*6,
-    height:8+Math.random()*9,
-    color,
-    life:1,
-    decay:.007+Math.random()*.004
-  };
-}
-
-function launchConfetti(){
-  if(!tournamentFeatures.inAppAnimations)return;
-
-  clearConfetti();
-
-  const rect=rankingTable.getBoundingClientRect();
-  const color=winnerColor();
-  const amount=window.innerWidth<=720?110:180;
-
-  for(let i=0;i<amount;i++){
-    const left=i%2===0;
-    confettiParticles.push(
-      makeParticle(
-        left?rect.left:rect.right,
-        rect.bottom,
-        left?'left':'right',
-        color
-      )
-    );
-  }
-
-  animateConfetti();
-}
-
-function animateConfetti(){
-  function frame(){
-    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-
-    confettiParticles=confettiParticles.filter(
-      p=>p.life>0&&p.y<window.innerHeight+100
-    );
-
-    confettiParticles.forEach(p=>{
-      p.vx*=p.drag;
-      p.vy+=p.gravity;
-      p.x+=p.vx;
-      p.y+=p.vy;
-      p.rotation+=p.rotationSpeed;
-      p.life-=p.decay;
-
-      ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rotation);
-      ctx.globalAlpha=Math.max(0,p.life);
-      ctx.fillStyle=p.color;
-      ctx.fillRect(-p.width/2,-p.height/2,p.width,p.height);
-      ctx.restore();
-    });
-
-    if(confettiParticles.length){
-      confettiFrame=requestAnimationFrame(frame);
-    }
-  }
-
-  frame();
-}
-
-function hideMovementIndicators(){
-  rows.forEach(row=>{
-    const indicator=row.querySelector('[data-movement]');
-    indicator.className='movement-indicator';
-    indicator.textContent='';
-  });
-}
-
-function showMovementIndicators(){
-  rows.forEach(row=>{
-    const oldRank=Number(row.dataset.oldRank);
-    const newRank=Number(row.dataset.newRank);
-    const delta=oldRank-newRank;
-    const indicator=row.querySelector('[data-movement]');
-
-    indicator.className='movement-indicator';
-
-    if(delta>0){
-      indicator.textContent='▲ '+delta;
-      indicator.classList.add('is-up');
-    }else if(delta<0){
-      indicator.textContent='▼ '+Math.abs(delta);
-      indicator.classList.add('is-down');
-    }else{
-      indicator.textContent='—';
-      indicator.classList.add('is-same');
-    }
-
-    void indicator.offsetWidth;
-    indicator.classList.add('is-visible');
-  });
-}
-
-function resetAnimation(){
-  clearTimers();
-  clearConfetti();
-
-  originalOrder.forEach(row=>rankingRows.appendChild(row));
-
-  rankingTable.classList.remove('is-tournament');
-  tableTitle.textContent='FINALES ERGEBNIS';
-  tableMeta.textContent='SPIEL 4';
-  pointsHeading.textContent='';
-
-  rows=[...document.querySelectorAll('[data-row]')];
-  pointCells=[...document.querySelectorAll('[data-ranking-points]')];
-
-  rows.forEach((row,index)=>{
-    row.style.transition='';
-    row.style.transform='';
-
-    const position=row.querySelector('.position');
-    const number=row.querySelector('.position-number');
-
-    position.classList.remove('is-updating');
-    number.textContent=(index+1)+'.';
-  });
-
-  hideMovementIndicators();
-
-  pointCells.forEach(cell=>{
-    cell.classList.remove('is-pending','is-revealing','is-merging','is-total');
-  });
-}
-
-/* Phase 1: original speed through confetti. */
-function revealGamePoints(){
-  document.body.classList.add('in-app-animations');
-
-  pointCells.forEach(cell=>cell.classList.add('is-pending'));
-
-  [...pointCells].reverse().forEach((cell,index)=>{
+function renderResult(){
+  state='RESULT';
+  rowsHost.innerHTML=gameRows.map(rowMarkup).join('');
+  [...rowsHost.children].forEach((row,i)=>{
+    row.style.opacity='0';
+    row.style.transform='translateY(7px)';
     later(()=>{
-      cell.classList.remove('is-pending');
-      void cell.offsetWidth;
-      cell.classList.add('is-revealing');
-    },350+index*480);
+      row.style.transition='opacity .63s ease, transform .63s ease';
+      row.style.opacity='1';
+      row.style.transform='none';
+    },motionMs(160+i*130));
   });
 
-  later(launchConfetti,350+3*480+520);
-  later(startTournamentTransition,350+3*480+1250);
+  // Hold unchanged for 2 seconds, then placement points bottom -> top.
+  later(()=>{
+    [...rowsHost.children].reverse().forEach((row,i)=>{
+      later(()=>row.classList.add('bonus-visible'),motionMs(i*260));
+    });
+  },2000);
 }
 
-/* Phase 2: expanded 200%-timing reference after confetti. */
-function startTournamentTransition(){
+function beginMerge(){
+  if(state!=='RESULT')return;
+  state='MERGE';
+  action.disabled=true;
+  action.textContent='MERGE LÄUFT …';
+
+  kicker.textContent='END GAME MERGE';
+  heroTitle.textContent='PUNKTE.';
   tableTitle.textContent='TURNIERSTAND';
-  tableMeta.textContent='NACH SPIEL 4';
-  pointsHeading.textContent='PUNKTE';
+  tableMeta.textContent='GAME → TURNIERPUNKTE';
+  metricHeading.textContent='PUNKTE';
+  movementHeading.textContent='';
 
-  rankingTable.classList.add('is-tournament');
+  const oldOrder=Object.entries(TEAMS)
+    .map(([key,t],i)=>({key,points:t.existing,stable:STABLE_ORDER.indexOf(key)}))
+    .sort((a,b)=>b.points-a.points||a.stable-b.stable);
+  const oldPos=Object.fromEntries(oldOrder.map((r,i)=>[r.key,i+1]));
+  const bonusByTeam=Object.fromEntries(gameRows.map(r=>[r.key,r.bonus]));
 
-  later(()=>{
-    pointCells.forEach(cell=>{
-      cell.classList.remove('is-revealing');
-      cell.classList.add('is-merging');
-    });
-  },900);
+  const data=Object.fromEntries(Object.entries(TEAMS).map(([key,t])=>[
+    key,
+    {
+      key,
+      old:t.existing,
+      add:bonusByTeam[key]||0,
+      final:t.existing+(bonusByTeam[key]||0),
+      stable:STABLE_ORDER.indexOf(key)
+    }
+  ]));
 
-  later(()=>{
-    pointCells.forEach(cell=>cell.classList.add('is-total'));
-  },2500);
+  [...rowsHost.children].forEach(row=>{
+    const d=data[row.dataset.team];
+    const metric=row.querySelector('.metric');
+    const stage=row.querySelector('.stage');
 
-  later(reorderTournamentRows,4100);
+    const stack=document.createElement('span');
+    stack.className='points-stack';
+    stack.innerHTML=`<b class="old-points">${d.old}</b><b class="final-points">${d.final}</b>`;
+    metric.replaceWith(stack);
+
+    const bonus=stage.querySelector('.bonus');
+    bonus.textContent='+'+d.add;
+    const move=document.createElement('b');
+    move.className='movement';
+    stage.appendChild(move);
+  });
+
+  const finalRows=Object.values(data)
+    .sort((a,b)=>b.final-a.final||a.stable-b.stable)
+    .map((r,i)=>({...r,after:i+1}));
+
+  later(()=>mergePoints(finalRows,oldPos),motionMs(420));
 }
 
-function reorderTournamentRows(){
-  const currentRows=[...rankingRows.children];
-  const before=new Map();
-
-  currentRows.forEach(row=>{
-    before.set(row,row.getBoundingClientRect().top);
-  });
-
-  const sorted=[...currentRows].sort(
-    (a,b)=>Number(a.dataset.newRank)-Number(b.dataset.newRank)
-  );
-
-  sorted.forEach(row=>rankingRows.appendChild(row));
-
-  sorted.forEach(row=>{
-    const after=row.getBoundingClientRect().top;
-    const delta=before.get(row)-after;
-
-    row.style.transition='none';
-    row.style.transform='translateY('+delta+'px)';
-  });
-
-  void rankingRows.offsetHeight;
-
-  sorted.forEach(row=>{
-    row.style.transition='transform 1520ms cubic-bezier(.2,.85,.2,1)';
-    row.style.transform='translateY(0)';
-  });
-
-  later(()=>{
-    sorted.forEach((row,index)=>{
-      const position=row.querySelector('.position');
-      const number=row.querySelector('.position-number');
-
-      number.textContent=(index+1)+'.';
-      position.classList.remove('is-updating');
-      void position.offsetWidth;
-      position.classList.add('is-updating');
-    });
-  },1240);
-
-  later(showMovementIndicators,1850);
+async function wait(ms){
+  return new Promise(resolve=>later(resolve,ms));
 }
 
-function playAnimation(){
-  resetAnimation();
+async function mergePoints(finalRows,oldPos){
+  const rows=[...rowsHost.children];
 
-  if(!tournamentFeatures.inAppAnimations){
-    rankingTable.classList.add('is-tournament');
-    tableTitle.textContent='TURNIERSTAND';
-    tableMeta.textContent='NACH SPIEL 4';
-    pointsHeading.textContent='PUNKTE';
+  // Sequential, bottom -> top.
+  for(const row of [...rows].reverse()){
+    const bonus=row.querySelector('.bonus');
+    const old=row.querySelector('.old-points');
+    const br=bonus.getBoundingClientRect();
+    const or=old.getBoundingClientRect();
 
-    pointCells.forEach(cell=>{
-      cell.classList.add('is-merging','is-total');
+    // Collision guard: stop 8px right of existing score.
+    const dx=(or.right+8)-br.left;
+
+    const anim=bonus.animate([
+      {transform:'translate3d(0,0,0)',opacity:1,offset:0},
+      {transform:`translate3d(${dx*.9}px,0,0)`,opacity:1,offset:.72},
+      {transform:`translate3d(${dx}px,0,0)`,opacity:.28,offset:.9},
+      {transform:`translate3d(${dx}px,0,0)`,opacity:0,offset:1}
+    ],{
+      duration:motionMs(240),
+      easing:'cubic-bezier(.2,.8,.2,1)',
+      fill:'forwards'
     });
 
-    reorderTournamentRows();
-    return;
+    await anim.finished.catch(()=>{});
+    anim.cancel();
+    bonus.style.opacity='0';
+
+    row.classList.add('summed','arrived');
+    await wait(motionMs(100));
   }
 
-  revealGamePoints();
+  await wait(motionMs(180));
+  movementHeading.textContent='BEWEGUNG';
+  await wait(motionMs(220));
+  reorderRows(finalRows,oldPos);
 }
 
-replayButton.addEventListener('click',playAnimation);
-playAnimation();
-</script>
+function reorderRows(finalRows,oldPos){
+  const current=[...rowsHost.children];
+  const rowByTeam=Object.fromEntries(current.map(r=>[r.dataset.team,r]));
+  const slotTops=current.map(r=>r.getBoundingClientRect().top);
+  const animations=[];
 
+  finalRows.forEach((r,targetIndex)=>{
+    const el=rowByTeam[r.key];
+    const dy=slotTops[targetIndex]-el.getBoundingClientRect().top;
+    el.classList.add('swapping');
+
+    const anim=el.animate([
+      {transform:'translate3d(0,0,0)'},
+      {transform:`translate3d(0,${dy}px,0)`}
+    ],{
+      duration:motionMs(580),
+      easing:'cubic-bezier(.2,.72,.18,1)',
+      fill:'forwards'
+    });
+    animations.push({el,anim});
+  });
+
+  Promise.all(animations.map(x=>x.anim.finished.catch(()=>{}))).then(()=>{
+    animations.forEach(({anim})=>{
+      try{anim.commitStyles()}catch(_){}
+      anim.cancel();
+    });
+
+    finalRows.forEach((r,i)=>{
+      const el=rowByTeam[r.key];
+      rowsHost.appendChild(el);
+      el.querySelector('.place').textContent=String(i+1).padStart(2,'0');
+    });
+
+    animations.forEach(({el})=>{
+      el.style.transform='none';
+      el.classList.remove('swapping');
+    });
+
+    later(()=>{
+      finalRows.forEach(r=>{
+        const el=rowByTeam[r.key];
+        const movement=el.querySelector('.movement');
+        const delta=(oldPos[r.key]||r.after)-r.after;
+
+        movement.textContent=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';
+        movement.className='movement '+(delta>0?'up':delta<0?'down':'same');
+        requestAnimationFrame(()=>movement.classList.add('visible'));
+      });
+
+      later(()=>{
+        confetti(finalRows[0]?.key);
+        action.disabled=false;
+        action.textContent='SPIEL SCHLIESSEN →';
+      },motionMs(420));
+    },motionMs(120));
+  });
+}
+
+function confetti(key){
+  if(!key)return;
+  const waves=6;
+  const piecesPerWave=18;
+  const waveGap=560;
+
+  for(let wave=0;wave<waves;wave++){
+    later(()=>{
+      for(let i=0;i<piecesPerWave;i++){
+        const el=document.createElement('i');
+        el.style.setProperty('--team',TEAMS[key].color);
+        el.style.left=(Math.random()*100)+'%';
+        el.style.setProperty('--dur',(2.15+Math.random()*1.15)+'s');
+        el.style.setProperty('--wait',(Math.random()*.24)+'s');
+        el.style.setProperty('--drift',(-95+Math.random()*190)+'px');
+        confettiHost.appendChild(el);
+      }
+    },wave*waveGap);
+  }
+
+  later(()=>{confettiHost.innerHTML=''},waves*waveGap+3800);
+}
+
+action.addEventListener('click',()=>{
+  if(state==='RESULT')beginMerge();
+});
+
+renderResult();
+</script>
 </body>
 </html>
