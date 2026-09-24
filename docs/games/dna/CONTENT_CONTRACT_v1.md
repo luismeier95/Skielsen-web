@@ -1,7 +1,7 @@
 # SKIELSEN DNA — Content Contract v1
 
 **Status:** Approved  
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** 2026-09-24  
 **Applies to:** All DNA content categories
 
@@ -223,9 +223,10 @@ Mobile readability is mandatory.
 Target:
 
 - 1–2 short sentences,
-- ideally about 8–22 words per hint.
+- ideally about 8–22 words per hint,
+- wording that fits the mobile hint container without clipping at the supported text scale.
 
-A player must be able to read and process the hint while the 10-second IDEA timer is running.
+A player must be able to read and process the hint comfortably within the 20-second IDEA phase.
 
 Long paragraphs are not valid production content.
 
