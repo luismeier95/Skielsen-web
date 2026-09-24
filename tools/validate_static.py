@@ -50,6 +50,7 @@ if 'DNA_STANDALONE_MOBILE_CONTRACT' not in dna_css: fail('DNA Standalone Mobile 
 if 'DNA_FULL_VIEWPORT_V2' not in dna_css: fail('DNA Standalone Full-Viewport Contract Marker fehlt')
 if 'DNA_VOTE_SUBMIT_VISIBLE_CONTRACT' not in dna_css: fail('DNA Standalone Submit-Visibility Contract Marker fehlt')
 if 'DNA_KEYBOARD_ACTION_DOCK_V2' not in dna_css: fail('DNA Standalone Keyboard-Dock Contract Marker fehlt')
+if 'DNA_PAGE_SCROLL_SCOPE_V1' not in dna_css: fail('DNA Standalone Scroll-Scope Contract Marker fehlt')
 for token in ['IDEA_PHASE_MS=15000','VOTE_PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints','--dna-visual-top']:
  if token not in dna_js: fail(f'DNA Standalone Contract fehlt: {token}')
 if 'canonical_answer' in dna_js or 'dna_answer_aliases' in dna_js or 'dna_hints' in dna_js:
