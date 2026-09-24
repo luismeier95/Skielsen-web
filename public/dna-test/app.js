@@ -138,7 +138,7 @@ function reorderMergeRows(finalRows,oldPos){
  const before=new Map([...host.children].map(el=>[el.dataset.team,el.getBoundingClientRect()]));
  finalRows.forEach((r,i)=>{const el=host.querySelector(`[data-team="${r.key}"]`);if(!el)return;host.appendChild(el);const place=el.querySelector('.dna-place');if(place)place.textContent=String(i+1).padStart(2,'0')});
  const after=new Map([...host.children].map(el=>[el.dataset.team,el.getBoundingClientRect()]));
- [...host.children].forEach(el=>{const b=before.get(el.dataset.team),a=after.get(el.dataset.team);if(!b||!a)return;el.style.transition='none';el.style.transform=`translateY(${b.top-a.top}px)`;el.getBoundingClientRect();el.style.transition='transform .58s cubic-bezier(.2,.8,.2,1)';el.style.transform='translateY(0)'});
+ [...host.children].forEach(el=>{const b=before.get(el.dataset.team),a=after.get(el.dataset.team);if(!b||!a)return;el.style.transition='none';el.style.transform=`translateY(${b.top-a.top}px)`;el.getBoundingClientRect();el.style.transition='transform 1.02s cubic-bezier(.2,.8,.2,1)';el.style.transform='translateY(0)'});
  later(()=>{
    finalRows.forEach(r=>{const el=host.querySelector(`[data-team="${r.key}"]`);if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
    later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
