@@ -238,28 +238,44 @@ html:not(.dna-scroll-lock) body.dna-body *{
 /* DNA_SWAP_TRANSFORM_UNBLOCK_V1: stable rows no longer override transform while swapping. */
 
 .dna-term-countdown{
-  height:calc(var(--dna-visual-height,100dvh) - 45px);
-  display:grid;
-  place-items:center;
-  padding:18px;
+  position:fixed;
+  inset:45px 0 0;
+  z-index:30;
+  background:var(--theme-page);
+  overflow:hidden;
 }
 .dna-countdown-inner{
-  display:grid;
-  justify-items:center;
-  align-content:center;
-  gap:10px;
+  position:absolute;
+  inset:0;
   text-align:center;
 }
 .dna-countdown-category{
+  position:absolute;
+  left:50%;
+  top:31%;
+  transform:translate(-50%,-50%);
+  width:min(92vw,680px);
+  display:block;
   font-family:var(--display,var(--ui));
-  font-size:clamp(28px,8vw,52px);
-  line-height:1;
+  font-size:clamp(34px,10vw,64px);
+  font-weight:950;
+  line-height:.95;
   color:var(--theme-on-page);
-  letter-spacing:-.03em;
+  letter-spacing:-.035em;
+  text-align:center;
 }
 .dna-countdown-number{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  display:block;
   font-family:var(--display,var(--ui));
-  font-size:clamp(96px,34vw,190px);
-  line-height:.9;
+  font-size:clamp(120px,40vw,220px);
+  font-weight:950;
+  line-height:.8;
   color:var(--theme-on-page);
+  text-align:center;
 }
+
+/* DNA_COUNTDOWN_POSITION_V2: category at end of first third; countdown exactly centered. */
