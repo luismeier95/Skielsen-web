@@ -381,3 +381,125 @@ html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]):not([da
 html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]):not([data-theme-id="theme.skielsen.core2"]) .shop-home-nav{
   color:var(--theme-on-header-contract,#fff)
 }
+
+/* V15.1.139 · Canonical rounded Shop design */
+:root{
+  --shop-radius-outer:16px;
+  --shop-radius-card:12px;
+  --shop-radius-small:9px;
+}
+
+/* Page-level surfaces */
+.hero,
+.price-ladder,
+.shop-section,
+.cart,
+.modal-card,
+.game-detail-card,
+.game-animation-card{
+  border-radius:var(--shop-radius-outer);
+  overflow:hidden;
+}
+
+/* Cards and grouped content */
+.game-card,
+.theme-preview-card,
+.feature-pack,
+.premium-option,
+.premium-option-composite,
+.architecture-note,
+.material-cost-note,
+.extras-gate-note,
+.material-row,
+.empty{
+  border-radius:var(--shop-radius-card);
+  overflow:hidden;
+}
+
+/* The old 1px catalogue matrix becomes the shared spaced card grid. */
+.games-grid{
+  gap:10px;
+  padding:12px 18px 18px;
+  background:transparent;
+}
+.game-card{
+  border:1px solid var(--theme-border);
+}
+
+/* Compact interactive elements */
+button,
+select,
+input,
+.filter,
+.game-chip,
+.game-meta span,
+.detail-chips span,
+.feature-unlock,
+.material-badge,
+.demo-badge,
+.invite-code,
+.mobile-game-chip{
+  border-radius:var(--shop-radius-small);
+}
+.game-add,
+.checkout,
+.detail-add,
+.mobile-total-button{
+  border-radius:var(--shop-radius-card);
+}
+
+/* Lists retain their order while reading as individual rounded rows. */
+.selected-order{
+  display:grid;
+  gap:7px;
+}
+.order-row{
+  border:1px solid var(--theme-border);
+  border-radius:var(--shop-radius-small);
+  padding:0 9px;
+  overflow:hidden;
+}
+.order-row:first-child{border-top:1px solid var(--theme-border)}
+.selected-games-list{display:grid;gap:5px}
+.selected-game-row{
+  border:1px solid var(--theme-border);
+  border-radius:var(--shop-radius-small);
+}
+.selected-game-row:first-child{border-top:1px solid var(--theme-border)}
+
+/* Form groups and switches use the same small-control language. */
+.player-stepper{
+  width:max-content;
+  border:1px solid var(--theme-border-strong);
+  border-radius:var(--shop-radius-small);
+  overflow:hidden;
+}
+.player-stepper button,
+.player-stepper input{
+  border-top:0;
+  border-bottom:0;
+  border-radius:0;
+}
+.player-stepper button:first-child{border-left:0}
+.player-stepper button:last-child{border-right:0}
+.switch{
+  border-radius:999px;
+}
+.switch:after{
+  border-radius:50%;
+}
+
+@media(max-width:620px){
+  :root{
+    --shop-radius-outer:14px;
+    --shop-radius-card:11px;
+    --shop-radius-small:8px;
+  }
+  .games-grid{
+    gap:8px;
+    padding:10px 14px 14px;
+  }
+  .modal-card{
+    border-radius:var(--shop-radius-outer) var(--shop-radius-outer) 0 0;
+  }
+}
