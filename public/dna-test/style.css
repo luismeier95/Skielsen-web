@@ -296,3 +296,13 @@ html:not(.dna-scroll-lock) body.dna-body *{
 /* DNA_COUNTDOWN_POSITION_V2: category at end of first third; countdown exactly centered. */
 
 /* DNA_COUNTDOWN_ROUND_V1: round X / Y sits centered above the next category. */
+
+/* DNA_KEYBOARD_HINT_AUTOFIT_V1: active hint uses real visualViewport height and JS fits text only as much as needed. */
+body.dna-keyboard-open .dna-hints{
+  max-height:min(34vh,calc(var(--dna-visual-height,100dvh) - 220px))!important;
+  overflow:hidden!important;
+}
+body.dna-keyboard-open .dna-hint-text{
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
