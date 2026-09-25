@@ -158,6 +158,23 @@ Primary state text and its explanatory small copy are separate block rows.
 
 Small explanatory copy must never be placed inline after the main state text.
 
+### Canonical container style
+
+The **IDEA screen is the visual source of truth for DNA containers**.
+
+All page-level DNA surfaces must reuse the IDEA container treatment:
+- 1px Theme Contract border,
+- outer DNA radius,
+- Theme Contract surface background,
+- normal on-surface text,
+- no page-specific decorative shadow.
+
+This applies to the gameplay interaction surface, released hint cards, Reveal answer surface, Reveal team result cards, Game Ranking outer card and Tournament Merge outer card.
+
+For released hint cards, IDEA is authoritative for both outer styling **and inner padding**. VOTE, submitted state and evaluation feedback must reuse the same hint-card padding after the keyboard closes; a phase change must not visibly restyle the container.
+
+Intentional exceptions are semantic or nested controls rather than page-level containers: selectable VOTE options, buttons/inputs, participant rows, and the green/red feedback fill may keep their specific interaction/semantic treatment while still using Theme Contract tokens.
+
 ## 3. Team model
 
 DNA is a team game. Every player uses an individual device.

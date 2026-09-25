@@ -978,14 +978,21 @@ body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-actions .dna-btn{
 }
 
 
-/* DNA_HINT_TYPE_LOCK_V5
-   IDEA and VOTE share not only the same outer geometry but the same inner text box.
-   Slightly larger vertical insets + fit reserve keep descenders off the border. */
-body.dna-keyboard-open .dna-hint-card{
-  padding:6px 10px 9px!important;
-  gap:3px!important;
+/* DNA_IDEA_CONTAINER_CANON_V1
+   IDEA is the canonical DNA container style. Page-level surfaces reuse the same
+   border, radius, background and shadow treatment instead of inventing variants. */
+:where(.dna-card,.dna-hint-card,.dna-interaction,.dna-reveal-answer,.dna-term-score,.dna-result-card,.dna-merge-card){
+  border:1px solid var(--theme-border)!important;
+  border-radius:var(--dna-radius-outer)!important;
+  background:var(--theme-surface)!important;
+  color:var(--theme-on-surface);
+  box-shadow:none!important;
 }
-body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-hint-card{
-  padding:9px 10px!important;
+
+/* The IDEA hint card is also authoritative for the inner hint-card box.
+   VOTE/submitted/feedback reuse the exact same padding after the keyboard closes. */
+body.dna-keyboard-open .dna-hint-card,
+body.dna-hint-stage-pinned .dna-hint-card{
+  padding:6px 10px 9px!important;
   gap:3px!important;
 }

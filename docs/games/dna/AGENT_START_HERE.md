@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.29.0  
+**Latest implementation baseline at handover:** DNA standalone v2.29.3  
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
@@ -236,6 +236,8 @@ The input requests uppercase-oriented keyboard entry through `autocapitalize="ch
 ## 11. IDEA screen
 
 The user likes the current compact screen.
+
+**Container canon:** IDEA is now the source of truth for DNA page-level container styling. VOTE, submitted/feedback, Reveal, Ranking and Merge must not introduce alternate page-level surface styles. Released hint cards keep the exact IDEA border/background/radius and the same inner padding when the keyboard closes.
 
 Key requirements:
 - current released hint(s) above,
