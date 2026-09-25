@@ -22,11 +22,18 @@ class DevHandler(SimpleHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Bind address (default: 127.0.0.1; use 0.0.0.0 for your local network)",
+    )
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     handler = partial(DevHandler, directory=str(PUBLIC))
-    with ThreadingHTTPServer(("127.0.0.1", args.port), handler) as server:
-        print(f"App: http://127.0.0.1:{server.server_port}/", flush=True)
+    with ThreadingHTTPServer((args.host, args.port), handler) as server:
+        display_host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
+        print(f"Listening on: {args.host}:{server.server_port}", flush=True)
+        print(f"App: http://{display_host}:{server.server_port}/", flush=True)
         print("Standalone: /dna-test/ | Stop: Ctrl+C", flush=True)
         try:
             server.serve_forever()

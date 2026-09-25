@@ -321,3 +321,16 @@ Every In-App game follows one ordered lifecycle. Optional setup steps are skippe
 - Every transient state must have a recovery path. A client may re-poll incomplete resolution/merge state, and a lost transition must not create a permanent dead end.
 - `docs/END_GAME_MERGE_TEMPLATE.html` is the canonical visual/animation reference for MERGE.
 - `window.skielsenInApp.flowContract` is the runtime source for the canonical stage order.
+
+## Quick Games
+
+Quick Games is a separate authenticated flow outside a tournament. It must not create tournament points, trigger Joker/MVP/LVP steps or enter the Tournament Merge lifecycle.
+
+- The account landing page links to the Quick Games catalogue.
+- A host selects one integration-ready game and receives a `QG-` lobby code.
+- Other authenticated users join that lobby from their own devices.
+- The host explicitly fills all remaining seats with bots before starting, unless every human seat is occupied.
+- Starting the lobby locks the roster and sends every joined client to the selected game.
+- A Quick Game ends on its shared game ranking and returns to Quick Games; it never continues into Tournament Merge.
+- Lobby membership, start authority and submitted results are server-authoritative and protected by RLS/security-definer RPCs.
+- Game-specific contracts define how human seats and bots map onto that game's participant model.

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <title>SKIELSEN · Quick Games</title>
+  <link rel="stylesheet" href="./style.css?v=15.1.137">
+</head>
+<body>
+  <header class="qg-header">
+    <a href="../" aria-label="Zurück zu Mein Skielsen">←</a>
+    <img src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
+    <span>QUICK GAMES</span>
+  </header>
+  <div class="qg-strip" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <main class="qg-main">
+    <section id="qgChoose">
+      <span class="qg-kicker">DIREKT SPIELEN</span>
+      <h1>QUICK GAMES.</h1>
+      <p class="qg-lead">Ein fertiges Spiel wählen, Lobby teilen und freie Teams mit Bots auffüllen.</p>
+      <article class="qg-game-card">
+        <div><small>TEAM · 2–8 PLAYER</small><h2>DNA</h2><p>Hinweise kombinieren, im Team abstimmen und Begriffe früh lösen.</p></div>
+        <button id="qgCreate" type="button">LOBBY ERSTELLEN →</button>
+      </article>
+      <section class="qg-join">
+        <label for="qgCode">LOBBYCODE</label>
+        <div><input id="qgCode" maxlength="9" autocomplete="off" autocapitalize="characters" placeholder="QG-ABC123"><button id="qgJoin" type="button">BEITRETEN</button></div>
+      </section>
+    </section>
+
+    <section id="qgLobby" hidden>
+      <span class="qg-kicker">DNA · QUICK LOBBY</span>
+      <h1>TEAMPLÄTZE.</h1>
+      <div class="qg-code"><small>LOBBYCODE</small><strong id="qgLobbyCode">—</strong><button id="qgCopy" type="button">CODE KOPIEREN</button></div>
+      <p class="qg-lead">Jeder beigetretene Player übernimmt ein Team. Der jeweilige Teampartner und freie Teams werden von Bots gespielt.</p>
+      <div class="qg-seats" id="qgSeats"></div>
+      <div class="qg-actions" id="qgHostActions" hidden>
+        <button class="secondary" id="qgFill" type="button">REST MIT BOTS FÜLLEN</button>
+        <button id="qgStart" type="button" disabled>GAME LADEN →</button>
+      </div>
+      <div class="qg-wait" id="qgWait">WARTET AUF DEN HOST …</div>
+    </section>
+    <p class="qg-feedback" id="qgFeedback" aria-live="polite"></p>
+  </main>
+  <script src="./app.js?v=15.1.137"></script>
+</body>
+</html>

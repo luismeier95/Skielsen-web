@@ -1051,3 +1051,32 @@ body.dna-keyboard-open .dna-header-left{
 body.dna-keyboard-open .dna-version{
   font-size:6.5px;
 }
+
+/* Setup / Ready: passive cue for content below the visible viewport. */
+.dna-scroll-hint{
+  position:fixed;
+  left:50%;
+  bottom:calc(var(--dna-keyboard-bottom,0px) + max(12px,env(safe-area-inset-bottom)));
+  transform:translateX(-50%);
+  z-index:20;
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--theme-border);
+  border-radius:50%;
+  background:var(--theme-surface);
+  color:var(--theme-on-surface);
+  box-shadow:var(--theme-shadow-soft);
+  pointer-events:none;
+}
+.dna-scroll-hint[hidden]{display:none}
+.dna-scroll-hint svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Reserve room for all VOTE controls even when IDEA uses a hardware keyboard. */
+body.dna-game-active .dna-game{
+  height:calc(var(--dna-visual-height,100dvh) - var(--dna-chrome-height,46px))!important;
+}
+body.dna-game-active:not(.dna-keyboard-open) .dna-game{
+  grid-template-rows:8px minmax(0,1fr) minmax(330px,auto)!important;
+}

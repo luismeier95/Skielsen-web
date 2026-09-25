@@ -14,9 +14,23 @@ Der Server liefert ausschliesslich `public/` auf `127.0.0.1:8000` aus.
 Mit `Ctrl+C` stoppen; bei belegtem Port: `python tools/dev.py --port 8001`.
 Die Skripte bestimmen den Repository-Pfad aus ihrem eigenen Speicherort.
 
+Fuer einen Zugriff vom Smartphone im gleichen WLAN den Server auf allen lokalen
+Netzwerkadressen starten:
+
+```sh
+python tools/dev.py --host 0.0.0.0
+```
+
+Auf dem Smartphone dann die LAN-IP des Entwicklungsrechners verwenden, zum
+Beispiel `http://<PC-IP>:8000/dna-test/`. Die konkrete IPv4-Adresse zeigt Windows
+mit `ipconfig`. Beide Geraete muessen im selben Netzwerk sein; bei einer
+Windows-Firewall-Rueckfrage nur den Zugriff fuer private Netzwerke erlauben.
+`0.0.0.0` ist eine Bind-Adresse und wird nicht als Browser-URL verwendet.
+
 | Oberflaeche | Lokale URL |
 | --- | --- |
 | Integrierte App (`public/index.html`) | http://127.0.0.1:8000/ |
+| Quick Games | http://127.0.0.1:8000/quick-games/ |
 | DNA | http://127.0.0.1:8000/dna-test/ |
 | Produktionsmodul-Testoberflaeche | http://127.0.0.1:8000/standalone-games.html |
 | Mehr oder Weniger | http://127.0.0.1:8000/more-or-less-contract-test/ |

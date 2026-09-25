@@ -64,6 +64,16 @@ These states/pages may scroll normally:
 
 Active gameplay and Reveal must fit in the currently visible smartphone viewport without vertical scrolling.
 
+### Setup / Ready scroll indicator
+
+The standalone Setup and Ready pages show a small floating down-chevron at the
+bottom center only while content remains below the visible viewport. It hides
+at the bottom (within 2 px), stays hidden when the page fits, and reappears when
+scrolling back up. Recalculate after page/content and viewport size changes.
+Use Theme Contract surface, foreground and border tokens and respect safe areas.
+The indicator is passive, does not intercept touch/clicks, and does not change
+page geometry. It is absent from authentication, gameplay, errors and end-game pages.
+
 ### Active game viewport
 
 DNA may bypass the normal Skielsen top-banner / tournament-chrome reserve and use the full visible viewport available to the game.
@@ -140,6 +150,12 @@ When IDEA transitions to VOTE or to evaluation feedback:
 - all space below the frozen hint stage becomes the VOTE / submitted / RICHTIG-FALSCH interaction region.
 
 This geometry lock is a visual non-negotiable because IDEA and VOTE are intended to feel like one continuous screen rather than two different layouts.
+
+For hardware-keyboard/browser play, IDEA must already reserve sufficient room
+for the subsequent VOTE controls. Gameplay height subtracts the actual header
+and progress height, including the taller desktop header. A real viewport
+reduction may shrink pinned hint geometry to keep answer controls visible;
+keyboard closure alone must not enlarge it.
 
 ### Layout performance rule
 
@@ -802,3 +818,15 @@ Existing tournament points remain visually distinct from newly earned placement 
 - Every team re-enters for the next term.
 - Server is authoritative.
 - Future hints and solutions are never preloaded into readable client state.
+
+## 24. Quick Games mode
+
+DNA is the first game exposed through Quick Games.
+
+- The lobby has four human seats, one per DNA team in this fixed order: Red, Blue, Green, Yellow.
+- A joined human controls the human role for that team and receives one bot teammate, preserving the two-player team rule.
+- Empty team seats become full bot teams when the host chooses `REST MIT BOTS FÜLLEN`.
+- All human teams receive the same deterministic term sequence for the lobby. Canonical answers, aliases and future hints remain server-only.
+- Each team completes IDEA/VOTE locally on its devices against server-authoritative DNA validation. The Edge Function writes the authenticated team's sealed final score directly to the lobby result; the browser cannot submit a score value.
+- The final Quick Game ranking waits up to 120 seconds for every joined human result and combines those scores with the bot-team scores from the shared lobby result. If a joined device never finishes, that seat falls back to its recorded bot score so the remaining players cannot be held indefinitely.
+- Quick Games does not award tournament placement points. After the shared DNA ranking, `QUICK GAME BEENDEN` returns to the Quick Games catalogue; Joker Resolve and Tournament Merge are skipped.

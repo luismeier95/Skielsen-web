@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.29.6  
+**Latest implementation baseline at handover:** DNA standalone v2.29.7
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
