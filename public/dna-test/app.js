@@ -1,6 +1,8 @@
 (()=>{
 'use strict';
 const SUPABASE_URL='https://rlppuqjolkrwumrrjajq.supabase.co';
+const SUPABASE_KEY='sb_publishable_6Cuc1rH2WGua2UT__Ta18w_BJVG4O1b';
+const THEME_QA_KEY='skielsen.dna.theme.qa';
 const FUNCTION_URL=SUPABASE_URL+'/functions/v1/dna-standalone';
 const SESSION_KEY='skielsen.native.supabase.session';
 const IDEA_PHASE_MS=20000;
@@ -21,7 +23,7 @@ const DECOYS={
  countries:['KANADA','CHILE','NORWEGEN','PORTUGAL','MONGOLEI'],cities:['WIEN','LISSABON','PRAG','TOKYO','DUBAI'],animals:['WOLF','DELFIN','RABE','PINGUIN','GEPARD'],movies:['INCEPTION','GLADIATOR','MATRIX','ALIEN','ROCKY'],car_brands:['VOLVO','MAZDA','HONDA','LOTUS','AUDI'],companies:['SONY','IKEA','NIKE','SAMSUNG','GOOGLE'],football_clubs:['REAL MADRID','AJAX','LIVERPOOL','JUVENTUS','BENFICA'],food:['RAMEN','PAELLA','SUSHI','FALAFEL','RISOTTO'],technology:['BLUETOOTH','NFC','LIDAR','OLED','GPS'],professions:['ARCHITEKT','PILOT','INGENIEUR','ARZT','JOURNALIST'],video_games:['MINECRAFT','TETRIS','FORTNITE','PORTAL','DOOM'],historical_people:['NEWTON','DARWIN','MOZART','NAPOLEON','GANDHI'],music:['QUEEN','ABBA','METALLICA','ADELE','COLDPLAY']
 };
 const $=s=>document.querySelector(s);
-const content=$('#dnaContent'),progress=$('#dnaProgress'),headerState=$('#dnaHeaderState'),headerMeta=$('#dnaHeaderMeta');
+const content=$('#dnaContent'),progress=$('#dnaProgress'),headerState=$('#dnaHeaderState'),headerMeta=$('#dnaHeaderMeta'),themeSelect=$('#dnaThemeSelect');
 let phaseTimer=0,phaseRaf=0,scheduled=[];
 let s={screen:'BOOT',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',answerProof:null,ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false};
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
@@ -58,6 +60,76 @@ syncViewport();
 function getStoredSession(){try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch(_){return null}}
 function validSession(session){if(!session?.access_token)return false;if(!session.expires_at)return true;return Number(session.expires_at)>Math.floor(Date.now()/1000)+15}
 async function authSession(){const session=getStoredSession();return validSession(session)?session:null}
+async function loadThemeCatalog(){
+ const session=await authSession();
+ if(!session)return [];
+ try{
+  const res=await fetch(SUPABASE_URL+'/rest/v1/rpc/list_theme_pack_contracts',{
+   method:'POST',
+   headers:{
+    apikey:SUPABASE_KEY,
+    Authorization:'Bearer '+session.access_token,
+    'Content-Type':'application/json'
+   },
+   body:'{}'
+  });
+  const data=await res.json().catch(()=>[]);
+  if(!res.ok)throw new Error(data?.message||data?.error||'THEME_CATALOG_FAILED');
+  return (Array.isArray(data)?data:[]).filter(row=>
+   window.skielsenThemeContract?.validate?.(
+    row?.theme_contract,
+    {themePackId:row?.theme_pack_id}
+   )?.ok
+  );
+ }catch(err){
+  console.warn('DNA Theme QA catalog failed',err);
+  return [];
+ }
+}
+let themeCatalog=[];
+function participantPalette(themeId){
+ const core2=themeId==='theme.skielsen.core2';
+ const palette=core2
+  ? {blue:'#2979FF',red:'#FF1744',yellow:'#00F5D4',green:'#FF2ED1'}
+  : {blue:'#1515FF',red:'#FF1717',yellow:'#F2B705',green:'#00A65A'};
+ for(const root of [document.documentElement,document.body]){
+  root.style.setProperty('--core-blue',palette.blue);
+  root.style.setProperty('--core-red',palette.red);
+  root.style.setProperty('--core-yellow',palette.yellow);
+  root.style.setProperty('--core-green',palette.green);
+ }
+}
+function applyQaTheme(themeId,persist=true){
+ const id=String(themeId||'theme.skielsen.core');
+ const row=themeCatalog.find(item=>item?.theme_pack_id===id)
+  || themeCatalog.find(item=>item?.theme_pack_id==='theme.skielsen.core');
+ if(row?.theme_contract){
+  const ok=window.skielsenThemeContract?.apply?.(
+   row.theme_pack_id,
+   row.theme_contract,
+   {animations:false,context:'tournament'}
+  );
+  if(!ok)return false;
+  participantPalette(row.theme_pack_id);
+  if(themeSelect)themeSelect.value=row.theme_pack_id;
+  if(persist){try{localStorage.setItem(THEME_QA_KEY,row.theme_pack_id)}catch(_){}}
+  queueKeyboardHintFit();
+  return true;
+ }
+ participantPalette('theme.skielsen.core');
+ return false;
+}
+function renderThemeQa(){
+ if(!themeSelect)return;
+ themeSelect.innerHTML=themeCatalog
+  .map(row=>`<option value="${esc(row.theme_pack_id)}">${esc(row.name||row.theme_pack_id)}</option>`)
+  .join('');
+ themeSelect.disabled=!themeCatalog.length;
+ const stored=(()=>{try{return localStorage.getItem(THEME_QA_KEY)}catch(_){return null}})();
+ const initial=themeCatalog.some(row=>row.theme_pack_id===stored)?stored:'theme.skielsen.core';
+ applyQaTheme(initial,false);
+ themeSelect.addEventListener('change',()=>applyQaTheme(themeSelect.value,true));
+}
 async function api(action,payload={}){const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');const res=await fetch(FUNCTION_URL,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error||'DNA Serverfehler');return data}
 function setScrollLock(on){document.documentElement.classList.toggle('dna-scroll-lock',Boolean(on));document.body.classList.toggle('dna-game-active',Boolean(on))}
 function page(html){setScrollLock(false);content.innerHTML=`<section class="dna-page">${html}</section>`;window.scrollTo(0,0)}
@@ -376,6 +448,6 @@ function confetti(key){
  later(()=>host.remove(),waves*waveGap+3800);
 }
 function resetAll(){clearTimers();resolving=false;clearTimeout(reconsiderTimer);s={screen:'SETUP',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false};setup()}
-async function boot(){const session=await authSession();if(!session)return authGate();setup()}
+async function boot(){const session=await authSession();if(!session)return authGate();themeCatalog=await loadThemeCatalog();renderThemeQa();setup()}
 boot();
 })();
