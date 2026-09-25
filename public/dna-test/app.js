@@ -30,8 +30,31 @@ function later(fn,ms){const id=setTimeout(fn,ms);scheduled.push(id);return id}
 function motionMs(ms){return Math.round(Number(ms||0)*MOTION_SCALE)}
 function setChrome(strong,meta,pct){headerState.textContent=strong;headerMeta.textContent=meta;progress.style.width=Math.max(0,Math.min(100,pct))+'%'}
 function visualHeight(){return window.visualViewport?.height||window.innerHeight}
-function syncViewport(){const vv=window.visualViewport;const h=vv?.height||window.innerHeight;const top=Math.max(0,vv?.offsetTop||0);const base=window.innerHeight||h;const bottom=Math.max(0,base-h-top);document.documentElement.style.setProperty('--dna-visual-height',h+'px');document.documentElement.style.setProperty('--dna-visual-top',top+'px');document.documentElement.style.setProperty('--dna-keyboard-bottom',bottom+'px');document.body.classList.toggle('dna-keyboard-open',h<base*.88||bottom>80)}
-window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});window.addEventListener('resize',syncViewport,{passive:true});syncViewport();
+function fitKeyboardHint(){
+ const box=content?.querySelector?.('.dna-hints');
+ const hint=content?.querySelector?.('.dna-hint-text');
+ if(!box||!hint)return;
+ hint.style.removeProperty('font-size');
+ hint.style.removeProperty('line-height');
+ if(!document.body.classList.contains('dna-keyboard-open'))return;
+ let size=Math.min(16,parseFloat(getComputedStyle(hint).fontSize)||16);
+ const minSize=10.5;
+ hint.style.lineHeight='1.04';
+ for(let guard=0;guard<16&&box.scrollHeight>box.clientHeight+1&&size>minSize;guard++){
+   size=Math.max(minSize,size-.5);
+   hint.style.fontSize=size+'px';
+ }
+}
+let hintFitRaf=0;
+function queueKeyboardHintFit(){
+ cancelAnimationFrame(hintFitRaf);
+ hintFitRaf=requestAnimationFrame(()=>requestAnimationFrame(fitKeyboardHint));
+}
+function syncViewport(){const vv=window.visualViewport;const h=vv?.height||window.innerHeight;const top=Math.max(0,vv?.offsetTop||0);const base=window.innerHeight||h;const bottom=Math.max(0,base-h-top);document.documentElement.style.setProperty('--dna-visual-height',h+'px');document.documentElement.style.setProperty('--dna-visual-top',top+'px');document.documentElement.style.setProperty('--dna-keyboard-bottom',bottom+'px');document.body.classList.toggle('dna-keyboard-open',h<base*.88||bottom>80);queueKeyboardHintFit()}
+window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});
+window.visualViewport?.addEventListener('scroll',syncViewport,{passive:true});
+window.addEventListener('resize',syncViewport,{passive:true});
+syncViewport();
 function getStoredSession(){try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch(_){return null}}
 function validSession(session){if(!session?.access_token)return false;if(!session.expires_at)return true;return Number(session.expires_at)>Math.floor(Date.now()/1000)+15}
 async function authSession(){const session=getStoredSession();return validSession(session)?session:null}
@@ -62,7 +85,7 @@ function showFatal(err){clearTimers();setChrome('FEHLER','DNA STANDALONE',0);pag
 function overallPct(c){if(!c?.termCount)return 15;if(c.phase==='COMPLETE')return 100;const base=((c.termNo-1)/c.termCount)*100;const hint=c.hintNo||3;return Math.max(16,Math.min(96,base+(hint-1)/3*(100/c.termCount)))}
 function enterContent(c){clearTimers();s.current=c;if(c.phase==='HINT'){if(c.hintNo===1)s.previousHints=[];startIdea()}else if(c.phase==='REVEAL')showReveal(c);else if(c.phase==='COMPLETE')showRanking(c.gameScores);else showFatal(new Error('Unbekannter DNA-State'))}
 function teamScoreLabel(){return Number(s.current?.redGameScore||0)}
-function gameShell(interactionHtml,phaseLabel){setScrollLock(true);const c=s.current;setChrome(phaseLabel,`${String(c.termNo).padStart(2,'0')} / ${String(c.termCount).padStart(2,'0')} · ${c.categoryName} · SCORE ${teamScoreLabel()}`,overallPct(c));content.innerHTML=`<section class="dna-game"><div class="dna-timer" id="dnaTimer"><i></i></div><section class="dna-hints"><div class="dna-history">${s.previousHints.map((h,i)=>`<span><b>H${i+1}</b><em>${esc(h)}</em></span>`).join('')}</div><div class="dna-hint-head"><small>HINWEIS ${c.hintNo} · ${c.hintNo===1?'SEHR SCHWER':c.hintNo===2?'SCHWER':'MITTEL'}</small><b>+${c.points}</b></div><p class="dna-hint-text">${esc(c.hintText)}</p></section><section class="dna-interaction" id="dnaInteraction">${interactionHtml}</section></section><div class="dna-solve-strip" id="dnaSolves"></div>`}
+function gameShell(interactionHtml,phaseLabel){setScrollLock(true);const c=s.current;setChrome(phaseLabel,`${String(c.termNo).padStart(2,'0')} / ${String(c.termCount).padStart(2,'0')} · ${c.categoryName} · SCORE ${teamScoreLabel()}`,overallPct(c));content.innerHTML=`<section class="dna-game"><div class="dna-timer" id="dnaTimer"><i></i></div><section class="dna-hints"><div class="dna-history">${s.previousHints.map((h,i)=>`<span><b>H${i+1}</b><em>${esc(h)}</em></span>`).join('')}</div><div class="dna-hint-head"><small>HINWEIS ${c.hintNo} · ${c.hintNo===1?'SEHR SCHWER':c.hintNo===2?'SCHWER':'MITTEL'}</small><b>+${c.points}</b></div><p class="dna-hint-text">${esc(c.hintText)}</p></section><section class="dna-interaction" id="dnaInteraction">${interactionHtml}</section></section><div class="dna-solve-strip" id="dnaSolves"></div>`;queueKeyboardHintFit()}
 function startTimer(duration,onTimeout){const bar=$('#dnaTimer'),fill=bar?.querySelector('i');const ms=Math.max(1000,Number(duration)||VOTE_PHASE_MS);const start=performance.now(),deadline=start+ms;if(fill){fill.style.width='100%';fill.style.transform='none'}function frame(now){const left=Math.max(0,deadline-now),ratio=Math.max(0,Math.min(1,left/ms));if(fill)fill.style.width=(ratio*100).toFixed(2)+'%';bar?.classList.toggle('warning',left<=5000&&left>2500);bar?.classList.toggle('danger',left<=2500);if(left>0)phaseRaf=requestAnimationFrame(frame);else if(fill)fill.style.width='0%'}phaseRaf=requestAnimationFrame(frame);phaseTimer=setTimeout(()=>{if(fill)fill.style.width='0%';onTimeout()},ms+40)}
 function maybeFinishIdea(){if(s.ideaDone&&s.teammateReady&&s.opponentsReady){clearTimers();startVote()}}
 function teammateIdea(){const list=DECOYS[s.current.categoryId]||['KEINE IDEE'];return Math.random()<.18?null:list[Math.floor(Math.random()*list.length)]}
