@@ -60,8 +60,9 @@ function fitKeyboardHint(){
  if(!stage||!slots.length)return;
 
  slots.forEach(slot=>{
+   const card=slot.querySelector('.dna-hint-card');
    const hint=slot.querySelector('.dna-hint-text');
-   if(!hint)return;
+   if(!card||!hint)return;
    hint.style.removeProperty('font-size');
    hint.style.removeProperty('line-height');
 
@@ -72,9 +73,9 @@ function fitKeyboardHint(){
    hint.style.lineHeight=keyboard?'1.05':'1.06';
 
    const fits=()=>{
-     const slotRect=slot.getBoundingClientRect();
+     const cardRect=card.getBoundingClientRect();
      const hintRect=hint.getBoundingClientRect();
-     return slot.scrollHeight<=slot.clientHeight+1 && hintRect.bottom<=slotRect.bottom-5;
+     return card.scrollHeight<=card.clientHeight+1 && hintRect.bottom<=cardRect.bottom-5;
    };
 
    for(let guard=0;guard<28&&!fits()&&size>minSize;guard++){
@@ -121,7 +122,10 @@ function syncViewport(){
 window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});
 window.visualViewport?.addEventListener('scroll',syncViewport,{passive:true});
 window.addEventListener('resize',syncViewport,{passive:true});
-document.addEventListener('focusin',e=>{if(e.target?.classList?.contains('dna-input'))setTimeout(syncViewport,60)});
+function settleKeyboardViewport(){
+ [0,60,140,280,520,850].forEach(ms=>setTimeout(syncViewport,ms));
+}
+document.addEventListener('focusin',e=>{if(e.target?.classList?.contains('dna-input'))settleKeyboardViewport()});
 document.addEventListener('focusout',e=>{if(e.target?.classList?.contains('dna-input'))setTimeout(syncViewport,180)});
 syncViewport();
 function getStoredSession(){try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch(_){return null}}
@@ -242,11 +246,13 @@ function gameShell(interactionHtml,phaseLabel){
      return `<article class="dna-hint-slot is-empty" data-hint-slot="${no}" aria-hidden="true"></article>`;
    }
    return `<article class="dna-hint-slot ${current?'is-current':'is-previous'}" data-hint-slot="${no}">
-     <div class="dna-hint-head">
-       <small>HINWEIS ${no} · ${hintDifficulty(no)}</small>
-       <b>+${hintPoints(no)}</b>
+     <div class="dna-hint-card">
+       <div class="dna-hint-head">
+         <small>HINWEIS ${no} · ${hintDifficulty(no)}</small>
+         <b>+${hintPoints(no)}</b>
+       </div>
+       <p class="dna-hint-text">${esc(text)}</p>
      </div>
-     <p class="dna-hint-text">${esc(text)}</p>
    </article>`;
  }).join('');
 
