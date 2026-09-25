@@ -69,7 +69,7 @@ if 'DNA_INPUT_BASELINE_FIX_V1' not in dna_css: fail('DNA Input Baseline Contract
 if 'DNA_MERGE_NO_FLICKER_V2' not in dna_css: fail('DNA Merge No-Flicker Contract Marker fehlt')
 if 'DNA_REVEAL_EQUAL_TYPE_V1' not in dna_css: fail('DNA Reveal Equal Type Contract Marker fehlt')
 if 'DNA_MERGE_STABLE_ROWS_V1' not in dna_css: fail('DNA Merge Stable Rows Contract Marker fehlt')
-for token in ['IDEA_PHASE_MS=20000','VOTE_PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints','--dna-visual-top','WEITER ZUR TURNIERTABELLE','dnaMovementHeader','movement.textContent=move','confetti(finalRows[0]?.key)','MOTION_SCALE=3.0625','REVEAL_TIE_ORDER']:
+for token in ['IDEA_PHASE_MS=20000','VOTE_PHASE_MS=10000','KEINE IDEE','KEINE ANTWORT','ANTWORT ABSENDEN','dna-standalone','visualViewport','placementPoints','--dna-visual-top','WEITER ZUR TURNIERTABELLE','dnaMovementHeader','beforePos=Object.fromEntries(current.map((el,index)=>[el.dataset.team,index+1]))','afterPos=Object.fromEntries(afterRows.map((el,index)=>[el.dataset.team,index+1]))','movement.textContent=delta>0','confetti(finalRows[0]?.key)','MOTION_SCALE=3.0625','REVEAL_TIE_ORDER']:
  if token not in dna_js: fail(f'DNA Standalone Contract fehlt: {token}')
 if 'canonical_answer' in dna_js or 'dna_answer_aliases' in dna_js or 'dna_hints' in dna_js:
  fail('DNA Standalone darf private Content-/Loesungsdaten nicht im Client enthalten')
