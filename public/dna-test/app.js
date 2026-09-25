@@ -91,31 +91,52 @@ function fitKeyboardHint(){
  const slots=[...(content?.querySelectorAll?.('.dna-hint-slot:not(.is-empty)')||[])];
  if(!stage||!slots.length)return;
 
+ const keyboard=document.body.classList.contains('dna-keyboard-open');
+ const pinned=document.body.classList.contains('dna-hint-stage-pinned');
+ s.hintTypeScale=s.hintTypeScale||{};
+
  slots.forEach(slot=>{
    const card=slot.querySelector('.dna-hint-card');
    const hint=slot.querySelector('.dna-hint-text');
    if(!card||!hint)return;
+
+   const slotNo=String(slot.dataset.hintSlot||'');
+   const remembered=s.hintTypeScale[slotNo];
+
    hint.style.removeProperty('font-size');
    hint.style.removeProperty('line-height');
 
-   const keyboard=document.body.classList.contains('dna-keyboard-open');
-   const pinned=document.body.classList.contains('dna-hint-stage-pinned');
    let size=parseFloat(getComputedStyle(hint).fontSize)||16;
-   // IDEA establishes both geometry and hint type scale. Once pinned, VOTE/feedback
-   // must not jump to the larger non-keyboard typography.
-   if(keyboard||pinned)size=Math.min(size,16);
+   let lineHeight=(keyboard||pinned)?1.05:1.06;
+
+   // IDEA/keyboard is authoritative. Recreated VOTE/feedback DOM gets exactly the
+   // type size that fitted in IDEA; it may shrink further for safety but never grow.
+   if(pinned&&!keyboard&&remembered){
+     size=Math.min(size,Number(remembered.size)||size);
+     lineHeight=Number(remembered.lineHeight)||1.05;
+   }else if(keyboard||pinned){
+     size=Math.min(size,16);
+   }
+
+   hint.style.fontSize=size+'px';
+   hint.style.lineHeight=String(lineHeight);
    const minSize=(keyboard||pinned)?9.5:11;
-   hint.style.lineHeight=(keyboard||pinned)?'1.05':'1.06';
 
    const fits=()=>{
      const cardRect=card.getBoundingClientRect();
      const hintRect=hint.getBoundingClientRect();
-     return card.scrollHeight<=card.clientHeight+1 && hintRect.bottom<=cardRect.bottom-5;
+     // Extra visual reserve protects descenders such as g/j/y from touching the
+     // rounded container edge even when the DOM technically still fits.
+     return card.scrollHeight<=card.clientHeight+1 && hintRect.bottom<=cardRect.bottom-9;
    };
 
-   for(let guard=0;guard<28&&!fits()&&size>minSize;guard++){
+   for(let guard=0;guard<32&&!fits()&&size>minSize;guard++){
      size=Math.max(minSize,size-.5);
      hint.style.fontSize=size+'px';
+   }
+
+   if(keyboard&&slotNo){
+     s.hintTypeScale[slotNo]={size,lineHeight};
    }
  });
 }
@@ -261,7 +282,7 @@ function ready(){clearTimers();s.screen='READY';setChrome('READY',`${s.termCount
 async function startGame(){clearTimers();setChrome('LÄDT','CONTENT WIRD GEZOGEN',15);page(`<section class="dna-auth"><div class="dna-auth-card"><span class="dna-kicker">SERVERAUTORITATIV</span><h1>DNA WIRD VORBEREITET.</h1><p>Nur der erste freigegebene Hinweis wird an den Browser übertragen.</p></div></section>`);try{const res=await api('start',{categories:[...s.selected],termCount:s.termCount,pool:s.pool});s.token=res.state;s.previousHints=[];enterContent(res.content)}catch(err){if(String(err.message)==='LOGIN_REQUIRED')return authGate();showFatal(err)}}
 function showFatal(err){clearTimers();setChrome('FEHLER','DNA STANDALONE',0);page(`<div class="dna-error">${esc(err?.message||err)}</div><div class="dna-actions"><button class="dna-btn primary" id="dnaRetry" type="button">ZURÜCK ZUM SETUP</button></div>`);$('#dnaRetry').addEventListener('click',setup)}
 function overallPct(c){if(!c?.termCount)return 15;if(c.phase==='COMPLETE')return 100;const base=((c.termNo-1)/c.termCount)*100;const hint=c.hintNo||3;return Math.max(16,Math.min(96,base+(hint-1)/3*(100/c.termCount)))}
-function enterContent(c){clearTimers();s.current=c;if(c.phase==='HINT'){if(c.hintNo===1){s.previousHints=[];clearPinnedHintStage()}startIdea()}else if(c.phase==='REVEAL'){clearPinnedHintStage();showReveal(c)}else if(c.phase==='COMPLETE'){clearPinnedHintStage();showRanking(c.gameScores)}else showFatal(new Error('Unbekannter DNA-State'))}
+function enterContent(c){clearTimers();s.current=c;if(c.phase==='HINT'){if(c.hintNo===1){s.previousHints=[];s.hintTypeScale={};clearPinnedHintStage()}startIdea()}else if(c.phase==='REVEAL'){clearPinnedHintStage();showReveal(c)}else if(c.phase==='COMPLETE'){clearPinnedHintStage();showRanking(c.gameScores)}else showFatal(new Error('Unbekannter DNA-State'))}
 function teamScoreLabel(){return Number(s.current?.redGameScore||0)}
 function hintDifficulty(no){return no===1?'SEHR SCHWER':no===2?'SCHWER':'MITTEL'}
 function hintPoints(no){return no===1?3:no===2?2:1}

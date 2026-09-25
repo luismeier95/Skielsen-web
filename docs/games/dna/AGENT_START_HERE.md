@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.28.0  
+**Latest implementation baseline at handover:** DNA standalone v2.29.0  
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
@@ -209,7 +209,7 @@ The IDEA/keyboard stage top + height must be frozen and reused for:
 
 All space below that frozen hint stage belongs to the interaction/result container.
 
-Latest patch v2.28.0 changed `freezeCurrentHintStage()` so existing keyboard geometry wins over a fresh post-keyboard measurement.
+Latest patch v2.29.0 changed `freezeCurrentHintStage()` so existing keyboard geometry wins over a fresh post-keyboard measurement.
 
 This latest geometry patch still needs explicit user regression testing after the handover.
 
@@ -255,7 +255,7 @@ Current practical maximum: 3 options.
 
 Cards should be comfortably large; user explicitly asked to use the available space rather than tiny legacy cards.
 
-v2.28.0 refinement after side-by-side playtest:
+v2.29.0 refinement after side-by-side playtest:
 - keep the larger VOTE containers,
 - reduce the VOTE typography from the oversized v2.27 values,
 - keep the hint text at the same keyboard/IDEA scale after the keyboard closes,
@@ -523,19 +523,33 @@ Core 2 identity mapping:
 Tie display order still follows identity slots:
 Blue → Red → Yellow → Green.
 
+### Hint typography lock refinement
+
+Side-by-side testing showed that matching outer geometry alone was insufficient: the same Hint 1 could still appear larger in VOTE than in IDEA, and even the IDEA version could visually crowd the bottom border (for example the descender in "Raumfahrtgeschichte").
+
+Approved fix:
+- capture the fitted IDEA font size + line-height per released hint while the native keyboard is open,
+- reuse that exact type scale after the keyboard closes,
+- VOTE/feedback may shrink further if required but must never grow,
+- keyboard and pinned phases use the same inner hint-card padding,
+- fitting includes an additional bottom safety reserve so descenders never visually touch the rounded border.
+
+This is now part of the binding geometry contract, not a cosmetic preference.
+
 ## 23. Latest implementation state / regression checklist
 
 Latest standalone baseline:
 - `public/dna-test/app.js`
 - `public/dna-test/style.css`
 - `public/dna-test/index.html`
-- standalone version v2.28.0
+- standalone version v2.29.0
 - latest gameplay commit at handover: `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 The latest patch specifically addressed:
 1. VOTE hint geometry reuses keyboard/IDEA geometry,
-2. VOTE keeps the large containers but uses a smaller, IDEA-like type scale,
-3. pinned hint typography no longer grows when the keyboard closes.
+2. VOTE keeps the large containers but uses the exact fitted IDEA hint type scale,
+3. pinned hint typography never grows when the keyboard closes,
+4. hint fitting reserves extra visual bottom space so descenders cannot touch the container border.
 
 This patch should be playtested side-by-side against IDEA before further layout changes.
 

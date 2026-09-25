@@ -976,3 +976,13 @@ body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-consensus{
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-actions .dna-btn{
   font-size:7.6px!important;
 }
+
+
+/* DNA_HINT_TYPE_LOCK_V5
+   IDEA and VOTE share not only the same outer geometry but the same inner text box.
+   Slightly larger vertical insets + fit reserve keep descenders off the border. */
+body.dna-keyboard-open .dna-hint-card,
+body.dna-hint-stage-pinned .dna-hint-card{
+  padding:9px 10px!important;
+  gap:3px!important;
+}

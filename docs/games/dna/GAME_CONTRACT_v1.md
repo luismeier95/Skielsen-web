@@ -1,7 +1,7 @@
 # SKIELSEN DNA — Game Contract v1
 
 **Status:** Approved · consolidated playtest state  
-**Version:** 1.3  
+**Version:** 1.4  
 **Date:** 2026-09-25  
 **Game key:** `dna`  
 **Platform:** Mobile-first, individual devices  
@@ -120,7 +120,8 @@ Rules:
 - all released hints retain the same visual hierarchy; previous hints are not collapsed into pills,
 - the complete hint text must remain visible,
 - text must never be clipped at the bottom,
-- typography may scale within defined mobile bounds before clipping is allowed.
+- typography may scale within defined mobile bounds before clipping is allowed,
+- glyph descenders and final line boxes must retain a visible safety inset from the rounded container border; a technically non-overflowing line that visually touches the border is still considered a layout failure.
 
 ### Phase geometry lock
 
@@ -132,6 +133,8 @@ When IDEA transitions to VOTE or to evaluation feedback:
 - the hint stage must retain the **exact same height**,
 - the three 1/3 tracks must retain the same height,
 - the app must not re-measure the stage from the larger post-keyboard viewport and make the hints jump,
+- IDEA also establishes the fitted hint typography (font size and line-height) for each released hint; VOTE and feedback must reuse that scale exactly or shrink it further for safety, never enlarge it after the keyboard closes,
+- keyboard and pinned phases must use the same hint-card inner padding so a phase transition cannot change the available text box,
 - all space below the frozen hint stage becomes the VOTE / submitted / RICHTIG-FALSCH interaction region.
 
 This geometry lock is a visual non-negotiable because IDEA and VOTE are intended to feel like one continuous screen rather than two different layouts.
