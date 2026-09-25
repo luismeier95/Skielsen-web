@@ -306,3 +306,66 @@ body.dna-keyboard-open .dna-hint-text{
   max-width:100%;
   overflow-wrap:anywhere;
 }
+
+/* DNA_THEME_QA_SELECTOR_V1
+   Persistent standalone-only control for validating every active Theme Contract
+   against the exact same DNA component tree. */
+.dna-theme-qa{
+  min-width:0;
+  display:grid;
+  grid-template-columns:auto minmax(118px,180px);
+  align-items:center;
+  gap:7px;
+  margin:0 14px;
+  color:var(--theme-on-header);
+}
+.dna-theme-qa>span{
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.09em;
+  white-space:nowrap;
+  opacity:.72;
+}
+.dna-theme-qa select{
+  min-width:0;
+  height:32px;
+  border:1px solid color-mix(in srgb,var(--theme-on-header) 28%,transparent);
+  border-radius:10px;
+  background:var(--theme-header);
+  color:var(--theme-on-header);
+  padding:0 28px 0 9px;
+  font:900 8px/1 var(--ui);
+  outline:none;
+}
+.dna-theme-qa select:focus{
+  box-shadow:0 0 0 2px var(--theme-focus);
+}
+.dna-theme-qa select:disabled{opacity:.45}
+
+@media(max-width:720px){
+  .dna-header{
+    display:grid;
+    grid-template-columns:auto minmax(92px,126px) auto;
+    gap:8px;
+  }
+  .dna-theme-qa{
+    display:block;
+    margin:0;
+  }
+  .dna-theme-qa>span{display:none}
+  .dna-theme-qa select{
+    width:100%;
+    height:27px;
+    border-radius:8px;
+    padding-left:7px;
+    padding-right:22px;
+    font-size:6.4px;
+  }
+}
+@media(max-width:420px){
+  .dna-header{
+    grid-template-columns:auto minmax(82px,108px) minmax(84px,1fr);
+    gap:6px;
+  }
+}
+body.dna-keyboard-open .dna-theme-qa{visibility:hidden;pointer-events:none}
