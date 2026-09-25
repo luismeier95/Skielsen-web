@@ -146,6 +146,70 @@ function queueKeyboardHintFit(){
  cancelAnimationFrame(hintFitRaf);
  hintFitRaf=requestAnimationFrame(()=>requestAnimationFrame(fitKeyboardHint));
 }
+
+/* DNA_ATOMIC_LAYOUT_V1
+   Browser equivalent of Application.ScreenUpdating=false:
+   keep the last painted frame on screen while DOM, visualViewport, hint geometry
+   and typography are recalculated; publish only the settled layout. */
+let layoutTxnSeq=0;
+const layoutSleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const layoutFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+async function settleAtomicLayout({focusSelector=null,focusDelay=0,maxWait=720}={}){
+ if(focusSelector){
+   if(focusDelay>0)await layoutSleep(focusDelay);
+   const input=document.querySelector(focusSelector);
+   if(input){
+     try{input.focus({preventScroll:true})}catch(_){try{input.focus()}catch(__){}}
+   }
+ }
+ const start=performance.now();
+ let lastHeight=window.visualViewport?.height||window.innerHeight;
+ let lastWidth=window.visualViewport?.width||window.innerWidth;
+ let stableSince=performance.now();
+ while(performance.now()-start<maxWait){
+   await layoutSleep(32);
+   const height=window.visualViewport?.height||window.innerHeight;
+   const width=window.visualViewport?.width||window.innerWidth;
+   if(Math.abs(height-lastHeight)>1||Math.abs(width-lastWidth)>1){
+     lastHeight=height;
+     lastWidth=width;
+     stableSince=performance.now();
+   }
+   if(performance.now()-start>96&&performance.now()-stableSince>96)break;
+ }
+ syncViewport();
+ cancelAnimationFrame(hintFitRaf);
+ fitKeyboardHint();
+ await layoutFrame();
+ syncViewport();
+ fitKeyboardHint();
+ await layoutFrame();
+}
+function atomicLayout(render,options={}){
+ const seq=++layoutTxnSeq;
+ const html=document.documentElement;
+ const cleanup=()=>{
+   if(seq===layoutTxnSeq)document.body.classList.remove('dna-layout-calculating','dna-layout-freeze-fallback');
+   html.classList.remove('dna-layout-atomic');
+ };
+ const update=async()=>{
+   document.body.classList.add('dna-layout-calculating');
+   render();
+   await settleAtomicLayout(options);
+   if(seq===layoutTxnSeq)document.body.classList.remove('dna-layout-calculating');
+ };
+ if(typeof document.startViewTransition==='function'){
+   html.classList.add('dna-layout-atomic');
+   try{
+     const transition=document.startViewTransition(update);
+     return transition.finished.catch(()=>{}).finally(cleanup);
+   }catch(_){
+     html.classList.remove('dna-layout-atomic');
+   }
+ }
+ document.body.classList.add('dna-layout-freeze-fallback');
+ return update().catch(()=>{}).finally(()=>layoutFrame().then(cleanup));
+}
 let viewportBaselineHeight=0,viewportBaselineWidth=0;
 function keyboardInputFocused(){
  const el=document.activeElement;
@@ -338,31 +402,96 @@ function gameShell(interactionHtml,phaseLabel){
 function startTimer(duration,onTimeout){const bar=$('#dnaTimer'),fill=bar?.querySelector('i');const ms=Math.max(1000,Number(duration)||VOTE_PHASE_MS);const start=performance.now(),deadline=start+ms;if(fill){fill.style.width='100%';fill.style.transform='none'}function frame(now){const left=Math.max(0,deadline-now),ratio=Math.max(0,Math.min(1,left/ms));if(fill)fill.style.width=(ratio*100).toFixed(2)+'%';bar?.classList.toggle('warning',left<=5000&&left>2500);bar?.classList.toggle('danger',left<=2500);if(left>0)phaseRaf=requestAnimationFrame(frame);else if(fill)fill.style.width='0%'}phaseRaf=requestAnimationFrame(frame);phaseTimer=setTimeout(()=>{if(fill)fill.style.width='0%';onTimeout()},ms+40)}
 function maybeFinishIdea(){if(s.ideaDone&&s.teammateReady&&s.opponentsReady){clearTimers();startVote()}}
 function teammateIdea(){const list=DECOYS[s.current.categoryId]||['KEINE IDEE'];return Math.random()<.18?null:list[Math.floor(Math.random()*list.length)]}
-function startIdea(){clearTimers();s.screen='GAME';s.idea='';s.ideaDone=Boolean(s.current.redSolved);s.teammateIdea=null;s.teammateReady=Boolean(s.current.redSolved);s.opponentsReady=false;s.userVote=null;s.teammateVote=null;s.submitted=false;s.outcome=null;s.answerProof=null;const solved=s.current.redSolved;gameShell(solved?`<div class="dna-lock-state"><div><strong>BEGRIFF GELÖST</strong><span>DEIN TEAM SPIELT DIESEN BEGRIFF NICHT WEITER.</span></div></div>`:`<div class="dna-interaction-head"><strong>DEINE IDEE</strong><span>GEHEIM · NUR DU</span></div><div class="dna-idea-form"><input class="dna-input" id="dnaIdea" type="text" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="characters" enterkeyhint="done" maxlength="80" placeholder="Antwort eingeben …"><button class="dna-btn primary dna-save" id="dnaIdeaSave" type="button" disabled>IDEE SPEICHERN</button></div><button class="dna-btn dna-skip" id="dnaIdeaSkip" type="button">KEINE IDEE</button>`,'IDEE');
- if(!solved){const input=$('#dnaIdea'),save=$('#dnaIdeaSave');input.addEventListener('input',()=>save.disabled=!input.value.trim());input.addEventListener('keydown',e=>{if(e.key==='Enter'&&input.value.trim()){e.preventDefault();save.click()}});save.addEventListener('click',()=>{s.idea=input.value.trim();s.ideaDone=true;renderIdeaLocked('IDEE GESPEICHERT',s.idea);maybeFinishIdea()});$('#dnaIdeaSkip').addEventListener('click',()=>{s.idea='';s.ideaDone=true;renderIdeaLocked('ÜBERSPRUNGEN','KEINE IDEE');maybeFinishIdea()});later(()=>{try{input.focus({preventScroll:true})}catch(_){input.focus()}syncViewport()},80);later(()=>{s.teammateIdea=teammateIdea();s.teammateReady=true;maybeFinishIdea()},900+Math.random()*800)}
- later(()=>{s.opponentsReady=true;maybeFinishIdea()},1200+Math.random()*1000);startTimer(IDEA_PHASE_MS,()=>{if(!s.ideaDone){s.idea='';s.ideaDone=true}clearTimers();startVote()})}
+function startIdea(){
+ clearTimers();
+ s.screen='GAME';
+ s.idea='';
+ s.ideaDone=Boolean(s.current.redSolved);
+ s.teammateIdea=null;
+ s.teammateReady=Boolean(s.current.redSolved);
+ s.opponentsReady=false;
+ s.userVote=null;
+ s.teammateVote=null;
+ s.submitted=false;
+ s.outcome=null;
+ s.answerProof=null;
+ const solved=s.current.redSolved;
+ const guardTerm=s.current?.termRef;
+ const guardHint=s.current?.hintNo;
+ const interactionHtml=solved
+   ? `<div class="dna-lock-state"><div><strong>BEGRIFF GELÖST</strong><span>DEIN TEAM SPIELT DIESEN BEGRIFF NICHT WEITER.</span></div></div>`
+   : `<div class="dna-interaction-head"><strong>DEINE IDEE</strong><span>GEHEIM · NUR DU</span></div><div class="dna-idea-form"><input class="dna-input" id="dnaIdea" type="text" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="characters" enterkeyhint="done" maxlength="80" placeholder="Antwort eingeben …"><button class="dna-btn primary dna-save" id="dnaIdeaSave" type="button" disabled>IDEE SPEICHERN</button></div><button class="dna-btn dna-skip" id="dnaIdeaSkip" type="button">KEINE IDEE</button>`;
+
+ atomicLayout(()=>{
+   gameShell(interactionHtml,'IDEE');
+   if(!solved){
+     const input=$('#dnaIdea'),save=$('#dnaIdeaSave');
+     input.addEventListener('input',()=>save.disabled=!input.value.trim());
+     input.addEventListener('keydown',e=>{if(e.key==='Enter'&&input.value.trim()){e.preventDefault();save.click()}});
+     save.addEventListener('click',()=>{s.idea=input.value.trim();s.ideaDone=true;renderIdeaLocked('IDEE GESPEICHERT',s.idea);maybeFinishIdea()});
+     $('#dnaIdeaSkip').addEventListener('click',()=>{s.idea='';s.ideaDone=true;renderIdeaLocked('ÜBERSPRUNGEN','KEINE IDEE');maybeFinishIdea()});
+   }
+ },{focusSelector:solved?null:'#dnaIdea',focusDelay:80,maxWait:760}).then(()=>{
+   if(s.current?.termRef!==guardTerm||s.current?.hintNo!==guardHint||s.screen!=='GAME')return;
+   if(!solved)later(()=>{s.teammateIdea=teammateIdea();s.teammateReady=true;maybeFinishIdea()},900+Math.random()*800);
+   later(()=>{s.opponentsReady=true;maybeFinishIdea()},1200+Math.random()*1000);
+   startTimer(IDEA_PHASE_MS,()=>{if(!s.ideaDone){s.idea='';s.ideaDone=true}clearTimers();startVote()});
+ });
+}
 function renderIdeaLocked(title,value){const host=$('#dnaInteraction');if(!host)return;host.innerHTML=`<div class="dna-lock-state"><div><strong>${esc(title)}</strong><span>${esc(value)}</span></div></div>`}
 function normalize(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('de-DE')}
 function candidates(){const map=new Map();const add=(value,who)=>{if(!value)return;const key=normalize(value);if(!key)return;const row=map.get(key)||{value,who:[]};if(!row.who.includes(who))row.who.push(who);map.set(key,row)};add(s.idea,'D');add(s.teammateIdea,'S');return [...map.values()]}
-function startVote(){clearTimers();freezeCurrentHintStage();try{document.activeElement?.blur?.()}catch(_){}syncViewport();teammateVoteSeq=0;clearTimeout(reconsiderTimer);const solved=s.current.redSolved;if(solved){s.teammateReady=true;s.opponentsReady=false;gameShell(`<div class="dna-lock-state"><div><strong>TEAMABSTIMMUNG LÄUFT</strong><span>DEIN TEAM HAT BEREITS GELÖST.</span></div></div>`,'ABSTIMMUNG');later(()=>{s.opponentsReady=true;clearTimers();resolveVote(true)},900+Math.random()*600);startTimer(VOTE_PHASE_MS,()=>resolveVote(true));return}
- const list=candidates();s.userVote=null;s.teammateVote=null;s.submitted=false;s.opponentsReady=false;gameShell(`<div class="dna-interaction-head"><strong>TEAM-ANTWORT</strong><span>ANTIPPEN ≠ ABSENDEN</span></div><div class="dna-vote-list" id="dnaVoteList">${list.map((c,i)=>voteCard(c.value,c.who.join(' + '),'v'+i)).join('')}${voteCard('__NO__','SICHER PASSEN','no')}</div><div class="dna-consensus" id="dnaConsensus">NOCH KEINE EINIGKEIT</div><div class="dna-vote-actions"><button class="dna-btn" id="dnaVoteClear" type="button">AUSWAHL LÖSEN</button><button class="dna-btn primary" id="dnaSubmit" type="button" disabled>ANTWORT ABSENDEN</button></div>`,'ABSTIMMUNG');
- content.querySelectorAll('[data-vote]').forEach(btn=>btn.addEventListener('click',()=>{
-  s.userVote=btn.dataset.vote;
-  s.answerProof=null;
-  // Every user choice starts one immediate server-side teammate check.
-  const seq=++teammateVoteSeq;
-  s.teammateVote=null;
-  renderVotes();
-  reconsiderVoteNow(seq,s.userVote);
-}));$('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;s.answerProof=null;renderVotes()});$('#dnaSubmit').addEventListener('click',submitVote);
- later(()=>{
-   // Never overwrite a user-triggered reconsideration with the stale initial bot vote.
-   if(s.userVote||s.submitted||teammateVoteSeq>0)return;
-   const ownIdea=s.teammateIdea?normalize(s.teammateIdea):'__NO__';
-   const found=[...content.querySelectorAll('[data-vote]')].find(x=>normalize(x.dataset.vote)===ownIdea);
-   s.teammateVote=found?.dataset.vote||'__NO__';
-   renderVotes();
- },650+Math.random()*550);later(()=>{s.opponentsReady=true;if(s.submitted)resolveVote(false)},1300+Math.random()*1100);startTimer(VOTE_PHASE_MS,()=>{if(s.submitted)return;if(phaseTimer){clearTimeout(phaseTimer);phaseTimer=0}submitNoAnswerTimeout()})}
+function startVote(){
+ clearTimers();
+ freezeCurrentHintStage();
+ teammateVoteSeq=0;
+ clearTimeout(reconsiderTimer);
+ const solved=s.current.redSolved;
+ const guardTerm=s.current?.termRef;
+ const guardHint=s.current?.hintNo;
+ const list=solved?[]:candidates();
+ s.userVote=null;
+ s.teammateVote=null;
+ s.submitted=false;
+ s.opponentsReady=false;
+
+ atomicLayout(()=>{
+   try{document.activeElement?.blur?.()}catch(_){}
+   syncViewport();
+   if(solved){
+     s.teammateReady=true;
+     gameShell(`<div class="dna-lock-state"><div><strong>TEAMABSTIMMUNG LÄUFT</strong><span>DEIN TEAM HAT BEREITS GELÖST.</span></div></div>`,'ABSTIMMUNG');
+     return;
+   }
+   gameShell(`<div class="dna-interaction-head"><strong>TEAM-ANTWORT</strong><span>ANTIPPEN ≠ ABSENDEN</span></div><div class="dna-vote-list" id="dnaVoteList">${list.map((c,i)=>voteCard(c.value,c.who.join(' + '),'v'+i)).join('')}${voteCard('__NO__','SICHER PASSEN','no')}</div><div class="dna-consensus" id="dnaConsensus">NOCH KEINE EINIGKEIT</div><div class="dna-vote-actions"><button class="dna-btn" id="dnaVoteClear" type="button">AUSWAHL LÖSEN</button><button class="dna-btn primary" id="dnaSubmit" type="button" disabled>ANTWORT ABSENDEN</button></div>`,'ABSTIMMUNG');
+   content.querySelectorAll('[data-vote]').forEach(btn=>btn.addEventListener('click',()=>{
+     s.userVote=btn.dataset.vote;
+     s.answerProof=null;
+     const seq=++teammateVoteSeq;
+     s.teammateVote=null;
+     renderVotes();
+     reconsiderVoteNow(seq,s.userVote);
+   }));
+   $('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;s.answerProof=null;renderVotes()});
+   $('#dnaSubmit').addEventListener('click',submitVote);
+ },{maxWait:760}).then(()=>{
+   if(s.current?.termRef!==guardTerm||s.current?.hintNo!==guardHint||s.screen!=='GAME')return;
+   if(solved){
+     later(()=>{s.opponentsReady=true;clearTimers();resolveVote(true)},900+Math.random()*600);
+     startTimer(VOTE_PHASE_MS,()=>resolveVote(true));
+     return;
+   }
+   later(()=>{
+     if(s.userVote||s.submitted||teammateVoteSeq>0)return;
+     const ownIdea=s.teammateIdea?normalize(s.teammateIdea):'__NO__';
+     const found=[...content.querySelectorAll('[data-vote]')].find(x=>normalize(x.dataset.vote)===ownIdea);
+     s.teammateVote=found?.dataset.vote||'__NO__';
+     renderVotes();
+   },650+Math.random()*550);
+   later(()=>{s.opponentsReady=true;if(s.submitted)resolveVote(false)},1300+Math.random()*1100);
+   startTimer(VOTE_PHASE_MS,()=>{if(s.submitted)return;if(phaseTimer){clearTimeout(phaseTimer);phaseTimer=0}submitNoAnswerTimeout()});
+ });
+}
 function voteCard(value,source,key){const display=value==='__NO__'?'KEINE ANTWORT':value;return `<button class="dna-vote" type="button" data-vote="${esc(value)}" data-key="${key}"><span><strong>${esc(display)}</strong><small>${esc(source)}</small></span><span class="dna-voters"><i data-voter="D">D</i><i data-voter="S">S</i></span></button>`}
 let reconsiderTimer=0,teammateVoteSeq=0;
 async function reconsiderVoteNow(seq,requestedVote){
