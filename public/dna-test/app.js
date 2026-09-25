@@ -135,10 +135,8 @@ function showRanking(scores){clearTimers();setScrollLock(false);s.screen='RANKIN
 function resultRow(r,i){return `<div class="dna-result-row" data-team="${r.key}" style="--delay:${motionMs(160+i*130)}ms"><b class="dna-place">${String(r.place).padStart(2,'0')}</b><span class="dna-result-team" style="--team:${TEAMS[r.key].color}"><i></i><span><strong>${TEAMS[r.key].name}</strong><small>${TEAMS[r.key].members}</small></span></span><b class="dna-metric">${r.score}</b><span class="dna-placement-points"><b>+${r.points}</b></span></div>`}
 function showMerge(){
  clearTimers();s.screen='MERGE';s.mergeComplete=false;setScrollLock(false);
- const oldOrder=TEAM_ORDER.map((k,idx)=>({key:k,points:TEAMS[k].existing,stable:idx})).sort((a,b)=>b.points-a.points||a.stable-b.stable);
- const oldPos=Object.fromEntries(oldOrder.map((r,i)=>[r.key,i+1]));
  const add=Object.fromEntries(s.ranking.map(r=>[r.key,r.points]));
- const byTeam=Object.fromEntries(TEAM_ORDER.map((k,idx)=>[k,{key:k,old:TEAMS[k].existing,add:add[k]||0,final:TEAMS[k].existing+(add[k]||0),stable:idx,before:oldPos[k]}]));
+ const byTeam=Object.fromEntries(TEAM_ORDER.map((k,idx)=>[k,{key:k,old:TEAMS[k].existing,add:add[k]||0,final:TEAMS[k].existing+(add[k]||0),stable:idx}]));
  const finalRows=Object.values(byTeam).sort((a,b)=>b.final-a.final||a.stable-b.stable).map((r,i)=>({...r,after:i+1}));
 
  setChrome('MERGE','TURNIER RANKING',100);
@@ -217,9 +215,9 @@ function showMerge(){
  }
 
  // No second row/plus appear pass: the same visible rows continue straight into the morph.
- later(()=>startPointMorph(finalRows,oldPos),motionMs(420));
+ later(()=>startPointMorph(finalRows),motionMs(420));
 }
-function startPointMorph(finalRows,oldPos){
+function startPointMorph(finalRows){
  const card=$('#dnaMergeCard');
  const rows=[...content.querySelectorAll('.dna-merge-row')];
  if(!card||!rows.length)return;
@@ -261,15 +259,18 @@ function startPointMorph(finalRows,oldPos){
    const header=$('#dnaMovementHeader');
    if(header)header.textContent='BEWEGUNG';
    await wait(motionMs(220));
-   reorderMergeRows(finalRows,oldPos);
+   reorderMergeRows(finalRows);
  };
  run();
 }
-function reorderMergeRows(finalRows,oldPos){
+function reorderMergeRows(finalRows){
  const host=$('#dnaMergeRows');if(!host)return;
  const current=[...host.children];
  const rowByTeam=Object.fromEntries(current.map(el=>[el.dataset.team,el]));
  current.forEach(el=>el.classList.add('is-stable'));
+
+ // IMPORTANT: movement is derived from the actual DOM order, not a separate points sort.
+ const beforePos=Object.fromEntries(current.map((el,index)=>[el.dataset.team,index+1]));
 
  // Keep DOM order unchanged while rows visibly travel to their target slots.
  const slotTops=current.map(el=>el.getBoundingClientRect().top);
@@ -293,7 +294,7 @@ function reorderMergeRows(finalRows,oldPos){
  });
 
  Promise.all(swapAnimations.map(({anim})=>anim.finished.catch(()=>{}))).then(()=>{
-   // Freeze rows at their visual destination, then swap DOM order in the same task.
+   // Commit the visual destination, then change DOM order in the same task.
    swapAnimations.forEach(({anim})=>{try{anim.commitStyles()}catch(_){}});
    swapAnimations.forEach(({anim})=>{try{anim.cancel()}catch(_){}});
    finalRows.forEach((r,i)=>{
@@ -307,10 +308,24 @@ function reorderMergeRows(finalRows,oldPos){
      el.classList.remove('is-swapping');
      el.classList.add('is-stable');
    });
+
+   // Force layout after the DOM has its final order, then derive AFTER positions from DOM.
    host.getBoundingClientRect();
+   const afterRows=[...host.children];
+   const afterPos=Object.fromEntries(afterRows.map((el,index)=>[el.dataset.team,index+1]));
 
    later(()=>{
-     finalRows.forEach(r=>{const el=rowByTeam[r.key];if(!el)return;const movement=el.querySelector('.dna-movement'),delta=(oldPos[r.key]||r.after)-r.after;const move=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';movement.textContent=move;movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');movement.classList.add('is-visible')});
+     afterRows.forEach(el=>{
+       const key=el.dataset.team;
+       const before=beforePos[key];
+       const after=afterPos[key];
+       const delta=(before??after)-after;
+       const movement=el.querySelector('.dna-movement');
+       if(!movement)return;
+       movement.textContent=delta>0?`↑ ${delta}`:delta<0?`↓ ${Math.abs(delta)}`:'—';
+       movement.className='dna-movement '+(delta>0?'up':delta<0?'down':'same');
+       movement.classList.add('is-visible');
+     });
      later(()=>{confetti(finalRows[0]?.key);s.mergeComplete=true;const b=$('#dnaClose');if(b){b.disabled=false;b.textContent='SPIEL SCHLIESSEN →';b.addEventListener('click',resetAll)}},motionMs(420));
    },motionMs(120));
  });
