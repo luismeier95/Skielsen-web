@@ -82,10 +82,12 @@ The header is the single status source.
 
 ### Header information hierarchy
 
-On active gameplay and Reveal:
+On active gameplay and Reveal, the standalone QA banner uses this exact left-to-right sequence:
 
-- left: SKIELSEN logo, then approximately 30 px optical gap, then `DNA`,
-- standalone QA only: Theme selector directly after the game name,
+`SKIELSEN LOGO → 30 px → DNA → 30 px → VERSION → 30 px → THEME DROPDOWN`
+
+The visible version is the current standalone build version. The 30 px gaps are fixed optical spacing and must not collapse on mobile.
+
 - right: **current game state only** such as `IDEE`, `ABSTIMMUNG`, `REVEAL`,
 - no secondary category / score / round metadata in the active header.
 

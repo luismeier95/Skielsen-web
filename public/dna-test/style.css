@@ -1013,3 +1013,58 @@ body.dna-layout-calculating .dna-game *{
 body.dna-layout-freeze-fallback .dna-game{
   visibility:hidden!important;
 }
+
+
+/* DNA_HEADER_SEQUENCE_V1
+   Approved standalone QA order:
+   LOGO --30px-- GAME --30px-- VERSION --30px-- THEME.
+   Header state stays on the far right as the active-state source. */
+.dna-header-left{
+  gap:30px!important;
+}
+.dna-game-name,
+.dna-header-left .dna-theme-qa{
+  margin-left:0!important;
+  margin-right:0!important;
+}
+.dna-version{
+  flex:0 0 auto;
+  color:var(--theme-on-header);
+  font:900 9px/1 var(--ui);
+  white-space:nowrap;
+  opacity:.72;
+}
+.dna-header-left .dna-theme-qa{
+  flex:0 1 180px;
+}
+@media(max-width:720px){
+  .dna-header-left{
+    gap:30px!important;
+  }
+  .dna-version{
+    font-size:7px;
+  }
+  .dna-header-left .dna-theme-qa{
+    flex:0 1 108px;
+  }
+}
+@media(max-width:420px){
+  .dna-header-left{
+    gap:30px!important;
+  }
+  .dna-header-logo{
+    max-width:56px;
+  }
+  .dna-version{
+    font-size:6.5px;
+  }
+  .dna-header-left .dna-theme-qa{
+    flex-basis:84px;
+  }
+}
+body.dna-keyboard-open .dna-header-left{
+  gap:30px!important;
+}
+body.dna-keyboard-open .dna-version{
+  font-size:6.5px;
+}

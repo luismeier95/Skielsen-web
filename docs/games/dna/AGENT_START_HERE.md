@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.29.4  
+**Latest implementation baseline at handover:** DNA standalone v2.29.5  
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
@@ -113,9 +113,9 @@ DNA may bypass the old reserved Skielsen top-banner space and use the full visib
 
 Current approved chrome:
 - SKIELSEN logo at left, aspect ratio locked, as tall as the banner comfortably allows,
-- ~30 px optical gap,
-- `DNA`,
-- standalone QA only: Theme dropdown directly after the game name,
+- exact standalone QA sequence: `LOGO → 30 px → DNA → 30 px → VERSION → 30 px → THEME DROPDOWN`,
+- the visible version is the current DNA standalone build version,
+- the 30 px gaps remain fixed on mobile,
 - right side: state only (`SETUP`, `READY`, `IDEE`, `ABSTIMMUNG`, `REVEAL`, `RANKING`, `MERGE`),
 - extra category/score/round metadata in the header is intentionally removed.
 
