@@ -99,10 +99,13 @@ function fitKeyboardHint(){
    hint.style.removeProperty('line-height');
 
    const keyboard=document.body.classList.contains('dna-keyboard-open');
+   const pinned=document.body.classList.contains('dna-hint-stage-pinned');
    let size=parseFloat(getComputedStyle(hint).fontSize)||16;
-   if(keyboard)size=Math.min(size,16);
-   const minSize=keyboard?9.5:11;
-   hint.style.lineHeight=keyboard?'1.05':'1.06';
+   // IDEA establishes both geometry and hint type scale. Once pinned, VOTE/feedback
+   // must not jump to the larger non-keyboard typography.
+   if(keyboard||pinned)size=Math.min(size,16);
+   const minSize=(keyboard||pinned)?9.5:11;
+   hint.style.lineHeight=(keyboard||pinned)?'1.05':'1.06';
 
    const fits=()=>{
      const cardRect=card.getBoundingClientRect();

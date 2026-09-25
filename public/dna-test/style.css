@@ -942,36 +942,37 @@ body.dna-hint-stage-pinned .dna-hint-card{
   box-sizing:border-box!important;
 }
 
-/* DNA_VOTE_TYPE_SCALE_V3
-   Larger cards need proportionally stronger typography. */
+/* DNA_VOTE_TYPE_SCALE_V4
+   Keep the approved large vote containers, but return the type scale closer to IDEA.
+   The previous V3 type grew too much once the keyboard closed. */
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-interaction-head strong{
-  font-size:18px!important;
+  font-size:16px!important;
   line-height:1!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-interaction-head span{
-  font-size:7px!important;
+  font-size:6.5px!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote{
   min-height:64px!important;
   padding:11px 13px!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote strong{
-  font-size:14px!important;
+  font-size:12px!important;
   line-height:1.05!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote small{
-  font-size:7.2px!important;
+  font-size:6.6px!important;
   line-height:1!important;
-  margin-top:5px!important;
+  margin-top:4px!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-voters i{
-  width:28px!important;
-  height:28px!important;
-  font-size:7.5px!important;
+  width:24px!important;
+  height:24px!important;
+  font-size:7px!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-consensus{
-  font-size:6.8px!important;
+  font-size:6.5px!important;
 }
 body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-actions .dna-btn{
-  font-size:8.2px!important;
+  font-size:7.6px!important;
 }

@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.27.0  
+**Latest implementation baseline at handover:** DNA standalone v2.28.0  
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
@@ -209,7 +209,7 @@ The IDEA/keyboard stage top + height must be frozen and reused for:
 
 All space below that frozen hint stage belongs to the interaction/result container.
 
-Latest patch v2.27.0 changed `freezeCurrentHintStage()` so existing keyboard geometry wins over a fresh post-keyboard measurement.
+Latest patch v2.28.0 changed `freezeCurrentHintStage()` so existing keyboard geometry wins over a fresh post-keyboard measurement.
 
 This latest geometry patch still needs explicit user regression testing after the handover.
 
@@ -255,12 +255,11 @@ Current practical maximum: 3 options.
 
 Cards should be comfortably large; user explicitly asked to use the available space rather than tiny legacy cards.
 
-Latest v2.27.0 typography increases:
-- team-answer heading,
-- candidate label,
-- candidate small copy,
-- D/S voter circles,
-- action button text.
+v2.28.0 refinement after side-by-side playtest:
+- keep the larger VOTE containers,
+- reduce the VOTE typography from the oversized v2.27 values,
+- keep the hint text at the same keyboard/IDEA scale after the keyboard closes,
+- no visible type jump between IDEA and VOTE.
 
 Vote card selection uses glow.
 
@@ -530,14 +529,15 @@ Latest standalone baseline:
 - `public/dna-test/app.js`
 - `public/dna-test/style.css`
 - `public/dna-test/index.html`
-- standalone version v2.27.0
+- standalone version v2.28.0
 - latest gameplay commit at handover: `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 The latest patch specifically addressed:
-1. VOTE hint geometry must reuse keyboard/IDEA geometry,
-2. larger VOTE typography.
+1. VOTE hint geometry reuses keyboard/IDEA geometry,
+2. VOTE keeps the large containers but uses a smaller, IDEA-like type scale,
+3. pinned hint typography no longer grows when the keyboard closes.
 
-This patch was pushed immediately before this handover and should be playtested first in the next chat.
+This patch should be playtested side-by-side against IDEA before further layout changes.
 
 Regression tests to run before any refactor:
 1. Fresh Android session: first Hint 1 focus has no key/card/location accessory ribbon.

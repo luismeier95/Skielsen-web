@@ -1,7 +1,7 @@
 # SKIELSEN DNA — Game Contract v1
 
 **Status:** Approved · consolidated playtest state  
-**Version:** 1.2  
+**Version:** 1.3  
 **Date:** 2026-09-25  
 **Game key:** `dna`  
 **Platform:** Mobile-first, individual devices  
@@ -741,7 +741,7 @@ Existing tournament points remain visually distinct from newly earned placement 
 - Current hint text must never clip.
 - The hint stage is three equal vertical tracks; every released hint has its own container.
 - IDEA establishes the hint-stage geometry; VOTE/evaluation reuse it exactly without post-keyboard reflow.
-- Vote cards are intentionally large (maximum three options: Idea 1, Idea 2, No Answer) and their typography must scale with the card size.
+- Vote cards are intentionally large (maximum three options: Idea 1, Idea 2, No Answer), but their typography stays close to the IDEA-screen scale; closing the keyboard must not cause a visible hint-text or vote-text size jump.
 - Correct/wrong feedback uses the full lower interaction region while the hint stage remains fixed.
 - Native HTML autofocus must remain off unless the first-Hint Android accessory-ribbon regression is retested.
 - Blocking progression buttons pulse; timer-optional actions do not.
