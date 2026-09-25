@@ -118,9 +118,10 @@ function fitKeyboardHint(){
      size=Math.min(size,16);
    }
 
+   const minSize=(keyboard||pinned)?9.5:11;
+   if(keyboard)size=Math.max(minSize,size-1);
    hint.style.fontSize=size+'px';
    hint.style.lineHeight=String(lineHeight);
-   const minSize=(keyboard||pinned)?9.5:11;
 
    const fits=()=>{
      const cardRect=card.getBoundingClientRect();
