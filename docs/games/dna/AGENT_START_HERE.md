@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.29.5  
+**Latest implementation baseline at handover:** DNA standalone v2.29.6  
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
@@ -196,11 +196,11 @@ With the native keyboard open:
 - the three hint tracks share the resulting stage equally,
 - text size may shrink within bounds so no hint is clipped.
 
-### Atomic layout publication
+### Layout performance — do not reintroduce the v2.29.4 freeze
 
-The mobile playtest exposed a brief visual flicker while container sizes/positions and fitted hint typography were being recalculated. v2.29.4 adds a browser-level paint freeze: the previous fully rendered frame remains visible while the new IDEA/VOTE layout settles, then the new layout is committed in one paint. This is intentionally analogous to VBA `Application.ScreenUpdating = False`.
+The full-frame ScreenUpdating-style solution from v2.29.4 was explicitly rejected in mobile playtest because it looked and felt unperformant.
 
-Do not remove this transaction or move phase timers ahead of it; timers start only after the stable frame is visible.
+v2.29.6 restores the pre-v2.29.4 live rendering path. If the short geometry flicker is addressed again, use a lighter approach such as earlier measurement/caching or local element stabilization. Do not freeze the root snapshot, hide the whole gameplay surface, or delay the entire IDEA/VOTE publication behind a View Transition.
 
 ### VOTE must reuse the exact same hint geometry
 

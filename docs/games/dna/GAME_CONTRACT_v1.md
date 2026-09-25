@@ -141,18 +141,18 @@ When IDEA transitions to VOTE or to evaluation feedback:
 
 This geometry lock is a visual non-negotiable because IDEA and VOTE are intended to feel like one continuous screen rather than two different layouts.
 
-### Atomic layout publication
+### Layout performance rule
 
-Viewport, container-position and hint-typography calculations must be treated as one **atomic visual transaction**.
+Do **not** freeze or snapshot the complete game surface while container geometry is being calculated.
 
-- intermediate measurement states must not be painted to the user,
-- while the next layout is being calculated, the last fully rendered frame remains visible,
-- only after visualViewport, hint-stage geometry and fitted typography have settled is the new frame published,
-- on browsers with the View Transitions API, use the old root snapshot as the frozen frame with zero transition duration,
-- fallback behavior may temporarily hide the active game surface, but must still prevent visibly jumping container sizes/positions,
-- IDEA and VOTE timers begin only after the settled layout has been published so layout work never consumes player time.
+The v2.29.4 full-frame ScreenUpdating-style transaction using View Transitions / hidden fallback was removed in v2.29.6 because it made the mobile phase change visibly sluggish.
 
-This is the browser equivalent of `Application.ScreenUpdating = False` / `True`.
+Future flicker fixes must be lightweight and local:
+- keep normal browser painting active,
+- avoid full-root View Transition snapshots for routine IDEA/VOTE geometry,
+- do not hide the complete game surface during measurement,
+- preserve responsive input/phase transitions,
+- optimize or precompute measurements instead of delaying publication of the whole screen.
 
 ### Keyboard state
 

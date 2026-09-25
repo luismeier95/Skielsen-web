@@ -998,23 +998,6 @@ body.dna-hint-stage-pinned .dna-hint-card{
 }
 
 
-/* DNA_ATOMIC_LAYOUT_V1
-   ScreenUpdating=false equivalent: Chrome/Samsung keeps the previous root snapshot
-   visible while the next game layout is measured. No cross-fade, no intermediate paint. */
-html.dna-layout-atomic::view-transition-group(root),
-html.dna-layout-atomic::view-transition-old(root),
-html.dna-layout-atomic::view-transition-new(root){
-  animation:none!important;
-}
-body.dna-layout-calculating .dna-game,
-body.dna-layout-calculating .dna-game *{
-  transition:none!important;
-}
-body.dna-layout-freeze-fallback .dna-game{
-  visibility:hidden!important;
-}
-
-
 /* DNA_HEADER_SEQUENCE_V1
    Approved standalone QA order:
    LOGO --30px-- GAME --30px-- VERSION --30px-- THEME.
