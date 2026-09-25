@@ -19,10 +19,11 @@ function render(){
  if(!lobby)return;
  $('#qgChoose').hidden=true;$('#qgLobby').hidden=false;$('#qgLobbyCode').textContent=lobby.join_code;
  const players=new Map((lobby.players||[]).map(p=>[Number(p.seat),p]));
- $('#qgSeats').innerHTML=NAMES.map((name,index)=>{const seat=index+1,p=players.get(seat);const filled=!p&&lobby.bots_filled;return `<article class="qg-seat" style="--team:${COLORS[index]}"><small>${name}</small><strong>${p?escapeHtml(p.display_name):(filled?'BOT TEAM':'FREIER PLATZ')}</strong><span>${p?'PLAYER + BOT-TEAMKOLLEGE':(filled?'2 BOTS':'WARTET AUF PLAYER')}</span></article>`}).join('');
+ $('#qgSeats').innerHTML=NAMES.map((name,index)=>{const slots=[index*2+1,index*2+2];return `<article class="qg-seat" style="--team:${COLORS[index]}"><small>${name}</small><div class="qg-team-slots">${slots.map((seat,slotIndex)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU · PLATZ '+(slotIndex+1):'PLAYER · PLATZ '+(slotIndex+1)):(filled?'BOT · PLATZ '+(slotIndex+1):'PLATZ '+(slotIndex+1)+' WÄHLEN')}</span></button>`}).join('')}</div></article>`}).join('');
+ document.querySelectorAll('[data-seat]:not(:disabled)').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('set_quick_game_seat',{p_lobby_id:lobby.lobby_id,p_seat:Number(e.currentTarget.dataset.seat)}))));
  $('#qgHostActions').hidden=!lobby.is_host;$('#qgWait').hidden=!!lobby.is_host;
  $('#qgFill').disabled=!!lobby.bots_filled;$('#qgFill').textContent=lobby.bots_filled?'BOTS EINGESETZT ✓':'REST MIT BOTS FÜLLEN';
- $('#qgStart').disabled=!lobby.bots_filled&&(lobby.players||[]).length<4;
+ $('#qgStart').disabled=!lobby.bots_filled&&(lobby.players||[]).length<8;
  if(lobby.status==='LIVE'&&!navigating){navigating=true;location.assign('../dna-test/?quick_lobby='+encodeURIComponent(lobby.lobby_id))}
 }
 function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}

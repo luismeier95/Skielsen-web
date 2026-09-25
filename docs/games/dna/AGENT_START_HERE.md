@@ -4,7 +4,7 @@
 **Date:** 2026-09-25  
 **Repo:** `luismeier95/Skielsen-web`  
 **Standalone:** `/skielsen-web/dna-test/` / repository path `public/dna-test/`  
-**Latest implementation baseline at handover:** DNA standalone v2.29.7
+**Latest implementation baseline at handover:** DNA standalone v2.29.8
 **Latest gameplay patch:** `c4a0d2330a73028f081c64f1a1b97f05102652e1`
 
 ## 1. Mandatory first action for every future agent
@@ -550,8 +550,8 @@ Latest standalone baseline:
 - `public/dna-test/app.js`
 - `public/dna-test/style.css`
 - `public/dna-test/index.html`
-- standalone version v2.29.0
-- latest gameplay commit at handover: `c4a0d2330a73028f081c64f1a1b97f05102652e1`
+- standalone version v2.29.8
+- Quick Games supports the shared host Setup and two human seats per team; paired humans share IDEA/VOTE state through the lobby backend.
 
 The latest patch specifically addressed:
 1. VOTE hint geometry reuses keyboard/IDEA geometry,

@@ -26,7 +26,7 @@ const DECOYS={
 const $=s=>document.querySelector(s);
 const content=$('#dnaContent'),progress=$('#dnaProgress'),headerState=$('#dnaHeaderState'),headerMeta=$('#dnaHeaderMeta'),themeSelect=$('#dnaThemeSelect');
 let phaseTimer=0,phaseRaf=0,scheduled=[];
-let s={screen:'BOOT',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',answerProof:null,ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false,quickLobby:null,quickTeamMap:null};
+let s={screen:'BOOT',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',answerProof:null,ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false,quickLobby:null,quickTeamMap:null,quickHumanTeammate:false};
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function clearTimers(){if(phaseTimer)clearTimeout(phaseTimer);if(phaseRaf)cancelAnimationFrame(phaseRaf);phaseTimer=0;phaseRaf=0;scheduled.splice(0).forEach(clearTimeout)}
 function later(fn,ms){const id=setTimeout(fn,ms);scheduled.push(id);return id}
@@ -274,12 +274,15 @@ async function loadQuickLobby(){
  if(lobby?.status!=='LIVE')throw new Error('DIE QUICK-GAME-LOBBY IST NOCH NICHT GESTARTET.');
  const session=await authSession(),me=(lobby.players||[]).find(p=>p.user_id===session?.user?.id);
  if(!me)throw new Error('DU GEHÖRST NICHT ZU DIESER QUICK-GAME-LOBBY.');
- const ownKey=TEAM_ORDER[Math.max(0,Number(me.seat||1)-1)]||'RED';
+ const ownIndex=Math.max(0,Math.min(3,Math.floor((Number(me.seat||1)-1)/2)));
+ const ownKey=TEAM_ORDER[ownIndex]||'RED';
  const remaining=TEAM_ORDER.filter(key=>key!==ownKey),map={RED:ownKey};
  ['BLUE','GREEN','YELLOW'].forEach((key,index)=>map[key]=remaining[index]);
  s.quickLobby=lobby;s.quickTeamMap=map;
  const bySeat=new Map((lobby.players||[]).map(p=>[Number(p.seat),p]));
- TEAM_ORDER.forEach((key,index)=>{const player=bySeat.get(index+1);TEAMS[key].members=player?String(player.display_name||'PLAYER').toUpperCase()+' + BOT':'BOT + BOT'});
+ TEAM_ORDER.forEach((key,index)=>{const first=bySeat.get(index*2+1),second=bySeat.get(index*2+2);TEAMS[key].members=[first?.display_name||'BOT',second?.display_name||'BOT'].map(String).map(x=>x.toUpperCase()).join(' + ')});
+ const teammateSeat=Number(me.seat)%2===1?Number(me.seat)+1:Number(me.seat)-1;
+ s.quickHumanTeammate=Boolean(bySeat.get(teammateSeat));
  return lobby;
 }
 const scrollHint=$('#dnaScrollHint');
@@ -317,7 +320,21 @@ function setup(){clearTimers();s.screen='SETUP';setChrome('SETUP','DNA · TEAM',
  content.querySelectorAll('[data-cat]').forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.cat;if(s.selected.has(id)){if(s.selected.size>1)s.selected.delete(id)}else s.selected.add(id);refreshSetupSelection()}));
  content.querySelectorAll('[data-terms]').forEach(btn=>btn.addEventListener('click',()=>{s.termCount=Number(btn.dataset.terms);refreshSetupSelection()}));
  content.querySelectorAll('[data-pool]').forEach(btn=>btn.addEventListener('click',()=>{s.pool=btn.dataset.pool;refreshSetupSelection()}));
- $('#dnaSetupNext').addEventListener('click',ready)}
+ $('#dnaSetupNext').addEventListener('click',saveSetup)}
+async function saveSetup(){
+ if(!s.quickLobby)return ready();
+ const button=$('#dnaSetupNext');button.disabled=true;button.textContent='SPEICHERT …';
+ try{
+  s.quickLobby=await quickRpc('configure_quick_game_lobby',{p_lobby_id:s.quickLobby.lobby_id,p_categories:[...s.selected],p_term_count:s.termCount,p_pool:s.pool});
+  ready();
+ }catch(err){button.disabled=false;button.textContent='WEITER →';showFatal(err)}
+}
+function waitForQuickSetup(){
+ clearTimers();s.screen='SETUP_WAIT';setChrome('SETUP','HOST WÄHLT CONTENT',5);
+ page(`<section class="dna-auth"><div class="dna-auth-card"><span class="dna-kicker">QUICK GAME · ${esc(s.quickLobby.join_code)}</span><h1>SETUP LÄUFT.</h1><p>Der Host wählt Kategorien, Begriffszahl und Content-Mix. Danach geht es für alle zum Ready-Screen.</p></div></section>`);
+ const poll=async()=>{try{await loadQuickLobby();if(s.quickLobby.setup_status==='READY'){applyQuickSetup();ready()}else later(poll,800)}catch(err){showFatal(err)}};later(poll,500)
+}
+function applyQuickSetup(){const q=s.quickLobby?.setup||{};const categories=Array.isArray(q.categories)?q.categories.filter(Boolean):[];if(categories.length)s.selected=new Set(categories);if([5,10,15].includes(Number(q.termCount)))s.termCount=Number(q.termCount);if(['CASUAL','BALANCED','EXPERT'].includes(String(q.pool)))s.pool=String(q.pool)}
 function ready(){clearTimers();s.screen='READY';setChrome('READY',`${s.termCount} BEGRIFFE`,12);const ownActual=s.quickTeamMap?.RED||'RED';page(`<section class="dna-hero"><span class="dna-kicker">LETZTER CHECK VOR DEM SPIEL</span><h1>BEREIT?</h1></section><section class="dna-ready-rules"><div><strong>+3</strong><span>HINWEIS 1 · SEHR SCHWER</span></div><div><strong>+2 / +1</strong><span>HINWEIS 2 / 3</span></div><div><strong>−1</strong><span>FALSCHE TEAMANTWORT</span></div><div><strong>20s + 10s</strong><span>IDEE → ABSTIMMUNG</span></div></section><section class="dna-card"><div class="dna-card-head"><strong>TEAMS</strong><span>${s.quickLobby?'QUICK GAME · '+esc(s.quickLobby.join_code):'STANDALONE SIMULATION'}</span></div><div class="dna-team-list">${TEAM_ORDER.map(key=>`<div class="dna-team-row" style="--team:${TEAMS[key].color}"><i></i><div class="dna-team-ident"><strong>${TEAMS[key].name}</strong><span>${TEAMS[key].members}</span></div><b class="dna-ready-state ${key===ownActual?'':'ready'}" data-ready="${key}">${key===ownActual?'WARTET':'BEREIT'}</b></div>`).join('')}</div></section><section class="dna-card"><span class="dna-kicker">SO FUNKTIONIERT ES</span><p style="margin:10px 0 0;font-size:10px;line-height:1.5;font-weight:800">Phase 1: Jeder Spieler gibt geheim eine Idee ein. Phase 2: Nur euer Team sieht die Ideen und stimmt ab. Einigkeit aktiviert Submit – abgeschickt wird erst nach einem bewussten Klick.</p></section><div class="dna-actions"><button class="dna-btn" id="dnaBackSetup" type="button">${s.quickLobby?'← QUICK GAMES':'← SETUP'}</button><button class="dna-btn primary dna-blocking" id="dnaReady" type="button">ICH BIN BEREIT</button></div>`);$('#dnaBackSetup').addEventListener('click',()=>s.quickLobby?location.assign('../quick-games/'):setup());$('#dnaReady').addEventListener('click',()=>{const own=$(`[data-ready="${ownActual}"]`);own.textContent='BEREIT';own.classList.add('ready');const btn=$('#dnaReady');btn.textContent='SPIEL STARTEN';btn.onclick=startGame})}
 async function startGame(){clearTimers();setChrome('LÄDT','CONTENT WIRD GEZOGEN',15);page(`<section class="dna-auth"><div class="dna-auth-card"><span class="dna-kicker">SERVERAUTORITATIV</span><h1>DNA WIRD VORBEREITET.</h1><p>Nur der erste freigegebene Hinweis wird an den Browser übertragen.</p></div></section>`);try{const res=await api('start',{categories:[...s.selected],termCount:s.termCount,pool:s.pool,quickLobby:QUICK_LOBBY_ID||undefined});s.token=res.state;s.previousHints=[];enterContent(res.content)}catch(err){if(String(err.message)==='LOGIN_REQUIRED')return authGate();showFatal(err)}}
 function showFatal(err){clearTimers();setChrome('FEHLER','DNA STANDALONE',0);page(`<div class="dna-error">${esc(err?.message||err)}</div><div class="dna-actions"><button class="dna-btn primary" id="dnaRetry" type="button">ZURÜCK ZUM SETUP</button></div>`);$('#dnaRetry').addEventListener('click',setup)}
@@ -378,8 +395,15 @@ function startTimer(duration,onTimeout){const bar=$('#dnaTimer'),fill=bar?.query
 function maybeFinishIdea(){if(s.ideaDone&&s.teammateReady&&s.opponentsReady){clearTimers();startVote()}}
 function teammateIdea(){const list=DECOYS[s.current.categoryId]||['KEINE IDEE'];return Math.random()<.18?null:list[Math.floor(Math.random()*list.length)]}
 function startIdea(){clearTimers();s.screen='GAME';s.idea='';s.ideaDone=Boolean(s.current.redSolved);s.teammateIdea=null;s.teammateReady=Boolean(s.current.redSolved);s.opponentsReady=false;s.userVote=null;s.teammateVote=null;s.submitted=false;s.outcome=null;s.answerProof=null;const solved=s.current.redSolved;gameShell(solved?`<div class="dna-lock-state"><div><strong>BEGRIFF GELÖST</strong><span>DEIN TEAM SPIELT DIESEN BEGRIFF NICHT WEITER.</span></div></div>`:`<div class="dna-interaction-head"><strong>DEINE IDEE</strong><span>GEHEIM · NUR DU</span></div><div class="dna-idea-form"><input class="dna-input" id="dnaIdea" type="text" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="characters" enterkeyhint="done" maxlength="80" placeholder="Antwort eingeben …"><button class="dna-btn primary dna-save" id="dnaIdeaSave" type="button" disabled>IDEE SPEICHERN</button></div><button class="dna-btn dna-skip" id="dnaIdeaSkip" type="button">KEINE IDEE</button>`,'IDEE');
- if(!solved){const input=$('#dnaIdea'),save=$('#dnaIdeaSave');input.addEventListener('input',()=>save.disabled=!input.value.trim());input.addEventListener('keydown',e=>{if(e.key==='Enter'&&input.value.trim()){e.preventDefault();save.click()}});save.addEventListener('click',()=>{s.idea=input.value.trim();s.ideaDone=true;renderIdeaLocked('IDEE GESPEICHERT',s.idea);maybeFinishIdea()});$('#dnaIdeaSkip').addEventListener('click',()=>{s.idea='';s.ideaDone=true;renderIdeaLocked('ÜBERSPRUNGEN','KEINE IDEE');maybeFinishIdea()});later(()=>{try{input.focus({preventScroll:true})}catch(_){input.focus()}syncViewport()},80);later(()=>{s.teammateIdea=teammateIdea();s.teammateReady=true;maybeFinishIdea()},900+Math.random()*800)}
+ if(!solved){const input=$('#dnaIdea'),save=$('#dnaIdeaSave');input.addEventListener('input',()=>save.disabled=!input.value.trim());input.addEventListener('keydown',e=>{if(e.key==='Enter'&&input.value.trim()){e.preventDefault();save.click()}});save.addEventListener('click',()=>saveQuickIdea(input.value.trim()));$('#dnaIdeaSkip').addEventListener('click',()=>saveQuickIdea(''));later(()=>{try{input.focus({preventScroll:true})}catch(_){input.focus()}syncViewport()},80);if(s.quickHumanTeammate)pollQuickIdea();else later(()=>{s.teammateIdea=teammateIdea();s.teammateReady=true;maybeFinishIdea()},900+Math.random()*800)}
  later(()=>{s.opponentsReady=true;maybeFinishIdea()},1200+Math.random()*1000);startTimer(IDEA_PHASE_MS,()=>{if(!s.ideaDone){s.idea='';s.ideaDone=true}clearTimers();startVote()})}
+async function saveQuickIdea(value){
+ if(s.ideaDone)return;s.idea=value;s.ideaDone=true;renderIdeaLocked(value?'IDEE GESPEICHERT':'ÜBERSPRUNGEN',value||'KEINE IDEE');
+ if(!s.quickHumanTeammate)return maybeFinishIdea();
+ try{const team=await quickRpc('submit_quick_dna_idea',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo,p_idea:value});applyQuickIdeaState(team)}catch(err){showFatal(err)}
+}
+function applyQuickIdeaState(team){const other=(team?.ideas||[]).find(row=>!row.is_me);if(other?.submitted){s.teammateIdea=other.idea||null;s.teammateReady=true}maybeFinishIdea()}
+async function pollQuickIdea(){if(!s.quickHumanTeammate||s.screen!=='GAME'||s.teammateReady)return;try{const team=await quickRpc('get_quick_dna_team_state',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo});applyQuickIdeaState(team);if(!s.teammateReady)later(pollQuickIdea,500)}catch(err){showFatal(err)}}
 function renderIdeaLocked(title,value){const host=$('#dnaInteraction');if(!host)return;host.innerHTML=`<div class="dna-lock-state"><div><strong>${esc(title)}</strong><span>${esc(value)}</span></div></div>`}
 function normalize(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('de-DE')}
 function candidates(){const map=new Map();const add=(value,who)=>{if(!value)return;const key=normalize(value);if(!key)return;const row=map.get(key)||{value,who:[]};if(!row.who.includes(who))row.who.push(who);map.set(key,row)};add(s.idea,'D');add(s.teammateIdea,'S');return [...map.values()]}
@@ -392,16 +416,20 @@ function startVote(){clearTimers();freezeCurrentHintStage();try{document.activeE
   const seq=++teammateVoteSeq;
   s.teammateVote=null;
   renderVotes();
-  reconsiderVoteNow(seq,s.userVote);
-}));$('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;s.answerProof=null;renderVotes()});$('#dnaSubmit').addEventListener('click',submitVote);
+  if(s.quickHumanTeammate)shareQuickVote(s.userVote);else reconsiderVoteNow(seq,s.userVote);
+ }));$('#dnaVoteClear').addEventListener('click',()=>{s.userVote=null;s.answerProof=null;if(s.quickHumanTeammate)shareQuickVote(null);renderVotes()});$('#dnaSubmit').addEventListener('click',submitVote);
+ if(s.quickHumanTeammate)pollQuickVote();
  later(()=>{
    // Never overwrite a user-triggered reconsideration with the stale initial bot vote.
-   if(s.userVote||s.submitted||teammateVoteSeq>0)return;
+   if(s.quickHumanTeammate||s.userVote||s.submitted||teammateVoteSeq>0)return;
    const ownIdea=s.teammateIdea?normalize(s.teammateIdea):'__NO__';
    const found=[...content.querySelectorAll('[data-vote]')].find(x=>normalize(x.dataset.vote)===ownIdea);
    s.teammateVote=found?.dataset.vote||'__NO__';
    renderVotes();
  },650+Math.random()*550);later(()=>{s.opponentsReady=true;if(s.submitted)resolveVote(false)},1300+Math.random()*1100);startTimer(VOTE_PHASE_MS,()=>{if(s.submitted)return;if(phaseTimer){clearTimeout(phaseTimer);phaseTimer=0}submitNoAnswerTimeout()})}
+async function shareQuickVote(value){try{const team=await quickRpc('submit_quick_dna_vote',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo,p_vote:value||''});applyQuickVoteState(team)}catch(err){showFatal(err)}}
+function applyQuickVoteState(team){const mine=(team?.votes||[]).find(row=>row.is_me),other=(team?.votes||[]).find(row=>!row.is_me);if(mine)s.userVote=mine.vote||null;if(other)s.teammateVote=other.vote||null;renderVotes();if(team?.submission&&!s.submitted)submitSharedAnswer(team.submission.answer)}
+async function pollQuickVote(){if(!s.quickHumanTeammate||s.screen!=='GAME'||s.submitted)return;try{const team=await quickRpc('get_quick_dna_team_state',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo});applyQuickVoteState(team);if(!s.submitted)later(pollQuickVote,500)}catch(err){showFatal(err)}}
 function voteCard(value,source,key){const display=value==='__NO__'?'KEINE ANTWORT':value;return `<button class="dna-vote" type="button" data-vote="${esc(value)}" data-key="${key}"><span><strong>${esc(display)}</strong><small>${esc(source)}</small></span><span class="dna-voters"><i data-voter="D">D</i><i data-voter="S">S</i></span></button>`}
 let reconsiderTimer=0,teammateVoteSeq=0;
 async function reconsiderVoteNow(seq,requestedVote){
@@ -422,7 +450,8 @@ async function reconsiderVoteNow(seq,requestedVote){
   }
 }
 function renderVotes(){content.querySelectorAll('[data-vote]').forEach(btn=>{const v=btn.dataset.vote;btn.classList.toggle('active',s.userVote===v);const ds=btn.querySelector('[data-voter="D"]'),ss=btn.querySelector('[data-voter="S"]');ds?.classList.toggle('on',s.userVote===v);ss?.classList.toggle('on',s.teammateVote===v)});const consensus=Boolean(s.userVote&&s.teammateVote&&s.userVote===s.teammateVote);const line=$('#dnaConsensus'),submit=$('#dnaSubmit');if(line){line.textContent=consensus?'EINIGKEIT · SUBMIT IST FREIGEGEBEN':'NOCH KEINE EINIGKEIT';line.classList.toggle('dna-submit-ok',consensus)}if(submit)submit.disabled=!consensus||s.submitted}
-async function submitVote(){if(s.submitted||!s.userVote||s.userVote!==s.teammateVote)return;s.submitted=true;renderVotes();const noAnswer=s.userVote==='__NO__';try{const res=await api('submit',{state:s.token,termRef:s.current?.termRef||'',answerProof:s.answerProof||'',answer:noAnswer?'':s.userVote,noAnswer});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted(noAnswer?s.userVote:s.userVote);if(s.opponentsReady)resolveVote(false)}catch(err){showFatal(err)}}
+async function submitVote(){if(s.submitted||!s.userVote||s.userVote!==s.teammateVote)return;if(s.quickHumanTeammate){try{const team=await quickRpc('submit_quick_dna_team_answer',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo});return submitSharedAnswer(team?.submission?.answer)}catch(err){return showFatal(err)}}return submitSharedAnswer(s.userVote)}
+async function submitSharedAnswer(answer){if(s.submitted||!answer)return;s.submitted=true;renderVotes();const noAnswer=answer==='__NO__';try{const res=await api('submit',{state:s.token,termRef:s.current?.termRef||'',answerProof:s.answerProof||'',answer:noAnswer?'':answer,noAnswer});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted(answer);if(s.opponentsReady)resolveVote(false)}catch(err){showFatal(err)}}
 async function submitNoAnswerTimeout(){if(s.submitted)return;s.submitted=true;try{const res=await api('submit',{state:s.token,termRef:s.current?.termRef||'',answer:'',noAnswer:true});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted('__NO__');resolveVote(false)}catch(err){showFatal(err)}}
 function renderSubmitted(value){const host=$('#dnaInteraction');if(!host)return;host.innerHTML=`<div class="dna-lock-state"><div><strong>ANTWORT EINGEREICHT</strong><span>${value==='__NO__'?'KEINE ANTWORT':esc(value)}</span></div></div>`}
 let resolving=false;async function resolveVote(solvedSpectator){if(resolving)return;resolving=true;clearTimers();try{const bot=await api('bots',{state:s.token});s.token=bot.state;s.current=bot.content;showOpponentSolves(bot.solves||[]);if(solvedSpectator){showOwnFeedback({status:'SOLVED',points:0},true)}else showOwnFeedback(s.outcome||{status:'NO_ANSWER',points:0},false);later(async()=>{try{if(s.current?.hintText&&!s.previousHints.includes(s.current.hintText))s.previousHints.push(s.current.hintText);const next=await api('advance',{state:s.token});s.token=next.state;resolving=false;enterContent(next.content)}catch(err){resolving=false;showFatal(err)}},1150)}catch(err){resolving=false;showFatal(err)}}
@@ -452,8 +481,7 @@ async function showQuickRanking(scores){
    lobby=await quickRpc('get_quick_game_lobby',{p_lobby_id:s.quickLobby.lobby_id});
    const wait=$('#dnaQuickWait');if(wait)wait.textContent=`${lobby.result_count||0} / ${(lobby.players||[]).length} PLAYER FERTIG`;
   }
-  const bySeat=new Map((lobby.players||[]).map(p=>[Number(p.seat),p]));
-  const shared={};TEAM_ORDER.forEach((key,index)=>{const player=bySeat.get(index+1);shared[key]=player?.score===null||player?.score===undefined?Number(lobby.bot_scores?.[key]||0):Number(player.score||0)});
+   const shared={};TEAM_ORDER.forEach((key,index)=>{const teamPlayers=(lobby.players||[]).filter(p=>Math.floor((Number(p.seat)-1)/2)===index),humanScores=teamPlayers.map(p=>p.score).filter(v=>v!==null&&v!==undefined).map(Number);shared[key]=humanScores.length?Math.max(...humanScores):Number(lobby.bot_scores?.[key]||0)});
   showRanking(shared);
  }catch(err){showFatal(err)}
 }
@@ -678,7 +706,7 @@ function confetti(key){
  // Long rain: keep the host alive until the final wave has fully fallen.
  later(()=>host.remove(),waves*waveGap+3800);
 }
-function resetAll(){clearTimers();resolving=false;clearTimeout(reconsiderTimer);s={screen:'SETUP',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false};setup()}
-async function boot(){const session=await authSession();if(!session)return authGate();themeCatalog=await loadThemeCatalog();renderThemeQa();try{if(QUICK_LOBBY_ID)await loadQuickLobby();s.quickLobby?ready():setup()}catch(err){showFatal(err)}}
+function resetAll(){clearTimers();resolving=false;clearTimeout(reconsiderTimer);s={screen:'SETUP',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false,quickLobby:null,quickTeamMap:null,quickHumanTeammate:false};setup()}
+async function boot(){const session=await authSession();if(!session)return authGate();themeCatalog=await loadThemeCatalog();renderThemeQa();try{if(QUICK_LOBBY_ID)await loadQuickLobby();if(!s.quickLobby)return setup();if(s.quickLobby.setup_status==='READY'){applyQuickSetup();ready()}else if(s.quickLobby.is_host)setup();else waitForQuickSetup()}catch(err){showFatal(err)}}
 boot();
 })();

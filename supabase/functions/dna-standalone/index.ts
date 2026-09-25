@@ -68,13 +68,18 @@ async function contentFor(state){
   return {phase:"HINT",termNo:state.term,termCount:state.terms.length,categoryId:rows[0].category_id,categoryName:rows[0].category_name,hintNo:Number(rows[0].hint_no),hintText:rows[0].hint_text,points:Number(rows[0].points_value),termRef,redSolved:Boolean(state.teams.RED.solved),redGameScore:Number(state.teams.RED.score||0),redTermScore:Number(state.teams.RED.termScore||0)};
 }
 async function start(body,userId){
-  const requested=Array.isArray(body?.categories)?body.categories.map(String).filter(Boolean):[];
-  const count=[5,10,15].includes(Number(body?.termCount))?Number(body.termCount):5;
-  const pool=["CASUAL","BALANCED","EXPERT"].includes(String(body?.pool||"").toUpperCase())?String(body.pool).toUpperCase():"BALANCED";
+  let requested=Array.isArray(body?.categories)?body.categories.map(String).filter(Boolean):[];
+  let count=[5,10,15].includes(Number(body?.termCount))?Number(body.termCount):5;
+  let pool=["CASUAL","BALANCED","EXPERT"].includes(String(body?.pool||"").toUpperCase())?String(body.pool).toUpperCase():"BALANCED";
   const quickLobby=body?.quickLobby?String(body.quickLobby):null;
   if(quickLobby){
-    const membership=await sql.unsafe("select 1 from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id where l.lobby_id=$1::uuid and l.status='LIVE' and p.user_id=$2::uuid limit 1",[quickLobby,userId]);
+    const membership=await sql.unsafe("select l.setup_status,l.setup_json from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id where l.lobby_id=$1::uuid and l.status='LIVE' and p.user_id=$2::uuid limit 1",[quickLobby,userId]);
     if(!membership.length)throw new Error("Quick lobby membership required");
+    if(String(membership[0].setup_status)!=="READY")throw new Error("Quick lobby setup required");
+    const setup=membership[0].setup_json||{};
+    requested=Array.isArray(setup.categories)?setup.categories.map(String).filter(Boolean):[];
+    count=[5,10,15].includes(Number(setup.termCount))?Number(setup.termCount):5;
+    pool=["CASUAL","BALANCED","EXPERT"].includes(String(setup.pool||"").toUpperCase())?String(setup.pool).toUpperCase():"BALANCED";
   }
   const seed=String(quickLobby||crypto.randomUUID());
   const available=await sql.unsafe("select category_id from public.dna_categories where is_active=true order by sort_order");
@@ -273,7 +278,7 @@ async function teammateVote(body){
   return {vote:"__NO__"};
 }
 
-async function submit(body){
+async function submit(body,userId){
   const state=await open(body?.state);
   if(state.phase!=="HINT")throw new Error("Submission unavailable");
   const red=state.teams.RED;
@@ -281,6 +286,15 @@ async function submit(body){
   if(red.processedHint>=state.hint&&red.last?.hint===state.hint)return {state:await seal(state),outcome:red.last,content:await contentFor(state)};
   const noAnswer=Boolean(body?.noAnswer);
   const answer=String(body?.answer||"").trim();
+  if(state.quickLobby&&!noAnswer&&answer){
+    if(!userId||String(state.quickUserId)!==String(userId))throw new Error("Quick lobby user mismatch");
+    const context=await sql.unsafe("select (((p.seat-1)/2)+1)::smallint as team_no,(select count(*) from public.quick_game_lobby_players tp where tp.lobby_id=p.lobby_id and (((tp.seat-1)/2)+1)=(((p.seat-1)/2)+1)) as human_count from public.quick_game_lobby_players p where p.lobby_id=$1::uuid and p.user_id=$2::uuid limit 1",[state.quickLobby,userId]);
+    if(!context.length)throw new Error("Quick lobby membership required");
+    if(Number(context[0].human_count)>=2){
+      const shared=await sql.unsafe("select answer from private.quick_dna_team_submissions where lobby_id=$1::uuid and term_no=$2 and hint_no=$3 and team_no=$4 limit 1",[state.quickLobby,state.term,state.hint,context[0].team_no]);
+      if(!shared.length||normalizeAnswer(shared[0].answer)!==normalizeAnswer(answer))throw new Error("Team consensus required");
+    }
+  }
   let outcome;
   if(noAnswer||!answer){
     outcome={hint:state.hint,status:"NO_ANSWER",points:0};
@@ -319,7 +333,7 @@ async function recordQuickResult(state,userId){
   if(!userId||String(state.quickUserId)!==String(userId))throw new Error("Quick lobby user mismatch");
   const seats=await sql.unsafe("select seat from public.quick_game_lobby_players where lobby_id=$1::uuid and user_id=$2::uuid limit 1",[state.quickLobby,userId]);
   if(!seats.length)throw new Error("Quick lobby membership required");
-  const order=["RED","BLUE","GREEN","YELLOW"],own=order[Math.max(0,Number(seats[0].seat||1)-1)]||"RED";
+  const order=["RED","BLUE","GREEN","YELLOW"],own=order[Math.max(0,Math.min(3,Math.floor((Number(seats[0].seat||1)-1)/2)))]||"RED";
   const remaining=order.filter(x=>x!==own),map={RED:own,BLUE:remaining[0],GREEN:remaining[1],YELLOW:remaining[2]},mapped={};
   for(const local of order)mapped[map[local]]=Number(state.teams[local]?.score||0);
   await sql.unsafe("insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score,submitted_at=now()",[state.quickLobby,userId,mapped[own]]);
@@ -342,7 +356,7 @@ Deno.serve(async req=>{
   try{
     const body=await req.json().catch(()=>({}));const action=String(body?.action||"").toLowerCase();const userId=jwtSub(req);
     if(!userId)throw new Error("Authenticated user required");
-    const result=action==="start"?await start(body,userId):action==="teammate_vote"?await teammateVote(body):action==="submit"?await submit(body):action==="bots"?await bots(body):action==="advance"?await advance(body,userId):null;
+    const result=action==="start"?await start(body,userId):action==="teammate_vote"?await teammateVote(body):action==="submit"?await submit(body,userId):action==="bots"?await bots(body):action==="advance"?await advance(body,userId):null;
     if(!result)return reply({error:"Unknown action"},400);
     return reply(result);
   }catch(err){console.error("dna-standalone",err);return reply({error:String(err?.message||err)},400)}

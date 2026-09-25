@@ -823,10 +823,11 @@ Existing tournament points remain visually distinct from newly earned placement 
 
 DNA is the first game exposed through Quick Games.
 
-- The lobby has four human seats, one per DNA team in this fixed order: Red, Blue, Green, Yellow.
-- A joined human controls the human role for that team and receives one bot teammate, preserving the two-player team rule.
-- Empty team seats become full bot teams when the host chooses `REST MIT BOTS FÜLLEN`.
+- The lobby has eight human seats: two seats for each DNA team in the fixed order Red, Blue, Green, Yellow.
+- Joined humans may move to a free seat before the host starts. Two humans in the two seats of the same color are real teammates; a human receives a bot teammate only when the second team seat is empty at start.
+- When the host chooses `REST MIT BOTS FÜLLEN`, every remaining individual seat becomes a bot seat.
+- After the roster is locked, the host receives the DNA Setup page and chooses categories, term count and content mix for the shared game. Other joined clients wait until this setup is saved, then all clients receive the same configuration before Ready.
 - All human teams receive the same deterministic term sequence for the lobby. Canonical answers, aliases and future hints remain server-only.
-- Each team completes IDEA/VOTE locally on its devices against server-authoritative DNA validation. The Edge Function writes the authenticated team's sealed final score directly to the lobby result; the browser cannot submit a score value.
-- The final Quick Game ranking waits up to 120 seconds for every joined human result and combines those scores with the bot-team scores from the shared lobby result. If a joined device never finishes, that seat falls back to its recorded bot score so the remaining players cannot be held indefinitely.
+- Human teammates submit their IDEA entries and VOTE selections into a server-side, team-scoped round state. They see each other's ideas only in VOTE. A non-empty team answer is accepted for evaluation only after both human votes match and one teammate explicitly submits it. A bot teammate continues to use the server-side teammate simulation.
+- The Edge Function writes each authenticated human's sealed final team score directly to the lobby result; the browser cannot submit a score value. The shared ranking uses one score per team and falls back to the recorded bot-team score when no human result for that team arrives within 120 seconds.
 - Quick Games does not award tournament placement points. After the shared DNA ranking, `QUICK GAME BEENDEN` returns to the Quick Games catalogue; Joker Resolve and Tournament Merge are skipped.

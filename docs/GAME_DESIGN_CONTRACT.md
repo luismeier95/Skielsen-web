@@ -331,6 +331,7 @@ Quick Games is a separate authenticated flow outside a tournament. It must not c
 - Other authenticated users join that lobby from their own devices.
 - The host explicitly fills all remaining seats with bots before starting, unless every human seat is occupied.
 - Starting the lobby locks the roster and sends every joined client to the selected game.
+- If the selected game has a content setup, the host configures it after the roster is locked; joined clients wait for that shared setup and receive the same configuration.
 - A Quick Game ends on its shared game ranking and returns to Quick Games; it never continues into Tournament Merge.
 - Lobby membership, start authority and submitted results are server-authoritative and protected by RLS/security-definer RPCs.
 - Game-specific contracts define how human seats and bots map onto that game's participant model.
