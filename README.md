@@ -67,6 +67,8 @@ Game modules do not own global navigation or tournament chrome. They mount insid
 
 ## Development references
 
+Local start and verification commands: [Development guide](docs/DEVELOPMENT.md).
+
 These routes are maintained intentionally:
 
 - `/game-design-contract.html` — visual implementation contract
