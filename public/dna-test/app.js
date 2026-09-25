@@ -33,24 +33,33 @@ function motionMs(ms){return Math.round(Number(ms||0)*MOTION_SCALE)}
 function setChrome(strong,meta,pct){headerState.textContent=strong;if(headerMeta)headerMeta.textContent='';progress.style.width=Math.max(0,Math.min(100,pct))+'%'}
 function visualHeight(){return window.visualViewport?.height||window.innerHeight}
 function fitKeyboardHint(){
- const box=content?.querySelector?.('.dna-hints');
- const hints=[...(content?.querySelectorAll?.('.dna-hint-text')||[])];
- if(!box||!hints.length)return;
- hints.forEach(hint=>{hint.style.removeProperty('font-size');hint.style.removeProperty('line-height')});
- const keyboard=document.body.classList.contains('dna-keyboard-open');
- const computed=Math.min(...hints.map(h=>parseFloat(getComputedStyle(h).fontSize)||16));
- let size=keyboard?Math.min(16,computed):computed;
- const minSize=keyboard?9.5:11;
- hints.forEach(h=>h.style.lineHeight=keyboard?'1.06':'1.04');
- const fits=()=>{
-   const br=box.getBoundingClientRect();
-   const last=hints[hints.length-1]?.getBoundingClientRect();
-   return box.scrollHeight<=box.clientHeight+1 && (!last||last.bottom<=br.bottom-5);
- };
- for(let guard=0;guard<24&&!fits()&&size>minSize;guard++){
-   size=Math.max(minSize,size-.5);
-   hints.forEach(h=>h.style.fontSize=size+'px');
- }
+ const stage=content?.querySelector?.('.dna-hints');
+ const slots=[...(content?.querySelectorAll?.('.dna-hint-slot:not(.is-empty)')||[])];
+ if(!stage||!slots.length)return;
+
+ slots.forEach(slot=>{
+   const hint=slot.querySelector('.dna-hint-text');
+   if(!hint)return;
+   hint.style.removeProperty('font-size');
+   hint.style.removeProperty('line-height');
+
+   const keyboard=document.body.classList.contains('dna-keyboard-open');
+   let size=parseFloat(getComputedStyle(hint).fontSize)||16;
+   if(keyboard)size=Math.min(size,16);
+   const minSize=keyboard?9.5:11;
+   hint.style.lineHeight=keyboard?'1.05':'1.06';
+
+   const fits=()=>{
+     const slotRect=slot.getBoundingClientRect();
+     const hintRect=hint.getBoundingClientRect();
+     return slot.scrollHeight<=slot.clientHeight+1 && hintRect.bottom<=slotRect.bottom-5;
+   };
+
+   for(let guard=0;guard<28&&!fits()&&size>minSize;guard++){
+     size=Math.max(minSize,size-.5);
+     hint.style.fontSize=size+'px';
+   }
+ });
 }
 let hintFitRaf=0;
 function queueKeyboardHintFit(){
@@ -194,15 +203,40 @@ function overallPct(c){if(!c?.termCount)return 15;if(c.phase==='COMPLETE')return
 function enterContent(c){clearTimers();s.current=c;if(c.phase==='HINT'){if(c.hintNo===1)s.previousHints=[];startIdea()}else if(c.phase==='REVEAL')showReveal(c);else if(c.phase==='COMPLETE')showRanking(c.gameScores);else showFatal(new Error('Unbekannter DNA-State'))}
 function teamScoreLabel(){return Number(s.current?.redGameScore||0)}
 function hintDifficulty(no){return no===1?'SEHR SCHWER':no===2?'SCHWER':'MITTEL'}
+function hintPoints(no){return no===1?3:no===2?2:1}
 function gameShell(interactionHtml,phaseLabel){
  setScrollLock(true);
  const c=s.current;
  setChrome(phaseLabel,'',overallPct(c));
- const visibleHints=[
-   ...s.previousHints.map((text,i)=>({hintNo:i+1,text,points:3-i,current:false})),
-   {hintNo:c.hintNo,text:c.hintText,points:c.points,current:true}
- ];
- content.innerHTML=`<section class="dna-game"><div class="dna-timer" id="dnaTimer"><i></i></div><section class="dna-hints" style="--dna-hint-count:${visibleHints.length}"><div class="dna-hint-stack">${visibleHints.map(h=>`<article class="dna-hint-block ${h.current?'is-current':'is-previous'}"><div class="dna-hint-head"><small>HINWEIS ${h.hintNo} · ${hintDifficulty(h.hintNo)}</small><b>+${h.points}</b></div><p class="dna-hint-text">${esc(h.text)}</p></article>`).join('')}</div></section><section class="dna-interaction" id="dnaInteraction">${interactionHtml}</section></section><div class="dna-solve-strip" id="dnaSolves"></div>`;
+
+ const released=new Map();
+ s.previousHints.forEach((text,i)=>released.set(i+1,text));
+ released.set(c.hintNo,c.hintText);
+
+ const hintSlots=[1,2,3].map(no=>{
+   const text=released.get(no);
+   const current=no===c.hintNo;
+   if(!text){
+     return `<article class="dna-hint-slot is-empty" data-hint-slot="${no}" aria-hidden="true"></article>`;
+   }
+   return `<article class="dna-hint-slot ${current?'is-current':'is-previous'}" data-hint-slot="${no}">
+     <div class="dna-hint-head">
+       <small>HINWEIS ${no} · ${hintDifficulty(no)}</small>
+       <b>+${hintPoints(no)}</b>
+     </div>
+     <p class="dna-hint-text">${esc(text)}</p>
+   </article>`;
+ }).join('');
+
+ content.innerHTML=`<section class="dna-game">
+   <div class="dna-timer" id="dnaTimer"><i></i></div>
+   <section class="dna-hints">
+     <div class="dna-hint-stage">${hintSlots}</div>
+   </section>
+   <section class="dna-interaction" id="dnaInteraction">${interactionHtml}</section>
+ </section>
+ <div class="dna-solve-strip" id="dnaSolves"></div>`;
+
  queueKeyboardHintFit();
 }
 function startTimer(duration,onTimeout){const bar=$('#dnaTimer'),fill=bar?.querySelector('i');const ms=Math.max(1000,Number(duration)||VOTE_PHASE_MS);const start=performance.now(),deadline=start+ms;if(fill){fill.style.width='100%';fill.style.transform='none'}function frame(now){const left=Math.max(0,deadline-now),ratio=Math.max(0,Math.min(1,left/ms));if(fill)fill.style.width=(ratio*100).toFixed(2)+'%';bar?.classList.toggle('warning',left<=5000&&left>2500);bar?.classList.toggle('danger',left<=2500);if(left>0)phaseRaf=requestAnimationFrame(frame);else if(fill)fill.style.width='0%'}phaseRaf=requestAnimationFrame(frame);phaseTimer=setTimeout(()=>{if(fill)fill.style.width='0%';onTimeout()},ms+40)}
