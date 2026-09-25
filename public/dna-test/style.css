@@ -609,3 +609,108 @@ body.dna-keyboard-open .dna-history{display:grid!important}
     box-shadow:0 0 0 2px var(--theme-focus),0 0 18px color-mix(in srgb,var(--theme-accent) 35%,transparent)!important;
   }
 }
+
+
+/* DNA_HINT_THIRDS_V1
+   The complete free hint stage is always split into three equal vertical slots.
+   Released hints occupy H1/H2/H3 in those fixed slots; short clues intentionally
+   keep breathing room while long clues use the slot fully. */
+.dna-game{
+  grid-template-rows:8px minmax(0,1fr) auto!important;
+  row-gap:8px!important;
+  padding-top:8px!important;
+}
+.dna-hints{
+  height:100%!important;
+  max-height:none!important;
+  min-height:0!important;
+  padding:8px 12px!important;
+  justify-content:stretch!important;
+}
+.dna-hint-stack{
+  height:100%;
+  min-height:0;
+  display:grid;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+  gap:0!important;
+}
+.dna-hint-block{
+  min-height:0;
+  height:100%;
+  overflow:hidden;
+  padding:7px 2px!important;
+  align-content:center!important;
+}
+.dna-hint-block + .dna-hint-block{
+  border-top:1px solid var(--theme-border);
+  padding-top:7px!important;
+}
+.dna-hint-block .dna-hint-text{
+  max-height:100%;
+}
+
+/* Timer has the same visual breathing room above and below. */
+.dna-timer{
+  align-self:center;
+  margin:0!important;
+}
+
+/* DNA_REVEAL_LINEHEIGHT_V2
+   Multi-line answers must never collide vertically. */
+.dna-reveal-answer h1{
+  font-size:clamp(34px,8vw,72px)!important;
+  line-height:1.02!important;
+  letter-spacing:-.045em!important;
+  text-wrap:balance;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+@media(max-width:720px){
+  .dna-game{
+    grid-template-rows:8px minmax(0,1fr) auto!important;
+    row-gap:8px!important;
+    padding-top:8px!important;
+  }
+  .dna-hints{
+    height:100%!important;
+    max-height:none!important;
+    padding:7px 9px!important;
+  }
+  .dna-hint-block{
+    padding:6px 1px!important;
+  }
+  .dna-hint-block + .dna-hint-block{
+    padding-top:6px!important;
+  }
+  .dna-reveal-answer h1{
+    font-size:clamp(32px,9vw,64px)!important;
+    line-height:1.03!important;
+  }
+}
+
+/* Keyboard-open IDEA keeps the same thirds logic in the space above the fixed input dock. */
+body.dna-keyboard-open .dna-game{
+  grid-template-rows:8px minmax(0,1fr)!important;
+  row-gap:8px!important;
+  padding-top:8px!important;
+}
+body.dna-keyboard-open .dna-hints{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin-bottom:168px!important;
+  padding:6px 9px!important;
+}
+body.dna-keyboard-open .dna-hint-stack{
+  height:100%!important;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+}
+body.dna-keyboard-open .dna-hint-block{
+  min-height:0!important;
+  overflow:hidden!important;
+  padding:4px 1px!important;
+}
+body.dna-keyboard-open .dna-hint-block + .dna-hint-block{
+  padding-top:4px!important;
+}
