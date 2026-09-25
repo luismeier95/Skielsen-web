@@ -423,3 +423,189 @@ body.dna-keyboard-open .dna-hint-text{
   padding-bottom:2px;
   overflow:visible;
 }
+
+
+/* DNA_HEADER_CHROME_V2
+   Standalone chrome: maximum-height logo, 30px optical gap to game name,
+   theme QA directly after the game name, only the current game state at right. */
+.dna-header{
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.dna-header-left{
+  min-width:0;
+  height:100%;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+.dna-header-logo{
+  flex:0 0 auto;
+  width:auto!important;
+  height:calc(100% - 8px)!important;
+  max-width:112px;
+  object-fit:contain;
+  object-position:left center;
+}
+.dna-game-name{
+  flex:0 0 auto;
+  margin-left:30px;
+  font-family:var(--display,var(--ui));
+  font-size:17px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.dna-header-left .dna-theme-qa{
+  flex:0 1 180px;
+  margin:0 0 0 16px!important;
+}
+.dna-header-meta{
+  flex:0 0 auto;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  text-align:right;
+}
+.dna-header-meta b{
+  font-size:10px;
+  line-height:1;
+}
+.dna-header-meta span{display:none!important}
+
+/* DNA_LIVE_HINT_STACK_V1
+   Every released hint stays visible at the same typographic weight. */
+.dna-hints{
+  max-height:min(52dvh,430px);
+  padding:8px 12px;
+  justify-content:flex-start;
+}
+.dna-hint-stack{
+  min-height:0;
+  display:grid;
+  grid-template-rows:repeat(var(--dna-hint-count,1),minmax(0,auto));
+  gap:5px;
+}
+.dna-hint-block{
+  min-width:0;
+  padding:5px 2px 7px;
+  display:grid;
+  align-content:center;
+  gap:4px;
+}
+.dna-hint-block + .dna-hint-block{
+  border-top:1px solid var(--theme-border);
+  padding-top:8px;
+}
+.dna-hint-block .dna-hint-head{margin:0}
+.dna-hint-block .dna-hint-text{
+  color:var(--theme-on-surface);
+  font-size:clamp(16px,2.8vw,27px);
+}
+.dna-hint-block.is-previous .dna-hint-text,
+.dna-hint-block.is-current .dna-hint-text{
+  opacity:1;
+}
+
+/* DNA_BLOCKING_CTA_GLOW_V1
+   Only manual progression gates pulse. Timeout-safe actions stay static. */
+@keyframes dnaBlockingGlow{
+  0%,100%{
+    box-shadow:
+      0 0 0 0 color-mix(in srgb,var(--theme-accent) 0%,transparent),
+      0 0 12px color-mix(in srgb,var(--theme-accent) 18%,transparent);
+  }
+  50%{
+    box-shadow:
+      0 0 0 3px color-mix(in srgb,var(--theme-accent) 22%,transparent),
+      0 0 26px color-mix(in srgb,var(--theme-accent) 64%,transparent);
+  }
+}
+.dna-blocking:not(:disabled){
+  animation:dnaBlockingGlow 1.55s ease-in-out infinite;
+}
+.dna-blocking:disabled{animation:none!important}
+
+/* DNA_IDEA_AUTOFOCUS_V1: IDEA requests focus immediately so keyboard-open is the default mobile view. */
+
+body.dna-keyboard-open .dna-theme-qa{
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+body.dna-keyboard-open .dna-header{
+  height:42px!important;
+  padding:0 9px!important;
+}
+body.dna-keyboard-open .dna-header-logo{
+  width:auto!important;
+  height:calc(100% - 6px)!important;
+}
+body.dna-keyboard-open .dna-game-name{font-size:12px!important}
+body.dna-keyboard-open .dna-header-meta b{font-size:7px!important}
+body.dna-keyboard-open .dna-hints{
+  margin-bottom:168px!important;
+  max-height:min(54dvh,calc(var(--dna-visual-height,100dvh) - 190px))!important;
+  padding:6px 9px 8px!important;
+}
+body.dna-keyboard-open .dna-hint-stack{gap:3px}
+body.dna-keyboard-open .dna-hint-block{
+  padding:3px 1px 5px;
+  gap:3px;
+}
+body.dna-keyboard-open .dna-hint-block + .dna-hint-block{padding-top:5px}
+body.dna-keyboard-open .dna-history{display:grid!important}
+
+@media(max-width:720px){
+  .dna-header{
+    display:flex!important;
+    height:42px;
+    padding:0 9px;
+  }
+  .dna-header-logo{
+    height:calc(100% - 6px)!important;
+    max-width:78px;
+  }
+  .dna-game-name{
+    margin-left:30px;
+    font-size:12px;
+  }
+  .dna-header-left .dna-theme-qa{
+    flex:0 1 126px;
+    margin-left:12px!important;
+  }
+  .dna-header-left .dna-theme-qa select{
+    width:100%;
+    height:27px;
+  }
+  .dna-header-meta b{font-size:7px}
+  .dna-hints{
+    max-height:48dvh;
+    padding:7px 9px;
+  }
+  .dna-hint-stack{gap:3px}
+  .dna-hint-block{padding:4px 1px 6px}
+  .dna-hint-block + .dna-hint-block{padding-top:6px}
+  .dna-hint-block .dna-hint-head small{font-size:5.8px}
+  .dna-hint-block .dna-hint-head b{font-size:14px}
+  .dna-hint-block .dna-hint-text{
+    font-size:clamp(16px,4.9vw,21px);
+    line-height:1.03;
+  }
+}
+@media(max-width:420px){
+  .dna-header-logo{max-width:64px}
+  .dna-game-name{margin-left:22px}
+  .dna-header-left .dna-theme-qa{
+    flex-basis:98px;
+    margin-left:8px!important;
+  }
+  .dna-header-meta b{font-size:6.4px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dna-blocking:not(:disabled){
+    animation:none!important;
+    box-shadow:0 0 0 2px var(--theme-focus),0 0 18px color-mix(in srgb,var(--theme-accent) 35%,transparent)!important;
+  }
+}
