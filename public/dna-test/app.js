@@ -44,10 +44,8 @@ function fitKeyboardHint(){
  hints.forEach(h=>h.style.lineHeight=keyboard?'1.06':'1.04');
  const fits=()=>{
    const br=box.getBoundingClientRect();
-   const blocks=[...(box.querySelectorAll('.dna-hint-block')||[])];
-   const everyBlockFits=blocks.every(block=>block.scrollHeight<=block.clientHeight+1);
    const last=hints[hints.length-1]?.getBoundingClientRect();
-   return everyBlockFits && box.scrollHeight<=box.clientHeight+1 && (!last||last.bottom<=br.bottom-5);
+   return box.scrollHeight<=box.clientHeight+1 && (!last||last.bottom<=br.bottom-5);
  };
  for(let guard=0;guard<24&&!fits()&&size>minSize;guard++){
    size=Math.max(minSize,size-.5);
