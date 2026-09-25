@@ -911,3 +911,20 @@ body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-lock-state{
   min-height:0!important;
   flex:1 1 auto!important;
 }
+
+
+/* DNA_VOTE_CARD_SCALE_V2 */
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-list{gap:9px!important}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote{min-height:58px!important;padding:10px 12px!important}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote strong{font-size:12px!important}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote small{font-size:6.6px!important;margin-top:4px!important}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-voters{gap:6px!important}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-voters i{width:24px!important;height:24px!important;font-size:7px!important}
+
+/* DNA_REVEAL_MULTILINE_V3 */
+.dna-reveal-answer h1{line-height:1.02!important;letter-spacing:-.045em!important;text-wrap:balance;overflow-wrap:normal!important;word-break:normal!important}
+.dna-reveal-answer h1.dna-answer-long{font-size:clamp(36px,8vw,66px)!important}
+.dna-reveal-answer h1.dna-answer-xlong{font-size:clamp(32px,7.2vw,58px)!important;line-height:1.04!important}
+@media(max-width:720px){.dna-reveal-answer h1{font-size:clamp(36px,9vw,64px)!important;line-height:1.02!important}.dna-reveal-answer h1.dna-answer-long{font-size:clamp(32px,8vw,56px)!important}.dna-reveal-answer h1.dna-answer-xlong{font-size:clamp(28px,7vw,48px)!important;line-height:1.05!important}}
+
+/* DNA_ANDROID_FIRST_FOCUS_V1: native autofocus removed; JS focus remains the only focus path. */
