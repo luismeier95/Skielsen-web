@@ -32,12 +32,39 @@ function later(fn,ms){const id=setTimeout(fn,ms);scheduled.push(id);return id}
 function motionMs(ms){return Math.round(Number(ms||0)*MOTION_SCALE)}
 function setChrome(strong,meta,pct){headerState.textContent=strong;if(headerMeta)headerMeta.textContent='';progress.style.width=Math.max(0,Math.min(100,pct))+'%'}
 function visualHeight(){return window.visualViewport?.height||window.innerHeight}
+function setPinnedHintStage(top,height){
+ const t=Math.round(Number(top)||0),h=Math.round(Number(height)||0);
+ if(!(t>0&&h>0))return;
+ s.hintStageGeometry={top:t,height:h};
+ document.documentElement.style.setProperty('--dna-pinned-hint-top',t+'px');
+ document.documentElement.style.setProperty('--dna-pinned-hint-height',h+'px');
+ document.body.classList.add('dna-hint-stage-pinned');
+}
+function clearPinnedHintStage(){
+ s.hintStageGeometry=null;
+ document.documentElement.style.removeProperty('--dna-pinned-hint-top');
+ document.documentElement.style.removeProperty('--dna-pinned-hint-height');
+ document.body.classList.remove('dna-hint-stage-pinned');
+}
+function freezeCurrentHintStage(){
+ const stage=content?.querySelector?.('.dna-hints');
+ if(!stage)return;
+ const rect=stage.getBoundingClientRect();
+ if(rect.height>0)setPinnedHintStage(rect.top,rect.height);
+}
 function syncKeyboardHintStageGeometry(){
  const stage=content?.querySelector?.('.dna-hints');
  if(!stage)return;
  stage.style.removeProperty('--dna-measured-hint-top');
  stage.style.removeProperty('--dna-measured-hint-height');
- if(!document.body.classList.contains('dna-keyboard-open'))return;
+
+ if(!document.body.classList.contains('dna-keyboard-open')){
+   if(s.hintStageGeometry){
+     stage.style.setProperty('--dna-measured-hint-top',s.hintStageGeometry.top+'px');
+     stage.style.setProperty('--dna-measured-hint-height',s.hintStageGeometry.height+'px');
+   }
+   return;
+ }
 
  const timer=content?.querySelector?.('#dnaTimer');
  const interaction=content?.querySelector?.('#dnaInteraction');
@@ -52,6 +79,7 @@ function syncKeyboardHintStageGeometry(){
 
  stage.style.setProperty('--dna-measured-hint-top',top+'px');
  stage.style.setProperty('--dna-measured-hint-height',height+'px');
+ setPinnedHintStage(top,height);
 }
 function fitKeyboardHint(){
  syncKeyboardHintStageGeometry();
@@ -226,7 +254,7 @@ function ready(){clearTimers();s.screen='READY';setChrome('READY',`${s.termCount
 async function startGame(){clearTimers();setChrome('LÄDT','CONTENT WIRD GEZOGEN',15);page(`<section class="dna-auth"><div class="dna-auth-card"><span class="dna-kicker">SERVERAUTORITATIV</span><h1>DNA WIRD VORBEREITET.</h1><p>Nur der erste freigegebene Hinweis wird an den Browser übertragen.</p></div></section>`);try{const res=await api('start',{categories:[...s.selected],termCount:s.termCount,pool:s.pool});s.token=res.state;s.previousHints=[];enterContent(res.content)}catch(err){if(String(err.message)==='LOGIN_REQUIRED')return authGate();showFatal(err)}}
 function showFatal(err){clearTimers();setChrome('FEHLER','DNA STANDALONE',0);page(`<div class="dna-error">${esc(err?.message||err)}</div><div class="dna-actions"><button class="dna-btn primary" id="dnaRetry" type="button">ZURÜCK ZUM SETUP</button></div>`);$('#dnaRetry').addEventListener('click',setup)}
 function overallPct(c){if(!c?.termCount)return 15;if(c.phase==='COMPLETE')return 100;const base=((c.termNo-1)/c.termCount)*100;const hint=c.hintNo||3;return Math.max(16,Math.min(96,base+(hint-1)/3*(100/c.termCount)))}
-function enterContent(c){clearTimers();s.current=c;if(c.phase==='HINT'){if(c.hintNo===1)s.previousHints=[];startIdea()}else if(c.phase==='REVEAL')showReveal(c);else if(c.phase==='COMPLETE')showRanking(c.gameScores);else showFatal(new Error('Unbekannter DNA-State'))}
+function enterContent(c){clearTimers();s.current=c;if(c.phase==='HINT'){if(c.hintNo===1){s.previousHints=[];clearPinnedHintStage()}startIdea()}else if(c.phase==='REVEAL'){clearPinnedHintStage();showReveal(c)}else if(c.phase==='COMPLETE'){clearPinnedHintStage();showRanking(c.gameScores)}else showFatal(new Error('Unbekannter DNA-State'))}
 function teamScoreLabel(){return Number(s.current?.redGameScore||0)}
 function hintDifficulty(no){return no===1?'SEHR SCHWER':no===2?'SCHWER':'MITTEL'}
 function hintPoints(no){return no===1?3:no===2?2:1}
@@ -265,6 +293,11 @@ function gameShell(interactionHtml,phaseLabel){
  </section>
  <div class="dna-solve-strip" id="dnaSolves"></div>`;
 
+ if(s.hintStageGeometry){
+   const stage=$('.dna-hints');
+   stage?.style.setProperty('--dna-measured-hint-top',s.hintStageGeometry.top+'px');
+   stage?.style.setProperty('--dna-measured-hint-height',s.hintStageGeometry.height+'px');
+ }
  queueKeyboardHintFit();
  const interaction=$('#dnaInteraction');
  if(interaction&&window.ResizeObserver){
@@ -282,7 +315,7 @@ function startIdea(){clearTimers();s.screen='GAME';s.idea='';s.ideaDone=Boolean(
 function renderIdeaLocked(title,value){const host=$('#dnaInteraction');if(!host)return;host.innerHTML=`<div class="dna-lock-state"><div><strong>${esc(title)}</strong><span>${esc(value)}</span></div></div>`}
 function normalize(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('de-DE')}
 function candidates(){const map=new Map();const add=(value,who)=>{if(!value)return;const key=normalize(value);if(!key)return;const row=map.get(key)||{value,who:[]};if(!row.who.includes(who))row.who.push(who);map.set(key,row)};add(s.idea,'D');add(s.teammateIdea,'S');return [...map.values()]}
-function startVote(){clearTimers();try{document.activeElement?.blur?.()}catch(_){}syncViewport();teammateVoteSeq=0;clearTimeout(reconsiderTimer);const solved=s.current.redSolved;if(solved){s.teammateReady=true;s.opponentsReady=false;gameShell(`<div class="dna-lock-state"><div><strong>TEAMABSTIMMUNG LÄUFT</strong><span>DEIN TEAM HAT BEREITS GELÖST.</span></div></div>`,'ABSTIMMUNG');later(()=>{s.opponentsReady=true;clearTimers();resolveVote(true)},900+Math.random()*600);startTimer(VOTE_PHASE_MS,()=>resolveVote(true));return}
+function startVote(){clearTimers();freezeCurrentHintStage();try{document.activeElement?.blur?.()}catch(_){}syncViewport();teammateVoteSeq=0;clearTimeout(reconsiderTimer);const solved=s.current.redSolved;if(solved){s.teammateReady=true;s.opponentsReady=false;gameShell(`<div class="dna-lock-state"><div><strong>TEAMABSTIMMUNG LÄUFT</strong><span>DEIN TEAM HAT BEREITS GELÖST.</span></div></div>`,'ABSTIMMUNG');later(()=>{s.opponentsReady=true;clearTimers();resolveVote(true)},900+Math.random()*600);startTimer(VOTE_PHASE_MS,()=>resolveVote(true));return}
  const list=candidates();s.userVote=null;s.teammateVote=null;s.submitted=false;s.opponentsReady=false;gameShell(`<div class="dna-interaction-head"><strong>TEAM-ANTWORT</strong><span>ANTIPPEN ≠ ABSENDEN</span></div><div class="dna-vote-list" id="dnaVoteList">${list.map((c,i)=>voteCard(c.value,c.who.join(' + '),'v'+i)).join('')}${voteCard('__NO__','SICHER PASSEN','no')}</div><div class="dna-consensus" id="dnaConsensus">NOCH KEINE EINIGKEIT</div><div class="dna-vote-actions"><button class="dna-btn" id="dnaVoteClear" type="button">AUSWAHL LÖSEN</button><button class="dna-btn primary" id="dnaSubmit" type="button" disabled>ANTWORT ABSENDEN</button></div>`,'ABSTIMMUNG');
  content.querySelectorAll('[data-vote]').forEach(btn=>btn.addEventListener('click',()=>{
   s.userVote=btn.dataset.vote;
@@ -329,7 +362,7 @@ function showOpponentSolves(solves){const host=$('#dnaSolves');if(!host)return;h
 function showOwnFeedback(outcome,spectator){const host=$('#dnaInteraction');if(!host)return;if(spectator){host.innerHTML=`<div class="dna-feedback neutral"><div><strong>BEGRIFF GELÖST</strong><span>WARTET AUF DIE ANDEREN TEAMS</span></div></div>`;return}const status=outcome?.status||'NO_ANSWER',pts=Number(outcome?.points||0);if(status==='CORRECT')host.innerHTML=`<div class="dna-feedback correct"><div><strong>RICHTIG · +${pts}</strong><span>DEIN TEAM IST FÜR DIESEN BEGRIFF FERTIG</span></div></div>`;else if(status==='WRONG')host.innerHTML=`<div class="dna-feedback wrong"><div><strong>FALSCH · −1</strong><span>NÄCHSTER HINWEIS</span></div></div>`;else host.innerHTML=`<div class="dna-feedback neutral"><div><strong>KEINE ANTWORT · ±0</strong><span>NÄCHSTER HINWEIS</span></div></div>`}
 function showReveal(c){clearTimers();setScrollLock(true);setChrome('REVEAL',`${String(c.termNo).padStart(2,'0')} / ${String(c.termCount).padStart(2,'0')} · ${c.categoryName}`,Math.min(98,(c.termNo/c.termCount)*100));const tieRank=Object.fromEntries(REVEAL_TIE_ORDER.map((k,i)=>[k,i]));const revealRows=TEAM_ORDER.map(k=>({key:k,score:Number(c.termScores?.[k]||0)})).sort((a,b)=>b.score-a.score||(tieRank[a.key]??99)-(tieRank[b.key]??99));content.innerHTML=`<section class="dna-reveal"><section class="dna-reveal-answer"><div><small>DIE LÖSUNG</small><h1>${esc(c.answer)}</h1></div></section><section class="dna-term-scores">${revealRows.map((r,i)=>`<div class="dna-term-score" data-team="${r.key}" style="--team:${TEAMS[r.key].color};--delay:${motionMs(90+i*80)}ms"><i></i><span><small>${TEAMS[r.key].name}</small><strong>${signed(r.score)}</strong></span></div>`).join('')}</section></section>`;requestAnimationFrame(()=>content.querySelector('.dna-term-scores')?.classList.add('is-revealing'));later(async()=>{try{const next=await api('advance',{state:s.token});s.token=next.state;if(next.content?.phase==='COMPLETE')enterContent(next.content);else showTermCountdown(next.content)}catch(err){showFatal(err)}},3000)}
 function showTermCountdown(nextContent){
- clearTimers();setScrollLock(true);s.screen='COUNTDOWN';
+ clearTimers();clearPinnedHintStage();setScrollLock(true);s.screen='COUNTDOWN';
  const termNo=String(nextContent?.termNo||'').padStart(2,'0');
  const termCount=String(nextContent?.termCount||'').padStart(2,'0');
  setChrome('NÄCHSTER BEGRIFF',`${termNo} / ${termCount}`,overallPct(nextContent));

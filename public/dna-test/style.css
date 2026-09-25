@@ -848,3 +848,66 @@ body.dna-keyboard-open .dna-hint-card{
     gap:3px;
   }
 }
+
+
+/* DNA_PHASE_GEOMETRY_LOCK_V1
+   IDEA establishes the hint-stage geometry. VOTE and FEEDBACK reuse that exact
+   top/height; only the lower interaction region changes content. */
+body.dna-hint-stage-pinned .dna-hints{
+  position:fixed!important;
+  top:var(--dna-pinned-hint-top)!important;
+  left:7px!important;
+  right:7px!important;
+  bottom:auto!important;
+  width:auto!important;
+  height:var(--dna-pinned-hint-height)!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  z-index:8!important;
+}
+body.dna-hint-stage-pinned .dna-hint-stage{
+  height:100%!important;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+}
+
+/* Once the software keyboard is gone, the entire region below the frozen hint
+   stage belongs to VOTE / submitted / correct-wrong feedback. */
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-interaction{
+  position:fixed!important;
+  left:7px!important;
+  right:7px!important;
+  top:calc(var(--dna-pinned-hint-top) + var(--dna-pinned-hint-height) + 8px)!important;
+  bottom:max(7px,env(safe-area-inset-bottom))!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  z-index:9!important;
+  overflow:hidden!important;
+}
+
+/* Restore the compact vote composition inside the now-larger lower stage:
+   choices stay near the top, consensus + actions stay at the bottom. */
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-list{
+  flex:0 0 auto!important;
+  overflow:visible!important;
+}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-consensus{
+  margin-top:auto!important;
+}
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-actions{
+  position:static!important;
+  margin-top:0!important;
+}
+
+/* Feedback intentionally fills the whole lower stage, matching the older
+   large RICHTIG/FALSCH screen while leaving the hint stage untouched. */
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-feedback,
+body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-lock-state{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  flex:1 1 auto!important;
+}
