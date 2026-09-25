@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SKIELSEN · Shut the Box · Design V1</title>
+<style>
+:root{
+  --page:#e9e9e9;--surface:#fff;--soft:#f7f7f7;--muted:#777;--text:#050505;
+  --border:#ddd;--border-strong:#c7c7c7;--accent:#7c5cff;--button:#050505;--button-text:#fff;
+  --header:#050505;--header-text:#fff;--success:#16864b;--danger:#d62828;--warning:#c79a32;
+  --red:#ff1717;--blue:#1515ff;--yellow:#f2b705;--green:#00a65a;
+  --radius:22px;--radius-sm:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--page);color:var(--text)}
+body{padding:18px}
+.prototype{max-width:1180px;margin:0 auto}
+.topbar{height:58px;background:var(--header);color:var(--header-text);border-radius:18px;display:flex;align-items:center;padding:0 18px;gap:18px;margin-bottom:14px}
+.logo{font-weight:950;letter-spacing:-.05em;font-size:24px}.game-name{font-weight:900;font-size:18px}.version{color:#bbb;font-weight:700;font-size:12px}.spacer{flex:1}
+.badge{border:1px solid #333;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:800;color:#ddd}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:14px;min-height:560px}
+.demo-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.demo-nav button{border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;padding:9px 13px;font-weight:850;cursor:pointer}
+.demo-nav button.active{background:var(--accent);border-color:var(--accent);color:white}
+.game-shell{display:grid;grid-template-rows:auto 1fr;gap:12px;min-height:500px}
+.board-wrap{background:var(--soft);border:1px solid var(--border);border-radius:20px;padding:10px}
+.board-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.team-title{display:flex;align-items:center;gap:10px;font-weight:950}.team-dot{width:10px;height:32px;border-radius:6px;background:var(--yellow)}
+.control-state{font-size:13px;font-weight:900;color:var(--muted)}.control-state strong{color:var(--red)}
+.tiles{display:grid;grid-template-columns:repeat(12,1fr);gap:6px}
+.tile{height:82px;border:1px solid var(--border-strong);background:var(--surface);border-radius:14px;font-size:27px;font-weight:950;display:grid;place-items:center;cursor:pointer;transition:transform .14s ease,background .14s ease,color .14s ease,opacity .14s ease}
+.tile:hover{transform:translateY(-2px)}.tile.selected{background:var(--accent);color:#fff;border-color:var(--accent)}.tile.closed{background:#161616;color:#666;border-color:#161616;opacity:.4;transform:rotateX(76deg);transform-origin:top;pointer-events:none}
+.lower{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;min-height:300px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px}
+.info{display:grid;grid-template-rows:auto 1fr auto;gap:14px}
+.eyebrow{font-size:12px;font-weight:950;letter-spacing:.12em;color:var(--muted)}
+.phase{font-size:30px;font-weight:950;line-height:1}.phase .decision{color:var(--red)}
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-self:center}
+.meta{background:var(--soft);border:1px solid var(--border);border-radius:16px;padding:13px}.meta span{display:block;font-size:11px;font-weight:850;color:var(--muted);margin-bottom:5px}.meta strong{font-size:24px}
+.count{font-size:48px;font-weight:1000;letter-spacing:-.04em}.count.ready{color:var(--accent)}
+.hint{font-size:12px;color:var(--muted)}
+.action-panel{display:grid;grid-template-rows:1fr auto;gap:14px}
+.dice-area{background:var(--soft);border:1px solid var(--border);border-radius:18px;display:grid;place-items:center;cursor:pointer;min-height:190px;position:relative;overflow:hidden}
+.dice-row{display:flex;gap:18px}.die{width:86px;height:86px;background:#fff;border:2px solid #111;border-radius:20px;box-shadow:0 7px 0 #cfcfcf;display:grid;place-items:center;font-size:34px;font-weight:950;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.die.roll{animation:tumble .7s cubic-bezier(.2,.8,.2,1)}@keyframes tumble{0%{transform:rotate(0) scale(1)}35%{transform:rotate(120deg) translateY(-18px) scale(.94)}70%{transform:rotate(255deg) translateY(8px) scale(1.04)}100%{transform:rotate(360deg) scale(1)}}
+.roll-label{position:absolute;bottom:10px;font-size:12px;color:var(--muted);font-weight:800}
+.confirm{height:58px;border:0;border-radius:16px;background:var(--button);color:var(--button-text);font-size:17px;font-weight:950;letter-spacing:.03em;opacity:.28}
+.confirm.enabled{opacity:1;background:var(--accent);animation:glow 1.2s ease-in-out infinite}@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(124,92,255,.18)}50%{box-shadow:0 0 0 9px rgba(124,92,255,.12)}}
+.variant-note{margin-top:10px;font-size:12px;color:var(--muted)}
+.v2 .tile{border-radius:6px;border-width:2px}.v2 .board-wrap{border-radius:12px}.v2 .tile.closed{transform:scaleY(.18);opacity:.3}
+.v3 .tiles{gap:3px;background:#0d0d0d;padding:4px;border-radius:16px}.v3 .tile{border-radius:10px;border-color:#0d0d0d}.v3 .tile.selected{background:#fff;color:#111;box-shadow:inset 0 0 0 4px var(--accent)}.v3 .tile.closed{background:#0d0d0d;color:#333;transform:none;opacity:1}
+.v4 .tile{border-radius:999px;height:70px}.v4 .tiles{gap:8px}.v4 .tile.closed{transform:none;background:var(--surface);border-style:dashed;color:#bbb;opacity:.65}.v4 .tile.selected{background:var(--accent)}
+.rotate{display:none;position:fixed;inset:0;background:var(--header);color:white;z-index:99;align-items:center;justify-content:center;text-align:center;padding:28px}.rotate h1{font-size:30px;margin:0 0 8px}.rotate p{color:#bbb}
+@media(max-width:900px) and (orientation:portrait){.rotate{display:flex}}
+@media(max-width:900px) and (orientation:landscape){body{padding:8px}.topbar{height:44px;margin-bottom:7px;border-radius:12px}.logo{font-size:18px}.stage{padding:7px;min-height:calc(100vh - 67px);border-radius:15px}.demo-nav{display:none}.game-shell{min-height:calc(100vh - 84px);gap:7px}.board-wrap{padding:7px;border-radius:13px}.tile{height:50px;border-radius:9px;font-size:18px}.lower{min-height:0;grid-template-columns:1.12fr .88fr;gap:7px}.panel{padding:10px;border-radius:13px}.phase{font-size:20px}.meta{padding:7px;border-radius:9px}.meta strong{font-size:16px}.count{font-size:31px}.dice-area{min-height:104px}.die{width:55px;height:55px;border-radius:12px;font-size:22px}.confirm{height:42px;border-radius:10px;font-size:14px}.variant-note{display:none}}
+</style>
+</head>
+<body>
+<div class="rotate"><div><h1>HANDY DREHEN</h1><p>Shut the Box ist für die horizontale Ausrichtung optimiert.</p></div></div>
+<div class="prototype">
+  <div class="topbar">
+    <div class="logo">SKIELSEN</div>
+    <div class="game-name">SHUT THE BOX</div>
+    <div class="version">DESIGN V1</div>
+    <div class="spacer"></div>
+    <div class="badge">RUNDE 1/3 · SABOTAGE</div>
+  </div>
+  <div class="stage">
+    <div class="demo-nav">
+      <button class="active" data-v="v1">VARIANTE 1 · KLAPPEN</button>
+      <button data-v="v2">VARIANTE 2 · TECH</button>
+      <button data-v="v3">VARIANTE 3 · CONTRAST</button>
+      <button data-v="v4">VARIANTE 4 · PILLS</button>
+    </div>
+    <main class="game-shell v1" id="game">
+      <section class="board-wrap">
+        <div class="board-head">
+          <div class="team-title"><span class="team-dot"></span>TEAM GELB</div>
+          <div class="control-state"><strong>TEAM ROT ENTSCHEIDET</strong></div>
+        </div>
+        <div class="tiles" id="tiles"></div>
+      </section>
+      <section class="lower">
+        <div class="panel info">
+          <div>
+            <div class="eyebrow">AKTION</div>
+            <div class="phase">ZAHLEN WÄHLEN <span class="decision">· ROT</span></div>
+          </div>
+          <div class="meta-grid">
+            <div class="meta"><span>RUNDE</span><strong>1 / 3</strong></div>
+            <div class="meta"><span>WÜRFEL</span><strong id="rollSum">7</strong></div>
+            <div class="meta"><span>REST OFFEN</span><strong id="openSum">78</strong></div>
+          </div>
+          <div>
+            <div class="count" id="count">0 / 7</div>
+            <div class="hint">Wähle offene Zahlen mit exakt derselben Summe.</div>
+          </div>
+        </div>
+        <div class="panel action-panel">
+          <div class="dice-area" id="diceArea" title="Würfeln">
+            <div class="dice-row"><div class="die" id="die1">3</div><div class="die" id="die2">4</div></div>
+            <div class="roll-label">WÜRFELN DURCH TAP</div>
+          </div>
+          <button class="confirm" id="confirm">BESTÄTIGEN</button>
+        </div>
+      </section>
+    </main>
+    <div class="variant-note">Interaktiver Design-Sandbox: Zahlen anklicken, BESTÄTIGEN testen, Würfel antippen. Kein produktiver Game-State.</div>
+  </div>
+</div>
+<script>
+const game=document.getElementById('game');
+const tiles=document.getElementById('tiles');
+const count=document.getElementById('count');
+const confirmBtn=document.getElementById('confirm');
+const openSumEl=document.getElementById('openSum');
+const rollSumEl=document.getElementById('rollSum');
+const d1=document.getElementById('die1'),d2=document.getElementById('die2');
+let target=7, selected=new Set(), closed=new Set();
+
+function renderTiles(){
+  tiles.innerHTML='';
+  for(let n=1;n<=12;n++){
+    const b=document.createElement('button');
+    b.className='tile'+(closed.has(n)?' closed':'')+(selected.has(n)?' selected':'');
+    b.textContent=n;
+    b.disabled=closed.has(n);
+    b.onclick=()=>toggle(n);
+    tiles.appendChild(b);
+  }
+  const sum=[...selected].reduce((a,b)=>a+b,0);
+  count.textContent=sum+' / '+target;
+  count.classList.toggle('ready',sum===target);
+  confirmBtn.classList.toggle('enabled',sum===target);
+  confirmBtn.disabled=sum!==target;
+  openSumEl.textContent=[...Array(12)].map((_,i)=>i+1).filter(n=>!closed.has(n)).reduce((a,b)=>a+b,0);
+}
+function toggle(n){
+  if(selected.has(n))selected.delete(n);else selected.add(n);
+  const s=[...selected].reduce((a,b)=>a+b,0);
+  if(s>target) selected.delete(n);
+  renderTiles();
+}
+confirmBtn.onclick=()=>{
+  if([...selected].reduce((a,b)=>a+b,0)!==target)return;
+  [...selected].forEach(n=>closed.add(n)); selected.clear(); renderTiles();
+};
+document.getElementById('diceArea').onclick=()=>{
+  if(selected.size)return;
+  const a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);
+  [d1,d2].forEach(x=>{x.classList.remove('roll');void x.offsetWidth;x.classList.add('roll')});
+  setTimeout(()=>{d1.textContent=a;d2.textContent=b;target=a+b;rollSumEl.textContent=target;renderTiles()},420);
+};
+document.querySelectorAll('.demo-nav button').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('.demo-nav button').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  game.className='game-shell '+btn.dataset.v;
+});
+renderTiles();
+</script>
+</body>
+</html>
