@@ -32,7 +32,29 @@ function later(fn,ms){const id=setTimeout(fn,ms);scheduled.push(id);return id}
 function motionMs(ms){return Math.round(Number(ms||0)*MOTION_SCALE)}
 function setChrome(strong,meta,pct){headerState.textContent=strong;if(headerMeta)headerMeta.textContent='';progress.style.width=Math.max(0,Math.min(100,pct))+'%'}
 function visualHeight(){return window.visualViewport?.height||window.innerHeight}
+function syncKeyboardHintStageGeometry(){
+ const stage=content?.querySelector?.('.dna-hints');
+ if(!stage)return;
+ stage.style.removeProperty('--dna-measured-hint-top');
+ stage.style.removeProperty('--dna-measured-hint-height');
+ if(!document.body.classList.contains('dna-keyboard-open'))return;
+
+ const timer=content?.querySelector?.('#dnaTimer');
+ const interaction=content?.querySelector?.('#dnaInteraction');
+ if(!timer||!interaction)return;
+
+ const timerRect=timer.getBoundingClientRect();
+ const interactionRect=interaction.getBoundingClientRect();
+ const gap=8;
+ const top=Math.round(timerRect.bottom+gap);
+ const bottom=Math.round(interactionRect.top-gap);
+ const height=Math.max(72,bottom-top);
+
+ stage.style.setProperty('--dna-measured-hint-top',top+'px');
+ stage.style.setProperty('--dna-measured-hint-height',height+'px');
+}
 function fitKeyboardHint(){
+ syncKeyboardHintStageGeometry();
  const stage=content?.querySelector?.('.dna-hints');
  const slots=[...(content?.querySelectorAll?.('.dna-hint-slot:not(.is-empty)')||[])];
  if(!stage||!slots.length)return;
@@ -238,6 +260,12 @@ function gameShell(interactionHtml,phaseLabel){
  <div class="dna-solve-strip" id="dnaSolves"></div>`;
 
  queueKeyboardHintFit();
+ const interaction=$('#dnaInteraction');
+ if(interaction&&window.ResizeObserver){
+   const ro=new ResizeObserver(()=>queueKeyboardHintFit());
+   ro.observe(interaction);
+   later(()=>ro.disconnect(),IDEA_PHASE_MS+VOTE_PHASE_MS+3000);
+ }
 }
 function startTimer(duration,onTimeout){const bar=$('#dnaTimer'),fill=bar?.querySelector('i');const ms=Math.max(1000,Number(duration)||VOTE_PHASE_MS);const start=performance.now(),deadline=start+ms;if(fill){fill.style.width='100%';fill.style.transform='none'}function frame(now){const left=Math.max(0,deadline-now),ratio=Math.max(0,Math.min(1,left/ms));if(fill)fill.style.width=(ratio*100).toFixed(2)+'%';bar?.classList.toggle('warning',left<=5000&&left>2500);bar?.classList.toggle('danger',left<=2500);if(left>0)phaseRaf=requestAnimationFrame(frame);else if(fill)fill.style.width='0%'}phaseRaf=requestAnimationFrame(frame);phaseTimer=setTimeout(()=>{if(fill)fill.style.width='0%';onTimeout()},ms+40)}
 function maybeFinishIdea(){if(s.ideaDone&&s.teammateReady&&s.opponentsReady){clearTimers();startVote()}}

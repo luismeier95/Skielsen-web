@@ -749,3 +749,27 @@ body.dna-keyboard-open .dna-hint-slot .dna-hint-text{
   font-size:clamp(12.5px,3.7vw,16px);
   line-height:1.05;
 }
+
+
+/* DNA_KEYBOARD_MEASURED_HINT_STAGE_V1
+   In keyboard-open IDEA the browser viewport math is not trusted for stage height.
+   JS measures the real timer bottom and interaction top. The stage fills exactly
+   that interval, then its existing 3-row grid divides it into equal thirds. */
+body.dna-keyboard-open .dna-hints{
+  position:fixed!important;
+  top:var(--dna-measured-hint-top,auto)!important;
+  left:7px!important;
+  right:7px!important;
+  bottom:auto!important;
+  width:auto!important;
+  height:var(--dna-measured-hint-height,180px)!important;
+  min-height:72px!important;
+  max-height:none!important;
+  margin:0!important;
+  z-index:8!important;
+}
+body.dna-keyboard-open .dna-hint-stage{
+  width:100%!important;
+  height:100%!important;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+}
