@@ -47,6 +47,10 @@ function clearPinnedHintStage(){
  document.body.classList.remove('dna-hint-stage-pinned');
 }
 function freezeCurrentHintStage(){
+ if(s.hintStageGeometry){
+   setPinnedHintStage(s.hintStageGeometry.top,s.hintStageGeometry.height);
+   return;
+ }
  const stage=content?.querySelector?.('.dna-hints');
  if(!stage)return;
  const rect=stage.getBoundingClientRect();
