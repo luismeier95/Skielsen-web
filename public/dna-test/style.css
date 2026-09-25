@@ -369,3 +369,57 @@ body.dna-keyboard-open .dna-hint-text{
   }
 }
 body.dna-keyboard-open .dna-theme-qa{visibility:hidden;pointer-events:none}
+
+
+/* DNA_SELECTION_GLOW_V1
+   Selection controls inherit the same accent glow language as Theme QA. */
+.dna-category,.dna-choice,.dna-vote{
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.dna-category.active,
+.dna-choice.active,
+.dna-vote.active{
+  box-shadow:
+    0 0 0 2px var(--theme-focus),
+    0 0 20px color-mix(in srgb,var(--theme-accent) 30%,transparent);
+}
+.dna-vote.active{
+  box-shadow:
+    inset 0 0 0 1px var(--theme-accent),
+    0 0 0 2px var(--theme-focus),
+    0 0 20px color-mix(in srgb,var(--theme-accent) 30%,transparent);
+}
+.dna-category:focus-visible,
+.dna-choice:focus-visible,
+.dna-vote:focus-visible{
+  outline:none;
+  box-shadow:
+    0 0 0 2px var(--theme-focus),
+    0 0 20px color-mix(in srgb,var(--theme-accent) 30%,transparent);
+}
+
+/* DNA_READY_RULE_SYMMETRY_V1 */
+.dna-ready-rules div{
+  text-align:center;
+  justify-items:center;
+}
+.dna-ready-rules strong,
+.dna-ready-rules span{
+  width:100%;
+  text-align:center;
+}
+
+/* DNA_KEYBOARD_HINT_FIT_V3
+   On Android interactive-widget=resizes-content can shrink both innerHeight and
+   visualViewport. JS therefore tracks a pre-keyboard baseline; these rules are
+   the compact state once that keyboard is detected. */
+body.dna-keyboard-open .dna-history{display:none!important}
+body.dna-keyboard-open .dna-hints{
+  max-height:44dvh!important;
+  padding:7px 9px 9px!important;
+  gap:4px!important;
+}
+body.dna-keyboard-open .dna-hint-text{
+  padding-bottom:2px;
+  overflow:visible;
+}

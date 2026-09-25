@@ -40,9 +40,14 @@ function fitKeyboardHint(){
  hint.style.removeProperty('line-height');
  if(!document.body.classList.contains('dna-keyboard-open'))return;
  let size=Math.min(16,parseFloat(getComputedStyle(hint).fontSize)||16);
- const minSize=10.5;
- hint.style.lineHeight='1.04';
- for(let guard=0;guard<16&&box.scrollHeight>box.clientHeight+1&&size>minSize;guard++){
+ const minSize=9.5;
+ hint.style.lineHeight='1.08';
+ const fits=()=>{
+   const br=box.getBoundingClientRect();
+   const hr=hint.getBoundingClientRect();
+   return box.scrollHeight<=box.clientHeight+1 && hr.bottom<=br.bottom-5;
+ };
+ for(let guard=0;guard<20&&!fits()&&size>minSize;guard++){
    size=Math.max(minSize,size-.5);
    hint.style.fontSize=size+'px';
  }
@@ -52,10 +57,41 @@ function queueKeyboardHintFit(){
  cancelAnimationFrame(hintFitRaf);
  hintFitRaf=requestAnimationFrame(()=>requestAnimationFrame(fitKeyboardHint));
 }
-function syncViewport(){const vv=window.visualViewport;const h=vv?.height||window.innerHeight;const top=Math.max(0,vv?.offsetTop||0);const base=window.innerHeight||h;const bottom=Math.max(0,base-h-top);document.documentElement.style.setProperty('--dna-visual-height',h+'px');document.documentElement.style.setProperty('--dna-visual-top',top+'px');document.documentElement.style.setProperty('--dna-keyboard-bottom',bottom+'px');document.body.classList.toggle('dna-keyboard-open',h<base*.88||bottom>80);queueKeyboardHintFit()}
+let viewportBaselineHeight=0,viewportBaselineWidth=0;
+function keyboardInputFocused(){
+ const el=document.activeElement;
+ return Boolean(el?.classList?.contains('dna-input'));
+}
+function syncViewport(){
+ const vv=window.visualViewport;
+ const h=vv?.height||window.innerHeight;
+ const w=vv?.width||window.innerWidth;
+ const top=Math.max(0,vv?.offsetTop||0);
+ const inner=window.innerHeight||h;
+ const bottom=Math.max(0,inner-h-top);
+ const widthChanged=!viewportBaselineWidth||Math.abs(w-viewportBaselineWidth)>90;
+ if(widthChanged){
+   viewportBaselineWidth=w;
+   viewportBaselineHeight=h;
+ }else if(!keyboardInputFocused()&&h>viewportBaselineHeight){
+   viewportBaselineHeight=h;
+ }
+ const baseline=Math.max(viewportBaselineHeight||h,h);
+ const touchLike=(navigator.maxTouchPoints||0)>0||window.matchMedia?.('(pointer: coarse)')?.matches;
+ const viewportShrunk=(baseline-h)>Math.max(90,baseline*.14);
+ const focusKeyboard=Boolean(touchLike&&keyboardInputFocused()&&(baseline-h>60||bottom>40));
+ const keyboardOpen=viewportShrunk||bottom>80||focusKeyboard;
+ document.documentElement.style.setProperty('--dna-visual-height',h+'px');
+ document.documentElement.style.setProperty('--dna-visual-top',top+'px');
+ document.documentElement.style.setProperty('--dna-keyboard-bottom',bottom+'px');
+ document.body.classList.toggle('dna-keyboard-open',keyboardOpen);
+ queueKeyboardHintFit();
+}
 window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});
 window.visualViewport?.addEventListener('scroll',syncViewport,{passive:true});
 window.addEventListener('resize',syncViewport,{passive:true});
+document.addEventListener('focusin',e=>{if(e.target?.classList?.contains('dna-input'))setTimeout(syncViewport,60)});
+document.addEventListener('focusout',e=>{if(e.target?.classList?.contains('dna-input'))setTimeout(syncViewport,180)});
 syncViewport();
 function getStoredSession(){try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch(_){return null}}
 function validSession(session){if(!session?.access_token)return false;if(!session.expires_at)return true;return Number(session.expires_at)>Math.floor(Date.now()/1000)+15}
