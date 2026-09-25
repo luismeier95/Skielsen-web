@@ -1,11 +1,34 @@
 # SKIELSEN DNA — Game Contract v1
 
 **Status:** Approved · consolidated playtest state  
-**Version:** 1.1  
-**Date:** 2026-09-24  
+**Version:** 1.2  
+**Date:** 2026-09-25  
 **Game key:** `dna`  
 **Platform:** Mobile-first, individual devices  
 **Authority:** Server-authoritative
+
+## 0. Mandatory implementation protocol
+
+This contract is **binding** for DNA.
+
+Every agent or developer changing DNA must consult, before implementation:
+
+1. `docs/games/dna/GAME_CONTRACT_v1.md`
+2. `docs/games/dna/CONTENT_CONTRACT_v1.md`
+3. `docs/GAME_DESIGN_CONTRACT.md`
+4. `docs/THEME_CONTRACT.md`
+5. `docs/style/SKIELSEN_ANIMATION_STYLE_TEMPLATE_v1.md`
+6. `docs/END_GAME_MERGE_TEMPLATE.html`
+7. `docs/games/dna/STANDALONE_DATA_MAPPING.md`
+8. `docs/games/dna/AGENT_START_HERE.md`
+
+Rules:
+
+- Do not implement a DNA change from memory alone.
+- Do not silently override a contract because the current DOM/CSS happens to behave differently.
+- If a new explicit user decision conflicts with a contract, the new decision wins, but the affected contract must be updated in the same change set so documentation and implementation do not drift.
+- The DNA standalone is the current visual/playtest reference implementation; the contracts remain the semantic source of truth.
+- Global contracts are not to be rewritten merely because DNA is being tested. DNA is the candidate reference for future games, and global contract changes happen only after deliberate approval.
 
 ## 1. Game principle
 
@@ -61,11 +84,14 @@ The header is the single status source.
 
 On active gameplay and Reveal:
 
-- left: SKIELSEN identity / DNA,
-- center: **current category**, visibly larger and horizontally centered,
-- right: phase and compact secondary progress/score information.
+- left: SKIELSEN logo, then approximately 30 px optical gap, then `DNA`,
+- standalone QA only: Theme selector directly after the game name,
+- right: **current game state only** such as `IDEE`, `ABSTIMMUNG`, `REVEAL`,
+- no secondary category / score / round metadata in the active header.
 
-The category must remain visually dominant enough to be recognized at a glance.
+The SKIELSEN logo keeps its aspect ratio and is enlarged to use the available banner height without distortion.
+
+The standalone Theme selector is a QA control and is expected to disappear from the integrated full-version chrome.
 
 ### Timer
 
@@ -80,29 +106,48 @@ Progress and time are separate channels.
 
 ### Hint area
 
-The hint container uses content-driven height within the available viewport.
+The hint stage is a persistent geometric region between the mechanic timer and the interaction region.
 
 Rules:
 
-- the complete current hint must remain visible,
+- the stage is divided into **three equal vertical tracks**,
+- Hint 1 always owns track 1, Hint 2 track 2, Hint 3 track 3,
+- every released hint has its **own rounded container**,
+- unreleased tracks remain intentionally empty/hidden rather than letting released hints grow into them,
+- with one released hint, its card occupies one third of the stage,
+- with two released hints, each occupies one third and the third track remains empty,
+- with three released hints, all three occupy exactly one third,
+- all released hints retain the same visual hierarchy; previous hints are not collapsed into pills,
+- the complete hint text must remain visible,
 - text must never be clipped at the bottom,
-- typography may scale within defined mobile bounds before clipping is allowed,
-- previous hints remain visible in compressed form outside keyboard-minimal mode,
-- only the current hint receives dominant visual treatment.
+- typography may scale within defined mobile bounds before clipping is allowed.
+
+### Phase geometry lock
+
+The hint stage position and height established in IDEA while the native keyboard is open are authoritative for the remainder of that hint.
+
+When IDEA transitions to VOTE or to evaluation feedback:
+
+- the hint stage must remain at the **exact same top position**,
+- the hint stage must retain the **exact same height**,
+- the three 1/3 tracks must retain the same height,
+- the app must not re-measure the stage from the larger post-keyboard viewport and make the hints jump,
+- all space below the frozen hint stage becomes the VOTE / submitted / RICHTIG-FALSCH interaction region.
+
+This geometry lock is a visual non-negotiable because IDEA and VOTE are intended to feel like one continuous screen rather than two different layouts.
 
 ### Keyboard state
 
 When the native mobile keyboard opens:
 
-- the layout is based on the resized visual viewport,
-- the interaction controls are docked above the actual keyboard inset,
-- the input,
-- `IDEE SPEICHERN`,
-- and `KEINE IDEE`
+- the layout is based on the resized `visualViewport` / actually visible viewport,
+- the interaction controls are docked above the real keyboard edge,
+- the input, `IDEE SPEICHERN`, and `KEINE IDEE` remain visible and usable,
+- the hint stage flexes to the remaining viewport and then becomes the frozen geometry for VOTE/evaluation,
+- input uses uppercase-oriented native entry (`autocapitalize="characters"`) as a presentation aid only; answer validation stays case-insensitive,
+- native HTML `autofocus` is not used.
 
-must remain visible and usable.
-
-Secondary history may be hidden in keyboard mode.
+A Samsung/Android keyboard accessory ribbon (for example key/card/location icons) appeared specifically on the first input focus of the first term. Removing native autofocus and using the controlled JS focus path eliminated it in playtest. Do not reintroduce native autofocus without regression testing the first Hint 1 focus.
 
 ### Interaction copy
 
@@ -328,7 +373,7 @@ After Hint 3:
 
 `IDEA 3 → VOTE 3 → EVALUATE → REVEAL`
 
-Previous hints remain visible in compressed form.
+All released hints remain visible in their own persistent 1/3 hint containers.
 
 ## 13. Reveal
 
@@ -338,9 +383,12 @@ Reveal is part of the active no-scroll game surface.
 
 ### Reveal header
 
-The current category is shown **large and centered in the game banner/header**.
+The active header keeps the same compact chrome used during gameplay.
 
-`REVEAL` remains a secondary phase label.
+- right side shows `REVEAL`,
+- no extra category/score metadata is added to the header.
+
+The category is used on the between-term countdown screen instead.
 
 ### Answer
 
@@ -350,7 +398,7 @@ The canonical answer is the primary reveal element.
 
 The reveal shows every team's **net score for the current term** in one vertical list.
 
-Reveal row appear animations and merge morph/reorder animations run at approximately **175% of the previous timing** to improve readability.
+Reveal / merge motion follows the locked animation template in `docs/style/SKIELSEN_ANIMATION_STYLE_TEMPLATE_v1.md`. The current global motion baseline is `MOTION_SCALE = 3.0625` (two approved 1.75× slow-down passes from the earlier baseline).
 
 Cards are ordered by term score descending.
 
@@ -386,6 +434,26 @@ The reveal must not require admin interaction to continue normal gameplay.
 
 After the reveal, the next term starts automatically.
 
+### Between-term countdown
+
+After the reveal score list and before the next term, DNA shows a dedicated no-scroll countdown screen.
+
+Information order:
+
+1. `RUNDE X / Y`
+2. current/next category
+3. countdown number
+
+The category is large and centered. The countdown number is centered horizontally and vertically in the active viewport.
+
+Sequence:
+
+`3 → 2 → 1 → next IDEA`
+
+The semantic ticks remain exactly one second each and are **not** multiplied by the global motion scale.
+
+The countdown is omitted after the final term.
+
 ## 14. New term
 
 At the start of every new term:
@@ -398,15 +466,40 @@ At the start of every new term:
 
 ## 15. Ready page
 
-Before gameplay, the standard Skielsen Ready Page is shown.
+Before gameplay, the standard Skielsen Ready Page is shown and may scroll normally.
+
+The four rule boxes are visually symmetric and their contents are centered.
 
 Minimum rule summary:
 
-`3 Hinweise · +3 / +2 / +1 · Falsch -1`
+- `+3` — Hint 1 / very hard
+- `+2 / +1` — Hint 2 / 3
+- `-1` — wrong team answer
+- `20s + 10s` — IDEA → VOTE
 
 Players confirm with:
 
 `ICH BIN BEREIT`
+
+### Blocking-action glow
+
+Buttons that intentionally block game progression until a human decision is made use the pulsing accent glow language.
+
+Examples:
+
+- `WEITER` from Setup,
+- `ICH BIN BEREIT`,
+- `SPIEL STARTEN`,
+- `TABELLE ANZEIGEN` / equivalent required continuation actions.
+
+Controls that are **not mandatory** because the timer can advance the game automatically do not receive the blocking pulse.
+
+Examples:
+
+- `AUSWAHL LÖSEN`,
+- `ANTWORT ABSENDEN`.
+
+Selectable options (category cards, choice cards, vote cards, Theme QA selector) use the non-pulsing selection/focus glow when selected or focused.
 
 ## 16. State model
 
@@ -488,7 +581,15 @@ Normalization includes:
 - removal of diacritics for comparison,
 - trim leading/trailing spaces,
 - collapse repeated spaces,
-- ignore punctuation/separator differences.
+- ignore punctuation/separator differences,
+- a compact comparison form that removes spaces/separators entirely,
+- for titles, optional omission of a leading article when the remaining title is still unambiguous.
+
+Examples that must not fail only because of presentation differences:
+
+- `USB` ↔ `usb`
+- `SPAGHETTI CARBONARA` ↔ `Spaghetti Carbonara`
+- `TRUMAN SHOW` / `TRUMANSHOW` → `The Truman Show` when the title match is otherwise unambiguous.
 
 ### Typo tolerance
 
@@ -636,8 +737,14 @@ Existing tournament points remain visually distinct from newly earned placement 
 - Active gameplay and Reveal without scrolling.
 - Setup, Ready, Ranking, Joker Resolution and Merge remain normally scrollable.
 - DNA may use the full visible viewport and does not reserve unused space for the normal Skielsen top banner.
-- Active header shows the current category large and centered.
+- Active header shows only the compact game state on the right; category/score/round metadata are not duplicated there.
 - Current hint text must never clip.
+- The hint stage is three equal vertical tracks; every released hint has its own container.
+- IDEA establishes the hint-stage geometry; VOTE/evaluation reuse it exactly without post-keyboard reflow.
+- Vote cards are intentionally large (maximum three options: Idea 1, Idea 2, No Answer) and their typography must scale with the card size.
+- Correct/wrong feedback uses the full lower interaction region while the hint stage remains fixed.
+- Native HTML autofocus must remain off unless the first-Hint Android accessory-ribbon regression is retested.
+- Blocking progression buttons pulse; timer-optional actions do not.
 - Keyboard mode must keep input, `IDEE SPEICHERN` and `KEINE IDEE` visible above the native keyboard.
 - Small explanatory state copy always occupies its own line.
 - Reveal team list is vertical and sorted by term score descending; ties use Blue → Red → Yellow → Green identity order.

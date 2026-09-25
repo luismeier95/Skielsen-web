@@ -1,8 +1,8 @@
 # SKIELSEN DNA — Content Contract v1
 
 **Status:** Approved  
-**Version:** 1.2  
-**Date:** 2026-09-24  
+**Version:** 1.3  
+**Date:** 2026-09-25  
 **Applies to:** All DNA content categories
 
 ## 1. Purpose
@@ -91,6 +91,17 @@ Possible aliases:
 
 Aliases are editorially maintained.
 
+### Translated / original title alias rule
+
+For media titles with a commonly used German title and a commonly used English/original title, both forms must be accepted when ordinary players would reasonably use either one.
+
+Examples:
+
+- `Back to the Future` must be accepted for `Zurück in die Zukunft`,
+- known original/English film and game titles should be stored as explicit aliases instead of relying only on fuzzy matching.
+
+The canonical Reveal label may remain the preferred German/common form; aliases exist only for evaluation.
+
 ### Profession-category alias rule
 
 For `Berufe`, accepted aliases must also include an **unambiguous domain / institution / trade term** when ordinary players would reasonably use that term to identify the profession.
@@ -118,13 +129,21 @@ Server-side typo/fuzzy tolerance is allowed as a fallback for obvious spelling e
 
 ## 6. Technical normalization
 
-Before comparison, the system may normalize:
+Before comparison, the system normalizes presentation differences that must never decide correctness:
 
-- capitalization,
+- capitalization / Caps Lock,
+- Unicode composition,
+- diacritics for comparison,
 - leading/trailing whitespace,
-- repeated internal spaces.
+- repeated internal spaces,
+- punctuation and separators,
+- compact spacing/separator form for exact identity comparison.
 
-Accents, abbreviations, translations, semantic naming variants, and profession-domain variants should be represented by explicit aliases where known. Minor typo tolerance may be handled server-side.
+This means visually equivalent inputs such as `USB` vs `usb`, or `SPAGHETTI CARBONARA` vs `Spaghetti Carbonara`, cannot fail because of capitalization.
+
+For titles, whitespace/separator removal and a clearly optional leading article may be ignored when the remaining title is unambiguous. Example: `TRUMANSHOW` may match `The Truman Show`.
+
+Translations, original-language titles, abbreviations, semantic naming variants, and profession-domain variants should still be represented by explicit aliases where known. Minor typo tolerance remains a server-side fallback, not a replacement for editorial aliases.
 
 ## 7. Three-hint progression
 
