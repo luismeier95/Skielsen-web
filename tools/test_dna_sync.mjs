@@ -115,6 +115,14 @@ test('bot teammate uses shared candidates, cooperates with correct vote and stil
 const context={};vm.runInNewContext(readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8'),context);
 const Sync=context.DnaQuickSync;
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
+test('hint fitter detects clipped text inside a fitting card and may shrink below 9.5 px',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ assert.ok(app.includes('const textFits=hint.scrollHeight<=hint.clientHeight+1'));
+ assert.ok(app.includes('const minSize=(keyboard||pinned)?8.5:11'));
+ const css=readFileSync(new URL('../public/dna-test/style.css',import.meta.url),'utf8');
+ assert.ok(css.includes('padding:4px 10px 6px!important'));
+ assert.ok(css.includes('gap:2px!important'));
+});
 test('Quick Games releases Edge Postgres connections and does not poll at 500 ms',()=>{
  const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
  const sync=readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8');

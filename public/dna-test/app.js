@@ -124,7 +124,7 @@ function fitKeyboardHint(){
      size=Math.min(size,16);
    }
 
-   const minSize=(keyboard||pinned)?9.5:11;
+   const minSize=(keyboard||pinned)?8.5:11;
    if(keyboard)size=Math.max(minSize,size-1);
    hint.style.fontSize=size+'px';
    hint.style.lineHeight=String(lineHeight);
@@ -132,12 +132,16 @@ function fitKeyboardHint(){
    const fits=()=>{
      const cardRect=card.getBoundingClientRect();
      const hintRect=hint.getBoundingClientRect();
+     // The hint element itself is allowed to shrink inside the grid. Checking
+     // only the card therefore misses clipped multi-line text: the text box can
+     // fit while its own scrollHeight is still larger than its clientHeight.
+     const textFits=hint.scrollHeight<=hint.clientHeight+1;
      // Extra visual reserve protects descenders such as g/j/y from touching the
      // rounded container edge even when the DOM technically still fits.
-     return card.scrollHeight<=card.clientHeight+1 && hintRect.bottom<=cardRect.bottom-9;
+     return textFits && card.scrollHeight<=card.clientHeight+1 && hintRect.bottom<=cardRect.bottom-6;
    };
 
-   for(let guard=0;guard<32&&!fits()&&size>minSize;guard++){
+   for(let guard=0;guard<40&&!fits()&&size>minSize;guard++){
      size=Math.max(minSize,size-.5);
      hint.style.fontSize=size+'px';
    }

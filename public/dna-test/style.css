@@ -993,8 +993,10 @@ body.dna-hint-stage-pinned:not(.dna-keyboard-open) .dna-vote-actions .dna-btn{
    VOTE/submitted/feedback reuse the exact same padding after the keyboard closes. */
 body.dna-keyboard-open .dna-hint-card,
 body.dna-hint-stage-pinned .dna-hint-card{
-  padding:6px 10px 9px!important;
-  gap:3px!important;
+  /* Keep more of each fixed 1/3 slot available for the actual hint text.
+     IDEA remains authoritative and VOTE/feedback reuse these exact insets. */
+  padding:4px 10px 6px!important;
+  gap:2px!important;
 }
 
 
