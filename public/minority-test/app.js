@@ -131,20 +131,24 @@ function renderGame(){
      const count=revealed?Number(res.counts?.[i]||0):null;
      const isWin=revealed&&res.winningOptions?.includes(i+1);
      const cls=[myChoice===i+1?'is-selected':'',isWin?'is-winner':'',revealed&&!isWin?'is-majority':''].filter(Boolean).join(' ');
-     return `<button class="m-option ${cls}" type="button" data-choice="${i+1}" ${revealed?'disabled':''}>${esc(label)}${revealed?`<span class="m-option-count">${count} × gewählt</span>`:''}</button>`;
+     return `<button class="m-option ${cls}" type="button" data-choice="${i+1}" ${revealed||myChoice?'disabled':''}>${esc(label)}${revealed?`<span class="m-option-count">${count} × gewählt</span>`:''}</button>`;
    }).join('')}</div>
-   ${revealed?revealHtml(res):myChoice?`<button class="m-primary m-lock" id="mLock" type="button">AUSWAHL BESTÄTIGEN</button>`:`<div class="m-wait">WÄHLE EINE ANTWORT</div>`}
+   ${revealed?revealHtml(res):myChoice?`<div class="m-wait">AUSWAHL GELOCKT · WARTET AUF DIE ANDEREN …</div>`:`<div class="m-wait">TIPPE AUF EINE ANTWORT</div>`}
    <div class="m-scorebar">${[1,2,3,4].map((seat,i)=>`<div class="m-score" style="--identity:${identity(seat)}"><strong>${Number(state.scores[i])||0}</strong><span>${esc(playerName(seat))}</span></div>`).join('')}</div>`;
- if(!revealed){
-   stage.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>{state.choice=Number(btn.dataset.choice);render()}));
-   const lock=document.querySelector('#mLock');
-   if(lock)lock.addEventListener('click',async e=>{
-     e.currentTarget.disabled=true;
+ if(!revealed&&!myChoice){
+   stage.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',async()=>{
+     const choice=Number(btn.dataset.choice);
+     if(state.choice)return;
+     state.choice=choice;
+     setFeedback('');
+     render();
      if(state.mode==='remote'){
-       try{applyRemote(await rpc('submit_quick_minority_choice',{p_lobby_id:quickLobby,p_choice:state.choice}))}
-       catch(err){setFeedback(humanError(err));e.currentTarget.disabled=false}
-     }else resolveLocalRound();
-   });
+       try{applyRemote(await rpc('submit_quick_minority_choice',{p_lobby_id:quickLobby,p_choice:choice}))}
+       catch(err){state.choice=null;setFeedback(humanError(err));render()}
+     }else{
+       resolveLocalRound();
+     }
+   }));
  }else{
    document.querySelector('#mNext')?.addEventListener('click',async e=>{
      e.currentTarget.disabled=true;
