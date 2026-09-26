@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.0.0">
+<link rel="stylesheet" href="./style.css?v=2.0.1">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -59,18 +59,12 @@
       <section class="tttx-status tttx-card" aria-label="Spielstatus">
         <div class="tttx-player-state">
           <small>PLAYER 1</small>
-          <span class="tttx-player-state-line">
-            <strong id="tttxYou">X</strong>
-            <span class="tttx-life-track" id="tttxLifeX" aria-label="Reihenfolge der X-Symbole"></span>
-          </span>
+          <strong id="tttxYou">X</strong>
         </div>
         <div><small>AM ZUG</small><strong id="tttxTurn">PLAYER 1</strong></div>
         <div class="tttx-player-state">
           <small>PLAYER 2</small>
-          <span class="tttx-player-state-line">
-            <strong>O</strong>
-            <span class="tttx-life-track" id="tttxLifeO" aria-label="Reihenfolge der O-Symbole"></span>
-          </span>
+          <strong>O</strong>
         </div>
         <div><small>MODUS</small><strong id="tttxMode">NORMAL</strong></div>
       </section>
@@ -101,6 +95,6 @@
   </main>
 </section>
 
-<script src="./app.js?v=2.0.0"></script>
+<script src="./app.js?v=2.0.1"></script>
 </body>
 </html>
