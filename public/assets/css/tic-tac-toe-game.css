@@ -228,3 +228,166 @@
 .tttp-base-points{color:var(--theme-on-surface)!important}
 .tttp-award-points{color:rgb(124,92,255)!important}
 .tttp-total-points{color:var(--theme-on-surface)!important}
+
+
+/* TTT_FULL_READY_ROSTER_V1
+   Full-version READY screen: roster first, rules second. Visible text >=12px. */
+.tttp-ready-page{gap:14px}
+.tttp-ready-roster{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.tttp-ready-team{
+  min-width:0;
+  overflow:hidden;
+  border:1px solid var(--theme-border);
+  border-radius:var(--tttp-radius-outer);
+  background:var(--theme-surface);
+}
+.tttp-ready-team>header{
+  min-height:58px;
+  padding:10px 14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  border-bottom:1px solid var(--theme-border);
+}
+.tttp-ready-team>header small,
+.tttp-ready-rules>header small{
+  color:var(--theme-muted);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.tttp-ready-team>header strong{
+  font-family:var(--display,var(--ui));
+  font-size:18px;
+  font-weight:950;
+  line-height:1;
+}
+.tttp-ready-members{display:grid}
+.tttp-ready-member{
+  min-height:58px;
+  padding:9px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid var(--theme-border);
+}
+.tttp-ready-member:last-child{border-bottom:0}
+.tttp-ready-name{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.tttp-ready-name>i{
+  width:5px;
+  height:30px;
+  flex:0 0 5px;
+  border-radius:999px;
+  background:var(--tttp-team,var(--theme-accent));
+}
+.tttp-ready-name>b{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px;
+  font-weight:950;
+}
+.tttp-ready-state{
+  flex:0 0 auto;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.tttp-ready-state.is-ready{color:var(--theme-success-text,#11833b)}
+.tttp-ready-state.is-waiting{color:var(--theme-danger-text,#b3261e)}
+.tttp-ready-rules{
+  overflow:hidden;
+  border:1px solid var(--theme-border);
+  border-radius:var(--tttp-radius-outer);
+  background:var(--theme-surface);
+}
+.tttp-ready-rules>header{
+  min-height:60px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--theme-border);
+}
+.tttp-ready-rules>header strong{
+  font-size:12px;
+  font-weight:950;
+  text-align:right;
+}
+.tttp-ready-rule-list{display:grid}
+.tttp-ready-rule{
+  min-height:68px;
+  padding:10px 14px;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  gap:12px;
+  align-items:center;
+  border-bottom:1px solid var(--theme-border);
+}
+.tttp-ready-rule:last-child{border-bottom:0}
+.tttp-ready-rule>b{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:var(--tttp-radius-small);
+  background:var(--theme-surface-soft);
+  color:var(--theme-on-surface-soft);
+  font-size:12px;
+  font-weight:950;
+}
+.tttp-ready-rule span{min-width:0}
+.tttp-ready-rule span>strong{
+  display:block;
+  color:var(--theme-on-surface);
+  font-size:12px;
+  font-weight:950;
+}
+.tttp-ready-rule span>small{
+  display:block;
+  margin-top:5px;
+  color:var(--theme-muted);
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+}
+.tttp-ready-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+}
+.tttp-ready-actions.has-two{grid-template-columns:1fr 1fr}
+.tttp-ready-toggle.is-ready{
+  background:var(--theme-success-bg,var(--theme-surface-soft));
+  color:var(--theme-success-text,var(--theme-on-surface));
+  border:1px solid color-mix(in srgb,var(--theme-success-text,var(--theme-accent)) 45%,var(--theme-border));
+}
+.tttp-start-ready:disabled{
+  opacity:.72;
+}
+.tttp-ready-page .tttp-primary,
+.tttp-ready-page .tttp-wait,
+.tttp-ready-page .tttp-feedback,
+.tttp-ready-page .tttp-title small{
+  font-size:12px!important;
+}
+@media(max-width:720px){
+  .tttp-ready-roster{grid-template-columns:1fr}
+  .tttp-ready-actions.has-two{grid-template-columns:1fr}
+  .tttp-ready-team>header{min-height:54px}
+  .tttp-ready-member{min-height:54px}
+  .tttp-ready-rule{min-height:64px;padding:9px 12px}
+}
