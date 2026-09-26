@@ -416,7 +416,7 @@ body.tttx-body{
   .tttx-status>div{padding:12px 14px}
   .tttx-status small{font-size:7px}
   .tttx-status strong{font-size:16px}
-    .tttx-board-shell{padding:12px;width:min(520px,calc(100dvh - 190px))}
+    .tttx-board-stack{width:min(520px,calc(100dvh - 190px))}.tttx-board-shell{padding:12px;width:100%}
   .tttx-result{padding:24px 20px 30px}
   .tttx-result-columns,.tttx-result-row{grid-template-columns:70px minmax(0,1fr) 120px 78px;padding:0 16px;gap:10px}
   .tttx-result-columns{font-size:6.5px}
@@ -428,7 +428,7 @@ body.tttx-body{
   .tttx-header-logo{max-width:56px}
   .tttx-status strong{font-size:11px}
   .tttx-status small{font-size:5.2px}
-  .tttx-board-shell{width:min(100%,calc(100dvh - 150px))}
+  .tttx-board-stack{width:min(100%,calc(100dvh - 150px))}.tttx-board-shell{width:100%}
   .tttx-result-columns,.tttx-result-row{grid-template-columns:36px minmax(0,1fr) 72px 46px}
 }
 @media(hover:hover) and (pointer:fine){
@@ -605,3 +605,48 @@ body.tttx-body.v15-tournament-active{
   font:950 1em/1 var(--display,var(--ui));
 }
 .tttx-round-state>span>b{font:inherit}
+
+.tttx-time-options{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.tttx-time-options .tttx-choice{
+  min-height:58px;
+  align-items:center;
+  text-align:center;
+}
+.tttx-board-stack{
+  width:min(100%,calc(100dvh - 154px),520px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.tttx-board-stack .tttx-board-shell{
+  width:100%;
+}
+.tttx-turn-timer{
+  width:calc(100% - 16px);
+  height:8px;
+  margin:0 8px 3px;
+  border-radius:999px;
+  background:var(--theme-surface-muted);
+  overflow:hidden;
+  flex:0 0 8px;
+}
+.tttx-turn-timer i{
+  display:block;
+  width:100%;
+  height:100%;
+  background:var(--theme-accent);
+  transform:scaleX(1);
+  transform-origin:left center;
+  transition:none!important;
+}
+.tttx-turn-timer.warning i{background:var(--theme-warning-bg,var(--theme-accent))}
+.tttx-turn-timer.danger i{background:var(--theme-danger-bg,var(--theme-accent))}
+.tttx-turn-timer.is-passive{visibility:hidden}
+@media(min-width:721px){
+  .tttx-time-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .tttx-time-options .tttx-choice{min-height:76px}
+}
