@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {createGame,act,teamView,phaseKey,tick} from '../supabase/functions/dna-standalone/quick-state.mjs';
+import {createGame,act,teamView,phaseKey,tick,shouldTick} from '../supabase/functions/dna-standalone/quick-state.mjs';
 import {DECOYS} from '../supabase/functions/dna-standalone/quick-decoys.mjs';
 const players=[{id:'a',team:'RED'},{id:'b',team:'RED'},{id:'c',team:'BLUE'}];
 const grade=a=>a==='USB';
@@ -82,6 +82,29 @@ test('all teams, reveals, countdown and completion follow one persisted state',(
  }
  assert.equal(g.stage,'COMPLETE');assert.equal(g.term,2);
 });
+test('solved human teams do not wait through 20 s IDEA + 10 s VOTE for bot-only teams',()=>{
+ const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0,{one:['PHONE']});
+ send(g,'a','ready',100);send(g,'b','ready',100);tick(g,g.deadline,grade,()=>.99);
+ send(g,'a','idea',g.startedAt+100,'USB');send(g,'b','idea',g.startedAt+101,'USB');
+ send(g,'a','vote',g.startedAt+200,'USB');send(g,'b','vote',g.startedAt+201,'USB');send(g,'a','submit',g.startedAt+300);
+ assert.equal(g.stage,'FEEDBACK');assert.equal(g.teams.RED.solved,true);
+ // After feedback, Hint 2 IDEA has no unsolved human actors and must be
+ // immediately eligible for progression instead of waiting its 20 s deadline.
+ tick(g,g.deadline,grade,()=>.99);
+ assert.equal(g.stage,'IDEA');assert.equal(g.hint,2);
+ assert.equal(shouldTick(g,g.startedAt),true);
+ tick(g,g.startedAt,grade,()=>.99);
+ assert.equal(g.stage,'VOTE');assert.equal(shouldTick(g,g.startedAt),true);
+ tick(g,g.startedAt,grade,()=>.99);
+ assert.equal(g.stage,'FEEDBACK');
+});
+test('Quick Games poll fast path never suppresses early-complete transitions',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
+ assert.ok(edge.includes("const transitionDue=shouldTick(g,now)"));
+ assert.ok(edge.includes("if(kind==='poll'&&!needsHydrate&&!transitionDue)"));
+ assert.ok(edge.includes("if(shouldTick(current,at))actionError=act(current,userId,{kind:'poll'}"));
+ assert.ok(edge.includes("if(shouldTick(g,now))return 80"));
+});
 test('wrong, no-answer and changed consensus score correctly across all three hints',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0,{one:['PHONE']});
  send(g,'a','ready',100);send(g,'b','ready',100);tick(g,g.deadline,grade,()=>.99);
@@ -128,7 +151,7 @@ test('hint fitter detects clipped text inside a fitting card and may shrink belo
 });
 test('Quick Games hot poll path is read-only and cached',()=>{
  const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
- assert.ok(edge.includes("if(kind==='poll'&&!needsHydrate&&!deadlineExpired)"));
+ assert.ok(edge.includes("if(kind==='poll'&&!needsHydrate&&!transitionDue)"));
  assert.ok(edge.includes("return quickSnapshot(g,userId,serverReceived,Date.now(),null,command.knownRevision,kind)"));
  assert.ok(edge.includes("if(kind==='poll'&&Number(knownRevision)===Number(g.revision))return {...base,unchanged:true}"));
  assert.ok(edge.includes("g.termData=data"));

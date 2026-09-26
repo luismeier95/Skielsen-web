@@ -41,20 +41,26 @@ function evaluate(g,grade,random){
     t.score+=points;t.termScore+=points;t.solved=correct;t.processedHint=g.hint;
   }
 }
+export function shouldTick(g,now){
+  if(g.stage==='READY')return g.players.every(p=>g.ready[p.id]);
+  if(g.stage==='IDEA')return now>=g.deadline||g.players.filter(p=>!g.teams[p.team].solved).every(p=>Object.hasOwn(g.ideas,p.id));
+  if(g.stage==='VOTE')return now>=g.deadline||active(g).filter(k=>humans(g,k).length).every(k=>g.submissions[k]);
+  return Boolean(g.deadline&&now>=g.deadline&&['FEEDBACK','REVEAL','COUNTDOWN'].includes(g.stage));
+}
 export function tick(g,now,grade,random=Math.random){
   // At most one transition per request: every phase gets its full server duration
   // after a total network outage, instead of skipping unseen questions.
-  if(g.stage==='READY'&&g.players.every(p=>g.ready[p.id]))enter(g,'COUNTDOWN',now);
-  else if(g.stage==='IDEA'&&(now>=g.deadline||g.players.filter(p=>!g.teams[p.team].solved).every(p=>Object.hasOwn(g.ideas,p.id))))enter(g,'VOTE',now);
-  else if(g.stage==='VOTE'&&(now>=g.deadline||active(g).filter(k=>humans(g,k).length).every(k=>g.submissions[k]))){evaluate(g,grade,random);enter(g,'FEEDBACK',now)}
-  else if(g.deadline&&now>=g.deadline){
-    if(g.stage==='FEEDBACK'){
-      if(g.hint<3){g.hint++;newHint(g,now,random)}else enter(g,'REVEAL',now);
-    }else if(g.stage==='REVEAL'){
-      if(g.term===g.terms.length)enter(g,'COMPLETE',now);
-      else{g.term++;g.hint=1;for(const t of Object.values(g.teams)){const score=t.score;Object.assign(t,freshTeam(),{score})}enter(g,'COUNTDOWN',now)}
-    }else if(g.stage==='COUNTDOWN')newHint(g,now,random);
-  }
+  if(!shouldTick(g,now))return false;
+  if(g.stage==='READY')enter(g,'COUNTDOWN',now);
+  else if(g.stage==='IDEA')enter(g,'VOTE',now);
+  else if(g.stage==='VOTE'){evaluate(g,grade,random);enter(g,'FEEDBACK',now)}
+  else if(g.stage==='FEEDBACK'){
+    if(g.hint<3){g.hint++;newHint(g,now,random)}else enter(g,'REVEAL',now);
+  }else if(g.stage==='REVEAL'){
+    if(g.term===g.terms.length)enter(g,'COMPLETE',now);
+    else{g.term++;g.hint=1;for(const t of Object.values(g.teams)){const score=t.score;Object.assign(t,freshTeam(),{score})}enter(g,'COUNTDOWN',now)}
+  }else if(g.stage==='COUNTDOWN')newHint(g,now,random);
+  return true;
 }
 export function act(g,id,command,now,grade,random=Math.random,resolveIdea=null){
   const team=teamOf(g,id);if(!team)throw new Error('LOBBY_FORBIDDEN');

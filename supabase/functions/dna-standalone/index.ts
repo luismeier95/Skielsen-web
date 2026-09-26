@@ -1,7 +1,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import postgres from "npm:postgres@3.4.3";
-import {createGame,act,teamView,ORDER,phaseKey} from './quick-state.mjs';
+import {createGame,act,teamView,ORDER,phaseKey,shouldTick} from './quick-state.mjs';
 import {DECOYS} from './quick-decoys.mjs';
 
 const sql=postgres(Deno.env.get("SUPABASE_DB_URL")!,{
@@ -280,14 +280,15 @@ function quickContent(g,userId){
     redSolved:Boolean(g.teams[own].solved),redGameScore:Number(g.teams[own].score||0),redTermScore:Number(g.teams[own].termScore||0)
   };
 }
-function quickPollAfter(stage){
-  return stage==='VOTE'?300:stage==='READY'||stage==='IDEA'?500:1000;
+function quickPollAfter(g,now){
+  if(shouldTick(g,now))return 80;
+  return g.stage==='VOTE'?300:g.stage==='READY'||g.stage==='IDEA'?500:1000;
 }
 function quickSnapshot(g,userId,serverReceived,serverNow,actionError=null,knownRevision=null,kind='poll'){
   const {own}=quickPerspective(g,userId);
   const base={
     revision:Number(g.revision||0),phaseKey:phaseKey(g),stage:g.stage,startedAt:g.startedAt,deadline:g.deadline,
-    serverNow,serverReceived,pollAfterMs:quickPollAfter(g.stage)
+    serverNow,serverReceived,pollAfterMs:quickPollAfter(g,serverNow)
   };
   if(kind==='poll'&&Number(knownRevision)===Number(g.revision))return {...base,unchanged:true};
   return {
@@ -489,11 +490,13 @@ async function quickSync(body,userId){
 
   const now=Date.now();
   const needsHydrate=String(g.termData?.termId||'')!==String(g.terms[g.term-1]||'');
-  const deadlineExpired=Boolean(g.deadline&&now>=Number(g.deadline));
+  const transitionDue=shouldTick(g,now);
 
   // Hot path: one indexed JSONB read, no row lock, no write, no answer/content
-  // queries. Equal revisions return a compact clock-only heartbeat.
-  if(kind==='poll'&&!needsHydrate&&!deadlineExpired){
+  // queries. It is used only when the authoritative state cannot advance yet.
+  // This is critical for solved teams: IDEA/VOTE for bot-only remaining teams
+  // must collapse immediately instead of waiting 20 s + 10 s for deadlines.
+  if(kind==='poll'&&!needsHydrate&&!transitionDue){
     return quickSnapshot(g,userId,serverReceived,Date.now(),null,command.knownRevision,kind);
   }
 
@@ -514,7 +517,8 @@ async function quickSync(body,userId){
 
     if(kind==='poll'){
       // Another device may already have advanced while we waited for the lock.
-      if(current.deadline&&at>=Number(current.deadline))actionError=act(current,userId,{kind:'poll'},at,grade,Math.random,resolveIdea);
+      // Early-complete conditions count too; not just expired deadlines.
+      if(shouldTick(current,at))actionError=act(current,userId,{kind:'poll'},at,grade,Math.random,resolveIdea);
     }else{
       actionError=act(current,userId,command,at,grade,Math.random,resolveIdea);
     }
