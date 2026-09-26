@@ -41,6 +41,10 @@ const resultMeta=q('#tttxResultMeta');
 const resultRows=q('#tttxResultRows');
 const headerState=q('#tttxHeaderState');
 const opponentLabel=q('#tttxOpponentLabel');
+const scoreX=q('#tttxScoreX');
+const scoreO=q('#tttxScoreO');
+const roundEl=q('#tttxRound');
+const themeSelect=q('#tttxThemeSelect');
 
 function show(page){
   setup.hidden=page!=='SETUP';
@@ -70,6 +74,8 @@ function newSession(){
     starter,
     current:starter,
     boardIndex:1,
+    roundNumber:1,
+    wins:{X:0,O:0},
     boardMoves:0,
     movesTotal:0,
     winner:null,
@@ -77,15 +83,21 @@ function newSession(){
     locked:false
   };
 }
-function resetBoardAfterDraw(){
+function prepareNextBoard(countRound=false){
   game.starter=other(game.starter);
   game.current=game.starter;
   game.board=Array(9).fill(null);
   game.active={X:[],O:[]};
   game.boardIndex+=1;
   game.boardMoves=0;
+  game.winning=[];
   game.locked=false;
+  if(countRound)game.roundNumber=Math.min(3,game.wins.X+game.wins.O+1);
   renderPlay();
+  scheduleBotIfNeeded();
+}
+function resetBoardAfterDraw(){
+  prepareNextBoard(false);
 }
 function ageClass(symbol,index){
   if(game.mode!=='DISAPPEAR'||!symbol)return '';
@@ -118,9 +130,12 @@ function renderBoard(){
   board.querySelectorAll('[data-cell]').forEach(btn=>btn.addEventListener('click',()=>move(Number(btn.dataset.cell),'HUMAN')));
 }
 function renderPlay(){
-  you.textContent='X';
+  if(you)you.textContent='X';
   turn.textContent=game.opponent==='BOT'&&game.current==='O'?'BOT':PLAYERS[game.current].name;
   mode.textContent=game.mode;
+  if(scoreX)scoreX.textContent=game.wins.X;
+  if(scoreO)scoreO.textContent=game.wins.O;
+  if(roundEl)roundEl.textContent='RUNDE '+Math.min(3,game.wins.X+game.wins.O+1);
   if(opponentLabel) opponentLabel.textContent=game.opponent==='BOT'?'BOT':'PLAYER 2';
   renderBoard();
 }
@@ -187,9 +202,14 @@ function move(index,source='HUMAN'){
 
   game.winning=winningCells(game.board);
   if(game.winning.length){
-    game.winner=actor;
+    game.wins[actor]+=1;
     renderPlay();
-    transitionTimer=setTimeout(renderResult,650);
+    if(game.wins[actor]>=2){
+      game.winner=actor;
+      transitionTimer=setTimeout(renderResult,650);
+    }else{
+      transitionTimer=setTimeout(()=>prepareNextBoard(true),850);
+    }
     return;
   }
 
@@ -208,21 +228,27 @@ function move(index,source='HUMAN'){
 function playerName(symbol){
   return game?.opponent==='BOT'&&symbol==='O'?'BOT':PLAYERS[symbol].name;
 }
+function placementPoints(place){return place===1?5:4}
 function row(symbol,placement){
-  const won=symbol===game.winner;
-  return `<div class="tttx-result-row">
-    <b>${placement}.</b>
+  return `<div class="tttx-result-row" style="--delay:${140+(placement-1)*120}ms">
+    <b>${String(placement).padStart(2,'0')}</b>
     <span class="tttx-result-player"><i style="--tttx-player:${PLAYERS[symbol].color}"></i><strong>${playerName(symbol)}</strong></span>
-    <strong>${won?'SIEG':'NIEDERLAGE'}</strong>
-    <strong>${game.boardMoves}</strong>
+    <strong>${game.wins[symbol]}</strong>
+    <span class="tttx-placement-points"><b>+${placementPoints(placement)}</b></span>
   </div>`;
 }
 function renderResult(){
   game.locked=true;
   const loser=other(game.winner);
-  resultMeta.textContent=`${game.mode} · ${game.boardIndex} BOARD${game.boardIndex===1?'':'S'}`;
+  resultMeta.textContent=`BO3 · ${game.mode}`;
   resultRows.innerHTML=row(game.winner,1)+row(loser,2);
   show('RESULT');
+  const card=document.querySelector('.tttx-result-card');
+  requestAnimationFrame(()=>{
+    card?.classList.add('is-revealing');
+    const rows=[...resultRows.querySelectorAll('.tttx-result-row')];
+    [...rows].reverse().forEach((el,i)=>setTimeout(()=>el.classList.add('is-plus-visible'),2000+i*260));
+  });
 }
 function selectMode(next){
   if(!MODES[next])return;
@@ -235,6 +261,21 @@ function selectOpponent(next){
   if(!['BOT','HUMAN'].includes(next))return;
   selectedOpponent=next;
   document.querySelectorAll('[data-opponent]').forEach(btn=>btn.classList.toggle('active',btn.dataset.opponent===next));
+}
+function applyTheme(id){
+  const theme=String(id||'theme.skielsen.core');
+  document.documentElement.dataset.themePack=theme;
+  document.body.dataset.themePack=theme;
+  if(themeSelect)themeSelect.value=theme;
+  try{localStorage.setItem('skielsen.ttt.theme.qa',theme)}catch(_){}
+}
+function setupThemeQa(){
+  if(!themeSelect)return;
+  let stored='theme.skielsen.core';
+  try{stored=localStorage.getItem('skielsen.ttt.theme.qa')||stored}catch(_){}
+  if(![...themeSelect.options].some(o=>o.value===stored))stored='theme.skielsen.core';
+  applyTheme(stored);
+  themeSelect.addEventListener('change',()=>applyTheme(themeSelect.value));
 }
 function setupPage(){
   clearTimeout(transitionTimer);
@@ -249,6 +290,7 @@ document.querySelectorAll('[data-opponent]').forEach(btn=>btn.addEventListener('
 q('#tttxStart').addEventListener('click',start);
 q('#tttxAgain').addEventListener('click',setupPage);
 
+setupThemeQa();
 show('SETUP');
 selectMode('NORMAL');
 selectOpponent('BOT');
