@@ -228,7 +228,15 @@ The earlier candidates `Wasser / Saft / Energy` and `Samstag / Sonntag / Feierta
 - The current 2-option pool was specifically cleaned against the 4-option pool.
 - Do not silently add, remove, rename, or rebalance approved categories without updating this contract.
 
-## 9. Not yet fixed by this contract
+## 9. Player-count and future team mode
+
+- The current standalone / Quick Games baseline is **SOLO with 4 players**.
+- Minority must later support a **team mode with up to 8 human players**.
+- The 4-player SOLO limit must therefore not be treated as a permanent global Minority limit.
+- The exact future team composition, team decision model, scoring ownership and tie behavior are **not yet fixed** and must not be invented during implementation.
+- Shared game logic and data structures should remain extensible so that the later 8-player team mode can be added without replacing the entire Minority implementation.
+
+## 10. Not yet fixed by this contract
 
 The following implementation details remain open until explicitly decided:
 
