@@ -98,9 +98,16 @@ function ageClass(symbol,index){
 }
 function markSvg(symbol){
   if(symbol==='X'){
-    return '<svg class="tttx-mark" viewBox="0 0 100 100" aria-hidden="true"><path class="tttx-shape" d="M22 22 L78 78 M78 22 L22 78"/></svg>';
+    return '<svg class="tttx-mark" viewBox="0 0 100 100" aria-hidden="true">'
+      +'<path class="tttx-shape" d="M22 22 L78 78 M78 22 L22 78"/>'
+      +'<path class="tttx-oldest-shape tttx-oldest-x" d="M18 18 L82 82 M82 18 L18 82"/>'
+      +'</svg>';
   }
-  return '<svg class="tttx-mark" viewBox="0 0 100 100" aria-hidden="true"><circle class="tttx-shape" cx="50" cy="50" r="31"/></svg>';
+  return '<svg class="tttx-mark" viewBox="0 0 100 100" aria-hidden="true">'
+    +'<circle class="tttx-shape" cx="50" cy="50" r="31"/>'
+    +'<circle class="tttx-oldest-shape tttx-oldest-ring-outer" cx="50" cy="50" r="34"/>'
+    +'<circle class="tttx-oldest-shape tttx-oldest-ring-inner" cx="50" cy="50" r="22"/>'
+    +'</svg>';
 }
 function renderBoard(){
   const botTurn=game.opponent==='BOT'&&game.current==='O';
