@@ -599,3 +599,9 @@ body.tttx-body.v15-tournament-active{
     top:0!important;
   }
 }
+
+.tttx-round-state #tttxTurnTimer{
+  color:var(--theme-accent);
+  font:950 1em/1 var(--display,var(--ui));
+}
+.tttx-round-state>span>b{font:inherit}
