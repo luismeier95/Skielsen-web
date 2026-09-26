@@ -215,7 +215,7 @@ function applyRemote(snapshot){
 async function refreshRemote(){
  if(!quickLobby)return;
  try{applyRemote(await rpc('get_quick_minority_game',{p_lobby_id:quickLobby}))}
- catch(err){setFeedback(humanError(err))}
+ catch(err){const msg=String(err?.message||err||'');if(msg.includes('NOT_CONFIGURED'))return;setFeedback(humanError(err))}
 }
 async function boot(){
  if(!RULES){setFeedback('Minority Rules konnten nicht geladen werden.');return}
