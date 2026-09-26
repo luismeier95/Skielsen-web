@@ -203,16 +203,25 @@ function renderWinningLine(){
   });
   board.appendChild(svg);
 }
-function showRoundIntroOverlay(title,done){
+function showRoundIntroOverlay(title,done,duration=2000){
   const host=document.createElement('div');
-  host.className='tttx-overtime-overlay';
+  const shell=board.closest('.tttx-board-shell');
+  host.className='tttx-overtime-overlay'+(title?'':' tttx-starter-overlay');
   host.setAttribute('aria-live','polite');
-  host.innerHTML='<b>'+title+'</b><span><strong style="color:'+PLAYERS[game.starter].color+'">'+playerName(game.starter)+'</strong> BEGINNT</span>';
+  host.innerHTML=(title?'<b>'+title+'</b>':'')+'<span><strong style="color:'+PLAYERS[game.starter].color+'">'+playerName(game.starter)+'</strong> BEGINNT</span>';
+  if(shell){
+    shell.classList.add('is-starter-intro');
+    shell.style.setProperty('--tttx-starter-color',PLAYERS[game.starter].color);
+  }
   board.appendChild(host);
   transitionTimer=setTimeout(()=>{
     host.remove();
+    if(shell){
+      shell.classList.remove('is-starter-intro');
+      shell.style.removeProperty('--tttx-starter-color');
+    }
     done();
-  },1800);
+  },duration);
 }
 function startRoundCountdown(done){
   clearTimeout(transitionTimer);
@@ -422,10 +431,16 @@ function openReady(){
 }
 function start(){
   newSession();
+  game.locked=true;
   show('PLAY');
   renderPlay();
-  startTurnTimer();
-  scheduleBotIfNeeded();
+  showRoundIntroOverlay('',()=>{
+    if(!game)return;
+    game.locked=false;
+    renderPlay();
+    startTurnTimer();
+    scheduleBotIfNeeded();
+  },2000);
 }
 function simulateMoveState(index,symbol){
   const cells=[...game.board];
