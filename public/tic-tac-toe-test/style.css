@@ -993,3 +993,62 @@ body.tttx-body.v15-tournament-active{
 .tttx-board-shell.is-starter-intro{
   outline-color:var(--tttx-turn-color,var(--theme-accent))!important;
 }
+
+
+/* TTT_UNIFIED_OVERLAY_V1
+   One contrast-box component for STARTER, TIE, OVERTIME and WIN states. */
+.tttx-round-countdown,
+.tttx-overtime-overlay,
+.tttx-round-win-overlay{
+  display:none!important;
+}
+.tttx-board-overlay{
+  position:absolute;
+  inset:0;
+  z-index:7;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  text-align:center;
+}
+.tttx-overlay-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  max-width:calc(100% - 24px);
+  padding:14px 20px;
+  border:1px solid var(--theme-border-strong);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--theme-surface) 92%,transparent);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--theme-on-page) 12%,transparent);
+  text-shadow:none;
+}
+.tttx-overlay-title{
+  display:block;
+  color:var(--theme-on-surface);
+  font-family:var(--display,var(--ui));
+  font-size:clamp(42px,13vw,86px);
+  font-weight:950;
+  line-height:.9;
+  letter-spacing:-.035em;
+  text-transform:uppercase;
+  text-shadow:none;
+}
+.tttx-overlay-line{
+  display:block;
+  color:var(--theme-on-surface);
+  font-family:var(--display,var(--ui));
+  font-size:clamp(24px,7vw,48px);
+  font-weight:950;
+  line-height:1;
+  text-transform:uppercase;
+  text-shadow:none;
+}
+.tttx-overlay-line>strong{
+  font:inherit;
+  text-shadow:none;
+}
