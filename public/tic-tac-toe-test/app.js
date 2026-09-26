@@ -25,6 +25,9 @@ let selectedMode='NORMAL';
 let selectedOpponent='BOT';
 let game=null;
 let transitionTimer=0;
+let turnDeadline=0;
+let turnTickTimer=0;
+const TURN_MS=5000;
 
 const q=s=>document.querySelector(s);
 const setup=q('#tttxSetup');
@@ -44,6 +47,7 @@ const opponentLabel=q('#tttxOpponentLabel');
 const scoreX=q('#tttxScoreX');
 const scoreO=q('#tttxScoreO');
 const roundEl=q('#tttxRound');
+const turnTimerEl=q('#tttxTurnTimer');
 const themeSelect=q('#tttxThemeSelect');
 
 function show(page){
@@ -76,6 +80,7 @@ function newSession(){
     boardIndex:1,
     roundNumber:1,
     wins:{X:0,O:0},
+    points:{X:0,O:0},
     boardMoves:0,
     movesTotal:0,
     winner:null,
@@ -85,6 +90,7 @@ function newSession(){
   };
 }
 function prepareNextBoard(countRound=false){
+  stopTurnTimer();
   game.starter=other(game.starter);
   game.current=game.starter;
   game.board=Array(9).fill(null);
@@ -94,8 +100,9 @@ function prepareNextBoard(countRound=false){
   game.winning=[];
   game.lastMove=null;
   game.locked=false;
-  if(countRound)game.roundNumber=Math.min(3,game.wins.X+game.wins.O+1);
+  if(countRound)game.roundNumber+=1;
   renderPlay();
+  startTurnTimer();
   scheduleBotIfNeeded();
 }
 function resetBoardAfterDraw(){
@@ -195,6 +202,83 @@ function startRoundCountdown(done){
     transitionTimer=setTimeout(tick,1000);
   },340);
 }
+
+function stopTurnTimer(){
+  clearInterval(turnTickTimer);
+  turnTickTimer=0;
+  turnDeadline=0;
+}
+function updateTurnTimer(){
+  if(!turnTimerEl)return;
+  if(!turnDeadline||!game||game.locked||game.winning.length){
+    turnTimerEl.textContent='5.0';
+    return;
+  }
+  const left=Math.max(0,turnDeadline-performance.now());
+  turnTimerEl.textContent=(left/1000).toFixed(1);
+}
+function startTurnTimer(){
+  stopTurnTimer();
+  if(!game||game.winner||game.locked||game.winning.length)return;
+  turnDeadline=performance.now()+TURN_MS;
+  updateTurnTimer();
+  turnTickTimer=setInterval(()=>{
+    if(!game||game.winner||game.locked||game.winning.length){
+      stopTurnTimer();
+      return;
+    }
+    updateTurnTimer();
+    if(performance.now()>=turnDeadline){
+      const actor=game.current;
+      stopTurnTimer();
+      const index=worstMoveChoice(actor);
+      if(index!==null)move(index,'TIMEOUT');
+    }
+  },50);
+}
+function simulateStateFrom(cells,active,index,symbol){
+  const nextCells=[...cells];
+  const nextActive={X:[...active.X],O:[...active.O]};
+  nextCells[index]=symbol;
+  nextActive[symbol].push(index);
+  if(game.mode==='DISAPPEAR'&&nextActive[symbol].length>3){
+    const oldest=nextActive[symbol].shift();
+    nextCells[oldest]=null;
+  }
+  return {cells:nextCells,active:nextActive};
+}
+function badnessScore(index,symbol){
+  const first=simulateStateFrom(game.board,game.active,index,symbol);
+  if(winningCells(first.cells).length)return 1000;
+  const rival=other(symbol);
+  const free=first.cells.map((v,i)=>v?null:i).filter(i=>i!==null);
+  let opponentCanWin=false;
+  for(const reply of free){
+    const second=simulateStateFrom(first.cells,first.active,reply,rival);
+    if(winningCells(second.cells).length){opponentCanWin=true;break;}
+  }
+  let score=0;
+  if(opponentCanWin)score-=500;
+  if(index===4)score+=30;
+  else if([0,2,6,8].includes(index))score+=15;
+  else score+=5;
+  return score;
+}
+function worstMoveChoice(symbol){
+  const free=game.board.map((v,i)=>v?null:i).filter(i=>i!==null);
+  if(!free.length)return null;
+  const scored=free.map(index=>({index,score:badnessScore(index,symbol)}));
+  const worst=Math.min(...scored.map(x=>x.score));
+  const pool=scored.filter(x=>x.score===worst);
+  return pool[Math.floor(Math.random()*pool.length)].index;
+}
+function roundPointsFor(winner){
+  return winner===game.starter?1:2;
+}
+function shouldFinishMatch(){
+  if(game.roundNumber<4||game.roundNumber%2!==0)return false;
+  return game.points.X!==game.points.O;
+}
 function renderBoard(){
   const botTurn=game.opponent==='BOT'&&game.current==='O';
   board.innerHTML=game.board.map((symbol,index)=>{
@@ -211,9 +295,10 @@ function renderPlay(){
   if(you)you.textContent='X';
   if(turn)turn.textContent=game.opponent==='BOT'&&game.current==='O'?'BOT':PLAYERS[game.current].name;
   mode.textContent=game.mode;
-  if(scoreX)scoreX.textContent=game.wins.X;
-  if(scoreO)scoreO.textContent=game.wins.O;
-  if(roundEl)roundEl.textContent='RUNDE '+Math.min(3,game.wins.X+game.wins.O+1);
+  if(scoreX)scoreX.textContent=game.points.X;
+  if(scoreO)scoreO.textContent=game.points.O;
+  if(roundEl)roundEl.textContent='RUNDE '+game.roundNumber;
+  updateTurnTimer();
   if(opponentLabel) opponentLabel.textContent=game.opponent==='BOT'?'BOT':'PLAYER 2';
   renderBoard();
 }
@@ -221,6 +306,7 @@ function start(){
   newSession();
   show('PLAY');
   renderPlay();
+  startTurnTimer();
   scheduleBotIfNeeded();
 }
 function simulateMoveState(index,symbol){
@@ -251,7 +337,6 @@ function botChoice(){
   return free[Math.floor(Math.random()*free.length)];
 }
 function scheduleBotIfNeeded(){
-  clearTimeout(transitionTimer);
   if(!game||game.winner||game.opponent!=='BOT'||game.current!=='O')return;
   game.locked=true;
   renderPlay();
@@ -264,9 +349,10 @@ function scheduleBotIfNeeded(){
 }
 function move(index,source='HUMAN'){
   if(!game||game.locked||!Number.isInteger(index)||index<0||index>8||game.board[index])return;
-  if(game.opponent==='BOT'&&game.current==='O'&&source!=='BOT')return;
+  if(game.opponent==='BOT'&&game.current==='O'&&source!=='BOT'&&source!=='TIMEOUT')return;
 
   const actor=game.current;
+  stopTurnTimer();
   game.locked=true;
   game.board[index]=actor;
   game.lastMove=index;
@@ -282,9 +368,10 @@ function move(index,source='HUMAN'){
   game.winning=winningCells(game.board);
   if(game.winning.length){
     game.wins[actor]+=1;
+    game.points[actor]+=roundPointsFor(actor);
     renderPlay();
-    if(game.wins[actor]>=2){
-      game.winner=actor;
+    if(shouldFinishMatch()){
+      game.winner=game.points.X>game.points.O?'X':'O';
       transitionTimer=setTimeout(renderResult,3000);
     }else{
       startRoundCountdown(()=>prepareNextBoard(true));
@@ -295,13 +382,14 @@ function move(index,source='HUMAN'){
   const full=game.board.every(Boolean);
   if(game.mode==='NORMAL'&&full){
     renderPlay();
-    transitionTimer=setTimeout(resetBoardAfterDraw,420);
+    startRoundCountdown(()=>prepareNextBoard(true));
     return;
   }
 
   game.current=other(actor);
   game.locked=false;
   renderPlay();
+  startTurnTimer();
   scheduleBotIfNeeded();
 }
 function playerName(symbol){
@@ -312,14 +400,15 @@ function row(symbol,placement){
   return `<div class="tttx-result-row" style="--delay:${140+(placement-1)*120}ms">
     <b>${String(placement).padStart(2,'0')}</b>
     <span class="tttx-result-player"><i style="--tttx-player:${PLAYERS[symbol].color}"></i><strong>${playerName(symbol)}</strong></span>
-    <strong>${game.wins[symbol]}</strong>
+    <strong>${game.points[symbol]}</strong>
     <span class="tttx-placement-points"><b>+${placementPoints(placement)}</b></span>
   </div>`;
 }
 function renderResult(){
+  stopTurnTimer();
   game.locked=true;
   const loser=other(game.winner);
-  resultMeta.textContent=`BO3 · ${game.mode}`;
+  resultMeta.textContent=`4+ RUNDEN · 5S · ${game.mode}`;
   resultRows.innerHTML=row(game.winner,1)+row(loser,2);
   show('RESULT');
   const card=document.querySelector('.tttx-result-card');
