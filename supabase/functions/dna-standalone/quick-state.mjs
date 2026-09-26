@@ -1,6 +1,7 @@
 // Pure authoritative Quick Game state machine. Called only under the lobby row lock.
 export const ORDER=['RED','BLUE','GREEN','YELLOW'];
 export const durations={IDEA:20000,VOTE:10000,FEEDBACK:1150,REVEAL:3000,COUNTDOWN:3000};
+export const COUNTDOWN_SYNC_LEAD=1200;
 export const voteKey=value=>String(value||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('de-DE');
 export const phaseKey=g=>`${g.term}:${g.hint}:${g.stage}`;
 const freshTeam=()=>({score:0,termScore:0,solved:false,processedHint:0,last:null});
@@ -11,7 +12,15 @@ export function createGame(terms,players,now,decoys={}){
 const teamOf=(g,id)=>g.players.find(p=>p.id===id)?.team;
 const active=g=>ORDER.filter(k=>!g.teams[k].solved);
 const humans=(g,k)=>g.players.filter(p=>p.team===k).sort((a,b)=>Number(a.seat??999)-Number(b.seat??999));
-function enter(g,stage,now){g.stage=stage;g.startedAt=now;g.deadline=durations[stage]?now+durations[stage]:null}
+function enter(g,stage,now){
+ g.stage=stage;
+ // COUNTDOWN is announced slightly before its visible 3-second clock begins.
+ // Clients can render the category first, then every device starts 3/2/1 from
+ // the same server timestamp even when their snapshot arrives a few hundred ms apart.
+ const lead=stage==='COUNTDOWN'?COUNTDOWN_SYNC_LEAD:0;
+ g.startedAt=now+lead;
+ g.deadline=durations[stage]?g.startedAt+durations[stage]:null;
+}
 function newHint(g,now,random){
   g.ideas={};g.ideaKeys={};g.ideaExact={};g.votes={};g.botIdeas={};g.botVotes={};g.submissions={};
   const list=g.decoys[g.terms[g.term-1]]||[];

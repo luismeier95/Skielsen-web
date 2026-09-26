@@ -5,7 +5,7 @@ class DnaQuickSync{
  constructor({send,apply,error,now=()=>performance.now(),schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id)}){
   // Keep host timer APIs behind arrow wrappers. Calling Window methods as
   // DnaQuickSync instance methods can throw `Illegal invocation` in browsers.
-  Object.assign(this,{send,apply,error,now,schedule,cancel});this.queue=[];this.running=false;this.stopped=false;this.revision=-1;this.timer=0;this.anchor=null;this.rtt=Infinity;this.failures=0;
+  Object.assign(this,{send,apply,error,now,schedule,cancel});this.queue=[];this.running=false;this.stopped=false;this.revision=-1;this.timer=0;this.anchor=null;this.rtt=Infinity;this.failures=0;this.phaseDeadline=0;
  }
  serverNow(){return this.anchor?this.anchor.server+this.now()-this.anchor.local:0}
  request(command={kind:'poll'}){
@@ -25,7 +25,7 @@ class DnaQuickSync{
    this.failures=0;
    // Prefer recent low-latency samples. Device wall-clock changes are irrelevant.
    if(!this.anchor||rtt<=this.rtt+100||received-this.anchor.local>10000){this.anchor={server:snapshot.serverNow+rtt/2,local:received};this.rtt=rtt}
-   if(snapshot.revision>=this.revision){this.revision=snapshot.revision;this.apply(snapshot)}
+   if(snapshot.revision>=this.revision){this.revision=snapshot.revision;this.phaseDeadline=Number(snapshot.deadline||0);this.apply(snapshot)}
    this.error(null);
   }catch(err){
    this.failures++;
@@ -33,9 +33,17 @@ class DnaQuickSync{
    if(!this.stopped)this.error(err);
   }finally{
    this.running=false;
-   // Writes stay immediate; idle polling is deliberately slower so two or more
-   // phones do not create unnecessary Edge/DB connection pressure.
-   if(!this.stopped)this.timer=this.schedule(()=>this.drain(),this.failures?Math.min(4000,500*2**this.failures):this.queue.length?100:1000);
+   // Writes stay immediate; idle polling remains conservative for DB pressure.
+   // Near a shared server deadline we wake exactly at the boundary instead of
+   // waiting for the next arbitrary 1 s poll. This removes up to ~1 s of
+   // per-device phase skew without increasing steady-state polling load.
+   let delay=this.failures?Math.min(4000,500*2**this.failures):this.queue.length?100:1000;
+   if(!this.failures&&!this.queue.length&&this.phaseDeadline&&this.anchor){
+     const until=this.phaseDeadline-this.serverNow()+80;
+     if(until>25)delay=Math.min(delay,until);
+     else if(until>-750)delay=Math.min(delay,80);
+   }
+   if(!this.stopped)this.timer=this.schedule(()=>this.drain(),delay);
   }
  }
 }

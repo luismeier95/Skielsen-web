@@ -391,7 +391,10 @@ function paintSharedTimer(){
  const bar=$('#dnaTimer'),fill=bar?.querySelector('i');
  if(fill)fill.style.width=(100*Math.min(1,left/Math.max(1,deadline-startedAt))).toFixed(2)+'%';
  bar?.classList.toggle('warning',left<=5000&&left>2500);bar?.classList.toggle('danger',left<=2500);
- if(stage==='COUNTDOWN'){const number=$('#dnaCountdownNumber');if(number)number.textContent=String(Math.max(1,Math.ceil(left/1000)))}
+ if(stage==='COUNTDOWN'){
+  const number=$('#dnaCountdownNumber'),now=quickSync.serverNow();
+  if(number)number.textContent=now<startedAt?'':String(Math.max(1,Math.min(3,Math.ceil(left/1000))));
+ }
  // Zero is display only. Only an authoritative snapshot changes the phase.
  phaseRaf=requestAnimationFrame(paintSharedTimer);
 }
@@ -460,7 +463,7 @@ function applySharedQuickState(snapshot){
   gameShell('','ERGEBNIS');showOwnFeedback(team.outcome,team.solved&&team.outcome?.hint!==c.hintNo);
  }else if(stage==='REVEAL'&&changed){
   clearPinnedHintStage();showReveal({...c,termScores:mapQuickScores(c.termScores),gameScores:mapQuickScores(c.gameScores)});clearTimers();
- }else if(stage==='COUNTDOWN'&&changed){showTermCountdown(c);clearTimers()}
+ }else if(stage==='COUNTDOWN'&&changed){showTermCountdown(c,true)}
  const solvesKey=JSON.stringify(snapshot.solves||[]);
  if(changed||solvesKey!==quickSolvesKey){quickSolvesKey=solvesKey;showOpponentSolves(snapshot.solves||[])}
  if(changed)paintSharedTimer();
@@ -586,12 +589,13 @@ let resolving=false;async function resolveVote(solvedSpectator){if(resolving)ret
 function showOpponentSolves(solves){const host=$('#dnaSolves');if(!host)return;host.innerHTML=(solves||[]).map(row=>`<div class="dna-solve-toast" style="--team:${TEAMS[row.team]?.color||'var(--theme-accent)'}">${TEAMS[row.team]?.name||row.team} HAT GELÖST · +${Number(row.points||0)}</div>`).join('')}
 function showOwnFeedback(outcome,spectator){const host=$('#dnaInteraction');if(!host)return;if(spectator){host.innerHTML=`<div class="dna-feedback neutral"><div><strong>BEGRIFF GELÖST</strong><span>WARTET AUF DIE ANDEREN TEAMS</span></div></div>`;return}const status=outcome?.status||'NO_ANSWER',pts=Number(outcome?.points||0);if(status==='CORRECT')host.innerHTML=`<div class="dna-feedback correct"><div><strong>RICHTIG · +${pts}</strong><span>DEIN TEAM IST FÜR DIESEN BEGRIFF FERTIG</span></div></div>`;else if(status==='WRONG')host.innerHTML=`<div class="dna-feedback wrong"><div><strong>FALSCH · −1</strong><span>NÄCHSTER HINWEIS</span></div></div>`;else host.innerHTML=`<div class="dna-feedback neutral"><div><strong>KEINE ANTWORT · ±0</strong><span>NÄCHSTER HINWEIS</span></div></div>`}
 function showReveal(c){clearTimers();setScrollLock(true);setChrome('REVEAL',`${String(c.termNo).padStart(2,'0')} / ${String(c.termCount).padStart(2,'0')} · ${c.categoryName}`,Math.min(98,(c.termNo/c.termCount)*100));const tieRank=Object.fromEntries(REVEAL_TIE_ORDER.map((k,i)=>[k,i]));const revealRows=TEAM_ORDER.map(k=>({key:k,score:Number(c.termScores?.[k]||0)})).sort((a,b)=>b.score-a.score||(tieRank[a.key]??99)-(tieRank[b.key]??99));content.innerHTML=`<section class="dna-reveal"><section class="dna-reveal-answer"><div><small>DIE LÖSUNG</small><h1>${esc(c.answer)}</h1></div></section><section class="dna-term-scores">${revealRows.map((r,i)=>`<div class="dna-term-score" data-team="${r.key}" style="--team:${TEAMS[r.key].color};--delay:${motionMs(90+i*80)}ms"><i></i><span><small>${TEAMS[r.key].name}</small><strong>${signed(r.score)}</strong></span></div>`).join('')}</section></section>`;const revealTitle=content.querySelector('.dna-reveal-answer h1');if(revealTitle){const len=String(c.answer||'').length;if(len>30)revealTitle.classList.add('dna-answer-xlong');else if(len>20)revealTitle.classList.add('dna-answer-long')}requestAnimationFrame(()=>content.querySelector('.dna-term-scores')?.classList.add('is-revealing'));later(async()=>{try{const next=await api('advance',{state:s.token});s.token=next.state;if(next.content?.phase==='COMPLETE')enterContent(next.content);else showTermCountdown(next.content)}catch(err){showFatal(err)}},3000)}
-function showTermCountdown(nextContent){
+function showTermCountdown(nextContent,shared=false){
  clearTimers();clearPinnedHintStage();setScrollLock(true);s.screen='COUNTDOWN';
  const termNo=String(nextContent?.termNo||'').padStart(2,'0');
  const termCount=String(nextContent?.termCount||'').padStart(2,'0');
  setChrome('NÄCHSTER BEGRIFF',`${termNo} / ${termCount}`,overallPct(nextContent));
- content.innerHTML=`<section class="dna-term-countdown"><div class="dna-countdown-inner"><span class="dna-countdown-round">${termNo} / ${termCount}</span><strong class="dna-countdown-category">${esc(String(nextContent?.categoryName||'').toUpperCase())}</strong><b class="dna-countdown-number" id="dnaCountdownNumber">3</b></div></section>`;
+ content.innerHTML=`<section class="dna-term-countdown"><div class="dna-countdown-inner"><span class="dna-countdown-round">${termNo} / ${termCount}</span><strong class="dna-countdown-category">${esc(String(nextContent?.categoryName||'').toUpperCase())}</strong><b class="dna-countdown-number" id="dnaCountdownNumber">${shared?'':'3'}</b></div></section>`;
+ if(shared)return;
  const number=$('#dnaCountdownNumber');
  later(()=>{if(number)number.textContent='2'},1000);
  later(()=>{if(number)number.textContent='1'},2000);

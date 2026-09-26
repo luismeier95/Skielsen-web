@@ -75,7 +75,7 @@ test('all teams, reveals, countdown and completion follow one persisted state',(
  const g=ready();let now=100;
  for(let guard=0;g.stage!=='COMPLETE'&&guard<40;guard++){
   now=g.deadline;assert.ok(now);tick(g,now,grade,()=>.99);
-  if(g.stage==='COUNTDOWN')assert.equal(g.deadline-now,3000);
+  if(g.stage==='COUNTDOWN'){assert.equal(g.startedAt-now,1200);assert.equal(g.deadline-g.startedAt,3000)}
  }
  assert.equal(g.stage,'COMPLETE');assert.equal(g.term,2);
 });
@@ -130,6 +130,11 @@ test('Quick Games releases Edge Postgres connections and does not poll at 500 ms
  assert.ok(edge.includes('max_lifetime:5'));
  assert.ok(sync.includes('this.queue.length?100:1000'));
 });
+test('shared countdown is driven only by server timestamps, not local setTimeout steps',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ assert.ok(app.includes("showTermCountdown(c,true)"));
+ assert.ok(app.includes("now<startedAt?'':String(Math.max(1,Math.min(3,Math.ceil(left/1000))))"));
+});
 test('Quick Games sends READY on the first Ready tap instead of requiring a second Spiel starten tap',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
  assert.ok(app.includes("if(s.quickLobby){btn.disabled=true;btn.textContent='BEREIT WIRD GESPEICHERT …';startSharedQuickGame(true);return}"));
@@ -153,6 +158,29 @@ test('default browser timers are wrapped so receiver-sensitive host APIs are not
  const sync=new BrowserSync({send:async()=>({revision:1,serverNow:0}),apply:()=>{},error:()=>{}});
  sync.request();await flush();sync.stop();
  assert.equal(scheduled,true);assert.equal(cancelled,true);
+});
+test('sync wakes at a shared phase deadline instead of waiting for the next 1 s idle poll',async()=>{
+ let local=0,scheduledDelay=null;
+ const sync=new Sync({
+  now:()=>local,
+  cancel:()=>{},
+  schedule:(fn,ms)=>{scheduledDelay=ms;return 1},
+  error:()=>{},
+  apply:()=>{},
+  send:async()=>({revision:1,serverReceived:100000,serverNow:100000,deadline:100300})
+ });
+ sync.request();await flush();
+ assert.ok(scheduledDelay>=300&&scheduledDelay<450,`unexpected deadline wake delay ${scheduledDelay}`);
+ sync.stop();
+});
+test('COUNTDOWN has a server sync lead followed by exactly three visible seconds',()=>{
+ const g=createGame(['one','two'],players,0);
+ for(const p of players)send(g,p.id,'ready',100);
+ let now=100;
+ for(let guard=0;g.stage!=='COUNTDOWN'&&guard<20;guard++){now=g.deadline;tick(g,now,grade,()=>.99)}
+ assert.equal(g.stage,'COUNTDOWN');
+ assert.equal(g.startedAt-now,1200);
+ assert.equal(g.deadline-g.startedAt,3000);
 });
 test('two monotonic device clocks converge despite different origins and server processing time',async()=>{
  async function device(origin){let local=origin;const sync=new Sync({now:()=>local,schedule:()=>0,cancel:()=>{},error:()=>{},apply:()=>{},send:async()=>{local+=500;return {serverReceived:100050,serverNow:100450,revision:1}}});sync.request();await flush();return sync.serverNow()}
