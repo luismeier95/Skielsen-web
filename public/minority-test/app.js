@@ -58,7 +58,7 @@ function renderSetup(){
    NORMAL:'Pot startet bei 1 und wächst ohne Minderheit. Jede 5. Frage hat 3 Antworten.',
    HARDCORE:'Wie Normal. Jede 5. Frage hat 3 oder 4 Antworten. Bei 4:0 verliert die Führung −1.'
  };
- stage.innerHTML=\`
+ stage.innerHTML=`
    <div class="m-hero">
      <small class="m-kicker">SCHWIERIGKEIT</small>
      <h1 class="m-title">MINORITY.</h1>
@@ -71,11 +71,11 @@ function renderSetup(){
        <span>1 AUSWÄHLEN</span>
      </div>
      <div class="m-choice-grid" role="group" aria-label="Schwierigkeitsgrad">
-       \${[
+       ${[
          ['EASY','Direkt. Minderheit = +1.'],
          ['NORMAL','Pot-System + 3er Chaos Round.'],
          ['HARDCORE','Pot + 3/4er Chaos + 4:0 Strafe.']
-       ].map(([key,copy])=>\`<button type="button" class="m-choice \${state.difficulty===key?'active':''}" data-difficulty="\${key}"><strong>\${key}</strong><span>\${copy}</span></button>\`).join('')}
+       ].map(([key,copy])=>`<button type="button" class="m-choice ${state.difficulty===key?'active':''}" data-difficulty="${key}"><strong>${key}</strong><span>${copy}</span></button>`).join('')}
      </div>
    </section>
 
@@ -85,17 +85,17 @@ function renderSetup(){
        <span>1 AUSWÄHLEN</span>
      </div>
      <div class="m-round-options" role="group" aria-label="QA-Runden">
-       \${[5,10,15].map(count=>\`<button type="button" class="m-choice m-round-choice \${state.roundCount===count?'active':''}" data-rounds="\${count}"><strong>\${count}</strong></button>\`).join('')}
+       ${[5,10,15].map(count=>`<button type="button" class="m-choice m-round-choice ${state.roundCount===count?'active':''}" data-rounds="${count}"><strong>${count}</strong></button>`).join('')}
      </div>
    </section>
 
    <section class="m-rule-note">
      <small>AKTIVE REGEL</small>
-     <strong id="mRuleTitle">\${esc(state.difficulty)}</strong>
-     <span id="mRuleText">\${esc(difficultyCopy[state.difficulty])}</span>
+     <strong id="mRuleTitle">${esc(state.difficulty)}</strong>
+     <span id="mRuleText">${esc(difficultyCopy[state.difficulty])}</span>
    </section>
 
-   <button class="m-primary m-blocking" id="mSetupNext" type="button">WEITER →</button>\`;
+   <button class="m-primary m-blocking" id="mSetupNext" type="button">WEITER →</button>`;
 
  const updateDifficulty=()=>{
    stage.querySelectorAll('[data-difficulty]').forEach(btn=>btn.classList.toggle('active',btn.dataset.difficulty===state.difficulty));
@@ -127,7 +127,7 @@ function renderSetup(){
  });
 }
 function renderReady(){
- stage.innerHTML=\`
+ stage.innerHTML=`
    <div class="m-hero">
      <small class="m-kicker">READY</small>
      <h1 class="m-title">MINORITY.</h1>
@@ -136,29 +136,29 @@ function renderReady(){
 
    <section class="m-card m-ready-summary">
      <div><small>MODUS</small><strong>SOLO</strong></div>
-     <div><small>SCHWIERIGKEIT</small><strong>\${esc(state.difficulty)}</strong></div>
-     <div><small>RUNDEN</small><strong>\${state.roundCount}</strong></div>
+     <div><small>SCHWIERIGKEIT</small><strong>${esc(state.difficulty)}</strong></div>
+     <div><small>RUNDEN</small><strong>${state.roundCount}</strong></div>
    </section>
 
    <section class="m-card m-ready-rules">
      <div><b>01</b><span><strong>VERDECKTE WAHL</strong><small>Alle wählen gleichzeitig. Ein Tap auf eine Kachel ist final.</small></span></div>
      <div><b>02</b><span><strong>MINDERHEIT</strong><small>Die am seltensten gewählte echte Minderheit gewinnt den aktuellen Rundenwert.</small></span></div>
-     <div><b>03</b><span><strong>POT</strong><small>\${state.difficulty==='EASY'?'Easy spielt ohne Pot.':'Ohne Minderheit steigt der Wert der nächsten Runde um +1.'}</small></span></div>
-     <div><b>05</b><span><strong>CHAOS ROUND</strong><small>\${state.difficulty==='EASY'?'In Easy gibt es keine Chaos Round.':state.difficulty==='NORMAL'?'Jede 5. Frage hat 3 Antworten.':'Jede 5. Frage hat 3 oder 4 Antworten.'}</small></span></div>
+     <div><b>03</b><span><strong>POT</strong><small>${state.difficulty==='EASY'?'Easy spielt ohne Pot.':'Ohne Minderheit steigt der Wert der nächsten Runde um +1.'}</small></span></div>
+     <div><b>05</b><span><strong>CHAOS ROUND</strong><small>${state.difficulty==='EASY'?'In Easy gibt es keine Chaos Round.':state.difficulty==='NORMAL'?'Jede 5. Frage hat 3 Antworten.':'Jede 5. Frage hat 3 oder 4 Antworten.'}</small></span></div>
    </section>
 
    <section class="m-card m-ready-roster">
-     \${[1,2,3,4].map(seat=>{
+     ${[1,2,3,4].map(seat=>{
        const p=state.players.find(item=>Number(item.seat)===seat);
        const status=isMe(seat)?(p?.ready?'BEREIT':'DU'):(p?.is_bot?'BOT':(p?.ready?'BEREIT':'WARTET'));
-       return \`<div class="m-ready-player" style="--identity:\${identity(seat)}"><i></i><strong>\${esc(playerName(seat))}</strong><span>\${status}</span></div>\`;
+       return `<div class="m-ready-player" style="--identity:${identity(seat)}"><i></i><strong>${esc(playerName(seat))}</strong><span>${status}</span></div>`;
      }).join('')}
    </section>
 
    <div class="m-ready-actions">
      <button class="m-secondary" id="mReadyBack" type="button">← ZURÜCK</button>
      <button class="m-primary m-blocking" id="mReady" type="button">ICH BIN BEREIT →</button>
-   </div>\`;
+   </div>`;
  const me=state.players.find(p=>p.is_me);
  const readyButton=document.querySelector('#mReady');
  if(me?.ready){readyButton.disabled=true;readyButton.textContent='WARTET AUF DIE ANDEREN …'}
