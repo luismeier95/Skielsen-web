@@ -234,7 +234,7 @@ body.tttx-body{
   stroke-width:7;
   stroke-linecap:round;
   vector-effect:non-scaling-stroke;
-  filter:drop-shadow(0 1px 0 color-mix(in srgb,var(--theme-page) 55%,transparent));
+  filter:none;
   animation:tttxWinDraw .32s cubic-bezier(.2,.8,.2,1) forwards;
 }
 @keyframes tttxWinDraw{
