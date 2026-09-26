@@ -141,14 +141,14 @@ body.tttx-body{
 .tttx-play{
   height:calc(100dvh - 45px);
   padding:8px 9px max(8px,env(safe-area-inset-bottom));
-  grid-template-rows:auto minmax(0,1fr);
+  grid-template-rows:auto auto minmax(0,1fr);
   gap:8px;
   overflow:hidden;
 }
 .tttx-status{
   min-height:74px;
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
 }
 .tttx-status>div{
   min-width:0;
@@ -410,7 +410,7 @@ body.tttx-body{
   .tttx-choice strong{font-size:19px}
   .tttx-choice span{font-size:8px}
   .tttx-primary{min-height:52px;font-size:10px}
-  .tttx-play{height:calc(100dvh - 68px);padding:14px 20px 20px;gap:14px}
+  .tttx-play{height:calc(100dvh - 68px);padding:14px 20px 20px;gap:12px}
   .tttx-status{min-height:82px}
   .tttx-status>div{padding:12px 14px}
   .tttx-status small{font-size:7px}
@@ -458,23 +458,6 @@ body.tttx-body{
 }
 .tttx-player-x{--tttx-player-accent:var(--theme-team-red,var(--core-red))}
 .tttx-player-o{--tttx-player-accent:var(--theme-team-blue,var(--core-blue))}
-.tttx-player-scoreline{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-}
-.tttx-player-scoreline>b{
-  min-width:22px;
-  height:22px;
-  padding:0 6px;
-  border-radius:999px;
-  display:grid;
-  place-items:center;
-  background:var(--theme-surface-muted);
-  color:var(--theme-on-surface-muted);
-  font:950 9px/1 var(--ui);
-}
 .tttx-round-state>span{
   color:var(--theme-muted);
   font-size:6px;
@@ -541,4 +524,43 @@ body.tttx-body{
 @media(max-width:390px){
   .tttx-theme-qa{flex-basis:88px;margin-left:7px}
   .tttx-game-name{margin-left:10px}
+}
+
+.tttx-score-bridge{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  text-align:center;
+}
+.tttx-score-bridge strong{
+  font-family:var(--display,var(--ui));
+  font-size:28px;
+  font-weight:950;
+  line-height:1;
+}
+.tttx-score-bridge>span{
+  color:var(--theme-on-page);
+  font-family:var(--display,var(--ui));
+  font-size:24px;
+  font-weight:950;
+  line-height:1;
+}
+.tttx-score-x{color:var(--theme-team-red,var(--core-red))}
+.tttx-score-o{color:var(--theme-team-blue,var(--core-blue))}
+.tttx-status>.tttx-player-state strong{
+  font-size:18px;
+}
+.tttx-status>.tttx-round-state{
+  gap:3px;
+}
+.tttx-status>.tttx-round-state strong{
+  font-size:15px;
+}
+.tttx-status>.tttx-round-state span{
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:var(--theme-muted);
 }
