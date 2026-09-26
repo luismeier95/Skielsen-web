@@ -43,10 +43,14 @@ function render(){
  topState.textContent=state.screen.toUpperCase();
  const pct=state.screen==='game'||state.screen==='reveal'?Math.min(100,Math.round(((state.round-1)/Math.max(1,state.roundCount))*100)):state.screen==='ranking'?100:0;
  progress.style.width=pct+'%';
+ if(state.screen==='wait_setup')return renderWaitSetup();
  if(state.screen==='setup')return renderSetup();
  if(state.screen==='ready')return renderReady();
  if(state.screen==='game'||state.screen==='reveal')return renderGame();
  if(state.screen==='ranking')return renderRanking();
+}
+function renderWaitSetup(){
+ stage.innerHTML=`<p class="m-kicker">MINORITY · QUICK GAME</p><h1 class="m-title">WARTEN.</h1><p class="m-copy">Der Host legt Schwierigkeit und QA-Rundenzahl fest. Danach erscheint automatisch der Ready Screen.</p><div class="m-wait" style="margin-top:22px">WARTET AUF DEN HOST …</div>`;
 }
 function renderSetup(){
  stage.innerHTML=`
@@ -101,7 +105,9 @@ function renderReady(){
    </div>
    <div class="m-roster">${[1,2,3,4].map(seat=>`<div class="m-player" style="--identity:${identity(seat)}"><i></i><strong>${esc(playerName(seat))}</strong><span>${isMe(seat)?'DU':(state.players.find(p=>Number(p.seat)===seat)?.is_bot?'BOT':'BEREIT')}</span></div>`).join('')}</div>
    <button class="m-primary" id="mReady" type="button" style="margin-top:16px">ICH BIN BEREIT</button>`;
- document.querySelector('#mReady').addEventListener('click',async e=>{
+ const me=state.players.find(p=>p.is_me); const readyButton=document.querySelector('#mReady');
+ if(me?.ready){readyButton.disabled=true;readyButton.textContent='WARTET AUF DIE ANDEREN …'}
+ readyButton.addEventListener('click',async e=>{
    if(state.mode==='remote'){
      e.currentTarget.disabled=true;
      try{applyRemote(await rpc('ready_quick_minority_game',{p_lobby_id:quickLobby}))}
@@ -204,7 +210,7 @@ function applyRemote(snapshot){
  if(state.screen==='finished')state.screen='ranking';
  setFeedback('');
  render();
- if(state.mode==='remote'&&!poll)poll=setInterval(refreshRemote,1000);
+ if(state.mode==='remote'&&!poll)poll=setInterval(refreshRemote,600);
 }
 async function refreshRemote(){
  if(!quickLobby)return;
@@ -217,7 +223,10 @@ async function boot(){
  try{applyRemote(await rpc('get_quick_minority_game',{p_lobby_id:quickLobby}))}
  catch(err){
    const msg=String(err?.message||err||'');
-   if(msg.includes('NOT_CONFIGURED')){state.screen='setup';render();return}
+   if(msg.includes('NOT_CONFIGURED')){
+     try{const lobby=await rpc('get_quick_game_lobby',{p_lobby_id:quickLobby});state.screen=lobby?.is_host?'setup':'wait_setup';render();if(!poll)poll=setInterval(refreshRemote,600);return}
+     catch(inner){setFeedback(humanError(inner));render();return}
+   }
    setFeedback(humanError(err));render();
  }
 }
