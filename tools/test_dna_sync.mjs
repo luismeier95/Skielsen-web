@@ -202,12 +202,35 @@ test('answer matcher keeps the accepted DNA representation and typo examples',()
  ];
  for(const [input,candidate,expected] of cases)assert.equal(matcher(input,candidate),expected,`${input} -> ${candidate}`);
 });
+test('Quick Game voter initials stay attached to the same people on both devices',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ const start=app.indexOf('function makeQuickVoters('),end=app.indexOf('async function loadQuickLobby(');
+ const fn=vm.runInNewContext(`(()=>{${app.slice(start,end)};return makeQuickVoters})()`,{s:{quickLobby:null,quickVoters:null}});
+ const lobby=[
+  {user_id:'djeeloi-id',seat:1,display_name:'Djeeloi'},
+  {user_id:'sofya-id',seat:2,display_name:'Sofya'}
+ ];
+ const d=fn(lobby,lobby[0],0),s=fn(lobby,lobby[1],0);
+ assert.deepEqual(d.map(x=>[x.id,x.marker]),[['djeeloi-id','D'],['sofya-id','S']]);
+ assert.deepEqual(s.map(x=>[x.id,x.marker]),[['djeeloi-id','D'],['sofya-id','S']]);
+ assert.equal(d[0].is_me,true);assert.equal(s[0].is_me,false);
+ assert.equal(d[1].is_me,false);assert.equal(s[1].is_me,true);
+});
+test('server team views expose stable player ids independent of viewer perspective',()=>{
+ const g=createGame(['one'],[{id:'djeeloi-id',seat:1,team:'RED'},{id:'sofya-id',seat:2,team:'RED'}],0);
+ send(g,'djeeloi-id','ready',100);send(g,'sofya-id','ready',100);
+ send(g,'djeeloi-id','idea',200,'USB');send(g,'sofya-id','idea',300,'PHONE');
+ const d=teamView(g,'djeeloi-id'),s=teamView(g,'sofya-id');
+ assert.deepEqual(d.ideas.map(x=>x.id),['djeeloi-id','sofya-id']);
+ assert.deepEqual(s.ideas.map(x=>x.id),['djeeloi-id','sofya-id']);
+ assert.equal(d.ideas[0].is_me,true);assert.equal(s.ideas[0].is_me,false);
+});
 test('vote cards recover both ideas, merge normalized duplicates and always include no answer',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
  const fn=app.slice(app.indexOf('function sharedVoteMarkup('),app.indexOf('function applySharedQuickState('));
- const ctx={normalize:v=>v.trim().replace(/\s+/g,' ').toUpperCase(),voteCard:(value,who)=>JSON.stringify({value,who})};
+ const ctx={normalize:v=>v.trim().replace(/\s+/g,' ').toUpperCase(),voteCard:(value,who)=>JSON.stringify({value,who}),currentVoterSlots:()=>[{id:'a',marker:'D',order:0,is_me:true},{id:'b',marker:'S',order:1,is_me:false}]};
  vm.runInNewContext(fn,ctx);
- const markup=ctx.sharedVoteMarkup({ideas:[{is_me:true,idea:'usb'},{is_me:false,idea:' USB '}]});
+ const markup=ctx.sharedVoteMarkup({ideas:[{id:'a',is_me:true,idea:'usb'},{id:'b',is_me:false,idea:' USB '}]});
  assert.ok(markup.includes('D + S'));assert.equal(markup.split('"USB"').length-1,1);assert.ok(markup.includes('__NO__'));
- const recovered=ctx.sharedVoteMarkup({ideas:[{is_me:true,idea:''},{is_me:false,idea:'PHONE'}]});assert.ok(recovered.includes('PHONE'));
+ const recovered=ctx.sharedVoteMarkup({ideas:[{id:'a',is_me:true,idea:''},{id:'b',is_me:false,idea:'PHONE'}]});assert.ok(recovered.includes('PHONE'));
 });

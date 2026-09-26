@@ -322,6 +322,17 @@ The option `KEINE ANTWORT` is always available.
 
 Each player has one active vote and can change their vote freely until the team submits.
 
+### Stable voter identity
+
+The voter circles on an answer card represent the actual team members, not the viewing device's local roles.
+
+- A participant keeps the same marker on every device.
+- Markers are derived from the participant identity (normally the first letter of the display name), e.g. `D` = Djeeloi and `S` = Sofya.
+- If Djeeloi votes on an answer, the `D` circle lights up on both Djeeloi's and Sofya's devices.
+- The UI must never reinterpret `D` as "du" or swap `D` / `S` merely because another teammate is viewing the page.
+- A bot teammate uses the stable marker `B`.
+- If two human names would produce the same one-letter marker, the client disambiguates them deterministically while preserving the same markers on every device.
+
 Tapping answer cards never submits an answer automatically.
 
 ## 8. Consensus and Submit

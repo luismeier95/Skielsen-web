@@ -375,10 +375,10 @@ async function advance(body,userId){
 async function quickSync(body,userId){
   const lobby=String(body.quickLobby||'');
   const receipt=await sql.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
-  const members=await sql.unsafe("select p.user_id::text as id,p.seat,l.setup_status from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id where l.lobby_id=$1::uuid and l.status='LIVE'",[lobby]);
+  const members=await sql.unsafe("select p.user_id::text as id,p.seat,l.setup_status from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id where l.lobby_id=$1::uuid and l.status='LIVE' order by p.seat",[lobby]);
   const member=members.find(p=>p.id===userId);
   if(!member||member.setup_status!=='READY')throw new Error('Quick lobby membership/setup required');
-  const players=members.map(p=>({id:p.id,team:ORDER[Math.floor((Number(p.seat)-1)/2)]}));
+  const players=members.map(p=>({id:p.id,seat:Number(p.seat),team:ORDER[Math.floor((Number(p.seat)-1)/2)]}));
   const existing=await sql.unsafe('select lobby_id from private.quick_dna_games where lobby_id=$1::uuid',[lobby]);
   let initial=null;
   if(!existing.length){

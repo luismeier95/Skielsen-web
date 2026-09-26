@@ -10,7 +10,7 @@ export function createGame(terms,players,now,decoys={}){
 }
 const teamOf=(g,id)=>g.players.find(p=>p.id===id)?.team;
 const active=g=>ORDER.filter(k=>!g.teams[k].solved);
-const humans=(g,k)=>g.players.filter(p=>p.team===k);
+const humans=(g,k)=>g.players.filter(p=>p.team===k).sort((a,b)=>Number(a.seat??999)-Number(b.seat??999));
 function enter(g,stage,now){g.stage=stage;g.startedAt=now;g.deadline=durations[stage]?now+durations[stage]:null}
 function newHint(g,now,random){
   g.ideas={};g.ideaKeys={};g.ideaExact={};g.votes={};g.botIdeas={};g.botVotes={};g.submissions={};
@@ -120,10 +120,10 @@ export function teamView(g,id){
   const ideas=mates.map(p=>{
     const raw=g.ideas[p.id]||'',key=g.ideaKeys[p.id]||voteKey(raw);
     const visible=ideasVisible?(displayByKey.get(key)?.value||raw):(p.id===id?raw:null);
-    return {is_me:p.id===id,submitted:Object.hasOwn(g.ideas,p.id),idea:visible};
+    return {id:p.id,is_me:p.id===id,submitted:Object.hasOwn(g.ideas,p.id),idea:visible};
   });
-  if(!other)ideas.push({is_me:false,submitted:true,idea:ideasVisible?g.botIdeas[own]||'':null});
-  return {ideas,votes:mates.map(p=>({is_me:p.id===id,vote:g.votes[p.id]||null})),
+  if(!other)ideas.push({id:'__BOT__',is_me:false,is_bot:true,submitted:true,idea:ideasVisible?g.botIdeas[own]||'':null});
+  return {ideas,votes:mates.map(p=>({id:p.id,is_me:p.id===id,vote:g.votes[p.id]||null})),
     botVote:other?null:g.botVotes[own]||null,submission:g.submissions[own]||null,
     outcome:g.teams[own].last,solved:g.teams[own].solved,
     players:g.players.map(p=>({id:p.id,is_me:p.id===id,team:p.team,ready:!!g.ready[p.id],lastSeen:g.seen[p.id]||null}))};

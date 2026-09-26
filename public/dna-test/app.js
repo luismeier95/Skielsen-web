@@ -26,7 +26,7 @@ const DECOYS={
 const $=s=>document.querySelector(s);
 const content=$('#dnaContent'),progress=$('#dnaProgress'),headerState=$('#dnaHeaderState'),headerMeta=$('#dnaHeaderMeta'),themeSelect=$('#dnaThemeSelect');
 let phaseTimer=0,phaseRaf=0,scheduled=[];
-let s={screen:'BOOT',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',answerProof:null,ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false,quickLobby:null,quickTeamMap:null,quickHumanTeammate:false};
+let s={screen:'BOOT',selected:new Set(['countries']),termCount:5,pool:'BALANCED',token:null,current:null,previousHints:[],idea:'',answerProof:null,ideaDone:false,teammateIdea:null,teammateReady:false,opponentsReady:false,userVote:null,teammateVote:null,submitted:false,outcome:null,gameScores:null,ranking:null,mergeComplete:false,quickLobby:null,quickTeamMap:null,quickHumanTeammate:false,quickVoters:null};
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function clearTimers(){if(phaseTimer)clearTimeout(phaseTimer);if(phaseRaf)cancelAnimationFrame(phaseRaf);phaseTimer=0;phaseRaf=0;scheduled.splice(0).forEach(clearTimeout)}
 function later(fn,ms){const id=setTimeout(fn,ms);scheduled.push(id);return id}
@@ -272,6 +272,24 @@ function renderThemeQa(){
 async function api(action,payload={}){const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');const res=await fetch(FUNCTION_URL,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error||'DNA Serverfehler');return data}
 async function quickRpc(name,payload={}){const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');const res=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+encodeURIComponent(name),{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.message||data?.error||'QUICK_GAME_FAILED');return data}
 function mapQuickScores(scores){if(!s.quickTeamMap)return scores;const mapped={};Object.entries(scores||{}).forEach(([key,value])=>{mapped[s.quickTeamMap[key]||key]=Number(value||0)});return mapped}
+function makeQuickVoters(players,me,ownIndex){
+ const own=(players||[]).filter(p=>Math.floor((Number(p.seat||1)-1)/2)===ownIndex).sort((a,b)=>Number(a.seat||0)-Number(b.seat||0));
+ const bases=own.map((p,i)=>Array.from(String(p.display_name||'').trim().toLocaleUpperCase('de-DE'))[0]||String(i+1));
+ const counts=new Map();bases.forEach(x=>counts.set(x,(counts.get(x)||0)+1));
+ const seen=new Map();
+ const slots=own.map((p,i)=>{
+   const base=bases[i],n=(seen.get(base)||0)+1;seen.set(base,n);
+   const marker=counts.get(base)>1?base+n:base;
+   return {id:String(p.user_id),marker,order:i,is_me:String(p.user_id)===String(me?.user_id||'')};
+ });
+ if(slots.length===1)slots.push({id:'__BOT__',marker:'B',order:1,is_me:false,is_bot:true});
+ return slots;
+}
+function currentVoterSlots(){
+ return s.quickLobby&&Array.isArray(s.quickVoters)&&s.quickVoters.length
+   ?s.quickVoters
+   :[{id:'D',marker:'D',order:0,is_me:true},{id:'S',marker:'S',order:1,is_me:false}];
+}
 async function loadQuickLobby(){
  if(!QUICK_LOBBY_ID)return null;
  const lobby=await quickRpc('get_quick_game_lobby',{p_lobby_id:QUICK_LOBBY_ID});
@@ -285,6 +303,7 @@ async function loadQuickLobby(){
  s.quickLobby=lobby;s.quickTeamMap=map;
  const bySeat=new Map((lobby.players||[]).map(p=>[Number(p.seat),p]));
  TEAM_ORDER.forEach((key,index)=>{const first=bySeat.get(index*2+1),second=bySeat.get(index*2+2);TEAMS[key].members=[first?.display_name||'BOT',second?.display_name||'BOT'].map(String).map(x=>x.toUpperCase()).join(' + ')});
+ s.quickVoters=makeQuickVoters(lobby.players||[],me,ownIndex);
  const teammateSeat=Number(me.seat)%2===1?Number(me.seat)+1:Number(me.seat)-1;
  s.quickHumanTeammate=Boolean(bySeat.get(teammateSeat));
  return lobby;
@@ -377,9 +396,15 @@ function paintSharedTimer(){
  phaseRaf=requestAnimationFrame(paintSharedTimer);
 }
 function sharedVoteMarkup(team){
- const rows=new Map();
- for(const row of team.ideas){if(!row.idea)continue;const key=normalize(row.idea),item=rows.get(key)||{value:key,who:[]};item.who.push(row.is_me?'D':'S');rows.set(key,item)}
- return [...rows.values()].map((c,i)=>voteCard(c.value,c.who.join(' + '),'v'+i)).join('')+voteCard('__NO__','SICHER PASSEN','no');
+ const rows=new Map(),slots=currentVoterSlots(),byId=new Map(slots.map(x=>[String(x.id),x]));
+ for(const row of team.ideas){
+   if(!row.idea)continue;
+   const key=normalize(row.idea),item=rows.get(key)||{value:key,who:[]};
+   const slot=byId.get(String(row.id||''))||slots.find(x=>x.is_me===Boolean(row.is_me));
+   if(slot&&!item.who.some(x=>x.id===slot.id))item.who.push(slot);
+   rows.set(key,item);
+ }
+ return [...rows.values()].map((c,i)=>voteCard(c.value,c.who.sort((a,b)=>a.order-b.order).map(x=>x.marker).join(' + '),'v'+i)).join('')+voteCard('__NO__','SICHER PASSEN','no');
 }
 function applySharedQuickState(snapshot){
  const changed=quickViewKey!==snapshot.phaseKey;
@@ -533,7 +558,7 @@ function startVote(){clearTimers();freezeCurrentHintStage();try{document.activeE
 async function shareQuickVote(value){try{const team=await quickRpc('submit_quick_dna_vote',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo,p_vote:value||''});applyQuickVoteState(team)}catch(err){showFatal(err)}}
 function applyQuickVoteState(team){const mine=(team?.votes||[]).find(row=>row.is_me),other=(team?.votes||[]).find(row=>!row.is_me);if(mine)s.userVote=mine.vote||null;if(other)s.teammateVote=other.vote||null;renderVotes();if(team?.submission&&!s.submitted)submitSharedAnswer(team.submission.answer)}
 async function pollQuickVote(){if(!s.quickHumanTeammate||s.screen!=='GAME'||s.submitted)return;try{const team=await quickRpc('get_quick_dna_team_state',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo});applyQuickVoteState(team);if(!s.submitted)later(pollQuickVote,500)}catch(err){showFatal(err)}}
-function voteCard(value,source,key){const display=value==='__NO__'?'KEINE ANTWORT':value;return `<button class="dna-vote" type="button" data-vote="${esc(value)}" data-key="${key}"><span><strong>${esc(display)}</strong><small>${esc(source)}</small></span><span class="dna-voters"><i data-voter="D">D</i><i data-voter="S">S</i></span></button>`}
+function voteCard(value,source,key){const display=value==='__NO__'?'KEINE ANTWORT':value,voters=currentVoterSlots().map(v=>`<i data-voter-id="${esc(v.id)}">${esc(v.marker)}</i>`).join('');return `<button class="dna-vote" type="button" data-vote="${esc(value)}" data-key="${key}"><span><strong>${esc(display)}</strong><small>${esc(source)}</small></span><span class="dna-voters">${voters}</span></button>`}
 let reconsiderTimer=0,teammateVoteSeq=0;
 async function reconsiderVoteNow(seq,requestedVote){
   clearTimeout(reconsiderTimer);
@@ -552,7 +577,7 @@ async function reconsiderVoteNow(seq,requestedVote){
     renderVotes();
   }
 }
-function renderVotes(){content.querySelectorAll('[data-vote]').forEach(btn=>{const v=btn.dataset.vote;btn.classList.toggle('active',s.userVote===v);const ds=btn.querySelector('[data-voter="D"]'),ss=btn.querySelector('[data-voter="S"]');ds?.classList.toggle('on',s.userVote===v);ss?.classList.toggle('on',s.teammateVote===v)});const consensus=Boolean(s.userVote&&s.teammateVote&&s.userVote===s.teammateVote);const line=$('#dnaConsensus'),submit=$('#dnaSubmit');if(line){line.textContent=consensus?'EINIGKEIT · SUBMIT IST FREIGEGEBEN':'NOCH KEINE EINIGKEIT';line.classList.toggle('dna-submit-ok',consensus)}if(submit)submit.disabled=!consensus||s.submitted}
+function renderVotes(){const slots=currentVoterSlots(),mine=slots.find(x=>x.is_me)||slots[0],mate=slots.find(x=>!x.is_me)||slots[1];content.querySelectorAll('[data-vote]').forEach(btn=>{const v=btn.dataset.vote;btn.classList.toggle('active',s.userVote===v);btn.querySelectorAll('[data-voter-id]').forEach(icon=>{const id=String(icon.dataset.voterId||''),on=id===String(mine?.id||'')?s.userVote===v:id===String(mate?.id||'')?s.teammateVote===v:false;icon.classList.toggle('on',on)})});const consensus=Boolean(s.userVote&&s.teammateVote&&s.userVote===s.teammateVote);const line=$('#dnaConsensus'),submit=$('#dnaSubmit');if(line){line.textContent=consensus?'EINIGKEIT · SUBMIT IST FREIGEGEBEN':'NOCH KEINE EINIGKEIT';line.classList.toggle('dna-submit-ok',consensus)}if(submit)submit.disabled=!consensus||s.submitted}
 async function submitVote(){if(s.submitted||!s.userVote||s.userVote!==s.teammateVote)return;if(s.quickHumanTeammate){try{const team=await quickRpc('submit_quick_dna_team_answer',{p_lobby_id:s.quickLobby.lobby_id,p_term_no:s.current.termNo,p_hint_no:s.current.hintNo});return submitSharedAnswer(team?.submission?.answer)}catch(err){return showFatal(err)}}return submitSharedAnswer(s.userVote)}
 async function submitSharedAnswer(answer){if(s.submitted||!answer)return;s.submitted=true;renderVotes();const noAnswer=answer==='__NO__';try{const res=await api('submit',{state:s.token,termRef:s.current?.termRef||'',answerProof:s.answerProof||'',answer:noAnswer?'':answer,noAnswer});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted(answer);if(s.opponentsReady)resolveVote(false)}catch(err){showFatal(err)}}
 async function submitNoAnswerTimeout(){if(s.submitted)return;s.submitted=true;try{const res=await api('submit',{state:s.token,termRef:s.current?.termRef||'',answer:'',noAnswer:true});s.token=res.state;s.current=res.content;s.outcome=res.outcome;renderSubmitted('__NO__');resolveVote(false)}catch(err){showFatal(err)}}
