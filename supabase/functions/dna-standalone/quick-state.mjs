@@ -44,7 +44,7 @@ function evaluate(g,grade,random){
 export function tick(g,now,grade,random=Math.random){
   // At most one transition per request: every phase gets its full server duration
   // after a total network outage, instead of skipping unseen questions.
-  if(g.stage==='READY'&&g.players.every(p=>g.ready[p.id]))newHint(g,now,random);
+  if(g.stage==='READY'&&g.players.every(p=>g.ready[p.id]))enter(g,'COUNTDOWN',now);
   else if(g.stage==='IDEA'&&(now>=g.deadline||g.players.filter(p=>!g.teams[p.team].solved).every(p=>Object.hasOwn(g.ideas,p.id))))enter(g,'VOTE',now);
   else if(g.stage==='VOTE'&&(now>=g.deadline||active(g).filter(k=>humans(g,k).length).every(k=>g.submissions[k]))){evaluate(g,grade,random);enter(g,'FEEDBACK',now)}
   else if(g.deadline&&now>=g.deadline){

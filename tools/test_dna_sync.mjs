@@ -7,21 +7,24 @@ import {DECOYS} from '../supabase/functions/dna-standalone/quick-decoys.mjs';
 const players=[{id:'a',team:'RED'},{id:'b',team:'RED'},{id:'c',team:'BLUE'}];
 const grade=a=>a==='USB';
 function send(g,id,kind,now,value,phase=phaseKey(g)){return act(g,id,{kind,value,phase},now,grade,()=>.99)}
-function ready(){const g=createGame(['one','two'],players,0);for(const p of players)send(g,p.id,'ready',100);return g}
+function ready(){const g=createGame(['one','two'],players,-5000);for(const p of players)send(g,p.id,'ready',-4100);assert.equal(g.stage,'COUNTDOWN');tick(g,g.deadline,grade,()=>.99);assert.equal(g.stage,'IDEA');return g}
 function voting(){const g=ready();send(g,'a','idea',200,'USB');send(g,'b','idea',300,'usb');send(g,'c','idea',400,'OTHER');return g}
-test('all devices must be ready; shared deadline does not restart for late polls',()=>{
+test('all devices must be ready; term 1 begins with the shared category countdown',()=>{
  const g=createGame(['one'],players,0);send(g,'a','ready',100);send(g,'b','ready',500);assert.equal(g.stage,'READY');
- send(g,'c','ready',9000);assert.equal(g.deadline,29000);
- send(g,'a','poll',14000);assert.equal(g.deadline,29000);
+ send(g,'c','ready',9000);
+ assert.equal(g.stage,'COUNTDOWN');assert.equal(g.term,1);assert.equal(g.hint,1);
+ assert.equal(g.startedAt,10200);assert.equal(g.deadline,13200);
+ send(g,'a','poll',10000);assert.equal(g.deadline,13200);
+ send(g,'a','poll',13200);assert.equal(g.stage,'IDEA');assert.equal(g.deadline,33200);
 });
 test('accepted typo ideas share one server group without leaking a correction during IDEA',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0);
  const resolver=value=>value==='GIRAFFE'?{key:'__DNA_ACCEPTED_ANSWER__',exact:true}:value==='GURAFFE'?{key:'__DNA_ACCEPTED_ANSWER__',exact:false}:null;
- act(g,'a',{kind:'ready'},100,grade,()=>.99,resolver);act(g,'b',{kind:'ready'},100,grade,()=>.99,resolver);
- act(g,'b',{kind:'idea',value:'GURAFFE',phase:phaseKey(g)},200,grade,()=>.99,resolver);
+ act(g,'a',{kind:'ready'},100,grade,()=>.99,resolver);act(g,'b',{kind:'ready'},100,grade,()=>.99,resolver);tick(g,g.deadline,grade,()=>.99);
+ act(g,'b',{kind:'idea',value:'GURAFFE',phase:phaseKey(g)},g.startedAt+100,grade,()=>.99,resolver);
  assert.equal(teamView(g,'b').ideas.find(i=>i.is_me).idea,'GURAFFE');
  assert.equal(teamView(g,'b').ideas.find(i=>!i.is_me).idea,null);
- act(g,'a',{kind:'idea',value:'GIRAFFE',phase:phaseKey(g)},300,grade,()=>.99,resolver);
+ act(g,'a',{kind:'idea',value:'GIRAFFE',phase:phaseKey(g)},g.startedAt+200,grade,()=>.99,resolver);
  assert.equal(g.stage,'VOTE');
  const view=teamView(g,'b');
  assert.deepEqual(view.ideas.map(i=>i.idea),['GIRAFFE','GIRAFFE']);
@@ -29,9 +32,9 @@ test('accepted typo ideas share one server group without leaking a correction du
 test('fuzzy grouping never invents unseen canonical text if nobody typed it',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0);
  const resolver=value=>['GURAFFE','GIRAFF'].includes(value)?{key:'__DNA_ACCEPTED_ANSWER__',exact:false}:null;
- act(g,'a',{kind:'ready'},100,grade,()=>.99,resolver);act(g,'b',{kind:'ready'},100,grade,()=>.99,resolver);
- act(g,'a',{kind:'idea',value:'GURAFFE',phase:phaseKey(g)},200,grade,()=>.99,resolver);
- act(g,'b',{kind:'idea',value:'GIRAFF',phase:phaseKey(g)},300,grade,()=>.99,resolver);
+ act(g,'a',{kind:'ready'},100,grade,()=>.99,resolver);act(g,'b',{kind:'ready'},100,grade,()=>.99,resolver);tick(g,g.deadline,grade,()=>.99);
+ act(g,'a',{kind:'idea',value:'GURAFFE',phase:phaseKey(g)},g.startedAt+100,grade,()=>.99,resolver);
+ act(g,'b',{kind:'idea',value:'GIRAFF',phase:phaseKey(g)},g.startedAt+200,grade,()=>.99,resolver);
  assert.equal(g.stage,'VOTE');
  const values=teamView(g,'a').ideas.map(i=>i.idea);
  assert.deepEqual(values,['GURAFFE','GURAFFE']);
@@ -81,8 +84,8 @@ test('all teams, reveals, countdown and completion follow one persisted state',(
 });
 test('wrong, no-answer and changed consensus score correctly across all three hints',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0,{one:['PHONE']});
- send(g,'a','ready',100);send(g,'b','ready',100);
- send(g,'a','idea',200,'WRONG');send(g,'b','idea',201,'WRONG');
+ send(g,'a','ready',100);send(g,'b','ready',100);tick(g,g.deadline,grade,()=>.99);
+ send(g,'a','idea',g.startedAt+100,'WRONG');send(g,'b','idea',g.startedAt+101,'WRONG');
  send(g,'a','vote',300,'WRONG');send(g,'b','vote',301,'WRONG');send(g,'a','submit',400);
  assert.equal(g.teams.RED.score,-1);assert.equal(g.stage,'FEEDBACK');
  tick(g,g.deadline,grade,()=>.99);
@@ -98,7 +101,7 @@ test('wrong, no-answer and changed consensus score correctly across all three hi
 });
 test('persisted JSON state survives reconnect without leaking ideas or restarting deadlines',()=>{
  let g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0);
- send(g,'a','ready',100);send(g,'b','ready',100);send(g,'a','idea',200,'USB');
+ send(g,'a','ready',100);send(g,'b','ready',100);tick(g,g.deadline,grade,()=>.99);send(g,'a','idea',g.startedAt+100,'USB');
  g=JSON.parse(JSON.stringify(g));
  assert.equal(teamView(g,'b').ideas.find(i=>!i.is_me).idea,null);
  send(g,'b','idea',500,'USB');assert.equal(g.stage,'VOTE');
@@ -107,7 +110,7 @@ test('persisted JSON state survives reconnect without leaking ideas or restartin
 });
 test('bot teammate uses shared candidates, cooperates with correct vote and still needs Submit',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'}],0,{one:['PHONE']});
- act(g,'a',{kind:'ready'},100,grade,()=>.5);send(g,'a','idea',200,'USB');
+ act(g,'a',{kind:'ready'},100,grade,()=>.5);tick(g,g.deadline,grade,()=>.5);send(g,'a','idea',g.startedAt+100,'USB');
  assert.equal(teamView(g,'a').ideas.find(i=>!i.is_me).idea,'PHONE');
  send(g,'a','vote',300,'USB');assert.equal(teamView(g,'a').botVote,'USB');assert.equal(g.submissions.RED,undefined);
  send(g,'a','submit',400);assert.equal(g.teams.RED.score,3);
@@ -199,14 +202,13 @@ test('sync wakes at a shared phase deadline instead of waiting for the next 1 s 
  assert.ok(scheduledDelay>=300&&scheduledDelay<450,`unexpected deadline wake delay ${scheduledDelay}`);
  sync.stop();
 });
-test('COUNTDOWN has a server sync lead followed by exactly three visible seconds',()=>{
+test('every term, including term 1, gets the synchronized category countdown',()=>{
  const g=createGame(['one','two'],players,0);
  for(const p of players)send(g,p.id,'ready',100);
- let now=100;
- for(let guard=0;g.stage!=='COUNTDOWN'&&guard<20;guard++){now=g.deadline;tick(g,now,grade,()=>.99)}
- assert.equal(g.stage,'COUNTDOWN');
- assert.equal(g.startedAt-now,1200);
- assert.equal(g.deadline-g.startedAt,3000);
+ assert.equal(g.stage,'COUNTDOWN');assert.equal(g.term,1);
+ assert.equal(g.startedAt-100,1200);assert.equal(g.deadline-g.startedAt,3000);
+ const deadline=g.deadline;tick(g,deadline,grade,()=>.99);
+ assert.equal(g.stage,'IDEA');assert.equal(g.term,1);
 });
 test('two monotonic device clocks converge despite different origins and server processing time',async()=>{
  async function device(origin){let local=origin;const sync=new Sync({now:()=>local,schedule:()=>0,cancel:()=>{},error:()=>{},apply:()=>{},send:async()=>{local+=500;return {serverReceived:100050,serverNow:100450,revision:1}}});sync.request();await flush();return sync.serverNow()}
@@ -232,7 +234,7 @@ test('server bot decoys are unchanged from the standalone content',()=>{
 });
 test('same vote retry does not reroll the server bot',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'}],0,{one:['PHONE']});
- act(g,'a',{kind:'ready'},100,grade,()=>.5);send(g,'a','idea',200,'WRONG');
+ act(g,'a',{kind:'ready'},100,grade,()=>.5);tick(g,g.deadline,grade,()=>.5);send(g,'a','idea',g.startedAt+100,'WRONG');
  act(g,'a',{kind:'vote',value:'WRONG',phase:phaseKey(g)},300,grade,()=>.99);
  const vote=g.botVotes.RED;
  act(g,'a',{kind:'vote',value:'WRONG',phase:phaseKey(g)},301,grade,()=>.01);
@@ -272,8 +274,8 @@ test('Quick Game voter initials stay attached to the same people on both devices
 });
 test('server team views expose stable player ids independent of viewer perspective',()=>{
  const g=createGame(['one'],[{id:'djeeloi-id',seat:1,team:'RED'},{id:'sofya-id',seat:2,team:'RED'}],0);
- send(g,'djeeloi-id','ready',100);send(g,'sofya-id','ready',100);
- send(g,'djeeloi-id','idea',200,'USB');send(g,'sofya-id','idea',300,'PHONE');
+ send(g,'djeeloi-id','ready',100);send(g,'sofya-id','ready',100);tick(g,g.deadline,grade,()=>.99);
+ send(g,'djeeloi-id','idea',g.startedAt+100,'USB');send(g,'sofya-id','idea',g.startedAt+200,'PHONE');
  const d=teamView(g,'djeeloi-id'),s=teamView(g,'sofya-id');
  assert.deepEqual(d.ideas.map(x=>x.id),['djeeloi-id','sofya-id']);
  assert.deepEqual(s.ideas.map(x=>x.id),['djeeloi-id','sofya-id']);

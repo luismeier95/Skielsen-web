@@ -564,7 +564,7 @@ Players confirm with:
 
 ### Quick Games start rule
 
-In Quick Games, `ICH BIN BEREIT` is the only pre-game confirmation action for normal players. There is no second per-player `SPIEL STARTEN` step. The authoritative shared game starts automatically as soon as all human lobby players are ready. Bots count as already ready. Until then, every ready client remains on the Ready page and shows the shared ready state.
+In Quick Games, `ICH BIN BEREIT` is the only pre-game confirmation action for normal players. There is no second per-player `SPIEL STARTEN` step. As soon as all human lobby players are ready, the authoritative game enters the **term-1 category + COUNTDOWN screen first**. Only after the synchronized `3 → 2 → 1` does Hint 1 / IDEA begin. Bots count as already ready. Until then, every ready client remains on the Ready page and shows the shared ready state.
 
 ### Blocking-action glow
 
@@ -591,6 +591,7 @@ Selectable options (category cards, choice cards, vote cards, Theme QA selector)
 ### Session phase
 
 `READY`  
+`COUNTDOWN`  
 `IDEA`  
 `VOTE`  
 `EVALUATE`  
@@ -868,7 +869,7 @@ DNA is the first game exposed through Quick Games.
 - Ordinary unchanged polls are a read-only fast path: one persisted game-state read, no row lock, no game-state write, no answer lookup and no content lookup. A row lock is taken only for player writes, deadline transitions or one-time state hydration. Equal revisions return only a compact clock heartbeat, and the browser must not re-render unchanged UI.
 - The private persisted Quick Game state caches only the current term's server-only answer/aliases, three hints and category metadata. Future terms remain in the content database. This lets every poll build the visible snapshot without repeated content queries while keeping canonical answers, aliases and unreleased hints off the client.
 - IDEA (20 s), VOTE (10 s), feedback, Reveal and countdown use common server deadlines. Edge server time uses the runtime clock sampled at request receipt/response, while clients estimate transit with a monotonic clock; device wall clocks do not decide timeouts. Network latency can cause small transport differences, but never independent deadlines or local phase advancement. During a complete outage, expired state is reconciled on the next server request without skipping unseen phases.
-- Between terms, COUNTDOWN is announced by the server 1200 ms before the visible three-second clock starts. Clients may render the next category during this synchronization lead, but the numerals 3 -> 2 -> 1 are derived only from the common server startedAt/deadline. A client must not start its own local Quick Game countdown when the snapshot happens to arrive.
+- **Every term, including term 1**, begins with the category + COUNTDOWN screen. COUNTDOWN is announced by the server 1200 ms before the visible three-second clock starts. Clients may render the category during this synchronization lead, but the numerals 3 -> 2 -> 1 are derived only from the common server startedAt/deadline. A client must not start its own local Quick Game countdown when the snapshot happens to arrive.
 - An idea is shown as saved only after acknowledgement. At IDEA timeout, missing ideas count as empty; already acknowledged ideas remain available to the team in VOTE. All team candidates come from the same snapshot. A valid team Submit before the deadline survives another member's local timeout; scoring and phase transitions are serialized and idempotent. Votes alone never submit.
 - Human and bot teams share the same authoritative scoring and progression. Bot choices are made on the server and persisted; the standalone single-browser simulation remains separate.
 - The Edge Function writes all human results atomically from the shared final score. The browser cannot submit scores. Ranking uses the same final four-team score snapshot on every device, including disconnected players' teams, without a 120-second per-browser fallback.
