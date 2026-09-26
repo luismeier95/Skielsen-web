@@ -56,6 +56,32 @@ test('all teams, reveals, countdown and completion follow one persisted state',(
  }
  assert.equal(g.stage,'COMPLETE');assert.equal(g.term,2);
 });
+test('wrong, no-answer and changed consensus score correctly across all three hints',()=>{
+ const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0,{one:['PHONE']});
+ send(g,'a','ready',100);send(g,'b','ready',100);
+ send(g,'a','idea',200,'WRONG');send(g,'b','idea',201,'WRONG');
+ send(g,'a','vote',300,'WRONG');send(g,'b','vote',301,'WRONG');send(g,'a','submit',400);
+ assert.equal(g.teams.RED.score,-1);assert.equal(g.stage,'FEEDBACK');
+ tick(g,g.deadline,grade,()=>.99);
+ send(g,'a','idea',2000,'');send(g,'b','idea',2001,'');
+ send(g,'a','vote',2100,'__NO__');send(g,'b','vote',2101,'__NO__');send(g,'b','submit',2200);
+ assert.equal(g.teams.RED.score,-1);assert.equal(g.teams.RED.last.status,'NO_ANSWER');
+ tick(g,g.deadline,grade,()=>.99);
+ send(g,'a','idea',4000,'USB');send(g,'b','idea',4001,'WRONG');
+ send(g,'a','vote',4100,'USB');send(g,'b','vote',4101,'WRONG');
+ assert.equal(send(g,'a','submit',4200),'TEAM_CONSENSUS_REQUIRED');
+ send(g,'b','vote',4300,'USB');send(g,'b','submit',4400);
+ assert.equal(g.teams.RED.score,0);assert.equal(g.teams.RED.solved,true);assert.equal(g.teams.RED.last.points,1);
+});
+test('persisted JSON state survives reconnect without leaking ideas or restarting deadlines',()=>{
+ let g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0);
+ send(g,'a','ready',100);send(g,'b','ready',100);send(g,'a','idea',200,'USB');
+ g=JSON.parse(JSON.stringify(g));
+ assert.equal(teamView(g,'b').ideas.find(i=>!i.is_me).idea,null);
+ send(g,'b','idea',500,'USB');assert.equal(g.stage,'VOTE');
+ const deadline=g.deadline;g=JSON.parse(JSON.stringify(g));send(g,'a','poll',deadline-1);
+ assert.equal(g.deadline,deadline);assert.equal(g.stage,'VOTE');
+});
 test('bot teammate uses shared candidates, cooperates with correct vote and still needs Submit',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'}],0,{one:['PHONE']});
  act(g,'a',{kind:'ready'},100,grade,()=>.5);send(g,'a','idea',200,'USB');
@@ -126,6 +152,21 @@ test('same vote retry does not reroll the server bot',()=>{
  const vote=g.botVotes.RED;
  act(g,'a',{kind:'vote',value:'WRONG',phase:phaseKey(g)},301,grade,()=>.01);
  assert.equal(g.botVotes.RED,vote);
+});
+test('answer matcher keeps the accepted DNA representation and typo examples',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
+ const start=edge.indexOf('function normalizeAnswer('),end=edge.indexOf('async function answerCandidates(');
+ assert.ok(start>=0&&end>start);
+ const matcher=vm.runInNewContext(`(()=>{${edge.slice(start,end)};return fuzzyCandidateMatch})()`);
+ const cases=[
+  ['USB','USB',true],['SPAGHETTI CARBONARA','Spaghetti Carbonara',true],
+  ['TRUMANSHOW','The Truman Show',true],['Micheal Jackson','Michael Jackson',true],
+  ['Breath of the Wild','The Legend of Zelda: Breath of the Wild',true],
+  ['Zelda Breath of the Wild','The Legend of Zelda: Breath of the Wild',true],
+  ['Red Dead Redemption','Red Dead Redemption 2',true],['BACK THE FUTURE','Back to the Future',true],
+  ['Phone','USB',false],['Michael Jordan','Michael Jackson',false]
+ ];
+ for(const [input,candidate,expected] of cases)assert.equal(matcher(input,candidate),expected,`${input} -> ${candidate}`);
 });
 test('vote cards recover both ideas, merge normalized duplicates and always include no answer',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');

@@ -28,6 +28,9 @@ jobs:
       - name: Static Build und JavaScript prüfen
         run: python3 tools/verify.py
 
+      - name: DNA Multiplayer Regressionen
+        run: node --test tools/test_dna_sync.mjs
+
       - name: GitHub Pages vorbereiten
         uses: actions/configure-pages@v5
 
