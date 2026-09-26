@@ -832,3 +832,19 @@ body.tttx-body.v15-tournament-active{
 
 /* TTT_TIE_OVERLAY_NOTE_V1
    NORMAL draws reuse the same centered round-intro overlay geometry as OVERTIME. */
+
+
+/* TTT_PLAYER_NAME_TEAM_COLOR_V1
+   Every concrete player name is rendered in that player's team color. */
+.tttx-player-x>small{
+  color:var(--theme-team-red,var(--core-red))!important;
+}
+.tttx-player-o>small{
+  color:var(--theme-team-blue,var(--core-blue))!important;
+}
+#tttxReadyOpponent{
+  color:var(--theme-team-blue,var(--core-blue));
+}
+.tttx-overtime-overlay>span>strong{
+  font:inherit;
+}
