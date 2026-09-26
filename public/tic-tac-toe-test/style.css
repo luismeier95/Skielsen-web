@@ -221,8 +221,8 @@ body.tttx-body{
   display:none;
 }
 .tttx-cell.age-newest .tttx-mark{opacity:1}
-.tttx-cell.age-middle .tttx-mark{opacity:.5}
-.tttx-cell.age-oldest .tttx-mark{opacity:1}
+.tttx-cell.age-middle .tttx-mark{opacity:.66}
+.tttx-cell.age-oldest .tttx-mark{opacity:.33}
 .tttx-cell.age-oldest .tttx-shape-fill{display:none}
 .tttx-cell.age-oldest .tttx-shape-outline{display:block}
 @media(min-width:721px){
