@@ -2,7 +2,9 @@
 (()=>{
 'use strict';
 class DnaQuickSync{
- constructor({send,apply,error,now=()=>performance.now(),schedule=setTimeout,cancel=clearTimeout}){
+ constructor({send,apply,error,now=()=>performance.now(),schedule=(fn,ms)=>setTimeout(fn,ms),cancel=id=>clearTimeout(id)}){
+  // Keep host timer APIs behind arrow wrappers. Calling Window methods as
+  // DnaQuickSync instance methods can throw `Illegal invocation` in browsers.
   Object.assign(this,{send,apply,error,now,schedule,cancel});this.queue=[];this.running=false;this.stopped=false;this.revision=-1;this.timer=0;this.anchor=null;this.rtt=Infinity;this.failures=0;
  }
  serverNow(){return this.anchor?this.anchor.server+this.now()-this.anchor.local:0}

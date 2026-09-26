@@ -66,6 +66,21 @@ test('bot teammate uses shared candidates, cooperates with correct vote and stil
 const context={};vm.runInNewContext(readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8'),context);
 const Sync=context.DnaQuickSync;
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
+test('default browser timers are wrapped so receiver-sensitive host APIs are not rebound',async()=>{
+ let scheduled=false,cancelled=false;
+ const host={
+  setTimeout(fn){if(this!==host)throw new TypeError('Illegal invocation');scheduled=true;fn();return 1},
+  clearTimeout(){if(this!==host)throw new TypeError('Illegal invocation');cancelled=true},
+  performance:{now(){if(this!==host.performance)throw new TypeError('Illegal invocation');return 0}}
+ };
+ const browserContext={globalThis:{},performance:host.performance,setTimeout:host.setTimeout.bind(host),clearTimeout:host.clearTimeout.bind(host)};
+ browserContext.globalThis=browserContext;
+ vm.runInNewContext(readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8'),browserContext);
+ const BrowserSync=browserContext.DnaQuickSync;
+ const sync=new BrowserSync({send:async()=>({revision:1,serverNow:0}),apply:()=>{},error:()=>{}});
+ sync.request();await flush();sync.stop();
+ assert.equal(scheduled,true);assert.equal(cancelled,true);
+});
 test('two monotonic device clocks converge despite different origins and server processing time',async()=>{
  async function device(origin){let local=origin;const sync=new Sync({now:()=>local,schedule:()=>0,cancel:()=>{},error:()=>{},apply:()=>{},send:async()=>{local+=500;return {serverReceived:100050,serverNow:100450,revision:1}}});sync.request();await flush();return sync.serverNow()}
  assert.equal(await device(0),100500);assert.equal(await device(9000000),100500);
