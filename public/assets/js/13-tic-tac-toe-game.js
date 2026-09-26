@@ -166,20 +166,100 @@ function renderDifficulty(){
     catch(err){root.querySelectorAll('[data-variant]').forEach(x=>x.disabled=false);setMessage('FEHLER · '+String(err?.message||err))}
   }));
 }
+function readyStatus(row){
+  return String(row?.status||'').toUpperCase()==='READY';
+}
+function readyRoster(){
+  const teamTournament=String(state?.tournament_mode||'').toUpperCase()==='TEAM';
+  return participantIds().map(pid=>{
+    const p=participantInfo(pid);
+    const members=[...p.members].sort((a,b)=>Number(a.seat||0)-Number(b.seat||0));
+    const rows=members.map(m=>{
+      const ready=readyStatus(m);
+      return `<div class="tttp-ready-member">
+        <span class="tttp-ready-name" style="--tttp-team:${colorVar(p.color)}">
+          <i></i><b style="color:${colorVar(p.color)}">${esc(m.display_name||p.name)}</b>
+        </span>
+        <strong class="tttp-ready-state ${ready?'is-ready':'is-waiting'}">${ready?'BEREIT':'WARTET'}</strong>
+      </div>`;
+    }).join('');
+    return `<article class="tttp-ready-team">
+      ${teamTournament?`<header><small>TEAM</small><strong style="color:${colorVar(p.color)}">${esc(p.name)}</strong></header>`:''}
+      <div class="tttp-ready-members">${rows}</div>
+    </article>`;
+  }).join('');
+}
+function readyRules(){
+  const selected=teamMode()==='SELECTED_PLAYER'?lineups('REPRESENTATIVE'):[];
+  const variantRule=variant()==='DISAPPEAR'
+    ? 'Maximal drei eigene Symbole bleiben aktiv. Beim vierten verschwindet das älteste.'
+    : 'Klassisch: Drei eigene Symbole in einer Reihe gewinnen.';
+  const modeRule=TEAM_MODE_COPY[teamMode()]?.copy
+    || 'Die beiden Teilnehmer spielen direkt gegeneinander.';
+  const selectedRule=selected.length
+    ? `Gewählte Spieler: ${selected.map(x=>x.display_name).join(' · ')}.`
+    : '';
+  return [
+    ['ZIEL','Drei eigene Symbole horizontal, vertikal oder diagonal in eine Reihe bringen.'],
+    [variant()||'MODUS',variantRule],
+    [teamMode()||'SOLO',modeRule],
+    ...(selectedRule?[['AUFSTELLUNG',selectedRule]]:[])
+  ];
+}
 function renderReady(){
-  const reps=teamMode()==='SELECTED_PLAYER'?lineups('REPRESENTATIVE'):[];
-  root.innerHTML=`${header('MATCH BEREIT','START')}
-    <main class="tttp-stage tttp-prestart">
-      <section class="tttp-title"><small>KONFIGURATION ABGESCHLOSSEN</small><h2>${esc(variant())}.</h2></section>
-      <section class="tttp-summary">
-        <div><small>TEAMMODUS</small><strong>${esc(teamMode())}</strong></div>
-        <div><small>SCHWIERIGKEIT</small><strong>${esc(variant())}</strong></div>
-        ${reps.length?`<div class="tttp-summary-wide"><small>GEWÄHLTE SPIELER</small><strong>${esc(reps.map(x=>x.display_name).join(' · '))}</strong></div>`:''}
+  const players=state?.players||[];
+  const allReady=players.length>0&&players.every(readyStatus);
+  const mine=players.find(p=>p.tournament_member_id===viewerMember());
+  const myReady=!!mine&&readyStatus(mine);
+  const rules=readyRules();
+
+  root.innerHTML=`${header('READY','START')}
+    <main class="tttp-stage tttp-prestart tttp-ready-page">
+      <section class="tttp-title"><small>SPIELERSTATUS</small><h2>ALLE BEREIT?</h2></section>
+
+      <section class="tttp-ready-roster" aria-label="Bereitschaft der Spieler">
+        ${readyRoster()}
       </section>
-      ${isAdmin()?'<button type="button" class="tttp-primary" data-start-match>MATCH STARTEN →</button>':'<div class="tttp-wait">WARTET AUF MATCH START</div>'}
+
+      <section class="tttp-ready-rules" aria-label="Spielregeln">
+        <header><small>REGELN</small><strong>${esc(variant())} · ${esc(teamMode()||'SOLO')}</strong></header>
+        <div class="tttp-ready-rule-list">
+          ${rules.map((r,i)=>`<div class="tttp-ready-rule">
+            <b>${String(i+1).padStart(2,'0')}</b>
+            <span><strong>${esc(r[0])}</strong><small>${esc(r[1])}</small></span>
+          </div>`).join('')}
+        </div>
+      </section>
+
+      <div class="tttp-ready-actions ${isAdmin()&&mine?'has-two':''}">
+        ${mine?`<button type="button" class="tttp-primary tttp-ready-toggle ${myReady?'is-ready':''}" data-ready-toggle>
+          ${myReady?'BEREIT ✓':'ICH BIN BEREIT →'}
+        </button>`:''}
+        ${isAdmin()
+          ?`<button type="button" class="tttp-primary tttp-start-ready" data-start-match ${allReady?'':'disabled'}>
+              ${allReady?'MATCH STARTEN →':'WARTET AUF ALLE SPIELER'}
+            </button>`
+          :`<div class="tttp-wait">${allReady?'ALLE BEREIT · WARTET AUF ADMIN':'WARTET AUF DIE ANDEREN SPIELER'}</div>`}
+      </div>
       <p class="tttp-feedback" data-ttt-feedback>${esc(message)}</p>
     </main>`;
+
+  root.querySelector('[data-ready-toggle]')?.addEventListener('click',async e=>{
+    const btn=e.currentTarget;
+    btn.disabled=true;
+    setMessage(myReady?'BEREITSCHAFT WIRD ZURÜCKGESETZT …':'BEREITSCHAFT WIRD GESPEICHERT …');
+    try{
+      await rpc('set_in_app_game_ready',{p_session_id:session.session_id,p_ready:!myReady});
+      message='';
+      await refresh(true);
+    }catch(err){
+      btn.disabled=false;
+      setMessage('READY-FEHLER · '+String(err?.message||err));
+    }
+  });
+
   root.querySelector('[data-start-match]')?.addEventListener('click',async e=>{
+    if(!allReady)return;
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='MATCH WIRD GESTARTET …';setMessage('');
     try{
       const ok=await window.skielsenV15?.startMatch?.();
