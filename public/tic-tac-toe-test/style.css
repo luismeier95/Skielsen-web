@@ -181,6 +181,7 @@ body.tttx-body{
   place-items:center;
 }
 .tttx-board{
+  position:relative;
   width:100%;height:100%;
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -191,6 +192,8 @@ body.tttx-body{
   overflow:hidden;
 }
 .tttx-cell{
+  position:relative;
+  z-index:1;
   min-width:0;min-height:0;padding:0;border:0;
   display:flex;align-items:center;justify-content:center;
   background:var(--theme-surface-soft);
@@ -198,8 +201,10 @@ body.tttx-body{
   cursor:pointer;touch-action:manipulation
 }
 .tttx-cell:disabled{cursor:default}
-.tttx-cell.is-winning{background:var(--theme-success-bg);color:var(--theme-on-success)}
+.tttx-cell.is-winning{background:var(--theme-surface-soft);color:var(--theme-on-surface-soft)}
 .tttx-mark{
+  position:relative;
+  z-index:2;
   width:62%;
   height:62%;
   color:var(--tttx-mark-color,var(--theme-accent));
@@ -214,6 +219,27 @@ body.tttx-body{
 .tttx-cell.age-newest .tttx-mark{opacity:1}
 .tttx-cell.age-middle .tttx-mark{opacity:.66}
 .tttx-cell.age-oldest .tttx-mark{opacity:.33}
+.tttx-win-line{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  overflow:visible;
+}
+.tttx-win-line line{
+  stroke:var(--tttx-win-color,var(--theme-accent));
+  stroke-width:7;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 1px 0 color-mix(in srgb,var(--theme-page) 55%,transparent));
+  animation:tttxWinDraw .32s cubic-bezier(.2,.8,.2,1) forwards;
+}
+@keyframes tttxWinDraw{
+  from{stroke-dashoffset:var(--tttx-win-length,300)}
+  to{stroke-dashoffset:0}
+}
 @media(min-width:721px){
   body.tttx-body{--tttx-radius-outer:16px;--tttx-radius-card:12px;--tttx-gap:18px}
   .tttx-header{height:64px;padding:0 18px}
