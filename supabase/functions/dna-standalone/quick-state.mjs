@@ -6,14 +6,14 @@ export const phaseKey=g=>`${g.term}:${g.hint}:${g.stage}`;
 const freshTeam=()=>({score:0,termScore:0,solved:false,processedHint:0,last:null});
 export function createGame(terms,players,now,decoys={}){
   return {terms,players,term:1,hint:1,stage:'READY',startedAt:now,deadline:null,revision:0,
-    ready:{},seen:{},ideas:{},votes:{},botIdeas:{},botVotes:{},decoys,submissions:{},teams:Object.fromEntries(ORDER.map(k=>[k,freshTeam()]))};
+    ready:{},seen:{},ideas:{},ideaKeys:{},ideaExact:{},votes:{},botIdeas:{},botVotes:{},decoys,submissions:{},teams:Object.fromEntries(ORDER.map(k=>[k,freshTeam()]))};
 }
 const teamOf=(g,id)=>g.players.find(p=>p.id===id)?.team;
 const active=g=>ORDER.filter(k=>!g.teams[k].solved);
 const humans=(g,k)=>g.players.filter(p=>p.team===k);
 function enter(g,stage,now){g.stage=stage;g.startedAt=now;g.deadline=durations[stage]?now+durations[stage]:null}
 function newHint(g,now,random){
-  g.ideas={};g.votes={};g.botIdeas={};g.botVotes={};g.submissions={};
+  g.ideas={};g.ideaKeys={};g.ideaExact={};g.votes={};g.botIdeas={};g.botVotes={};g.submissions={};
   const list=g.decoys[g.terms[g.term-1]]||[];
   for(const k of active(g))if(humans(g,k).length===1)g.botIdeas[k]=random()<.18||!list.length?'':list[Math.floor(random()*list.length)];
   enter(g,'IDEA',now);
@@ -47,8 +47,10 @@ export function tick(g,now,grade,random=Math.random){
     }else if(g.stage==='COUNTDOWN')newHint(g,now,random);
   }
 }
-export function act(g,id,command,now,grade,random=Math.random){
+export function act(g,id,command,now,grade,random=Math.random,resolveIdea=null){
   const team=teamOf(g,id);if(!team)throw new Error('LOBBY_FORBIDDEN');
+  // Backward-compatible defaults for sessions created before fuzzy IDEA grouping.
+  g.ideaKeys||={};g.ideaExact||={};
   g.seen[id]=now;
   // Settle an expired phase before accepting input; the browser cannot extend it.
   const expired=!!g.deadline&&now>=g.deadline;
@@ -60,7 +62,13 @@ export function act(g,id,command,now,grade,random=Math.random){
     else if(g.teams[team].solved)error='TEAM_SOLVED';
     else if(kind==='idea'&&g.stage==='IDEA'){
       // First acknowledged idea is immutable. Retried requests are idempotent.
-      if(!Object.hasOwn(g.ideas,id))g.ideas[id]=String(command.value||'').trim().slice(0,80);
+      if(!Object.hasOwn(g.ideas,id)){
+        const value=String(command.value||'').trim().slice(0,80);
+        const meta=value&&typeof resolveIdea==='function'?resolveIdea(value):null;
+        g.ideas[id]=value;
+        g.ideaKeys[id]=String(meta?.key||voteKey(value));
+        g.ideaExact[id]=Boolean(meta?.exact);
+      }
     }else if(kind==='vote'&&g.stage==='VOTE'&&!g.submissions[team]){
       const key=voteKey(command.value);
       const candidates=humans(g,team).map(p=>voteKey(g.ideas[p.id])).filter(Boolean);
@@ -93,9 +101,27 @@ export function act(g,id,command,now,grade,random=Math.random){
 }
 export function teamView(g,id){
   const own=teamOf(g,id);if(!own)throw new Error('LOBBY_FORBIDDEN');
+  g.ideaKeys||={};g.ideaExact||={};
   const mates=humans(g,own),other=mates.find(p=>p.id!==id);
   const ideasVisible=['VOTE','FEEDBACK'].includes(g.stage);
-  const ideas=mates.map(p=>({is_me:p.id===id,submitted:Object.hasOwn(g.ideas,p.id),idea:p.id===id||ideasVisible?g.ideas[p.id]||'':null}));
+  // Equivalent ideas share one server-side grouping key. During IDEA every
+  // player still sees only the exact text they typed. Once VOTE opens, members
+  // of one group receive the same *user-provided* display text so the client
+  // naturally renders one card. Prefer an exact accepted spelling if a teammate
+  // actually submitted it; never inject an unseen canonical answer.
+  const displayByKey=new Map();
+  if(ideasVisible){
+    for(const p of mates){
+      const value=g.ideas[p.id]||'';if(!value)continue;
+      const key=g.ideaKeys[p.id]||voteKey(value),exact=Boolean(g.ideaExact[p.id]),current=displayByKey.get(key);
+      if(!current||(!current.exact&&exact))displayByKey.set(key,{value,exact});
+    }
+  }
+  const ideas=mates.map(p=>{
+    const raw=g.ideas[p.id]||'',key=g.ideaKeys[p.id]||voteKey(raw);
+    const visible=ideasVisible?(displayByKey.get(key)?.value||raw):(p.id===id?raw:null);
+    return {is_me:p.id===id,submitted:Object.hasOwn(g.ideas,p.id),idea:visible};
+  });
   if(!other)ideas.push({is_me:false,submitted:true,idea:ideasVisible?g.botIdeas[own]||'':null});
   return {ideas,votes:mates.map(p=>({is_me:p.id===id,vote:g.votes[p.id]||null})),
     botVote:other?null:g.botVotes[own]||null,submission:g.submissions[own]||null,

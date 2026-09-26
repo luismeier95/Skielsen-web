@@ -201,6 +201,17 @@ function answerMatchesCandidates(answer,candidates){
   if(!raw)return false;
   return (candidates||[]).some(candidate=>fuzzyCandidateMatch(raw,String(candidate||"")));
 }
+function ideaResolution(value,candidates){
+  const raw=String(value||"").trim();
+  if(!raw||!answerMatchesCandidates(raw,candidates))return null;
+  // Hidden grouping key only. The canonical answer text is never returned to
+  // the browser before Reveal. "exact" only lets teamView prefer a spelling
+  // that a player really submitted over a fuzzy typo submitted by a teammate.
+  return {
+    key:"__DNA_ACCEPTED_ANSWER__",
+    exact:(candidates||[]).some(candidate=>normalizeAnswer(raw)===normalizeAnswer(String(candidate||"")))
+  };
+}
 async function answerCandidates(termId,db=sql){
   const rows=await db.unsafe(
     "select t.canonical_answer as value from private.dna_terms t where t.term_id=$1::uuid "+
@@ -384,7 +395,7 @@ async function quickSync(body,userId){
     const answers=await answerCandidates(g.terms[g.term-1],tx);
     const clock=await tx.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
     const now=Number(clock[0].ms);
-    const actionError=act(g,userId,body.command||{},now,answer=>answerMatchesCandidates(answer,answers));
+    const actionError=act(g,userId,body.command||{},now,answer=>answerMatchesCandidates(answer,answers),Math.random,idea=>ideaResolution(idea,answers));
     await tx.unsafe('update private.quick_dna_games set state=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(g)]);
     if(g.stage==='COMPLETE'&&!wasComplete){
       for(const p of g.players)await tx.unsafe('insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score',[lobby,p.id,g.teams[p.team].score]);

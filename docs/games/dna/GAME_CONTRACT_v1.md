@@ -295,6 +295,25 @@ All submitted Phase 1 ideas from the current team become visible to that team.
 
 Identical or normalized-identical ideas are merged into one answer card.
 
+The authoritative server also groups obvious fuzzy/typo variants when they resolve to the same accepted answer. This grouping is internal during IDEA and must not become an answer leak:
+
+- IDEA always shows each player only the exact text they personally entered,
+- the server may assign equivalent ideas the same hidden grouping key,
+- VOTE renders one shared card for that group,
+- if one teammate actually entered an exact accepted spelling, that **user-provided** spelling is preferred as the shared card label,
+- the server must never inject or reveal a canonical spelling that no player submitted before Reveal.
+
+Example:
+
+`Spieler A: GIRAFFE`
+`Spieler B: GURAFFE`
+
+Both are treated as one team candidate in VOTE and appear as:
+
+`GIRAFFE — Spieler A · Spieler B`
+
+If neither player typed `GIRAFFE`, the server may still merge equivalent typo variants, but it must display one of the submitted strings rather than disclosing the unseen canonical answer.
+
 Example:
 
 `KASACHSTAN — Spieler A · Spieler B`

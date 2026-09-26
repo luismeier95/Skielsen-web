@@ -14,6 +14,29 @@ test('all devices must be ready; shared deadline does not restart for late polls
  send(g,'c','ready',9000);assert.equal(g.deadline,29000);
  send(g,'a','poll',14000);assert.equal(g.deadline,29000);
 });
+test('accepted typo ideas share one server group without leaking a correction during IDEA',()=>{
+ const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0);
+ const resolver=value=>value==='GIRAFFE'?{key:'__DNA_ACCEPTED_ANSWER__',exact:true}:value==='GURAFFE'?{key:'__DNA_ACCEPTED_ANSWER__',exact:false}:null;
+ act(g,'a',{kind:'ready'},100,grade,()=>.99,resolver);act(g,'b',{kind:'ready'},100,grade,()=>.99,resolver);
+ act(g,'b',{kind:'idea',value:'GURAFFE',phase:phaseKey(g)},200,grade,()=>.99,resolver);
+ assert.equal(teamView(g,'b').ideas.find(i=>i.is_me).idea,'GURAFFE');
+ assert.equal(teamView(g,'b').ideas.find(i=>!i.is_me).idea,null);
+ act(g,'a',{kind:'idea',value:'GIRAFFE',phase:phaseKey(g)},300,grade,()=>.99,resolver);
+ assert.equal(g.stage,'VOTE');
+ const view=teamView(g,'b');
+ assert.deepEqual(view.ideas.map(i=>i.idea),['GIRAFFE','GIRAFFE']);
+});
+test('fuzzy grouping never invents unseen canonical text if nobody typed it',()=>{
+ const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0);
+ const resolver=value=>['GURAFFE','GIRAFF'].includes(value)?{key:'__DNA_ACCEPTED_ANSWER__',exact:false}:null;
+ act(g,'a',{kind:'ready'},100,grade,()=>.99,resolver);act(g,'b',{kind:'ready'},100,grade,()=>.99,resolver);
+ act(g,'a',{kind:'idea',value:'GURAFFE',phase:phaseKey(g)},200,grade,()=>.99,resolver);
+ act(g,'b',{kind:'idea',value:'GIRAFF',phase:phaseKey(g)},300,grade,()=>.99,resolver);
+ assert.equal(g.stage,'VOTE');
+ const values=teamView(g,'a').ideas.map(i=>i.idea);
+ assert.deepEqual(values,['GURAFFE','GURAFFE']);
+ assert.equal(values.includes('GIRAFFE'),false);
+});
 test('ideas remain private until every active player is done, then both candidates arrive',()=>{
  const g=ready();send(g,'a','idea',200,'USB');send(g,'b','idea',400,'PHONE');
  assert.equal(g.stage,'IDEA');assert.equal(teamView(g,'a').ideas.find(i=>!i.is_me).idea,null);
@@ -158,6 +181,9 @@ test('answer matcher keeps the accepted DNA representation and typo examples',()
  const start=edge.indexOf('function normalizeAnswer('),end=edge.indexOf('async function answerCandidates(');
  assert.ok(start>=0&&end>start);
  const matcher=vm.runInNewContext(`(()=>{${edge.slice(start,end)};return fuzzyCandidateMatch})()`);
+ const resolution=vm.runInNewContext(`(()=>{${edge.slice(start,end)};return ideaResolution})()`);
+ assert.deepEqual(JSON.parse(JSON.stringify(resolution('GIRAFFE',['GIRAFFE']))),{key:'__DNA_ACCEPTED_ANSWER__',exact:true});
+ assert.deepEqual(JSON.parse(JSON.stringify(resolution('GURAFFE',['GIRAFFE']))),{key:'__DNA_ACCEPTED_ANSWER__',exact:false});
  const cases=[
   ['USB','USB',true],['SPAGHETTI CARBONARA','Spaghetti Carbonara',true],
   ['TRUMANSHOW','The Truman Show',true],['Micheal Jackson','Michael Jackson',true],
