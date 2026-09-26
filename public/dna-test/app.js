@@ -335,8 +335,107 @@ function waitForQuickSetup(){
  const poll=async()=>{try{await loadQuickLobby();if(s.quickLobby.setup_status==='READY'){applyQuickSetup();ready()}else later(poll,800)}catch(err){showFatal(err)}};later(poll,500)
 }
 function applyQuickSetup(){const q=s.quickLobby?.setup||{};const categories=Array.isArray(q.categories)?q.categories.filter(Boolean):[];if(categories.length)s.selected=new Set(categories);if([5,10,15].includes(Number(q.termCount)))s.termCount=Number(q.termCount);if(['CASUAL','BALANCED','EXPERT'].includes(String(q.pool)))s.pool=String(q.pool)}
-function ready(){clearTimers();s.screen='READY';setChrome('READY',`${s.termCount} BEGRIFFE`,12);const ownActual=s.quickTeamMap?.RED||'RED';page(`<section class="dna-hero"><span class="dna-kicker">LETZTER CHECK VOR DEM SPIEL</span><h1>BEREIT?</h1></section><section class="dna-ready-rules"><div><strong>+3</strong><span>HINWEIS 1 · SEHR SCHWER</span></div><div><strong>+2 / +1</strong><span>HINWEIS 2 / 3</span></div><div><strong>−1</strong><span>FALSCHE TEAMANTWORT</span></div><div><strong>20s + 10s</strong><span>IDEE → ABSTIMMUNG</span></div></section><section class="dna-card"><div class="dna-card-head"><strong>TEAMS</strong><span>${s.quickLobby?'QUICK GAME · '+esc(s.quickLobby.join_code):'STANDALONE SIMULATION'}</span></div><div class="dna-team-list">${TEAM_ORDER.map(key=>`<div class="dna-team-row" style="--team:${TEAMS[key].color}"><i></i><div class="dna-team-ident"><strong>${TEAMS[key].name}</strong><span>${TEAMS[key].members}</span></div><b class="dna-ready-state ${key===ownActual?'':'ready'}" data-ready="${key}">${key===ownActual?'WARTET':'BEREIT'}</b></div>`).join('')}</div></section><section class="dna-card"><span class="dna-kicker">SO FUNKTIONIERT ES</span><p style="margin:10px 0 0;font-size:10px;line-height:1.5;font-weight:800">Phase 1: Jeder Spieler gibt geheim eine Idee ein. Phase 2: Nur euer Team sieht die Ideen und stimmt ab. Einigkeit aktiviert Submit – abgeschickt wird erst nach einem bewussten Klick.</p></section><div class="dna-actions"><button class="dna-btn" id="dnaBackSetup" type="button">${s.quickLobby?'← QUICK GAMES':'← SETUP'}</button><button class="dna-btn primary dna-blocking" id="dnaReady" type="button">ICH BIN BEREIT</button></div>`);$('#dnaBackSetup').addEventListener('click',()=>s.quickLobby?location.assign('../quick-games/'):setup());$('#dnaReady').addEventListener('click',()=>{const own=$(`[data-ready="${ownActual}"]`);own.textContent='BEREIT';own.classList.add('ready');const btn=$('#dnaReady');btn.textContent='SPIEL STARTEN';btn.onclick=startGame})}
-async function startGame(){clearTimers();setChrome('LÄDT','CONTENT WIRD GEZOGEN',15);page(`<section class="dna-auth"><div class="dna-auth-card"><span class="dna-kicker">SERVERAUTORITATIV</span><h1>DNA WIRD VORBEREITET.</h1><p>Nur der erste freigegebene Hinweis wird an den Browser übertragen.</p></div></section>`);try{const res=await api('start',{categories:[...s.selected],termCount:s.termCount,pool:s.pool,quickLobby:QUICK_LOBBY_ID||undefined});s.token=res.state;s.previousHints=[];enterContent(res.content)}catch(err){if(String(err.message)==='LOGIN_REQUIRED')return authGate();showFatal(err)}}
+function renderReady(){clearTimers();s.screen='READY';setChrome('READY',`${s.termCount} BEGRIFFE`,12);const ownActual=s.quickTeamMap?.RED||'RED';page(`<section class="dna-hero"><span class="dna-kicker">LETZTER CHECK VOR DEM SPIEL</span><h1>BEREIT?</h1></section><section class="dna-ready-rules"><div><strong>+3</strong><span>HINWEIS 1 · SEHR SCHWER</span></div><div><strong>+2 / +1</strong><span>HINWEIS 2 / 3</span></div><div><strong>−1</strong><span>FALSCHE TEAMANTWORT</span></div><div><strong>20s + 10s</strong><span>IDEE → ABSTIMMUNG</span></div></section><section class="dna-card"><div class="dna-card-head"><strong>TEAMS</strong><span>${s.quickLobby?'QUICK GAME · '+esc(s.quickLobby.join_code):'STANDALONE SIMULATION'}</span></div><div class="dna-team-list">${TEAM_ORDER.map(key=>`<div class="dna-team-row" style="--team:${TEAMS[key].color}"><i></i><div class="dna-team-ident"><strong>${TEAMS[key].name}</strong><span>${TEAMS[key].members}</span></div><b class="dna-ready-state ${key===ownActual?'':'ready'}" data-ready="${key}">${key===ownActual?'WARTET':'BEREIT'}</b></div>`).join('')}</div></section><section class="dna-card"><span class="dna-kicker">SO FUNKTIONIERT ES</span><p style="margin:10px 0 0;font-size:10px;line-height:1.5;font-weight:800">Phase 1: Jeder Spieler gibt geheim eine Idee ein. Phase 2: Nur euer Team sieht die Ideen und stimmt ab. Einigkeit aktiviert Submit – abgeschickt wird erst nach einem bewussten Klick.</p></section><div class="dna-actions"><button class="dna-btn" id="dnaBackSetup" type="button">${s.quickLobby?'← QUICK GAMES':'← SETUP'}</button><button class="dna-btn primary dna-blocking" id="dnaReady" type="button">ICH BIN BEREIT</button></div>`);$('#dnaBackSetup').addEventListener('click',()=>s.quickLobby?location.assign('../quick-games/'):setup());$('#dnaReady').addEventListener('click',()=>{const own=$(`[data-ready="${ownActual}"]`);own.textContent='BEREIT';own.classList.add('ready');const btn=$('#dnaReady');btn.textContent='SPIEL STARTEN';btn.onclick=startGame})}
+function ready(){renderReady();if(s.quickLobby)startSharedQuickGame(false)}
+async function startGame(){if(s.quickLobby)return startSharedQuickGame();clearTimers();setChrome('LÄDT','CONTENT WIRD GEZOGEN',15);page(`<section class="dna-auth"><div class="dna-auth-card"><span class="dna-kicker">SERVERAUTORITATIV</span><h1>DNA WIRD VORBEREITET.</h1><p>Nur der erste freigegebene Hinweis wird an den Browser übertragen.</p></div></section>`);try{const res=await api('start',{categories:[...s.selected],termCount:s.termCount,pool:s.pool});s.token=res.state;s.previousHints=[];enterContent(res.content)}catch(err){if(String(err.message)==='LOGIN_REQUIRED')return authGate();showFatal(err)}}
+
+let quickSync=null,quickSnapshot=null,quickViewKey='',quickUiState='',quickSolvesKey='',quickIdeaPending=false;
+async function sendQuickCommand(command){
+ const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),6000);
+ try{
+  const response=await fetch(FUNCTION_URL,{method:'POST',signal:controller.signal,headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({action:'quick_sync',quickLobby:QUICK_LOBBY_ID,command})});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||'DNA_SYNC_FAILED');return data;
+ }finally{clearTimeout(timeout)}
+}
+function quickCommand(kind,value){quickSync?.request({kind,value,phase:quickSnapshot?.phaseKey})}
+function startSharedQuickGame(markReady=true){
+ if(markReady){const btn=$('#dnaReady');if(btn){btn.disabled=true;btn.textContent='WARTET AUF ALLE PLAYER …'}}
+ if(quickSync){if(markReady)quickSync.request({kind:'ready'});return}
+ clearTimers();setChrome('VERBINDET','',12);
+ quickSync=new DnaQuickSync({send:sendQuickCommand,apply:applySharedQuickState,error:err=>{
+  if(err){headerState.textContent=String(err.message)==='LOGIN_REQUIRED'?'ANMELDUNG ABGELAUFEN':'VERBINDUNG WIRD WIEDERHERGESTELLT';}
+ }});
+ quickSync.request({kind:markReady?'ready':'poll'});
+}
+window.addEventListener('online',()=>quickSync?.request());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)quickSync?.request()});
+window.addEventListener('pagehide',()=>{quickSync?.stop()});
+window.addEventListener('pageshow',e=>{if(e.persisted&&quickSync&&quickSnapshot?.stage!=='COMPLETE'){quickSync.stopped=false;quickSync.request()}});
+function paintSharedTimer(){
+ if(!quickSnapshot||!quickSync)return;
+ const {deadline,startedAt,stage}=quickSnapshot,left=Math.max(0,(deadline||0)-quickSync.serverNow());
+ const bar=$('#dnaTimer'),fill=bar?.querySelector('i');
+ if(fill)fill.style.width=(100*Math.min(1,left/Math.max(1,deadline-startedAt))).toFixed(2)+'%';
+ bar?.classList.toggle('warning',left<=5000&&left>2500);bar?.classList.toggle('danger',left<=2500);
+ if(stage==='COUNTDOWN'){const number=$('#dnaCountdownNumber');if(number)number.textContent=String(Math.max(1,Math.ceil(left/1000)))}
+ // Zero is display only. Only an authoritative snapshot changes the phase.
+ phaseRaf=requestAnimationFrame(paintSharedTimer);
+}
+function sharedVoteMarkup(team){
+ const rows=new Map();
+ for(const row of team.ideas){if(!row.idea)continue;const key=normalize(row.idea),item=rows.get(key)||{value:key,who:[]};item.who.push(row.is_me?'D':'S');rows.set(key,item)}
+ return [...rows.values()].map((c,i)=>voteCard(c.value,c.who.join(' + '),'v'+i)).join('')+voteCard('__NO__','SICHER PASSEN','no');
+}
+function applySharedQuickState(snapshot){
+ const changed=quickViewKey!==snapshot.phaseKey;
+ quickSnapshot=snapshot;quickViewKey=snapshot.phaseKey;
+ if(changed){clearTimers();quickUiState='';quickIdeaPending=false}
+ const team=snapshot.team,c=snapshot.content,stage=snapshot.stage;
+ if(snapshot.actionError)quickIdeaPending=false;
+ if(c){s.current=c;s.previousHints=c.previousHints||[]}
+ s.ideaDone=!!team.ideas.find(r=>r.is_me)?.submitted;s.submitted=!!team.submission;
+ s.userVote=team.votes.find(r=>r.is_me)?.vote||null;
+ s.teammateVote=team.votes.find(r=>!r.is_me)?.vote||team.botVote||null;
+ headerState.textContent=({READY:'READY',IDEA:'IDEE',VOTE:'ABSTIMMUNG',FEEDBACK:'ERGEBNIS',REVEAL:'REVEAL',COUNTDOWN:'NÄCHSTER BEGRIFF',COMPLETE:'ERGEBNIS'})[stage];
+ if(stage==='READY'){
+  const btn=$('#dnaReady');if(btn&&team.players.find(p=>p.is_me)?.ready){btn.disabled=true;btn.textContent=`${team.players.filter(p=>p.ready).length} / ${team.players.length} PLAYER BEREIT`}
+  for(const key of TEAM_ORDER){const row=$(`[data-ready="${key}"]`),ready=team.players.filter(p=>p.team===key).every(p=>p.ready);if(row){row.textContent=ready?'BEREIT':'WARTET';row.classList.toggle('ready',ready)}}
+  return;
+ }
+ if(stage==='COMPLETE'){
+  quickSync.stop();if(changed)showRanking(snapshot.gameScores);return;
+ }
+ s.screen='GAME';
+ if(stage==='IDEA'){
+  if(changed){
+   if(c.hintNo===1){s.hintTypeScale={};clearPinnedHintStage()}
+   gameShell(`<div class="dna-interaction-head"><strong>DEINE IDEE</strong><span>GEHEIM · NUR DU</span></div><div class="dna-idea-form"><input class="dna-input" id="dnaIdea" type="text" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="characters" enterkeyhint="done" maxlength="80" placeholder="Antwort eingeben …"><button class="dna-btn primary dna-save" id="dnaIdeaSave" type="button" disabled>IDEE SPEICHERN</button></div><button class="dna-btn dna-skip" id="dnaIdeaSkip" type="button">KEINE IDEE</button>`,'IDEE');
+   const input=$('#dnaIdea'),save=$('#dnaIdeaSave'),skip=$('#dnaIdeaSkip');
+   const send=value=>{if(quickIdeaPending)return;quickIdeaPending=true;save.disabled=true;skip.disabled=true;save.textContent='SPEICHERT …';quickCommand('idea',value)};
+   input.addEventListener('input',()=>{save.disabled=quickIdeaPending||!input.value.trim()});
+   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&input.value.trim()){e.preventDefault();send(input.value.trim())}});
+   save.addEventListener('click',()=>send(input.value.trim()));skip.addEventListener('click',()=>send(''));
+   if(!team.solved&&!s.ideaDone)later(()=>{if(input.isConnected){input.focus({preventScroll:true});syncViewport()}},80);
+  }
+  if((s.ideaDone||team.solved)&&quickUiState!=='locked'){
+   quickUiState='locked';const mine=team.ideas.find(r=>r.is_me);
+   renderIdeaLocked(team.solved?'BEGRIFF GELÖST':'IDEE GESPEICHERT',team.solved?'WARTET AUF DIE ANDEREN TEAMS':mine?.idea||'KEINE IDEE');
+  }
+ }else if(stage==='VOTE'){
+  if(changed){
+   freezeCurrentHintStage();document.activeElement?.blur?.();syncViewport();
+   gameShell(`<div class="dna-interaction-head"><strong>TEAM-ANTWORT</strong><span>ANTIPPEN ≠ ABSENDEN</span></div><div class="dna-vote-list" id="dnaVoteList"></div><div class="dna-consensus" id="dnaConsensus">NOCH KEINE EINIGKEIT</div><div class="dna-vote-actions"><button class="dna-btn" id="dnaVoteClear" type="button">AUSWAHL LÖSEN</button><button class="dna-btn primary" id="dnaSubmit" type="button" disabled>ANTWORT ABSENDEN</button></div>`,'ABSTIMMUNG');
+   $('#dnaVoteList').addEventListener('click',e=>{const button=e.target.closest('[data-vote]');if(button)quickCommand('vote',button.dataset.vote)});
+   $('#dnaVoteClear').addEventListener('click',()=>quickCommand('vote',''));
+   $('#dnaSubmit').addEventListener('click',()=>quickCommand('submit'));
+  }
+  if(team.solved||team.submission){
+   const key=team.solved?'solved':'submitted';if(quickUiState!==key){quickUiState=key;team.solved?renderIdeaLocked('BEGRIFF GELÖST','WARTET AUF DIE ANDEREN TEAMS'):renderSubmitted(team.submission.answer)}
+  }else{
+   const markup=sharedVoteMarkup(team);if(quickUiState!==markup){quickUiState=markup;$('#dnaVoteList').innerHTML=markup}
+   renderVotes();
+  }
+ }else if(stage==='FEEDBACK'&&changed){
+  freezeCurrentHintStage();document.activeElement?.blur?.();
+  gameShell('','ERGEBNIS');showOwnFeedback(team.outcome,team.solved&&team.outcome?.hint!==c.hintNo);
+ }else if(stage==='REVEAL'&&changed){
+  clearPinnedHintStage();showReveal({...c,termScores:mapQuickScores(c.termScores),gameScores:mapQuickScores(c.gameScores)});clearTimers();
+ }else if(stage==='COUNTDOWN'&&changed){showTermCountdown(c);clearTimers()}
+ const solvesKey=JSON.stringify(snapshot.solves||[]);
+ if(changed||solvesKey!==quickSolvesKey){quickSolvesKey=solvesKey;showOpponentSolves(snapshot.solves||[])}
+ if(changed)paintSharedTimer();
+}
 function showFatal(err){clearTimers();setChrome('FEHLER','DNA STANDALONE',0);page(`<div class="dna-error">${esc(err?.message||err)}</div><div class="dna-actions"><button class="dna-btn primary" id="dnaRetry" type="button">ZURÜCK ZUM SETUP</button></div>`);$('#dnaRetry').addEventListener('click',setup)}
 function overallPct(c){if(!c?.termCount)return 15;if(c.phase==='COMPLETE')return 100;const base=((c.termNo-1)/c.termCount)*100;const hint=c.hintNo||3;return Math.max(16,Math.min(96,base+(hint-1)/3*(100/c.termCount)))}
 function enterContent(c){clearTimers();if(s.quickLobby&&(c.phase==='REVEAL'||c.phase==='COMPLETE')){c={...c,termScores:mapQuickScores(c.termScores),gameScores:mapQuickScores(c.gameScores)}}s.current=c;if(c.phase==='HINT'){if(c.hintNo===1){s.previousHints=[];s.hintTypeScale={};clearPinnedHintStage()}startIdea()}else if(c.phase==='REVEAL'){clearPinnedHintStage();showReveal(c)}else if(c.phase==='COMPLETE'){clearPinnedHintStage();if(s.quickLobby)showQuickRanking(c.gameScores);else showRanking(c.gameScores)}else showFatal(new Error('Unbekannter DNA-State'))}

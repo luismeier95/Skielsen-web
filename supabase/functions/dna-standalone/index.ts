@@ -1,6 +1,8 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import postgres from "npm:postgres@3.4.3";
+import {createGame,act,teamView,ORDER,phaseKey} from './quick-state.mjs';
+import {DECOYS} from './quick-decoys.mjs';
 
 const sql=postgres(Deno.env.get("SUPABASE_DB_URL")!,{prepare:false,max:1});
 const corsHeaders={
@@ -190,8 +192,8 @@ function answerMatchesCandidates(answer,candidates){
   if(!raw)return false;
   return (candidates||[]).some(candidate=>fuzzyCandidateMatch(raw,String(candidate||"")));
 }
-async function answerCandidates(termId){
-  const rows=await sql.unsafe(
+async function answerCandidates(termId,db=sql){
+  const rows=await db.unsafe(
     "select t.canonical_answer as value from private.dna_terms t where t.term_id=$1::uuid "+
     "union all select a.alias_text as value from private.dna_answer_aliases a where a.term_id=$1::uuid",
     [termId]
@@ -350,13 +352,68 @@ async function advance(body,userId){
   }
   return {state:await seal(state),content:await contentFor(state)};
 }
+async function quickSync(body,userId){
+  const lobby=String(body.quickLobby||'');
+  const receipt=await sql.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
+  const members=await sql.unsafe("select p.user_id::text as id,p.seat,l.setup_status from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id where l.lobby_id=$1::uuid and l.status='LIVE'",[lobby]);
+  const member=members.find(p=>p.id===userId);
+  if(!member||member.setup_status!=='READY')throw new Error('Quick lobby membership/setup required');
+  const players=members.map(p=>({id:p.id,team:ORDER[Math.floor((Number(p.seat)-1)/2)]}));
+  const existing=await sql.unsafe('select lobby_id from private.quick_dna_games where lobby_id=$1::uuid',[lobby]);
+  let initial=null;
+  if(!existing.length){
+    const seed=await start({quickLobby:lobby},userId);initial=await open(seed.state);
+    const categories=await sql.unsafe('select term_id::text,category_id from private.dna_terms where term_id=any($1::uuid[])',[initial.terms]);
+    initial.decoys=Object.fromEntries(categories.map(t=>[t.term_id,DECOYS[t.category_id]||[]]));
+  }
+  const result=await sql.begin(async tx=>{
+    if(initial)await tx.unsafe('insert into private.quick_dna_games(lobby_id,state) values($1::uuid,$2::jsonb) on conflict do nothing',[lobby,JSON.stringify(createGame(initial.terms,players,Number(receipt[0].ms),initial.decoys))]);
+    const rows=await tx.unsafe('select state from private.quick_dna_games where lobby_id=$1::uuid for update',[lobby]);
+    if(!rows.length)throw new Error('Shared DNA state unavailable');
+    const g=rows[0].state;
+    const wasComplete=g.stage==='COMPLETE';
+    const answers=await answerCandidates(g.terms[g.term-1],tx);
+    const clock=await tx.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
+    const now=Number(clock[0].ms);
+    const actionError=act(g,userId,body.command||{},now,answer=>answerMatchesCandidates(answer,answers));
+    await tx.unsafe('update private.quick_dna_games set state=$2::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(g)]);
+    if(g.stage==='COMPLETE'&&!wasComplete){
+      for(const p of g.players)await tx.unsafe('insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score',[lobby,p.id,g.teams[p.team].score]);
+      await tx.unsafe('update public.quick_game_lobbies set bot_scores=$2::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(scores(g,'score'))]);
+    }
+    return {g,actionError,serverNow:now};
+  });
+  const {g,actionError}=result;
+  const own=g.players.find(p=>p.id===userId).team,others=ORDER.filter(k=>k!==own);
+  const map={RED:own,BLUE:others[0],GREEN:others[1],YELLOW:others[2]};
+  const projected={...g,v:2,phase:g.stage==='COMPLETE'?'COMPLETE':g.stage==='REVEAL'?'REVEAL':'HINT',teams:Object.fromEntries(ORDER.map(k=>[k,g.teams[map[k]]]))};
+  let content=null;
+  if(g.stage!=='READY'){
+    content=await contentFor(projected);
+    // Rejoining clients recover released hints; never disclose future hints.
+    if(!['REVEAL','COMPLETE','COUNTDOWN'].includes(g.stage)){
+      const hints=await sql.unsafe('select hint_text from private.dna_hints where term_id=$1::uuid and hint_no<$2 order by hint_no',[g.terms[g.term-1],g.hint]);
+      content.previousHints=hints.map(h=>h.hint_text);
+    }
+    if(g.stage==='COUNTDOWN')content={termNo:content.termNo,termCount:content.termCount,categoryName:content.categoryName};
+  }
+  // Timestamp sampled after payload construction, so slow content queries do not
+  // make the browser's server clock artificially late.
+  const clock=await sql.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
+  return {revision:g.revision,phaseKey:phaseKey(g),stage:g.stage,startedAt:g.startedAt,deadline:g.deadline,
+    serverNow:Number(clock[0].ms),serverReceived:Number(receipt[0].ms),actionError,content,team:teamView(g,userId),
+    solves:ORDER.filter(k=>k!==own&&g.teams[k].solved).map(team=>({team,points:g.teams[team].last?.points||0})),
+    gameScores:g.stage==='COMPLETE'?scores(g,'score'):undefined};
+}
 Deno.serve(async req=>{
   if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders});
   if(req.method!=="POST")return reply({error:"Method not allowed"},405);
   try{
     const body=await req.json().catch(()=>({}));const action=String(body?.action||"").toLowerCase();const userId=jwtSub(req);
     if(!userId)throw new Error("Authenticated user required");
-    const result=action==="start"?await start(body,userId):action==="teammate_vote"?await teammateVote(body):action==="submit"?await submit(body,userId):action==="bots"?await bots(body):action==="advance"?await advance(body,userId):null;
+    // Legacy browser-local Quick Games cannot advance or overwrite shared scores.
+    if(action!=='quick_sync'&&(body.quickLobby||(body.state&&(await open(body.state)).quickLobby)))throw new Error('DNA_UPDATE_REQUIRED');
+    const result=action==='quick_sync'?await quickSync(body,userId):action==="start"?await start(body,userId):action==="teammate_vote"?await teammateVote(body):action==="submit"?await submit(body,userId):action==="bots"?await bots(body):action==="advance"?await advance(body,userId):null;
     if(!result)return reply({error:"Unknown action"},400);
     return reply(result);
   }catch(err){console.error("dna-standalone",err);return reply({error:String(err?.message||err)},400)}
