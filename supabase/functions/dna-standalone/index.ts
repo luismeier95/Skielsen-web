@@ -339,7 +339,7 @@ async function recordQuickResult(state,userId){
   const remaining=order.filter(x=>x!==own),map={RED:own,BLUE:remaining[0],GREEN:remaining[1],YELLOW:remaining[2]},mapped={};
   for(const local of order)mapped[map[local]]=Number(state.teams[local]?.score||0);
   await sql.unsafe("insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score,submitted_at=now()",[state.quickLobby,userId,mapped[own]]);
-  await sql.unsafe("update public.quick_game_lobbies set bot_scores=case when bot_scores='{}'::jsonb then $2::jsonb else bot_scores end,updated_at=now() where lobby_id=$1::uuid",[state.quickLobby,JSON.stringify(mapped)]);
+  await sql.unsafe("update public.quick_game_lobbies set bot_scores=case when bot_scores='{}'::jsonb then $2::text::jsonb else bot_scores end,updated_at=now() where lobby_id=$1::uuid",[state.quickLobby,JSON.stringify(mapped)]);
 }
 async function advance(body,userId){
   const state=await open(body?.state);
@@ -367,7 +367,7 @@ async function quickSync(body,userId){
     initial.decoys=Object.fromEntries(categories.map(t=>[t.term_id,DECOYS[t.category_id]||[]]));
   }
   const result=await sql.begin(async tx=>{
-    if(initial)await tx.unsafe('insert into private.quick_dna_games(lobby_id,state) values($1::uuid,$2::jsonb) on conflict do nothing',[lobby,JSON.stringify(createGame(initial.terms,players,Number(receipt[0].ms),initial.decoys))]);
+    if(initial)await tx.unsafe('insert into private.quick_dna_games(lobby_id,state) values($1::uuid,$2::text::jsonb) on conflict do nothing',[lobby,JSON.stringify(createGame(initial.terms,players,Number(receipt[0].ms),initial.decoys))]);
     const rows=await tx.unsafe('select state from private.quick_dna_games where lobby_id=$1::uuid for update',[lobby]);
     if(!rows.length)throw new Error('Shared DNA state unavailable');
     const g=rows[0].state;
@@ -376,10 +376,10 @@ async function quickSync(body,userId){
     const clock=await tx.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
     const now=Number(clock[0].ms);
     const actionError=act(g,userId,body.command||{},now,answer=>answerMatchesCandidates(answer,answers));
-    await tx.unsafe('update private.quick_dna_games set state=$2::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(g)]);
+    await tx.unsafe('update private.quick_dna_games set state=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(g)]);
     if(g.stage==='COMPLETE'&&!wasComplete){
       for(const p of g.players)await tx.unsafe('insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score',[lobby,p.id,g.teams[p.team].score]);
-      await tx.unsafe('update public.quick_game_lobbies set bot_scores=$2::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(scores(g,'score'))]);
+      await tx.unsafe('update public.quick_game_lobbies set bot_scores=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(scores(g,'score'))]);
     }
     return {g,actionError,serverNow:now};
   });

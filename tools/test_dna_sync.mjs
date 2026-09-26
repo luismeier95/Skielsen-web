@@ -66,6 +66,15 @@ test('bot teammate uses shared candidates, cooperates with correct vote and stil
 const context={};vm.runInNewContext(readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8'),context);
 const Sync=context.DnaQuickSync;
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
+test('Quick Games sends READY on the first Ready tap instead of requiring a second Spiel starten tap',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ assert.ok(app.includes("if(s.quickLobby){btn.disabled=true;btn.textContent='BEREIT WIRD GESPEICHERT …';startSharedQuickGame(true);return}"));
+});
+test('shared DNA JSON is persisted as an object, not a JSON string',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
+ assert.ok(edge.includes("values($1::uuid,$2::text::jsonb) on conflict do nothing"));
+ assert.ok(edge.includes("set state=$2::text::jsonb where lobby_id=$1::uuid"));
+});
 test('default browser timers are wrapped so receiver-sensitive host APIs are not rebound',async()=>{
  let scheduled=false,cancelled=false;
  const host={
