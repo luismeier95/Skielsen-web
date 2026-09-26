@@ -848,3 +848,30 @@ body.tttx-body.v15-tournament-active{
 .tttx-overtime-overlay>span>strong{
   font:inherit;
 }
+
+
+/* TTT_ROUND_WIN_OVERLAY_V1 */
+.tttx-round-win-overlay{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.28em;
+  pointer-events:none;
+  text-align:center;
+  font-family:var(--display,var(--ui));
+  font-size:clamp(28px,8vw,58px);
+  font-weight:950;
+  line-height:.9;
+  text-transform:uppercase;
+  text-shadow:0 2px 0 var(--theme-surface);
+}
+.tttx-round-win-overlay>strong{
+  font:inherit;
+}
+.tttx-round-win-overlay>span{
+  color:var(--theme-on-surface);
+  font:inherit;
+}
