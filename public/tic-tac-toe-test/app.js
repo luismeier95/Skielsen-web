@@ -263,20 +263,17 @@ function setTimerBarProgress(ratio){
 function updateTurnTimer(){
   const seconds=Number(game?.turnSeconds||0);
   if(!seconds){
-    if(turnTimerEl)turnTimerEl.textContent='AUS';
     if(turnTimerTrack)turnTimerTrack.classList.add('is-passive');
     setTimerBarProgress(1);
     return;
   }
   if(turnTimerTrack)turnTimerTrack.classList.remove('is-passive');
   if(!turnDeadline||!game||game.locked||game.winning.length){
-    if(turnTimerEl)turnTimerEl.textContent=seconds.toFixed(0);
     setTimerBarProgress(1);
     return;
   }
   const total=seconds*1000;
   const left=Math.max(0,turnDeadline-performance.now());
-  if(turnTimerEl)turnTimerEl.textContent=(left/1000).toFixed(1);
   setTimerBarProgress(left/total);
   if(turnTimerTrack){
     turnTimerTrack.classList.toggle('danger',left<=1000);
@@ -388,13 +385,19 @@ function renderBoard(){
   board.querySelectorAll('[data-cell]').forEach(btn=>btn.addEventListener('click',()=>move(Number(btn.dataset.cell),'HUMAN')));
   if(game.winning.length)requestAnimationFrame(renderWinningLine);
 }
+function roundDisplayTarget(){
+  if(!game)return 4;
+  if(game.roundNumber<=4)return 4;
+  return game.roundNumber%2===0?game.roundNumber:game.roundNumber+1;
+}
 function renderPlay(){
   if(you)you.textContent='X';
   if(turn)turn.textContent=game.opponent==='BOT'&&game.current==='O'?'BOT':PLAYERS[game.current].name;
   mode.textContent=game.mode;
   if(scoreX)scoreX.textContent=game.points.X;
   if(scoreO)scoreO.textContent=game.points.O;
-  if(roundEl)roundEl.textContent='RUNDE '+game.roundNumber;
+  if(roundEl)roundEl.textContent='RUNDE '+game.roundNumber+'/'+roundDisplayTarget();
+  if(turnTimerEl)turnTimerEl.textContent=game.turnSeconds?'TIMER '+game.turnSeconds+' SEK':'TIMER AUS';
   updateTurnTimer();
   if(opponentLabel){
     opponentLabel.textContent=game.opponent==='BOT'?'BOT':'PLAYER 2';
