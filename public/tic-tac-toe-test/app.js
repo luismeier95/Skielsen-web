@@ -34,8 +34,6 @@ const board=q('#tttxBoard');
 const you=q('#tttxYou');
 const turn=q('#tttxTurn');
 const mode=q('#tttxMode');
-const lifeX=q('#tttxLifeX');
-const lifeO=q('#tttxLifeO');
 const ruleTitle=q('#tttxRuleTitle');
 const ruleText=q('#tttxRuleText');
 const resultMeta=q('#tttxResultMeta');
@@ -95,24 +93,6 @@ function ageClass(symbol,index){
   if(order.length===2)return pos===0?' age-middle':' age-newest';
   return pos===0?' age-oldest is-next-out':(pos===1?' age-middle':' age-newest');
 }
-function renderLifeTrack(symbol,target){
-  if(game.mode!=='DISAPPEAR'){
-    target.classList.remove('is-visible');
-    target.innerHTML='';
-    return;
-  }
-  const count=game.active[symbol].length;
-  target.classList.add('is-visible');
-  target.style.setProperty('--tttx-life-color',PLAYERS[symbol].color);
-  target.innerHTML=[0,1,2].map(i=>{
-    const used=i<count;
-    const nextOut=count===3&&i===0;
-    return `<i class="tttx-life-dot${used?' is-used':''}${nextOut?' is-next-out':''}" aria-hidden="true"></i>`;
-  }).join('');
-  target.setAttribute('aria-label',count===3
-    ? `${PLAYERS[symbol].name}: ältestes Symbol verschwindet beim nächsten eigenen Zug`
-    : `${PLAYERS[symbol].name}: ${count} von 3 aktiven Symbolen`);
-}
 function renderBoard(){
   board.innerHTML=game.board.map((symbol,index)=>{
     const winning=game.winning.includes(index);
@@ -127,8 +107,6 @@ function renderPlay(){
   you.textContent='X';
   turn.textContent=PLAYERS[game.current].name;
   mode.textContent=game.mode;
-  renderLifeTrack('X',lifeX);
-  renderLifeTrack('O',lifeO);
   renderBoard();
 }
 function start(){
