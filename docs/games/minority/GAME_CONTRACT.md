@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -35,6 +35,14 @@ With four players and two answers:
 | 4:0 | No minority; no winner |
 
 Selections are hidden until every required player has locked an answer or the round is otherwise resolved by the authoritative game flow.
+
+### Answer interaction
+
+- **One tap = final selection.**
+- Tapping an answer tile immediately locks and submits that answer; there is no separate confirm button.
+- After a player has tapped, the answer cannot be changed for that round.
+- In local/solo QA with bots, the tap immediately triggers round resolution.
+- In multiplayer, the tapping player enters a locked waiting state until all required players have selected; the server then advances automatically to the reveal.
 
 ## 2. Difficulty rules
 
