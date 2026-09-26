@@ -645,8 +645,8 @@ body.tttx-body.v15-tournament-active{
   transform-origin:left center;
   transition:none!important;
 }
-.tttx-turn-timer.warning i{background:var(--theme-warning-bg,var(--theme-accent))}
-.tttx-turn-timer.danger i{background:var(--theme-danger-bg,var(--theme-accent))}
+.tttx-turn-timer.tttx-timer-warning i{background:var(--theme-warning-bg,var(--theme-accent))}
+.tttx-turn-timer.tttx-timer-danger i{background:var(--theme-danger-bg,var(--theme-accent))}
 .tttx-turn-timer.is-passive{visibility:hidden}
 @media(min-width:721px){
   .tttx-time-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
@@ -1071,4 +1071,13 @@ body.tttx-body.v15-tournament-active{
 }
 @media(max-width:420px){
   .tttx-version{margin-left:6px;font-size:12px}
+}
+
+
+/* TTT_TIMER_STATE_ISOLATION_V1
+   Timer state classes must not collide with global theme .warning/.danger helpers. */
+.tttx-turn-timer.tttx-timer-warning,
+.tttx-turn-timer.tttx-timer-danger{
+  background:var(--theme-surface-muted)!important;
+  color:inherit!important;
 }
