@@ -240,6 +240,24 @@ body.tttx-body{
   from{stroke-dashoffset:var(--tttx-win-length,300)}
   to{stroke-dashoffset:0}
 }
+.tttx-round-countdown{
+  position:absolute;
+  inset:0;
+  z-index:6;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+}
+.tttx-round-countdown>b{
+  display:block;
+  color:var(--theme-on-surface);
+  font-family:var(--display,var(--ui));
+  font-size:clamp(120px,40vw,220px);
+  font-weight:950;
+  line-height:.8;
+  text-align:center;
+  text-shadow:0 2px 0 var(--theme-surface);
+}
 
 /* TTT_RESULT_DNA_GEOMETRY_V1 */
 .tttx-result{
