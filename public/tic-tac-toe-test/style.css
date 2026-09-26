@@ -257,7 +257,7 @@ body.tttx-body{
   font-weight:950;
   line-height:.8;
   text-align:center;
-  text-shadow:0 2px 0 var(--theme-surface);
+  text-shadow:none;
 }
 
 /* TTT_RESULT_DNA_GEOMETRY_V1 */
@@ -850,7 +850,7 @@ body.tttx-body.v15-tournament-active{
 }
 
 
-/* TTT_ROUND_WIN_OVERLAY_V1 */
+/* TTT_ROUND_WIN_OVERLAY_V2 */
 .tttx-round-win-overlay{
   position:absolute;
   inset:0;
@@ -858,20 +858,48 @@ body.tttx-body.v15-tournament-active{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:.28em;
   pointer-events:none;
   text-align:center;
+  text-shadow:none;
+}
+.tttx-round-win-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.28em;
+  max-width:calc(100% - 24px);
+  padding:12px 18px;
+  border:1px solid var(--theme-border-strong);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--theme-surface) 90%,transparent);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--theme-on-page) 12%,transparent);
   font-family:var(--display,var(--ui));
   font-size:clamp(28px,8vw,58px);
   font-weight:950;
   line-height:.9;
   text-transform:uppercase;
-  text-shadow:0 2px 0 var(--theme-surface);
+  text-shadow:none;
 }
-.tttx-round-win-overlay>strong{
+.tttx-round-win-badge>strong{
   font:inherit;
+  text-shadow:none;
 }
-.tttx-round-win-overlay>span{
+.tttx-round-win-badge>span{
   color:var(--theme-on-surface);
   font:inherit;
+  text-shadow:none;
+}
+
+
+/* TTT_NO_TEXT_SHADOW_V1
+   Large game-state text uses clean glyphs without artificial light shadow. */
+.tttx-score-bridge strong,
+.tttx-score-bridge>span,
+.tttx-round-countdown>b,
+.tttx-overtime-overlay>b,
+.tttx-overtime-overlay>span,
+.tttx-overtime-overlay>span>strong{
+  text-shadow:none!important;
 }
