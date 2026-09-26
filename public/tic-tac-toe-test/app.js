@@ -204,55 +204,41 @@ function renderWinningLine(){
   });
   board.appendChild(svg);
 }
-function showRoundIntroOverlay(title,done,duration=2000,announceStarter=true){
+function showBoardOverlay({title='',playerSymbol=null,suffix='',duration=2000,done=()=>{}}){
+  clearTimeout(transitionTimer);
   const host=document.createElement('div');
-  host.className='tttx-overtime-overlay'+(title?'':' tttx-starter-overlay');
+  host.className='tttx-board-overlay';
   host.setAttribute('aria-live','polite');
-  const starterLine=announceStarter
-    ? '<span><strong style="color:'+PLAYERS[game.starter].color+'">'+playerName(game.starter)+'</strong> BEGINNT</span>'
-    : '';
-  host.innerHTML=(title?'<b>'+title+'</b>':'')+starterLine;
+
+  const titleHtml=title?'<b class="tttx-overlay-title">'+title+'</b>':'';
+  const lineHtml=playerSymbol
+    ? '<span class="tttx-overlay-line"><strong style="color:'+PLAYERS[playerSymbol].color+'">'+playerName(playerSymbol)+'</strong>'+(suffix?' '+suffix:'')+'</span>'
+    : (suffix?'<span class="tttx-overlay-line">'+suffix+'</span>':'');
+
+  host.innerHTML='<div class="tttx-overlay-card">'+titleHtml+lineHtml+'</div>';
   board.appendChild(host);
+
   transitionTimer=setTimeout(()=>{
     host.remove();
     done();
   },duration);
 }
-function startRoundCountdown(done){
-  clearTimeout(transitionTimer);
-
-  const winnerSymbol=game.current;
-  const winHost=document.createElement('div');
-  winHost.className='tttx-round-win-overlay';
-  winHost.setAttribute('aria-live','polite');
-  winHost.innerHTML='<div class="tttx-round-win-badge"><strong style="color:'+PLAYERS[winnerSymbol].color+'">'+playerName(winnerSymbol)+'</strong><span>GEWINNT</span></div>';
-  board.appendChild(winHost);
-
-  transitionTimer=setTimeout(()=>{
-    if(!game)return;
-    winHost.remove();
-
-    let value=3;
-    const host=document.createElement('div');
-    host.className='tttx-round-countdown';
-    host.setAttribute('aria-live','polite');
-    host.innerHTML='<b>3</b>';
-    board.appendChild(host);
-
-    const tick=()=>{
-      if(!game)return;
-      value-=1;
-      if(value>0){
-        const label=host.querySelector('b');
-        if(label)label.textContent=String(value);
-        transitionTimer=setTimeout(tick,1000);
-        return;
-      }
-      host.remove();
-      done();
-    };
-    transitionTimer=setTimeout(tick,1000);
-  },2000);
+function showRoundIntroOverlay(title,done,duration=2000,announceStarter=true){
+  showBoardOverlay({
+    title,
+    playerSymbol:announceStarter?game.starter:null,
+    suffix:announceStarter?'BEGINNT':'',
+    duration,
+    done
+  });
+}
+function showRoundWinner(winnerSymbol,done){
+  showBoardOverlay({
+    playerSymbol:winnerSymbol,
+    suffix:'GEWINNT',
+    duration:2000,
+    done
+  });
 }
 
 function stopTurnTimer(){
@@ -522,9 +508,9 @@ function move(index,source='HUMAN'){
     const finishedWinner=shouldFinishMatch();
     if(finishedWinner){
       game.winner=finishedWinner;
-      transitionTimer=setTimeout(renderResult,3000);
+      showRoundWinner(actor,renderResult);
     }else{
-      startRoundCountdown(()=>prepareNextBoard(true));
+      showRoundWinner(actor,()=>prepareNextBoard(true));
     }
     return;
   }
