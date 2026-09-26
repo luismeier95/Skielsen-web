@@ -981,3 +981,15 @@ body.tttx-body.v15-tournament-active{
   font-weight:950;
   line-height:1;
 }
+
+
+/* TTT_ACTIVE_TURN_OUTLINE_V1
+   Board outline always identifies the player whose turn is active. */
+.tttx-board-shell{
+  outline:4px solid var(--tttx-turn-color,var(--theme-accent))!important;
+  outline-offset:2px;
+  transition:outline-color .14s ease,box-shadow .14s ease;
+}
+.tttx-board-shell.is-starter-intro{
+  outline-color:var(--tttx-turn-color,var(--theme-accent))!important;
+}
