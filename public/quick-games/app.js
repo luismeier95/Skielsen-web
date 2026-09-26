@@ -54,8 +54,12 @@ function render(){
  document.querySelectorAll('[data-seat]:not(:disabled)').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('set_quick_game_seat',{p_lobby_id:lobby.lobby_id,p_seat:Number(e.currentTarget.dataset.seat)}))));
  $('#qgHostActions').hidden=!lobby.is_host;$('#qgWait').hidden=!!lobby.is_host;
  $('#qgFill').disabled=!!lobby.bots_filled;$('#qgFill').textContent=lobby.bots_filled?'BOTS EINGESETZT ✓':'REST MIT BOTS FÜLLEN';
- $('#qgStart').disabled=!lobby.bots_filled&&(lobby.players||[]).length<8;
- if(lobby.status==='LIVE'&&!navigating){navigating=true;location.assign(lobby.launch_path||((lobby.game_key==='minority'?'../minority-test/?quick_lobby=':'../dna-test/?quick_lobby=')+encodeURIComponent(lobby.lobby_id)))}
+ $('#qgStart').disabled=!lobby.bots_filled&&(lobby.players||[]).length<Number(lobby.max_human_players||8);
+ if(lobby.status==='LIVE'&&!navigating){
+   navigating=true;
+   const gamePath=lobby.game_key==='minority'?'../minority-test/?quick_lobby=':'../dna-test/?quick_lobby=';
+   location.assign(gamePath+encodeURIComponent(lobby.lobby_id));
+ }
 }
 function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 async function refresh(){if(!lobby?.lobby_id)return;try{lobby=await rpc('get_quick_game_lobby',{p_lobby_id:lobby.lobby_id});render()}catch(err){feedback(message(err));stopPoll()}}
