@@ -190,7 +190,7 @@ function startRoundCountdown(done){
         return;
       }
       host.remove();
-      transitionTimer=setTimeout(done,1000);
+      done();
     };
     transitionTimer=setTimeout(tick,1000);
   },340);
