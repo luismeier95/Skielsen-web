@@ -216,11 +216,20 @@ body.tttx-body{
 }
 .tttx-cell.age-newest .tttx-mark{opacity:1}
 .tttx-cell.age-middle .tttx-mark{opacity:.5}
-.tttx-cell.age-oldest .tttx-shape{
-  opacity:1;
-  stroke-dasharray:11 9;
+.tttx-cell.age-oldest .tttx-mark .tttx-shape{display:none}
+.tttx-mark .tttx-oldest-shape{display:none}
+.tttx-cell.age-oldest .tttx-mark .tttx-oldest-shape{display:block}
+.tttx-oldest-shape{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:10;
   stroke-linecap:butt;
+  stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
 }
+.tttx-oldest-ring-outer{stroke-dasharray:14 9}
+.tttx-oldest-ring-inner{stroke-dasharray:12 8}
+.tttx-oldest-x{stroke-dasharray:13 9}
 @media(min-width:721px){
   body.tttx-body{--tttx-radius-outer:16px;--tttx-radius-card:12px;--tttx-gap:18px}
   .tttx-header{height:64px;padding:0 18px}
