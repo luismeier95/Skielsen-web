@@ -207,7 +207,7 @@ function showRoundIntroOverlay(title,done){
   const host=document.createElement('div');
   host.className='tttx-overtime-overlay';
   host.setAttribute('aria-live','polite');
-  host.innerHTML='<b>'+title+'</b><span>'+playerName(game.starter)+' BEGINNT</span>';
+  host.innerHTML='<b>'+title+'</b><span><strong style="color:'+PLAYERS[game.starter].color+'">'+playerName(game.starter)+'</strong> BEGINNT</span>';
   board.appendChild(host);
   transitionTimer=setTimeout(()=>{
     host.remove();
@@ -386,7 +386,10 @@ function renderPlay(){
   if(scoreO)scoreO.textContent=game.points.O;
   if(roundEl)roundEl.textContent='RUNDE '+game.roundNumber;
   updateTurnTimer();
-  if(opponentLabel) opponentLabel.textContent=game.opponent==='BOT'?'BOT':'PLAYER 2';
+  if(opponentLabel){
+    opponentLabel.textContent=game.opponent==='BOT'?'BOT':'PLAYER 2';
+    opponentLabel.style.color=PLAYERS.O.color;
+  }
   renderBoard();
 }
 function renderReadySummary(){
@@ -395,7 +398,10 @@ function renderReadySummary(){
   if(readyTimeout)readyTimeout.textContent=selectedTurnSeconds
     ? 'ZEIT ABGELAUFEN → SCHLECHTESTER LEGALER ZUG WIRD AUTOMATISCH GESETZT'
     : 'KEIN ZUGTIMER · KEIN AUTO-ZUG';
-  if(readyOpponent)readyOpponent.textContent=selectedOpponent==='BOT'?'BOT':'PLAYER 2';
+  if(readyOpponent){
+    readyOpponent.textContent=selectedOpponent==='BOT'?'BOT':'PLAYER 2';
+    readyOpponent.style.color=PLAYERS.O.color;
+  }
 }
 function openReady(){
   renderReadySummary();
@@ -499,7 +505,7 @@ function placementPoints(place){return place===1?5:4}
 function row(symbol,placement){
   return `<div class="tttx-result-row" style="--delay:${140+(placement-1)*120}ms">
     <b>${String(placement).padStart(2,'0')}</b>
-    <span class="tttx-result-player"><i style="--tttx-player:${PLAYERS[symbol].color}"></i><strong>${playerName(symbol)}</strong></span>
+    <span class="tttx-result-player"><i style="--tttx-player:${PLAYERS[symbol].color}"></i><strong style="color:${PLAYERS[symbol].color}">${playerName(symbol)}</strong></span>
     <strong>${game.points[symbol]}</strong>
     <span class="tttx-placement-points"><b>+${placementPoints(placement)}</b></span>
   </div>`;
