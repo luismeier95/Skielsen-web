@@ -169,6 +169,32 @@ function renderWinningLine(){
   });
   board.appendChild(svg);
 }
+function startRoundCountdown(done){
+  clearTimeout(transitionTimer);
+  transitionTimer=setTimeout(()=>{
+    if(!game)return;
+    let value=3;
+    const host=document.createElement('div');
+    host.className='tttx-round-countdown';
+    host.setAttribute('aria-live','polite');
+    host.innerHTML='<b>3</b>';
+    board.appendChild(host);
+
+    const tick=()=>{
+      if(!game)return;
+      value-=1;
+      if(value>0){
+        const label=host.querySelector('b');
+        if(label)label.textContent=String(value);
+        transitionTimer=setTimeout(tick,1000);
+        return;
+      }
+      host.remove();
+      transitionTimer=setTimeout(done,1000);
+    };
+    transitionTimer=setTimeout(tick,1000);
+  },340);
+}
 function renderBoard(){
   const botTurn=game.opponent==='BOT'&&game.current==='O';
   board.innerHTML=game.board.map((symbol,index)=>{
@@ -259,9 +285,9 @@ function move(index,source='HUMAN'){
     renderPlay();
     if(game.wins[actor]>=2){
       game.winner=actor;
-      transitionTimer=setTimeout(renderResult,3300);
+      startRoundCountdown(renderResult);
     }else{
-      transitionTimer=setTimeout(()=>prepareNextBoard(true),3300);
+      startRoundCountdown(()=>prepareNextBoard(true));
     }
     return;
   }
