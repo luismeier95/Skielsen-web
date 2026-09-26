@@ -794,3 +794,37 @@ body.tttx-body.v15-tournament-active{
 .tttx-shell .tttx-primary{
   font-size:12px!important;
 }
+
+
+/* TTT_OVERTIME_OVERLAY_V1 */
+.tttx-overtime-overlay{
+  position:absolute;
+  inset:0;
+  z-index:7;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  text-align:center;
+  pointer-events:none;
+  background:color-mix(in srgb,var(--theme-surface) 18%,transparent);
+}
+.tttx-overtime-overlay>b{
+  display:block;
+  color:var(--theme-on-surface);
+  font-family:var(--display,var(--ui));
+  font-size:clamp(52px,16vw,110px);
+  font-weight:950;
+  line-height:.9;
+  letter-spacing:-.04em;
+}
+.tttx-overtime-overlay>span{
+  display:block;
+  color:var(--theme-on-surface);
+  font-family:var(--display,var(--ui));
+  font-size:clamp(16px,4.5vw,24px);
+  font-weight:950;
+  line-height:1;
+  text-transform:uppercase;
+}
