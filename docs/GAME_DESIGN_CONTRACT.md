@@ -101,6 +101,12 @@ Mindestens erforderlich, sofern im Game sichtbar:
 
 Player-Reihenfolge muss während eines Play-Flows stabil bleiben, sofern die Mechanik kein Ranking-Reorder verlangt.
 
+### Symmetry & Alignment
+
+Symmetry is a first-class layout rule for shared game UI. Repeated peer elements such as Player-/Team-Cards, status cells, mode cards and result rows must use equal geometry whenever their semantic role is equal.
+
+Primary content in equal peer elements must be centered **horizontally and vertically** unless the mechanic explicitly requires another alignment. Do not simulate centering through approximate padding; use layout alignment (`align-items`, `justify-content` or `place-items`) so mobile and desktop remain geometrically symmetric.
+
 ## 9. Result Contract
 
 Jedes Game beendet mit dem gemeinsamen Result-Pattern.
