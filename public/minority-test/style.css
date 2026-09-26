@@ -90,3 +90,340 @@ button{touch-action:manipulation}
   .m-options[data-count="4"]{grid-template-columns:repeat(2,1fr)}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* MINORITY_SHARED_SETUP_V2
+   Tic Tac Toe standalone is the canonical setup/ready visual target. */
+body.minority-page{
+  --minority-radius-outer:14px;
+  --minority-radius-card:11px;
+  --minority-shared-gap:13px;
+  font-family:Arial,Helvetica,sans-serif;
+}
+.minority-shell{width:100%;max-width:none;margin:0;min-height:100dvh}
+.minority-topbar{
+  min-height:42px;
+  height:42px;
+  padding:0 9px;
+  grid-template-columns:28px 68px minmax(0,1fr) auto;
+  gap:8px;
+}
+.minority-topbar img{
+  width:auto;
+  height:36px;
+  max-width:68px;
+  object-fit:contain;
+  object-position:left center;
+}
+.minority-topbar strong{
+  min-width:0;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.minority-topbar span{
+  font-size:12px;
+  line-height:1;
+  letter-spacing:.06em;
+}
+.minority-back{
+  width:28px;
+  height:42px;
+  font-size:18px;
+}
+.minority-progress{height:3px}
+.minority-stage{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  padding:16px 12px 22px;
+  display:grid;
+  align-content:start;
+  gap:var(--minority-shared-gap);
+}
+.minority-feedback{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  padding:0 12px max(10px,env(safe-area-inset-bottom));
+}
+.m-hero{padding:4px 2px}
+.m-kicker{
+  display:block;
+  margin:0;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:var(--theme-muted,#777);
+}
+.m-title{
+  margin:8px 0 0;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:clamp(48px,17vw,76px);
+  line-height:.84;
+  letter-spacing:-.055em;
+  font-weight:950;
+}
+.m-copy{
+  max-width:44ch;
+  margin:13px 0 0;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  line-height:1.45;
+  font-weight:700;
+}
+.m-card{
+  padding:0;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-outer);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+  overflow:hidden;
+}
+.m-setup-card{padding:14px}
+.m-card-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.m-card-head strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:16px;
+}
+.m-card-head span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+.m-choice-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+}
+.m-choice{
+  min-height:76px;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-card);
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-text,#050505);
+  padding:13px 14px;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:6px;
+  cursor:pointer;
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease;
+}
+.m-choice strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:17px;
+}
+.m-choice span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  line-height:1.35;
+  font-weight:800;
+}
+.m-choice.active{
+  border-color:var(--theme-accent,#7c5cff);
+  background:var(--theme-accent,#7c5cff);
+  color:var(--theme-button-text,#fff);
+  box-shadow:0 0 0 2px var(--theme-focus,rgba(124,92,255,.24)),0 0 20px color-mix(in srgb,var(--theme-accent,#7c5cff) 30%,transparent);
+}
+.m-choice.active span{color:inherit}
+.m-round-options{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+.m-round-choice{
+  min-height:58px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.m-round-choice strong{width:100%;text-align:center}
+.m-rule-note{
+  min-height:76px;
+  padding:13px 14px;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-card);
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-text,#050505);
+}
+.m-rule-note small{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+.m-rule-note strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+}
+.m-rule-note span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  line-height:1.4;
+  font-weight:700;
+}
+.m-primary,.m-secondary{
+  min-height:48px;
+  border-radius:var(--minority-radius-card);
+  padding:0 17px;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.07em;
+}
+.m-primary{
+  border:1px solid var(--theme-button,#050505);
+  background:var(--theme-button,#050505);
+  color:var(--theme-button-text,#fff);
+}
+.m-secondary{
+  border:1px solid var(--theme-border-strong,#c7c7c7);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+}
+@keyframes minorityBlockingGlow{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--theme-accent,#7c5cff) 0%,transparent),0 0 12px color-mix(in srgb,var(--theme-accent,#7c5cff) 18%,transparent)}
+  50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-accent,#7c5cff) 22%,transparent),0 0 26px color-mix(in srgb,var(--theme-accent,#7c5cff) 64%,transparent)}
+}
+.m-blocking:not(:disabled){animation:minorityBlockingGlow 1.55s ease-in-out infinite}
+
+/* Ready follows the same shared card language as Tic Tac Toe. */
+.m-ready-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.m-ready-summary>div{
+  min-height:68px;
+  padding:10px 8px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:5px;
+  border-right:1px solid var(--theme-border,#ddd);
+}
+.m-ready-summary>div:last-child{border-right:0}
+.m-ready-summary small{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.m-ready-summary strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+  line-height:1;
+}
+.m-ready-rules>div{
+  min-height:62px;
+  padding:10px 12px;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-ready-rules>div:last-child{border-bottom:0}
+.m-ready-rules>b{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:var(--theme-surface-soft,#f7f7f7);
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+}
+.m-ready-rules span{min-width:0}
+.m-ready-rules strong{
+  display:block;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.04em;
+}
+.m-ready-rules small{
+  display:block;
+  margin-top:4px;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:750;
+  line-height:1.35;
+}
+.m-ready-roster{display:grid}
+.m-ready-player{
+  min-height:54px;
+  padding:9px 12px;
+  display:grid;
+  grid-template-columns:7px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-ready-player:last-child{border-bottom:0}
+.m-ready-player i{
+  width:7px;
+  height:32px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-ready-player strong{
+  min-width:0;
+  color:var(--identity);
+  font-size:13px;
+  font-weight:950;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.m-ready-player span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+}
+.m-ready-actions{
+  display:grid;
+  grid-template-columns:.8fr 1.2fr;
+  gap:8px;
+}
+
+/* Long Minority labels must remain inside their tile. */
+.m-option{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.m-option-label{
+  display:block;
+  min-width:0;
+  max-width:100%;
+  font-size:clamp(20px,6vw,36px);
+  line-height:1.02;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  hyphens:auto;
+  text-wrap:balance;
+}
+.m-option.is-long .m-option-label{font-size:clamp(18px,5vw,30px)}
+.m-option.is-xlong .m-option-label{font-size:clamp(16px,4.3vw,26px)}
+.m-option-count{font-size:12px}
+
+@media(min-width:721px){
+  .minority-stage{padding:22px 20px 28px}
+  .m-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .m-ready-summary>div{min-height:82px}
+  .m-ready-rules>div{min-height:70px;padding:12px 16px}
+}
