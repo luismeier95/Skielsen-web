@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.1.4">
+<link rel="stylesheet" href="./style.css?v=2.2.0">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -15,6 +15,17 @@
     <div class="tttx-header-left">
       <img class="tttx-header-logo" src="../assets/images/skielsen-logo.png" alt="SKIELSEN">
       <strong class="tttx-game-name">TIC TAC TOE</strong>
+      <label class="tttx-theme-qa" for="tttxThemeSelect">
+        <span>THEME QA</span>
+        <select id="tttxThemeSelect" aria-label="Tic Tac Toe Theme">
+          <option value="theme.skielsen.core">SKIELSEN CORE</option>
+          <option value="theme.skielsen.core2">SKIELSEN CORE 2</option>
+          <option value="theme.jga.night">JGA NIGHTS</option>
+          <option value="theme.christmas.winter_clash">WINTER CLASH</option>
+          <option value="theme.summer.sunset_showdown">SUNSET SHOWDOWN</option>
+          <option value="theme.girly.pink_chaos">PINK CHAOS</option>
+        </select>
+      </label>
     </div>
     <div class="tttx-header-meta"><b id="tttxHeaderState">SETUP</b></div>
   </header>
@@ -74,16 +85,23 @@
 
     <section class="tttx-page tttx-play" id="tttxPlay" hidden>
       <section class="tttx-status tttx-card" aria-label="Spielstatus">
-        <div class="tttx-player-state">
+        <div class="tttx-player-state tttx-player-x">
           <small>PLAYER 1</small>
-          <strong id="tttxYou">X</strong>
+          <span class="tttx-player-scoreline"><strong>X</strong><b id="tttxScoreX">0</b></span>
         </div>
-        <div><small>AM ZUG</small><strong id="tttxTurn">PLAYER 1</strong></div>
-        <div class="tttx-player-state">
+        <div class="tttx-turn-state">
+          <small>AM ZUG</small>
+          <strong id="tttxTurn">PLAYER 1</strong>
+        </div>
+        <div class="tttx-player-state tttx-player-o">
           <small id="tttxOpponentLabel">BOT</small>
-          <strong>O</strong>
+          <span class="tttx-player-scoreline"><strong>O</strong><b id="tttxScoreO">0</b></span>
         </div>
-        <div><small>MODUS</small><strong id="tttxMode">NORMAL</strong></div>
+        <div class="tttx-round-state">
+          <small>BO3</small>
+          <strong id="tttxRound">RUNDE 1</strong>
+          <span id="tttxMode">NORMAL</span>
+        </div>
       </section>
 
       <section class="tttx-mechanic">
@@ -98,11 +116,11 @@
 
       <section class="tttx-result-card tttx-card">
         <header>
-          <strong>FINALES ERGEBNIS</strong>
-          <span id="tttxResultMeta">NORMAL · 1 BOARD</span>
+          <strong>TIC TAC TOE · FINALES ERGEBNIS</strong>
+          <span id="tttxResultMeta">BO3 · NORMAL</span>
         </header>
         <div class="tttx-result-columns">
-          <span>POSITION</span><span>NAME</span><span>ERGEBNIS</span><span>ZÜGE</span>
+          <span>POSITION</span><span>PLAYER</span><span>RUNDEN</span><span></span>
         </div>
         <div id="tttxResultRows"></div>
       </section>
@@ -112,6 +130,6 @@
   </main>
 </section>
 
-<script src="./app.js?v=2.1.4"></script>
+<script src="./app.js?v=2.2.0"></script>
 </body>
 </html>
