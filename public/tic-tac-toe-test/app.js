@@ -80,6 +80,7 @@ function newSession(){
     movesTotal:0,
     winner:null,
     winning:[],
+    lastMove:null,
     locked:false
   };
 }
@@ -91,6 +92,7 @@ function prepareNextBoard(countRound=false){
   game.boardIndex+=1;
   game.boardMoves=0;
   game.winning=[];
+  game.lastMove=null;
   game.locked=false;
   if(countRound)game.roundNumber=Math.min(3,game.wins.X+game.wins.O+1);
   renderPlay();
@@ -118,6 +120,55 @@ function markSvg(symbol){
     +'<path class="tttx-shape-fill" fill-rule="evenodd" d="M50 12a38 38 0 1 1 0 76 38 38 0 0 1 0-76Zm0 14a24 24 0 1 0 0 48 24 24 0 0 0 0-48Z"/>'
     +'</svg>';
 }
+function cellCenter(index,rect,cell){
+  const r=cell.getBoundingClientRect();
+  return {
+    x:r.left-rect.left+r.width/2,
+    y:r.top-rect.top+r.height/2
+  };
+}
+function renderWinningLine(){
+  if(!game?.winning?.length||!Number.isInteger(game.lastMove))return;
+  const boardRect=board.getBoundingClientRect();
+  if(!boardRect.width||!boardRect.height)return;
+  const lastCell=board.querySelector('[data-cell="'+game.lastMove+'"]');
+  if(!lastCell)return;
+  const start=cellCenter(game.lastMove,boardRect,lastCell);
+  const endpoints=game.winning
+    .filter(index=>index!==game.lastMove)
+    .map(index=>({index,cell:board.querySelector('[data-cell="'+index+'"]')}))
+    .filter(item=>item.cell)
+    .map(item=>({index:item.index,point:cellCenter(item.index,boardRect,item.cell)}));
+
+  if(!endpoints.length)return;
+
+  let targets=endpoints;
+  const lastPos=game.winning.indexOf(game.lastMove);
+  if(lastPos===0||lastPos===game.winning.length-1){
+    const targetIndex=lastPos===0?game.winning[game.winning.length-1]:game.winning[0];
+    const target=endpoints.find(item=>item.index===targetIndex);
+    targets=target?[target]:[endpoints[endpoints.length-1]];
+  }
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.classList.add('tttx-win-line');
+  svg.setAttribute('viewBox',`0 0 ${boardRect.width} ${boardRect.height}`);
+  svg.style.setProperty('--tttx-win-color',PLAYERS[game.current].color);
+
+  targets.forEach(({point})=>{
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',start.x);
+    line.setAttribute('y1',start.y);
+    line.setAttribute('x2',point.x);
+    line.setAttribute('y2',point.y);
+    const length=Math.hypot(point.x-start.x,point.y-start.y);
+    line.style.setProperty('--tttx-win-length',String(length));
+    line.style.strokeDasharray=String(length);
+    line.style.strokeDashoffset=String(length);
+    svg.appendChild(line);
+  });
+  board.appendChild(svg);
+}
 function renderBoard(){
   const botTurn=game.opponent==='BOT'&&game.current==='O';
   board.innerHTML=game.board.map((symbol,index)=>{
@@ -128,6 +179,7 @@ function renderBoard(){
     return `<button class="tttx-cell${winning?' is-winning':''}${age}" style="--tttx-mark-color:${color}" type="button" role="gridcell" data-cell="${index}" ${disabled?'disabled':''} aria-label="${symbol?PLAYERS[symbol].name+' · '+symbol:'Feld '+(index+1)}">${symbol?markSvg(symbol):''}</button>`;
   }).join('');
   board.querySelectorAll('[data-cell]').forEach(btn=>btn.addEventListener('click',()=>move(Number(btn.dataset.cell),'HUMAN')));
+  if(game.winning.length)requestAnimationFrame(renderWinningLine);
 }
 function renderPlay(){
   if(you)you.textContent='X';
@@ -191,6 +243,7 @@ function move(index,source='HUMAN'){
   const actor=game.current;
   game.locked=true;
   game.board[index]=actor;
+  game.lastMove=index;
   game.active[actor].push(index);
   game.boardMoves+=1;
   game.movesTotal+=1;
@@ -206,9 +259,9 @@ function move(index,source='HUMAN'){
     renderPlay();
     if(game.wins[actor]>=2){
       game.winner=actor;
-      transitionTimer=setTimeout(renderResult,650);
+      transitionTimer=setTimeout(renderResult,3300);
     }else{
-      transitionTimer=setTimeout(()=>prepareNextBoard(true),850);
+      transitionTimer=setTimeout(()=>prepareNextBoard(true),3300);
     }
     return;
   }
