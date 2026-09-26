@@ -49,16 +49,21 @@ Ausnahmen müssen ausdrücklich im Game Contract dokumentiert sein.
 
 ## 4.1 Standalone Mobile Chrome Ownership
 
-Standalone game pages own the full mobile viewport. When a game is developed mobile-first, it must not reserve vertical space for tournament-page chrome, banners, navigation or legacy host headers that are not actually rendered inside the standalone.
+Standalone game pages own the full mobile viewport.
+
+For every **mobile-first game**, space for the Tournament Top Banner is **not required** unless that banner is actually rendered as part of the current surface. A mobile-first standalone must therefore never preserve tournament-page height, top padding, offsets, spacers or placeholder chrome merely because the later in-app version may live below a tournament header.
 
 Rules:
-- standalone game chrome begins at the top of the document (top: 0);
-- no inherited padding-top, margin-top, spacer or placeholder may be kept for an absent tournament banner;
-- the standalone's own header/progress chrome is the only top chrome unless the game contract explicitly adds another visible layer;
-- legacy tournament spacing may be explicitly overridden in the standalone scope;
-- safe-area handling may add only the device's real safe-area inset, never an artificial tournament-header reserve.
+- standalone game chrome begins at the top of the document (`top: 0`);
+- **no vertical space may be reserved for an absent Tournament Top Banner**;
+- no inherited `padding-top`, `margin-top`, transform, spacer, min-height compensation or placeholder may survive from tournament-page chrome when that chrome is not rendered;
+- the standalone's own Game Header + Progress are the first visible app chrome;
+- safe-area handling may add only the device's real safe-area inset;
+- tournament-specific top spacing is added only by the tournament host/in-app shell when the game is actually embedded there;
+- a game module must not bake tournament-banner spacing into its own mobile layout;
+- legacy tournament spacing must be explicitly overridden in the standalone/mobile-first scope when necessary.
 
-This rule takes precedence over legacy host-page spacing for standalone test surfaces and future mobile-first standalone games.
+This rule takes precedence over legacy host-page spacing for standalone test surfaces and all future mobile-first games.
 
 ## 4.2 Minimum UI Font Size
 
