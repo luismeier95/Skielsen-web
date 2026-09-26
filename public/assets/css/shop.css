@@ -382,7 +382,7 @@ html[data-theme-contract="2"]:not([data-theme-id="theme.skielsen.core"]):not([da
   color:var(--theme-on-header-contract,#fff)
 }
 
-/* V15.1.139 · Canonical rounded Shop design */
+/* V15.1.140 · Canonical rounded Shop design */
 :root{
   --shop-radius-outer:16px;
   --shop-radius-card:12px;
