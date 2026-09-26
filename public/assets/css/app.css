@@ -4560,6 +4560,38 @@ body.v15-inapp-fullscreen-open #v15InAppLayer .v15-inapp-topstrip{
     bottom:0!important;
   }
 }
+
+
+/* ===== V15.1.140 · Rounded account landing geometry ===== */
+#dbbHomeStep{
+  --landing-radius-outer:16px;
+  --landing-radius-card:12px;
+  --landing-radius-small:9px;
+}
+#dbbHomeStep .dbb-profile-card{
+  border-radius:var(--landing-radius-outer);
+  overflow:hidden;
+}
+#dbbHomeStep .dbb-action-card,
+#dbbHomeStep .dbb-list-empty,
+#dbbHomeStep .dbb-tournament-card,
+#dbbHomeStep .dbb-group-card{
+  border-radius:var(--landing-radius-card);
+  overflow:hidden;
+}
+#dbbHomeStep .dbb-profile-avatar,
+#dbbHomeStep .dbb-home-signout,
+#dbbHomeStep .dbb-section-title button,
+#dbbHomeStep .dbb-tournament-delete{
+  border-radius:var(--landing-radius-small);
+}
+@media(max-width:700px){
+  #dbbHomeStep{
+    --landing-radius-outer:14px;
+    --landing-radius-card:11px;
+    --landing-radius-small:8px;
+  }
+}
 @media(max-width:700px){
   #dbBootstrapOverlay:not([hidden]) ~ #v15InAppLiveStrip{
     bottom:calc(12px + env(safe-area-inset-bottom));
