@@ -62,6 +62,15 @@ export function tick(g,now,grade,random=Math.random){
   }else if(g.stage==='COUNTDOWN')newHint(g,now,random);
   return true;
 }
+function settleBotOnlyActionPhases(g,now,grade,random){
+  // Once every human-controlled team is solved, IDEA/VOTE have no human actor.
+  // Evaluate remaining bot-only teams immediately and expose only the meaningful
+  // FEEDBACK/HINT/REVEAL states to clients.
+  let guard=0;
+  while(guard++<4&&['IDEA','VOTE'].includes(g.stage)&&!g.players.some(p=>!g.teams[p.team].solved)&&shouldTick(g,now)){
+    tick(g,now,grade,random);
+  }
+}
 export function act(g,id,command,now,grade,random=Math.random,resolveIdea=null){
   const team=teamOf(g,id);if(!team)throw new Error('LOBBY_FORBIDDEN');
   // Backward-compatible defaults for sessions created before fuzzy IDEA grouping.
@@ -69,7 +78,7 @@ export function act(g,id,command,now,grade,random=Math.random,resolveIdea=null){
   g.seen[id]=now;
   // Settle an expired phase before accepting input; the browser cannot extend it.
   const expired=!!g.deadline&&now>=g.deadline;
-  if(expired)tick(g,now,grade,random);
+  if(expired){tick(g,now,grade,random);settleBotOnlyActionPhases(g,now,grade,random)}
   const kind=command.kind||'poll';let error=null;
   if(kind==='ready')g.ready[id]=true;
   else if(kind!=='poll'){
@@ -110,7 +119,7 @@ export function act(g,id,command,now,grade,random=Math.random,resolveIdea=null){
     }else error='ACTION_UNAVAILABLE';
   }
   // Do not consume a second phase on the same request after a deadline transition.
-  if(!expired)tick(g,now,grade,random);
+  if(!expired){tick(g,now,grade,random);settleBotOnlyActionPhases(g,now,grade,random)}
   g.revision++;
   return error;
 }

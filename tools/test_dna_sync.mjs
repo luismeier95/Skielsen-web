@@ -82,6 +82,38 @@ test('all teams, reveals, countdown and completion follow one persisted state',(
  }
  assert.equal(g.stage,'COMPLETE');assert.equal(g.term,2);
 });
+test('bot-only IDEA and VOTE phases collapse inside one request after the human team solved',()=>{
+ const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0,{one:['PHONE']});
+ send(g,'a','ready',100);send(g,'b','ready',100);tick(g,g.deadline,grade,()=>.99);
+ send(g,'a','idea',g.startedAt+100,'USB');send(g,'b','idea',g.startedAt+101,'USB');
+ send(g,'a','vote',g.startedAt+200,'USB');send(g,'b','vote',g.startedAt+201,'USB');send(g,'a','submit',g.startedAt+300);
+ assert.equal(g.stage,'FEEDBACK');assert.equal(g.hint,1);assert.equal(g.teams.RED.solved,true);
+ // One poll after feedback must land directly on H2 FEEDBACK. Clients never
+ // receive transient H2 IDEA/VOTE timer screens.
+ send(g,'a','poll',g.deadline);
+ assert.equal(g.stage,'FEEDBACK');assert.equal(g.hint,2);
+ send(g,'a','poll',g.deadline);
+ assert.equal(g.stage,'FEEDBACK');assert.equal(g.hint,3);
+});
+test('Quick Game timer is hidden outside actionable IDEA/VOTE stages and solved view is stable',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ assert.ok(app.includes("decisionStage=stage==='IDEA'||stage==='VOTE'"));
+ assert.ok(app.includes("bar?.classList.toggle('is-passive',!decisionStage)"));
+ assert.ok(app.includes("const solvedSpectator=Boolean(team?.solved&&!ownSolveFeedback"));
+ assert.ok(app.includes("const viewKey=solvedSpectator?"));
+ const css=readFileSync(new URL('../public/dna-test/style.css',import.meta.url),'utf8');
+ assert.ok(css.includes('.dna-timer.is-passive{visibility:hidden}'));
+});
+test('opponent solve toast keeps the original pill visual but sits in header chrome, not over timer',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ const start=app.indexOf('function showOpponentSolves('),end=app.indexOf('function showOwnFeedback(',start);
+ const fn=app.slice(start,end);
+ assert.ok(fn.includes('dna-solve-toast'));
+ assert.equal(fn.includes('headerState.textContent=summary'),false);
+ const css=readFileSync(new URL('../public/dna-test/style.css',import.meta.url),'utf8');
+ assert.ok(css.includes('.dna-solve-strip{position:fixed;left:50%;top:14px'));
+ assert.ok(css.includes('.dna-solve-strip{top:6px;width:calc(100% - 18px)}'));
+});
 test('solved human teams do not wait through 20 s IDEA + 10 s VOTE for bot-only teams',()=>{
  const g=createGame(['one'],[{id:'a',team:'RED'},{id:'b',team:'RED'}],0,{one:['PHONE']});
  send(g,'a','ready',100);send(g,'b','ready',100);tick(g,g.deadline,grade,()=>.99);
@@ -181,15 +213,6 @@ test('Quick Games releases Edge Postgres connections and does not poll at 500 ms
  assert.ok(edge.includes('idle_timeout:1'));
  assert.ok(edge.includes('max_lifetime:5'));
  assert.ok(sync.includes('this.queue.length?0:this.pollAfter'));
-});
-test('Quick Game opponent-solve notice stays in the header and never overlays the timer',()=>{
- const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
- const start=app.indexOf('function showOpponentSolves('),end=app.indexOf('function showOwnFeedback(',start);
- const fn=app.slice(start,end);
- assert.ok(fn.includes('if(s.quickLobby)'));
- assert.ok(fn.includes("if(host)host.innerHTML=''"));
- assert.ok(fn.includes("headerState.textContent=summary?"));
- assert.ok(fn.includes("GELÖST +"));
 });
 test('shared countdown is driven only by server timestamps, not local setTimeout steps',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
