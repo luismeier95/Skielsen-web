@@ -903,3 +903,63 @@ body.tttx-body.v15-tournament-active{
 .tttx-overtime-overlay>span>strong{
   text-shadow:none!important;
 }
+
+
+/* TTT_PLAY_INFORMATION_HIERARCHY_V1
+   Equal vertical rhythm: config header -> round -> score -> board. */
+.tttx-play{
+  --tttx-play-v-gap:clamp(16px,2.6dvh,28px);
+  grid-template-rows:auto auto auto minmax(0,1fr)!important;
+  row-gap:var(--tttx-play-v-gap)!important;
+}
+.tttx-status{
+  min-height:74px;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.tttx-status>div{
+  min-width:0;
+  padding:10px 8px!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.tttx-status>div strong{
+  font-family:var(--display,var(--ui));
+  font-size:16px!important;
+  font-weight:950;
+  line-height:1;
+  color:var(--theme-on-surface);
+  overflow:visible;
+  text-overflow:clip;
+}
+.tttx-round-display{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:56px;
+  color:var(--theme-on-page);
+  font-family:var(--display,var(--ui));
+  font-size:56px;
+  font-weight:950;
+  line-height:1;
+  text-align:center;
+  white-space:nowrap;
+}
+.tttx-score-bridge{
+  min-height:56px;
+  align-self:auto!important;
+}
+.tttx-mechanic{
+  min-height:0;
+  display:grid;
+  place-items:start center;
+}
+@media(min-width:721px){
+  .tttx-status{min-height:82px}
+  .tttx-status>div strong{font-size:18px!important}
+}
+@media(max-width:420px){
+  .tttx-play{--tttx-play-v-gap:clamp(12px,2.1dvh,20px)}
+  .tttx-round-display{font-size:56px}
+}
