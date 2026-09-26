@@ -650,3 +650,17 @@ body.tttx-body.v15-tournament-active{
   .tttx-time-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
   .tttx-time-options .tttx-choice{min-height:76px}
 }
+
+
+/* TTT_TIME_OPTION_CENTER_V1 */
+.tttx-time-options .tttx-choice{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.tttx-time-options .tttx-choice strong{
+  width:100%;
+  margin:0!important;
+  text-align:center!important;
+}
