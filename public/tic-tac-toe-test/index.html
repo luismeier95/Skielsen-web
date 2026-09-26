@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.2.3">
+<link rel="stylesheet" href="./style.css?v=2.2.4">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -87,22 +87,24 @@
       <section class="tttx-status tttx-card" aria-label="Spielstatus">
         <div class="tttx-player-state tttx-player-x">
           <small>PLAYER 1</small>
-          <span class="tttx-player-scoreline"><strong>X</strong><b id="tttxScoreX">0</b></span>
-        </div>
-        <div class="tttx-turn-state">
-          <small>AM ZUG</small>
-          <strong id="tttxTurn">PLAYER 1</strong>
-        </div>
-        <div class="tttx-player-state tttx-player-o">
-          <small id="tttxOpponentLabel">BOT</small>
-          <span class="tttx-player-scoreline"><strong>O</strong><b id="tttxScoreO">0</b></span>
+          <strong>X</strong>
         </div>
         <div class="tttx-round-state">
           <small>BO3</small>
           <strong id="tttxRound">RUNDE 1</strong>
           <span id="tttxMode">NORMAL</span>
         </div>
+        <div class="tttx-player-state tttx-player-o">
+          <small id="tttxOpponentLabel">BOT</small>
+          <strong>O</strong>
+        </div>
       </section>
+
+      <div class="tttx-score-bridge" aria-label="Rundenstand">
+        <strong class="tttx-score-x" id="tttxScoreX">0</strong>
+        <span>:</span>
+        <strong class="tttx-score-o" id="tttxScoreO">0</strong>
+      </div>
 
       <section class="tttx-mechanic">
         <div class="tttx-board-shell tttx-card">
