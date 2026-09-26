@@ -211,20 +211,9 @@ body.tttx-body{
   stroke:none;
   display:block;
 }
-.tttx-shape-outline{
-  fill:none;
-  stroke:currentColor;
-  stroke-width:3;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  vector-effect:non-scaling-stroke;
-  display:none;
-}
 .tttx-cell.age-newest .tttx-mark{opacity:1}
 .tttx-cell.age-middle .tttx-mark{opacity:.66}
 .tttx-cell.age-oldest .tttx-mark{opacity:.33}
-.tttx-cell.age-oldest .tttx-shape-fill{display:none}
-.tttx-cell.age-oldest .tttx-shape-outline{display:block}
 @media(min-width:721px){
   body.tttx-body{--tttx-radius-outer:16px;--tttx-radius-card:12px;--tttx-gap:18px}
   .tttx-header{height:64px;padding:0 18px}
