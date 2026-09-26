@@ -40,12 +40,15 @@ const ruleTitle=q('#tttxRuleTitle');
 const ruleText=q('#tttxRuleText');
 const resultMeta=q('#tttxResultMeta');
 const resultRows=q('#tttxResultRows');
+const headerState=q('#tttxHeaderState');
 
 function show(page){
   setup.hidden=page!=='SETUP';
   play.hidden=page!=='PLAY';
   result.hidden=page!=='RESULT';
   progress.style.width=page==='SETUP'?'0%':(page==='PLAY'?'50%':'100%');
+  if(headerState) headerState.textContent=page==='PLAY'?'SPIEL':(page==='RESULT'?'ERGEBNIS':'SETUP');
+  document.body.classList.toggle('tttx-game-active',page==='PLAY');
 }
 function other(symbol){return symbol==='X'?'O':'X'}
 function randomStarter(){return Math.random()<.5?'X':'O'}
