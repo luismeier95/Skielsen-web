@@ -64,6 +64,12 @@ This rule takes precedence over legacy host-page spacing for standalone test sur
 
 For mobile-first standalone games, visible UI text must never render below **12px**. This includes labels, metadata, helper copy, status text, result-table labels, setup annotations and ready-page instructions. Decorative non-text graphics are excluded.
 
+## 4.3 Player Names Use Team Colors
+
+Whenever a concrete player or participant name is displayed in game UI, the name must render in that player's or participant's identity/team color.
+
+This applies to status containers, ready screens, overlays, turn announcements, result tables, rankings, countdown/round-transition messages and all future player-name surfaces. Generic role labels that are not a concrete player name may remain neutral.
+
 ## 5. Theme Authority
 
 Keine Theme-Farben im Game hardcoden.
