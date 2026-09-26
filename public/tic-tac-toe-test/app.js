@@ -99,7 +99,7 @@ function newSession(){
     locked:false
   };
 }
-function prepareNextBoard(countRound=false){
+function prepareNextBoard(countRound=false,introTitle=''){
   stopTurnTimer();
   game.starter=other(game.starter);
   game.current=game.starter;
@@ -112,11 +112,12 @@ function prepareNextBoard(countRound=false){
   if(countRound)game.roundNumber+=1;
 
   const overtimeStart=countRound&&game.roundNumber>=5&&game.roundNumber%2===1;
-  game.locked=overtimeStart;
+  const overlayTitle=introTitle||(overtimeStart?'OVERTIME':'');
+  game.locked=!!overlayTitle;
   renderPlay();
 
-  if(overtimeStart){
-    showOvertimeOverlay(()=>{
+  if(overlayTitle){
+    showRoundIntroOverlay(overlayTitle,()=>{
       if(!game)return;
       game.locked=false;
       renderPlay();
@@ -202,11 +203,11 @@ function renderWinningLine(){
   });
   board.appendChild(svg);
 }
-function showOvertimeOverlay(done){
+function showRoundIntroOverlay(title,done){
   const host=document.createElement('div');
   host.className='tttx-overtime-overlay';
   host.setAttribute('aria-live','polite');
-  host.innerHTML='<b>OVERTIME</b><span>'+playerName(game.starter)+' BEGINNT</span>';
+  host.innerHTML='<b>'+title+'</b><span>'+playerName(game.starter)+' BEGINNT</span>';
   board.appendChild(host);
   transitionTimer=setTimeout(()=>{
     host.remove();
@@ -481,7 +482,7 @@ function move(index,source='HUMAN'){
   const full=game.board.every(Boolean);
   if(game.mode==='NORMAL'&&full){
     renderPlay();
-    startRoundCountdown(()=>prepareNextBoard(true));
+    transitionTimer=setTimeout(()=>prepareNextBoard(true,'TIE'),340);
     return;
   }
 
