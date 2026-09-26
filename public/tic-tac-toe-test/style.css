@@ -143,7 +143,7 @@ body.tttx-body{
 .tttx-status{
   height:72px;
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   border-bottom:1px solid var(--theme-border);
 }
 .tttx-status>div{
@@ -173,6 +173,37 @@ body.tttx-body{
   font-size:18px;
   font-weight:950;
   line-height:1;
+}
+.tttx-player-state-line{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+.tttx-life-track{
+  display:none;
+  align-items:center;
+  gap:4px;
+  min-width:0;
+}
+.tttx-life-track.is-visible{display:flex}
+.tttx-life-dot{
+  width:8px;
+  height:8px;
+  border:1px solid var(--theme-border-strong);
+  border-radius:999px;
+  background:var(--theme-surface-muted);
+  opacity:.5;
+}
+.tttx-life-dot.is-used{
+  border-color:var(--tttx-life-color,var(--theme-accent));
+  background:var(--tttx-life-color,var(--theme-accent));
+}
+.tttx-life-dot.is-next-out{
+  background:transparent;
+  border:2px solid var(--tttx-life-color,var(--theme-accent));
+  opacity:1;
+  animation:tttx-danger-pulse 1.15s ease-in-out infinite;
 }
 .tttx-mechanic{
   min-height:calc(100dvh - 148px);
@@ -208,6 +239,29 @@ body.tttx-body{
 .tttx-cell.is-winning{
   background:var(--theme-success-bg);
   color:var(--theme-on-success);
+}
+.tttx-cell.is-next-out{
+  position:relative;
+}
+.tttx-cell.is-next-out::after{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:2px dashed var(--tttx-mark-color,var(--theme-accent));
+  border-radius:12px;
+  pointer-events:none;
+  animation:tttx-danger-pulse 1.15s ease-in-out infinite;
+}
+.tttx-cell.age-oldest .tttx-mark{opacity:.58}
+.tttx-cell.age-middle .tttx-mark{opacity:.8}
+.tttx-cell.age-newest .tttx-mark{opacity:1}
+@keyframes tttx-danger-pulse{
+  0%,100%{opacity:.38;transform:scale(.98)}
+  50%{opacity:1;transform:scale(1)}
+}
+@media (prefers-reduced-motion:reduce){
+  .tttx-cell.is-next-out::after,
+  .tttx-life-dot.is-next-out{animation:none;opacity:1}
 }
 .tttx-mark{
   color:var(--tttx-mark-color,var(--theme-accent));
@@ -322,11 +376,15 @@ body.tttx-body{
   .tttx-primary{min-height:48px}
 
   .tttx-status{height:52px}
-  .tttx-status>div{padding:0 8px;gap:3px}
+  .tttx-status>div{padding:0 7px;gap:3px}
   .tttx-status>div:first-child{padding-left:12px}
   .tttx-status>div:last-child{padding-right:12px}
-  .tttx-status small{font-size:6.5px}
-  .tttx-status strong{font-size:14px}
+  .tttx-status small{font-size:6px}
+  .tttx-status strong{font-size:13px}
+  .tttx-player-state-line{gap:6px}
+  .tttx-life-track{gap:3px}
+  .tttx-life-dot{width:6px;height:6px}
+  .tttx-cell.is-next-out::after{inset:6px;border-radius:9px}
 
   .tttx-mechanic{
     min-height:calc(100dvh - 108px);
