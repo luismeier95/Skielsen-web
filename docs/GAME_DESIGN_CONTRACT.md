@@ -60,6 +60,10 @@ Rules:
 
 This rule takes precedence over legacy host-page spacing for standalone test surfaces and future mobile-first standalone games.
 
+## 4.2 Minimum UI Font Size
+
+For mobile-first standalone games, visible UI text must never render below **12px**. This includes labels, metadata, helper copy, status text, result-table labels, setup annotations and ready-page instructions. Decorative non-text graphics are excluded.
+
 ## 5. Theme Authority
 
 Keine Theme-Farben im Game hardcoden.
