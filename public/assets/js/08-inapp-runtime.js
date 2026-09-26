@@ -270,7 +270,7 @@ function ensureTicTacToeAssets(){
   ticTacToeAssetsPromise=new Promise((resolve,reject)=>{
     if(!document.querySelector('link[data-tic-tac-toe-css]')){
       const link=document.createElement('link');
-      link.rel='stylesheet';link.href=`assets/css/tic-tac-toe-game.css?v=${VERSION}`;link.dataset.ticTacToeCss='1';
+      link.rel='stylesheet';link.href=`assets/css/tic-tac-toe-game.css?v=${VERSION}&fix=tttready1`;link.dataset.ticTacToeCss='1';
       document.head.appendChild(link);
     }
     const existing=document.querySelector('script[data-tic-tac-toe-js]');
@@ -281,7 +281,7 @@ function ensureTicTacToeAssets(){
       return;
     }
     const script=document.createElement('script');
-    script.src=`assets/js/13-tic-tac-toe-game.js?v=${VERSION}`;
+    script.src=`assets/js/13-tic-tac-toe-game.js?v=${VERSION}&fix=tttready1`;
     script.defer=true;script.dataset.ticTacToeJs='1';
     script.onload=()=>resolve();script.onerror=reject;document.head.appendChild(script);
   });
