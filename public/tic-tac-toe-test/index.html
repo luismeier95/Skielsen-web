@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.2.7">
+<link rel="stylesheet" href="./style.css?v=2.2.8">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -90,9 +90,9 @@
           <strong>X</strong>
         </div>
         <div class="tttx-round-state">
-          <small>BO3</small>
+          <small>4+ RUNDEN</small>
           <strong id="tttxRound">RUNDE 1</strong>
-          <span id="tttxMode">NORMAL</span>
+          <span><b id="tttxMode">NORMAL</b> · <b id="tttxTurnTimer">5.0</b>S</span>
         </div>
         <div class="tttx-player-state tttx-player-o">
           <small id="tttxOpponentLabel">BOT</small>
@@ -119,10 +119,10 @@
       <section class="tttx-result-card tttx-card">
         <header>
           <strong>TIC TAC TOE · FINALES ERGEBNIS</strong>
-          <span id="tttxResultMeta">BO3 · NORMAL</span>
+          <span id="tttxResultMeta">4+ RUNDEN · 5S · NORMAL</span>
         </header>
         <div class="tttx-result-columns">
-          <span>POSITION</span><span>PLAYER</span><span>RUNDEN</span><span></span>
+          <span>POSITION</span><span>PLAYER</span><span>PUNKTE</span><span></span>
         </div>
         <div id="tttxResultRows"></div>
       </section>
@@ -132,6 +132,6 @@
   </main>
 </section>
 
-<script src="./app.js?v=2.2.5"></script>
+<script src="./app.js?v=2.3.0"></script>
 </body>
 </html>
