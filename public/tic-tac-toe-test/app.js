@@ -248,7 +248,7 @@ function startRoundCountdown(done){
       done();
     };
     transitionTimer=setTimeout(tick,1000);
-  },340);
+  },2000);
 }
 
 function stopTurnTimer(){
