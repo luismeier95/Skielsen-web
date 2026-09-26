@@ -106,7 +106,7 @@ begin
       r:=(b->>'round_number')::int+1;
       fresh:=private.tic_tac_toe_new_board(ids[1]::uuid,ids[2]::uuid,
         (b->'actors'->>ids[1])::uuid,(b->'actors'->>ids[2])::uuid,starter::uuid,(b->>'turn_seconds')::int);
-      b:=fresh||jsonb_build_object('round_number',r,'board_index',r,
+      b:=fresh||jsonb_build_object('round_number',r,'board_index',r,'symbols',b->'symbols',
         'round_results',b->'round_results','match_points',b->'match_points',
         'overtime_block',greatest(0,(r-3)/2),'transition',jsonb_build_object(
           'kind',case when r>4 and r%2=1 then 'OVERTIME' else 'START' end,
@@ -147,7 +147,7 @@ begin
       for j in 0..8 loop
         if candidate->'board'->>j is not null then continue; end if;
         reply:=private.tic_tac_toe_preview_move(candidate,other,j,variant);
-        if private.tic_tac_toe_winner(reply->'board')::text=other then score:=-500; exit; end if;
+        if private.tic_tac_toe_winner(reply->'board')::text=other then score:=score-500; exit; end if;
       end loop;
     end if;
     if score<minimum then minimum:=score; choices:=array[i];
@@ -366,7 +366,7 @@ begin
 end;
 $$;
 revoke all on function public.submit_tic_tac_toe_move(uuid,integer,uuid,integer,integer) from public,anon;
-grant execute on function public.submit_tic_tac_toe_move(uuid,integer,uuid,integer,integer) to authenticated;
+grant execute on function public.submit_tic_tac_toe_move(uuid,integer,uuid,integer,integer) to authenticated,service_role;
 
 CREATE OR REPLACE FUNCTION public.start_tic_tac_toe_match(p_session_id uuid)
  RETURNS jsonb
@@ -480,6 +480,9 @@ begin
   end if;
 
   update public.in_app_team_mode_configs set locked_at=now(),updated_at=now() where session_id=p_session_id;
+  update public.tournament_games set game_rule_version=3,
+    game_rules_snapshot=(select rules_json from public.available_games where game_id='game.tictactoe.classic_disappear')
+  where tournament_game_id=v_tgid;
   update public.in_app_game_sessions
   set status='ACTIVE',state_json=v_state,started_at=coalesce(started_at,now()),version=version+1,updated_at=now()
   where session_id=p_session_id;
@@ -710,7 +713,7 @@ begin
 end;
 $function$;
 revoke all on function public.set_tic_tac_toe_timer(uuid,integer) from public,anon;
-grant execute on function public.set_tic_tac_toe_timer(uuid,integer) to authenticated;
+grant execute on function public.set_tic_tac_toe_timer(uuid,integer) to authenticated,service_role;
 
 CREATE OR REPLACE FUNCTION public.get_tic_tac_toe_state(p_session_id uuid)
  RETURNS jsonb
@@ -1146,6 +1149,7 @@ begin
     jsonb_build_object(
       'game_key','tic_tac_toe',
       'rules_version',3,
+      'result_version',3,
       'placement',(x.item->>'placement')::integer,
       'team_result',true,
       'counts_for_personal_stats',false,
@@ -1183,6 +1187,162 @@ begin
   return v_result;
 end;
 $function$;
+
+-- Internal helpers are never public RPCs.
+CREATE OR REPLACE FUNCTION public.create_tic_tac_toe_match_session(p_tournament_game_id uuid, p_participant_a_id uuid, p_participant_b_id uuid)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'private', 'pg_temp'
+AS $function$
+declare
+  v_tid uuid;
+  v_mode text;
+  v_game_id text;
+  v_def uuid;
+  v_existing uuid;
+  v_session uuid;
+  v_creator uuid;
+  v_pa public.participants%rowtype;
+  v_pb public.participants%rowtype;
+  v_member record;
+  v_seat integer:=0;
+  v_count_a integer:=0;
+  v_count_b integer:=0;
+begin
+  select tg.tournament_id,t.mode::text,tg.game_id
+    into v_tid,v_mode,v_game_id
+  from public.tournament_games tg
+  join public.tournaments t on t.tournament_id=tg.tournament_id
+  where tg.tournament_game_id=p_tournament_game_id;
+
+  if v_tid is null then raise exception 'TOURNAMENT_GAME_NOT_FOUND'; end if;
+  if v_game_id<>'game.tictactoe.classic_disappear' then raise exception 'TIC_TAC_TOE_GAME_REQUIRED'; end if;
+  if not private.in_app_is_admin(v_tid) then raise exception 'TOURNAMENT_ADMIN_REQUIRED'; end if;
+  if p_participant_a_id is null or p_participant_b_id is null or p_participant_a_id=p_participant_b_id then
+    raise exception 'TIC_TAC_TOE_REQUIRES_TWO_PARTICIPANTS';
+  end if;
+
+  select * into v_pa from public.participants
+  where participant_id=p_participant_a_id and tournament_id=v_tid and status='ACTIVE';
+  select * into v_pb from public.participants
+  where participant_id=p_participant_b_id and tournament_id=v_tid and status='ACTIVE';
+  if v_pa.participant_id is null or v_pb.participant_id is null then raise exception 'PARTICIPANT_NOT_ACTIVE'; end if;
+
+  if v_mode='SOLO' and (v_pa.participant_type::text<>'SOLO' or v_pb.participant_type::text<>'SOLO') then
+    raise exception 'SOLO_PARTICIPANTS_REQUIRED';
+  end if;
+  if v_mode='TEAM' and (v_pa.participant_type::text<>'TEAM' or v_pb.participant_type::text<>'TEAM') then
+    raise exception 'TEAM_PARTICIPANTS_REQUIRED';
+  end if;
+
+  select s.session_id into v_existing
+  from public.in_app_game_sessions s
+  join public.in_app_game_definitions d on d.game_definition_id=s.game_definition_id
+  where s.tournament_game_id=p_tournament_game_id
+    and d.game_key='tic_tac_toe'
+    and s.status not in ('FINISHED','CANCELLED')
+  order by s.created_at desc
+  limit 1
+  for update of s;
+
+  if v_existing is not null then
+    if (select public_state_json->>'participant_a_id' from public.in_app_game_sessions where session_id=v_existing)=p_participant_a_id::text
+       and (select public_state_json->>'participant_b_id' from public.in_app_game_sessions where session_id=v_existing)=p_participant_b_id::text then
+      return v_existing;
+    end if;
+    raise exception 'ANOTHER_TIC_TAC_TOE_MATCH_SESSION_IS_OPEN';
+  end if;
+
+  select game_definition_id into v_def
+  from public.in_app_game_definitions
+  where game_key='tic_tac_toe' and is_active=true
+  limit 1;
+  if v_def is null then raise exception 'TIC_TAC_TOE_DEFINITION_NOT_FOUND'; end if;
+
+  v_creator:=private.in_app_current_member(v_tid);
+
+  insert into public.in_app_game_sessions(
+    tournament_id,tournament_game_id,match_id,game_definition_id,status,
+    public_state_json,created_by_member_id
+  )
+  values(
+    v_tid,p_tournament_game_id,null,v_def,'WAITING_FOR_PLAYERS',
+    jsonb_build_object(
+      'source','TIC_TAC_TOE_PRESTART',
+      'participant_a_id',p_participant_a_id::text,
+      'participant_b_id',p_participant_b_id::text,
+      'tournament_mode',v_mode,
+      'team_mode',case when v_mode='SOLO' then 'SOLO' else null end,
+      'difficulty',null,
+      'tic_tac_toe_variant',null,
+      'rules_version',3,
+      'tic_tac_toe_turn_seconds',0
+    ),
+    v_creator
+  )
+  returning session_id into v_session;
+
+  if v_mode='SOLO' then
+    if v_pa.solo_member_id is null or v_pb.solo_member_id is null then raise exception 'SOLO_MEMBER_MISSING'; end if;
+    insert into public.in_app_game_session_players(session_id,tournament_member_id,participant_id,seat,status)
+    values
+      (v_session,v_pa.solo_member_id,p_participant_a_id,1,'ASSIGNED'),
+      (v_session,v_pb.solo_member_id,p_participant_b_id,2,'ASSIGNED');
+    insert into public.in_app_team_mode_configs(session_id,mode,selected_by_member_id)
+    values(v_session,'SOLO',v_creator);
+  else
+    for v_member in
+      select tm.tournament_member_id,p.participant_id,
+             row_number() over(partition by p.participant_id order by x.joined_at,tm.tournament_member_id) as team_slot
+      from public.participants p
+      join public.team_members x on x.team_id=p.team_id and x.left_at is null
+      join public.tournament_members tm on tm.tournament_member_id=x.tournament_member_id
+      where p.participant_id in (p_participant_a_id,p_participant_b_id)
+        and tm.tournament_id=v_tid
+        and tm.left_at is null
+        and tm.membership_status='JOINED'
+        and tm.participation_status='ACTIVE'
+      order by case when p.participant_id=p_participant_a_id then 0 else 1 end,
+               x.joined_at,tm.tournament_member_id
+    loop
+      v_seat:=v_seat+1;
+      if v_member.participant_id=p_participant_a_id then v_count_a:=v_count_a+1; else v_count_b:=v_count_b+1; end if;
+      insert into public.in_app_game_session_players(session_id,tournament_member_id,participant_id,seat,status)
+      values(v_session,v_member.tournament_member_id,v_member.participant_id,v_seat,'ASSIGNED');
+    end loop;
+    if v_count_a<>2 or v_count_b<>2 then
+      raise exception 'TIC_TAC_TOE_TEAM_MODE_REQUIRES_TWO_PLAYERS_PER_TEAM';
+    end if;
+  end if;
+
+  return v_session;
+end;
+$function$
+;
+
+-- Catalog metadata must describe the engine, including the decider.
+update public.in_app_game_definitions
+set config_json=(coalesce(config_json,'{}'::jsonb)-'decider_turn_seconds')||
+  jsonb_build_object('rules_version',3,'result_version',3,'regular_rounds',4,
+    'turn_seconds_options',jsonb_build_array(0,3,5,7),'variant_locked_after','MATCH_START'),
+  updated_at=now()
+where game_key='tic_tac_toe';
+update public.available_games
+set rule_version=3,
+ rules_json=jsonb_set(coalesce(rules_json,'{}'::jsonb)||jsonb_build_object(
+   'rulesVersion',3,'resultVersion',3,'regularRounds',4,'earlyClinch',true,
+   'normalDraw','TIE_ROUND_ALTERNATE_STARTER','variantLockedAfter','MATCH_START',
+   'overtime','COMPLETE_TWO_ROUND_BLOCKS_BY_WINS',
+   'matchPoints',jsonb_build_object('starterWin',1,'opponentStartWin',2),
+   'timer',jsonb_build_object('options',jsonb_build_array(0,3,5,7),'firstMoveUntimed',true,
+     'authority','SERVER','timeoutResult','WORST_LEGAL_MOVE')
+ ),array['teamPlay'],coalesce(rules_json->'teamPlay','{}'::jsonb)||jsonb_build_object(
+   'decider',jsonb_build_object('trigger','PARALLEL_SPLIT_1_1','selection','ONE_PLAYER_PER_TEAM',
+      'engine','SAME_FOUR_PLUS_ROUND_DUEL','timer','SHARED_MATCH_CONFIGURATION'))),
+ rules_text='Direkte Duelle spielen 4+ Runden mit wechselndem Starter. Siege als Starter geben 1 Matchpunkt, sonst 2. Uneinholbarer Vorsprung entscheidet vorzeitig. Gleichstand nach Runde 4 führt zu vollständigen Overtime-Zweierblöcken: zwei Siege oder Sieg plus TIE entscheiden; geteilte Siege und zwei TIEs verlängern. NORMAL und DISAPPEAR (maximal drei eigene Steine) nutzen dieselbe Engine. Timer AUS/3/5/7: erster Zug jeder Runde unbefristet, Timeout setzt einen schwachen legalen Zug. Matchpunkte und Turnierpunkte sind getrennt.',
+ updated_at=now()
+where game_id='game.tictactoe.classic_disappear';
 
 -- Internal helpers are never public RPCs.
 revoke all on function private.tic_tac_toe_finish_round(jsonb,uuid,jsonb),

@@ -84,9 +84,8 @@ node --test tools/test_dna_sync.mjs
 
 - `tools/validate_static.py`: Struktur, Referenzen, Versionen, Contract-Marker,
   Theme-Pruefungen und bekannte Legacy-Verbote. Kein vollstaendiger Browser-Test.
-- `.github/workflows/pages.yml`: statische Validierung und Syntaxpruefung nur
-  unter `public/assets/js/`, danach Deployment von `public/`. Unveraendert;
-  der lokale Verify-Befehl deckt mehr JavaScript ab.
+- `.github/workflows/pages.yml`: `tools/verify.py` prueft alle Public-JavaScript-
+  und relevanten Inline-Skripte, danach laufen DNA-Regressionen und das Deployment.
 - `tools/score_word_chain_frequency.py` und der zugehoerige Workflow sind ein
   separater Daten-Audit: benoetigen `wordfreq`, Netzwerk und schreiben
   `data/wortkette-frequency-audit.json`. Nicht Teil des normalen Verify-Laufs.
@@ -98,6 +97,35 @@ node --test tools/test_dna_sync.mjs
   Code noch Authentifizierung, Backend-Verhalten oder visuelle Korrektheit.
 
 ## Codex vor einem Commit
+
+### TicTacToe v3 Regressionen
+
+Die SQL-Tests fuehren die echten RPCs und die Migration in einer lokalen,
+fluechtigen PostgreSQL-Instanz aus. PGlite ist ausschliesslich eine temporaere
+Testabhaengigkeit; die statische App benoetigt weiterhin keine npm-Installation.
+
+```powershell
+npm install --prefix "$env:TEMP/skielsen-ttt-pg-test" --no-audit --no-fund @electric-sql/pglite@0.5.8
+$env:PGLITE_MODULE="$env:TEMP/skielsen-ttt-pg-test/node_modules/@electric-sql/pglite/dist/index.js"
+node --test tools/test_tic_tac_toe.mjs
+```
+
+Browser-Tests verwenden eine vorhandene Playwright-Installation und Edge:
+
+```powershell
+$env:PLAYWRIGHT_MODULE="<playwright-installation>/index.mjs"
+node tools/test_tic_tac_toe_ui.mjs
+```
+
+`PLAYWRIGHT_CHANNEL` kann fuer einen anderen installierten Browser gesetzt werden.
+Die Browser-Tests mounten das Produktionsmodul mit RPC-Fixtures in sechs Viewports.
+Sie pruefen Overlays, Timer nach Remount und Result → Joker → Merge → Close.
+SQL-Fixtures testen die Aufrufe an Joker/Ledger als Schnittstellen, nicht deren
+unveraenderte interne Berechnung. Physische Mehrgeraete-Playtests bleiben erforderlich.
+Der bisherige lokale Admin-Testbot ist ein separater Legacy-QA-Pfad und kein
+Nachweis fuer die serverseitigen v3-Duelle.
+
+### Checkliste
 
 1. `AGENTS.md` und relevante Contracts lesen; `git status --short` pruefen.
 2. `python tools/verify.py` ausfuehren; Fehler untersuchen, nicht umgehen.

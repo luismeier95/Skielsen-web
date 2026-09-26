@@ -22,7 +22,7 @@ Die Vollversion bleibt im bestehenden In-App-/Supabase-/Turnierframework.
   Der erste gesetzte Zug jeder Runde ist unbefristet. Danach gilt pro Zug eine
   Serverdeadline. Timeout setzt einen schwachen legalen Zug, niemals Matchverlust.
   Auswahl wie Standalone: eigener Sofortsieg 1000; gegnerischer Sofortsieg nach
-  Antwort -500; sonst Mitte 30, Ecke 15, Rand 5. Zufall unter niedrigsten Werten.
+  Antwort -500; zusätzlich Mitte 30, Ecke 15, Rand 5. Zufall unter niedrigsten Werten.
 - State-Reads und Moves verarbeiten abgelaufene Deadlines unter Session-Lock.
   Ohne verbundenen Client erfolgt die Verarbeitung beim nächsten Request.
   Überfällige Zeit wird nicht als Serie unsichtbarer Autozüge nachgeholt.

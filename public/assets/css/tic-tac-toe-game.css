@@ -378,9 +378,10 @@
 
 /* Rules v3: standalone blueprint inside the existing In-App viewport.
    No global navigation or viewport ownership is transferred from standalone. */
+#v15InAppLayer:has(.tttp-game-v3) .v15-inapp-shell{padding:0}
 .tttp-game-v3{
   --tttp-rhythm:clamp(12px,2.2dvh,24px);
-  --tttp-score-size:clamp(28px,6vw,56px);
+  --tttp-score-size:clamp(28px,min(6vw,7dvh),56px);
   width:min(760px,100%);margin:0 auto;padding:12px 14px max(12px,env(safe-area-inset-bottom));
   display:grid;grid-template-rows:auto auto auto minmax(0,1fr);gap:var(--tttp-rhythm);
 }
@@ -402,6 +403,7 @@
 .tttp-match-score strong,.tttp-match-score span{font:inherit}
 .tttp-board-area{min-width:0;min-height:0;display:grid;justify-items:center}
 .tttp-board-stack{
+  position:relative;
   width:min(100%,460px,max(80px,calc(var(--tttp-available-height,100dvh) - 130px - 2 * var(--tttp-score-size) - 3 * var(--tttp-rhythm))));
   min-width:0;
 }
@@ -433,7 +435,7 @@
   font:950 clamp(22px,6vw,48px)/1 var(--display,var(--ui));overflow-wrap:anywhere;text-shadow:none;
 }
 .tttp-overlay-card strong,.tttp-overlay-card span{font:inherit}
-.tttp-timer-bar{height:8px;margin:0 8px 14px;border-radius:999px;background:var(--theme-surface-muted);overflow:hidden}
+.tttp-timer-bar{position:absolute;top:-15px;left:8px;right:8px;height:8px;margin:0;border-radius:999px;background:var(--theme-surface-muted);overflow:hidden}
 .tttp-timer-bar i{display:block;height:100%;width:100%;background:var(--theme-accent);transform-origin:left center}
 .tttp-timer-bar.is-passive{visibility:hidden}
 .tttp-timer-bar.tttp-timer-warning i{background:var(--theme-warning-bg)}

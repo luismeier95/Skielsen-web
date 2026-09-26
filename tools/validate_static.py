@@ -242,7 +242,9 @@ if '.tttp-choice-grid,.tttp-mode-grid,.tttp-difficulty-grid{grid-template-column
 _gdc_doc=(ROOT/'docs/GAME_DESIGN_CONTRACT.md').read_text(encoding='utf-8')
 for _needle in ['Game Mode Page Contract','mindestens **zwei auswählbare Game Modes**','repeat(var(--game-mode-count), minmax(0, 1fr))','Mobile <= 720 px']:
  if _needle not in _gdc_doc: fail('Verbindlicher Game Mode Page Contract fehlt: '+_needle)
-if "data-ttt-countdown" not in _ttt_prod_text or "DECIDER_PLAYING" not in _ttt_prod_text: fail('Tic Tac Toe 5-Sekunden-Decider UI fehlt')
+for _needle in ['set_tic_tac_toe_timer','p_expected_round','p_expected_move','serverNow()','tttp-timer-bar','boardOverlay','DECIDER_PLAYING']:
+ if _needle not in _ttt_prod_text: fail('Tic Tac Toe v3 Timer/Transition-Anbindung fehlt: '+_needle)
+if 'data-ttt-countdown' in _ttt_prod_text: fail('Verworfene feste 5-Sekunden-Decider UI darf nicht zurückkehren')
 if "TIC_TAC_TOE_MODULE='tic-tac-toe'" not in runtime_text or 'ensureTicTacToeAssets' not in runtime_text or 'renderTicTacToeSession' not in runtime_text: fail('Tic Tac Toe ist nicht in die In-App Runtime integriert')
 if 'create_tic_tac_toe_match_session' not in runtime_text or 'get_tic_tac_toe_result' not in runtime_text: fail('Tic Tac Toe Match-Lifecycle fehlt in der Runtime')
 if 'ingestTicTacToeResult' not in bridge_text or "result?.game_key==='tic_tac_toe'" not in bridge_text: fail('Tic Tac Toe Result-Handoff fehlt')

@@ -2,6 +2,9 @@
 create schema private;
 create role anon;
 create role authenticated;
+create role service_role;
+create table public.available_games(game_id text primary key,rule_version int,rules_json jsonb,rules_text text,updated_at timestamptz);
+insert into public.available_games values('game.tictactoe.classic_disappear',2,'{"teamPlay":{"decider":{"turnTimeSeconds":5,"timeoutResult":"OPPONENT_WINS"}}}','legacy',now());
 create type public.tournament_game_status as enum ('ACTIVE','COMPLETED');
 create table public.game_placements(tournament_game_id uuid, participant_id uuid, placement integer, base_points integer, multiplier numeric, final_points integer, created_at timestamp with time zone);
 create table public.in_app_game_actions(action_id uuid, session_id uuid, tournament_member_id uuid, action_type text, payload_json jsonb, accepted boolean, server_result_json jsonb, created_at timestamp with time zone);
@@ -21,6 +24,9 @@ create table public.tournament_members(tournament_member_id uuid, tournament_id 
 create table public.tournaments(tournament_id uuid, creator_user_id uuid, parent_tournament_id uuid, creation_type text, name text, mode text, status text, expected_active_players integer, scoring_profile_id text, theme_pack_id text, base_feature_pack_id text, bet_starting_credits bigint, checkout_completed_at timestamp with time zone, lobby_opened_at timestamp with time zone, community_rating_opened_at timestamp with time zone, community_rating_completed_at timestamp with time zone, play_started_at timestamp with time zone, completed_at timestamp with time zone, created_at timestamp with time zone, updated_at timestamp with time zone, game_order_finalized_at timestamp with time zone, settings_confirmed_at timestamp with time zone, test_mode boolean);
 
 alter table public.in_app_game_actions alter column created_at set default now();
+alter table public.in_app_game_sessions alter column session_id set default gen_random_uuid();
+alter table public.in_app_game_sessions alter column version set default 1;
+alter table public.in_app_game_sessions alter column state_json set default '{}'::jsonb;
 alter table public.in_app_team_mode_configs add primary key(session_id);
 alter table public.tournament_game_participants add primary key(tournament_game_id,participant_id);
 alter table public.tournament_game_representatives add primary key(tournament_game_id,participant_id,tournament_member_id);
@@ -32,4 +38,3 @@ create table private.test_handoff_calls(kind text, id uuid);
 create function private.apply_tournament_game_joker_effect(id uuid) returns void language sql as $$insert into private.test_handoff_calls values('joker',id)$$;
 create function private.sync_game_placement_points_to_ledger(id uuid) returns void language sql as $$insert into private.test_handoff_calls values('ledger',id)$$;
 create function private.build_tournament_game_joker_reveal(id uuid) returns jsonb language sql as $$select jsonb_build_object('test_fixture',true)$$;
-

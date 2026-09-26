@@ -163,7 +163,7 @@ function renderDifficulty(){
   root.innerHTML=`${header('SPIELEINSTELLUNGEN','3 / 3')}
     <main class="tttp-stage tttp-prestart">
       <section class="tttp-title"><small>4+ RUNDEN PRO DUELL</small><h2>VARIANTE WÄHLEN.</h2></section>
-      <div class="tttp-choice-grid tttp-difficulty-grid" style="--difficulty-count:2">
+      <div class="tttp-choice-grid tttp-difficulty-grid" style="--difficulty-count:${options.length}">
         ${options.map(([key,copy])=>`<button type="button" class="tttp-choice ${selectedVariant===key?'is-selected':''}" data-variant="${key}" ${isAdmin()?'':'disabled'}>
           <strong>${key}</strong><span>${copy}</span></button>`).join('')}
       </div>

@@ -1,4 +1,10 @@
 -- Restore pre-v3 RPC definitions. Stop v3 sessions before using this rollback.
+do $$ begin
+ if exists(select 1 from public.in_app_game_sessions s join public.in_app_game_definitions d using(game_definition_id)
+ where d.game_key='tic_tac_toe' and s.status='ACTIVE') then
+ raise exception 'Finish active TicTacToe sessions before rollback'; end if;
+end $$;
+drop function if exists public.set_tic_tac_toe_timer(uuid,integer);
 drop function if exists public.submit_tic_tac_toe_move(uuid,integer,uuid,integer,integer);
 CREATE OR REPLACE FUNCTION private.finalize_tic_tac_toe_match_session(p_session_id uuid, p_state jsonb, p_winner_participant_id uuid, p_completion_reason text)
  RETURNS jsonb
@@ -1511,3 +1517,9 @@ begin
   return v_response;
 end;
 $function$;
+revoke all on function public.submit_tic_tac_toe_move(uuid,integer,uuid) from public,anon;
+grant execute on function public.submit_tic_tac_toe_move(uuid,integer,uuid) to authenticated,service_role;
+
+-- Restore only affected catalog metadata, never historical session results.
+update public.in_app_game_definitions set config_json='{"variants":["NORMAL","DISAPPEAR"],"team_size":2,"team_modes":["ALTERNATING","SELECTED_PLAYER","SIMULTANEOUS"],"mobile_first":true,"rules_version":2,"variant_default":"NORMAL","participant_mode":"BOTH","individual_devices":true,"decider_turn_seconds":5,"variant_locked_after":"FIRST_MOVE","require_variant_selection":true,"disappear_max_active_marks":3,"variant_selection_authority":"TOURNAMENT_ADMIN"}'::jsonb,updated_at=now() where game_key='tic_tac_toe';
+update public.available_games set rule_version=2,rules_json='{"teamPlay":{"decider":{"trigger":"PARALLEL_SPLIT_1_1","selection":"ONE_PLAYER_PER_TEAM","timeoutResult":"OPPONENT_WINS","turnTimeSeconds":5},"teamSize":2,"supported":true,"supportedModes":["ALTERNATING","SELECTED_PLAYER","SIMULTANEOUS"],"selectedPlayerAuthority":"TEAM"},"turnMode":"SEQUENTIAL","variants":["NORMAL","DISAPPEAR"],"boardSize":3,"normalDraw":"NEW_BOARD_ALTERNATE_STARTER","participants":2,"resultEntity":"PARTICIPANT","rulesVersion":2,"participantMode":"BOTH","primaryScoreType":"WIN_POINTS","variantSelection":"TOURNAMENT_ADMIN","disappearWinCheck":"AFTER_OLDEST_MARK_REMOVAL","variantLockedAfter":"FIRST_MOVE","playersPerParticipant":1,"primaryScoreDirection":"HIGHER_IS_BETTER","disappearMaxActiveMarks":3}'::jsonb,rules_text='Zwei Player spielen abwechselnd auf einem 3×3-Feld. NORMAL nutzt die klassischen Regeln. In DISAPPEAR bleiben pro Player maximal drei eigene Symbole aktiv; beim Setzen des vierten verschwindet das älteste eigene Symbol, danach wird der Sieg geprüft.',updated_at=now() where game_id='game.tictactoe.classic_disappear';
