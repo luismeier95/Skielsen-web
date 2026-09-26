@@ -1,3 +1,6 @@
+/* TIC_TAC_TOE_STANDALONE_MOBILE_CONTRACT
+   Mobile-first standalone contract. DNA is the current visual baseline.
+   Active gameplay uses compact chrome, no keyboard reserve, and a stable board area. */
 /* SKIELSEN · Tic Tac Toe standalone · DNA-design migration */
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
