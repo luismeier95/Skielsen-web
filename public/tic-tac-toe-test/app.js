@@ -209,7 +209,7 @@ function renderBoard(){
 }
 function renderPlay(){
   if(you)you.textContent='X';
-  turn.textContent=game.opponent==='BOT'&&game.current==='O'?'BOT':PLAYERS[game.current].name;
+  if(turn)turn.textContent=game.opponent==='BOT'&&game.current==='O'?'BOT':PLAYERS[game.current].name;
   mode.textContent=game.mode;
   if(scoreX)scoreX.textContent=game.wins.X;
   if(scoreO)scoreO.textContent=game.wins.O;
