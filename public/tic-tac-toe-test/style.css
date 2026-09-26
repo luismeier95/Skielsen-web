@@ -240,28 +240,23 @@ body.tttx-body{
   background:var(--theme-success-bg);
   color:var(--theme-on-success);
 }
-.tttx-cell.is-next-out{
-  position:relative;
-}
-.tttx-cell.is-next-out::after{
-  content:"";
-  position:absolute;
-  inset:8px;
-  border:2px dashed var(--tttx-mark-color,var(--theme-accent));
-  border-radius:12px;
-  pointer-events:none;
-  animation:tttx-danger-pulse 1.15s ease-in-out infinite;
-}
-.tttx-cell.age-oldest .tttx-mark{opacity:.58}
-.tttx-cell.age-middle .tttx-mark{opacity:.8}
+.tttx-cell.age-oldest .tttx-mark{opacity:.68}
+.tttx-cell.age-middle .tttx-mark{opacity:.84}
 .tttx-cell.age-newest .tttx-mark{opacity:1}
+.tttx-cell.is-next-out .tttx-mark{
+  animation:tttx-mark-pulse 1.05s ease-in-out infinite;
+}
+@keyframes tttx-mark-pulse{
+  0%,100%{opacity:.42;transform:scale(.94)}
+  50%{opacity:1;transform:scale(1.05)}
+}
 @keyframes tttx-danger-pulse{
   0%,100%{opacity:.38;transform:scale(.98)}
   50%{opacity:1;transform:scale(1)}
 }
 @media (prefers-reduced-motion:reduce){
-  .tttx-cell.is-next-out::after,
-  .tttx-life-dot.is-next-out{animation:none;opacity:1}
+  .tttx-cell.is-next-out .tttx-mark,
+  .tttx-life-dot.is-next-out{animation:none;opacity:1;transform:none}
 }
 .tttx-mark{
   color:var(--tttx-mark-color,var(--theme-accent));
@@ -384,7 +379,6 @@ body.tttx-body{
   .tttx-player-state-line{gap:6px}
   .tttx-life-track{gap:3px}
   .tttx-life-dot{width:6px;height:6px}
-  .tttx-cell.is-next-out::after{inset:6px;border-radius:9px}
 
   .tttx-mechanic{
     min-height:calc(100dvh - 108px);
