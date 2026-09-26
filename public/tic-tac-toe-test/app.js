@@ -100,13 +100,10 @@ function markSvg(symbol){
   if(symbol==='X'){
     return '<svg class="tttx-mark" viewBox="0 0 100 100" aria-hidden="true">'
       +'<path class="tttx-shape-fill" d="M14 22 L22 14 L50 42 L78 14 L86 22 L58 50 L86 78 L78 86 L50 58 L22 86 L14 78 L42 50 Z"/>'
-      +'<path class="tttx-shape-outline" d="M14 22 L22 14 L50 42 L78 14 L86 22 L58 50 L86 78 L78 86 L50 58 L22 86 L14 78 L42 50 Z"/>'
       +'</svg>';
   }
   return '<svg class="tttx-mark" viewBox="0 0 100 100" aria-hidden="true">'
     +'<path class="tttx-shape-fill" fill-rule="evenodd" d="M50 12a38 38 0 1 1 0 76 38 38 0 0 1 0-76Zm0 14a24 24 0 1 0 0 48 24 24 0 0 0 0-48Z"/>'
-    +'<circle class="tttx-shape-outline" cx="50" cy="50" r="38"/>'
-    +'<circle class="tttx-shape-outline" cx="50" cy="50" r="24"/>'
     +'</svg>';
 }
 function renderBoard(){
