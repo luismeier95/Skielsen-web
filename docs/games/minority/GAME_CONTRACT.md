@@ -233,7 +233,10 @@ The earlier candidates `Wasser / Saft / Energy` and `Samstag / Sonntag / Feierta
 - The current standalone / Quick Games baseline is **SOLO with 4 players**.
 - Minority must later support a **team mode with up to 8 human players**.
 - The 4-player SOLO limit must therefore not be treated as a permanent global Minority limit.
-- The exact future team composition, team decision model, scoring ownership and tie behavior are **not yet fixed** and must not be invented during implementation.
+- In team mode, every player earns Minority points individually using the same round rules as SOLO.
+- A team's game result is the **sum of the individual Minority points of all players assigned to that team**.
+- Player scores must therefore remain individually stored and addressable; team score is an aggregation, not a replacement score.
+- The exact future team composition, team decision model and tie behavior are **not yet fixed** and must not be invented during implementation.
 - Shared game logic and data structures should remain extensible so that the later 8-player team mode can be added without replacing the entire Minority implementation.
 
 ## 10. Not yet fixed by this contract
