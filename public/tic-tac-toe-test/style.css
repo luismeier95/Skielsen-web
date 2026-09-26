@@ -963,3 +963,21 @@ body.tttx-body.v15-tournament-active{
   .tttx-play{--tttx-play-v-gap:clamp(12px,2.1dvh,20px)}
   .tttx-round-display{font-size:56px}
 }
+
+
+/* TTT_STARTER_INTRO_V1 */
+.tttx-board-shell{
+  transition:outline-color .14s ease,box-shadow .14s ease;
+}
+.tttx-board-shell.is-starter-intro{
+  outline:4px solid var(--tttx-starter-color,var(--theme-accent));
+  outline-offset:2px;
+}
+.tttx-starter-overlay{
+  gap:0!important;
+}
+.tttx-starter-overlay>span{
+  font-size:clamp(24px,7vw,44px)!important;
+  font-weight:950;
+  line-height:1;
+}
