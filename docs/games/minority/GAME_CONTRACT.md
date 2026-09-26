@@ -238,6 +238,9 @@ The earlier candidates `Wasser / Saft / Energy` and `Samstag / Sonntag / Feierta
 
 ## 9. Player-count and future team mode
 
+- **SOLO with exactly 2 active players is not a valid Minority configuration.**
+- Reason: with 2 players and 2 answer options, the only possible distributions are **1:1** or **2:0**. Neither creates a real minority, so the core mechanic cannot produce a winner.
+- SOLO therefore requires **at least 3 active players**.
 - The current standalone / Quick Games baseline is **SOLO with 4 players**.
 - Minority must later support a **team mode with up to 8 human players**.
 - The 4-player SOLO limit must therefore not be treated as a permanent global Minority limit.
