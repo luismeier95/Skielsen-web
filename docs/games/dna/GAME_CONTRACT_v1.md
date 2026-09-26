@@ -423,6 +423,8 @@ Other teams only see:
 
 `TEAM <COLOR> HAT GELÖST · +X`
 
+In Quick Games this solve notice belongs to the **compact active header/status area**. It must never float over or obscure the phase timer, hint cards, vote cards, or input controls. On narrow mobile layouts the visible copy may be compacted to e.g. `BLAU GELÖST +3` while preserving the same information.
+
 They do **not** see:
 
 - the submitted answer,

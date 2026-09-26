@@ -182,6 +182,15 @@ test('Quick Games releases Edge Postgres connections and does not poll at 500 ms
  assert.ok(edge.includes('max_lifetime:5'));
  assert.ok(sync.includes('this.queue.length?0:this.pollAfter'));
 });
+test('Quick Game opponent-solve notice stays in the header and never overlays the timer',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ const start=app.indexOf('function showOpponentSolves('),end=app.indexOf('function showOwnFeedback(',start);
+ const fn=app.slice(start,end);
+ assert.ok(fn.includes('if(s.quickLobby)'));
+ assert.ok(fn.includes("if(host)host.innerHTML=''"));
+ assert.ok(fn.includes("headerState.textContent=summary?"));
+ assert.ok(fn.includes("GELÖST +"));
+});
 test('shared countdown is driven only by server timestamps, not local setTimeout steps',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
  assert.ok(app.includes("showTermCountdown(c,true)"));
