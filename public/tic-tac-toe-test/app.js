@@ -109,8 +109,24 @@ function prepareNextBoard(countRound=false){
   game.boardMoves=0;
   game.winning=[];
   game.lastMove=null;
-  game.locked=false;
   if(countRound)game.roundNumber+=1;
+
+  const overtimeStart=countRound&&game.roundNumber>=5&&game.roundNumber%2===1;
+  game.locked=overtimeStart;
+  renderPlay();
+
+  if(overtimeStart){
+    showOvertimeOverlay(()=>{
+      if(!game)return;
+      game.locked=false;
+      renderPlay();
+      startTurnTimer();
+      scheduleBotIfNeeded();
+    });
+    return;
+  }
+
+  game.locked=false;
   renderPlay();
   startTurnTimer();
   scheduleBotIfNeeded();
@@ -185,6 +201,17 @@ function renderWinningLine(){
     svg.appendChild(line);
   });
   board.appendChild(svg);
+}
+function showOvertimeOverlay(done){
+  const host=document.createElement('div');
+  host.className='tttx-overtime-overlay';
+  host.setAttribute('aria-live','polite');
+  host.innerHTML='<b>OVERTIME</b><span>'+playerName(game.starter)+' BEGINNT</span>';
+  board.appendChild(host);
+  transitionTimer=setTimeout(()=>{
+    host.remove();
+    done();
+  },1800);
 }
 function startRoundCountdown(done){
   clearTimeout(transitionTimer);
