@@ -172,18 +172,6 @@ body.tttx-body{
   font-weight:950;
   line-height:1;
 }
-.tttx-player-state-line{min-width:0;display:flex;align-items:center;gap:6px}
-.tttx-life-track{display:none;align-items:center;gap:3px;min-width:0}
-.tttx-life-track.is-visible{display:flex}
-.tttx-life-dot{
-  width:6px;height:6px;border:1px solid var(--theme-border-strong);border-radius:999px;
-  background:var(--theme-surface-muted);opacity:.5
-}
-.tttx-life-dot.is-used{border-color:var(--tttx-life-color,var(--theme-accent));background:var(--tttx-life-color,var(--theme-accent))}
-.tttx-life-dot.is-next-out{
-  background:transparent;border:2px solid var(--tttx-life-color,var(--theme-accent));opacity:1;
-  animation:tttxDangerPulse 1.15s ease-in-out infinite
-}
 .tttx-mechanic{min-height:0;display:grid;place-items:center}
 .tttx-board-shell{
   width:min(100%,calc(100dvh - 154px),520px);
@@ -211,10 +199,6 @@ body.tttx-body{
 }
 .tttx-cell:disabled{cursor:default}
 .tttx-cell.is-winning{background:var(--theme-success-bg);color:var(--theme-on-success)}
-.tttx-cell.age-oldest .tttx-mark{opacity:.68}
-.tttx-cell.age-middle .tttx-mark{opacity:.84}
-.tttx-cell.age-newest .tttx-mark{opacity:1}
-.tttx-cell.is-next-out .tttx-mark{animation:tttxMarkPulse 1.05s ease-in-out infinite}
 .tttx-mark{
   color:var(--tttx-mark-color,var(--theme-accent));
   font-family:var(--display);
@@ -222,41 +206,6 @@ body.tttx-body{
   font-weight:950;
   line-height:1;
 }
-@keyframes tttxMarkPulse{0%,100%{opacity:.42;transform:scale(.94)}50%{opacity:1;transform:scale(1.05)}}
-@keyframes tttxDangerPulse{0%,100%{opacity:.38;transform:scale(.98)}50%{opacity:1;transform:scale(1)}}
-
-.tttx-result{padding:16px 12px 22px}
-.tttx-result-status{
-  min-height:54px;display:flex;align-items:center;padding:0 2px
-}
-.tttx-result-status strong{font-family:var(--display);font-size:18px;font-weight:950}
-.tttx-result-card{margin-top:0}
-.tttx-result-card>header{
-  min-height:50px;padding:0 11px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  border-bottom:1px solid var(--theme-border)
-}
-.tttx-result-card>header strong{font-size:9px;font-weight:950}
-.tttx-result-card>header span{font-size:6px;font-weight:900;color:var(--theme-muted);white-space:nowrap}
-.tttx-result-columns,.tttx-result-row{
-  display:grid;grid-template-columns:42px minmax(0,1fr) 82px 54px;column-gap:6px;align-items:center;padding:0 9px
-}
-.tttx-result-columns{
-  min-height:30px;background:var(--theme-surface-soft);border-bottom:1px solid var(--theme-border);
-  color:var(--theme-muted);font-size:5.7px;font-weight:900;letter-spacing:.06em
-}
-.tttx-result-row{min-height:58px;border-bottom:1px solid var(--theme-border)}
-.tttx-result-row:last-child{border-bottom:0}
-.tttx-result-row>b,.tttx-result-row>strong{font-size:9px;font-weight:950}
-.tttx-result-player{min-width:0;display:flex;align-items:center;gap:7px}
-.tttx-result-player i{width:5px;height:28px;flex:0 0 5px;border-radius:999px;background:var(--tttx-player,var(--theme-accent))}
-.tttx-result-player strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;font-weight:950}
-.tttx-result-action{width:100%;margin-top:0}
-
-.tttx-cell:focus-visible,.tttx-choice:focus-visible,.tttx-primary:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 2px var(--theme-focus),0 0 20px color-mix(in srgb,var(--theme-accent) 30%,transparent)
-}
-
 @media(min-width:721px){
   body.tttx-body{--tttx-radius-outer:16px;--tttx-radius-card:12px;--tttx-gap:18px}
   .tttx-header{height:64px;padding:0 18px}
@@ -277,8 +226,7 @@ body.tttx-body{
   .tttx-status>div{padding:12px 14px}
   .tttx-status small{font-size:7px}
   .tttx-status strong{font-size:16px}
-  .tttx-life-dot{width:8px;height:8px}
-  .tttx-board-shell{padding:12px;width:min(520px,calc(100dvh - 190px))}
+    .tttx-board-shell{padding:12px;width:min(520px,calc(100dvh - 190px))}
   .tttx-mark{font-size:clamp(64px,10vw,112px)}
   .tttx-result{padding:24px 20px 30px}
   .tttx-result-columns,.tttx-result-row{grid-template-columns:70px minmax(0,1fr) 120px 78px;padding:0 16px;gap:10px}
@@ -299,5 +247,7 @@ body.tttx-body{
   .tttx-primary:hover{filter:brightness(1.04)}
 }
 @media(prefers-reduced-motion:reduce){
-  .tttx-blocking:not(:disabled),.tttx-cell.is-next-out .tttx-mark,.tttx-life-dot.is-next-out{animation:none!important}
+  .tttx-blocking:not(:disabled){animation:none!important}
+}
+
 }
