@@ -44,8 +44,21 @@
 
     <section class="tttx-page tttx-play" id="tttxPlay" hidden>
       <section class="tttx-status" aria-label="Spielstatus">
-        <div><small>DU</small><strong id="tttxYou">X</strong></div>
+        <div class="tttx-player-state">
+          <small>PLAYER 1</small>
+          <span class="tttx-player-state-line">
+            <strong id="tttxYou">X</strong>
+            <span class="tttx-life-track" id="tttxLifeX" aria-label="Reihenfolge der X-Symbole"></span>
+          </span>
+        </div>
         <div><small>AM ZUG</small><strong id="tttxTurn">PLAYER 1</strong></div>
+        <div class="tttx-player-state">
+          <small>PLAYER 2</small>
+          <span class="tttx-player-state-line">
+            <strong>O</strong>
+            <span class="tttx-life-track" id="tttxLifeO" aria-label="Reihenfolge der O-Symbole"></span>
+          </span>
+        </div>
         <div><small>MODUS</small><strong id="tttxMode">NORMAL</strong></div>
       </section>
 
