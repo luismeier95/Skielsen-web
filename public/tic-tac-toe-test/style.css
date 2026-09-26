@@ -828,3 +828,7 @@ body.tttx-body.v15-tournament-active{
   line-height:1;
   text-transform:uppercase;
 }
+
+
+/* TTT_TIE_OVERLAY_NOTE_V1
+   NORMAL draws reuse the same centered round-intro overlay geometry as OVERTIME. */
