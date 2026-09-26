@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.2.8">
+<link rel="stylesheet" href="./style.css?v=2.2.9">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -74,6 +74,19 @@
         </div>
       </section>
 
+      <section class="tttx-card tttx-setup-card">
+        <div class="tttx-card-head">
+          <strong>ZEIT PRO ZUG</strong>
+          <span>1 AUSWÄHLEN</span>
+        </div>
+        <div class="tttx-time-options" role="group" aria-label="Zeit pro Zug">
+          <button type="button" class="tttx-choice active" data-turn-seconds="0"><strong>AUS</strong></button>
+          <button type="button" class="tttx-choice" data-turn-seconds="3"><strong>3 SEK</strong></button>
+          <button type="button" class="tttx-choice" data-turn-seconds="5"><strong>5 SEK</strong></button>
+          <button type="button" class="tttx-choice" data-turn-seconds="7"><strong>7 SEK</strong></button>
+        </div>
+      </section>
+
       <section class="tttx-rule-note">
         <small>AKTIVE REGEL</small>
         <strong id="tttxRuleTitle">NORMAL</strong>
@@ -92,7 +105,7 @@
         <div class="tttx-round-state">
           <small>4+ RUNDEN</small>
           <strong id="tttxRound">RUNDE 1</strong>
-          <span><b id="tttxMode">NORMAL</b> · <b id="tttxTurnTimer">5.0</b>S</span>
+          <span><b id="tttxMode">NORMAL</b> · <b id="tttxTurnTimer">AUS</b></span>
         </div>
         <div class="tttx-player-state tttx-player-o">
           <small id="tttxOpponentLabel">BOT</small>
@@ -107,8 +120,11 @@
       </div>
 
       <section class="tttx-mechanic">
-        <div class="tttx-board-shell tttx-card">
-          <div class="tttx-board" id="tttxBoard" role="grid" aria-label="3 mal 3 Tic Tac Toe Spielfeld"></div>
+        <div class="tttx-board-stack">
+          <div class="tttx-turn-timer is-passive" id="tttxTurnTimerTrack" aria-hidden="true"><i id="tttxTurnTimerBar"></i></div>
+          <div class="tttx-board-shell tttx-card">
+            <div class="tttx-board" id="tttxBoard" role="grid" aria-label="3 mal 3 Tic Tac Toe Spielfeld"></div>
+          </div>
         </div>
       </section>
     </section>
@@ -132,6 +148,6 @@
   </main>
 </section>
 
-<script src="./app.js?v=2.3.0"></script>
+<script src="./app.js?v=2.3.1"></script>
 </body>
 </html>
