@@ -3,6 +3,8 @@
 
 const POLL_MS=450;
 const COUNTDOWN_MS=100;
+let serverClock=null,clockSamples=[],mountGeneration=0;
+const serverNow=()=>serverClock?serverClock.server+performance.now()-serverClock.local:Date.now();
 const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 const TEAM_MODE_COPY={
   ALTERNATING:{title:'ALTERNATING',copy:'Die Spieler eines Teams wechseln sich nach jedem eigenen Zug ab.'},
@@ -57,9 +59,17 @@ async function rpc(name,args){
 async function refresh(force=false){
   if(pollBusy||!session?.session_id||!db)return;
   pollBusy=true;
+  const generation=mountGeneration,requestStart=performance.now();
   try{
     const next=await rpc('get_tic_tac_toe_state',{p_session_id:session.session_id});
+    if(generation!==mountGeneration)return;
     if(!next)return;
+    const received=performance.now(),server=Date.parse(next.server_now);
+    if(Number.isFinite(server)){
+      clockSamples.push({server:server+(received-requestStart)/2,local:received,rtt:received-requestStart});
+      clockSamples=clockSamples.slice(-8);
+      serverClock=clockSamples.reduce((a,b)=>a.rtt<b.rtt?a:b);
+    }
     state=next;
     const sig=JSON.stringify([
       state.version,state.status,state.phase,state.team_mode,state.variant,
@@ -78,14 +88,14 @@ async function refresh(force=false){
   }catch(err){
     console.warn('Tic Tac Toe state',err);
     setMessage('SYNC-FEHLER · '+String(err?.message||err));
-  }finally{pollBusy=false}
+  }finally{if(generation===mountGeneration)pollBusy=false}
 }
 function header(title,meta=''){
   return `<header class="tttp-head"><div><small>SKIELSEN · TIC TAC TOE</small><h1>${esc(title)}</h1></div>${meta?`<strong>${esc(meta)}</strong>`:''}</header>`;
 }
 function participantBadge(pid){
   const p=participantInfo(pid);
-  return `<span class="tttp-participant"><i style="--tttp-team:${colorVar(p.color)}"></i><b>${esc(p.name)}</b></span>`;
+  return `<span class="tttp-participant"><i style="--tttp-team:${colorVar(p.color)}"></i><b style="color:${colorVar(p.color)}">${esc(p.name)}</b></span>`;
 }
 function renderModeSelection(){
   const options=['ALTERNATING','SELECTED_PLAYER','SIMULTANEOUS'];
@@ -115,11 +125,11 @@ function renderPlayerSelection(selection='MATCH'){
   const kicker=selection==='DECIDER'?'1 : 1 · ENTSCHEIDUNGSSPIEL':'2 / 3';
   root.innerHTML=`${header(title,kicker)}
     <main class="tttp-stage tttp-prestart">
-      <section class="tttp-title"><small>${selection==='DECIDER'?'JEDES TEAM BESTIMMT DEN DECIDER':'JEDES TEAM BESTIMMT EINEN SPIELER'}</small><h2>${esc(own.name)}.</h2></section>
+      <section class="tttp-title"><small>${selection==='DECIDER'?'JEDES TEAM BESTIMMT DEN DECIDER':'JEDES TEAM BESTIMMT EINEN SPIELER'}</small><h2 style="color:${colorVar(own.color)}">${esc(own.name)}.</h2></section>
       <div class="tttp-player-picks">
         ${own.members.map(m=>`<button type="button" class="tttp-player-pick ${selected===m.tournament_member_id?'is-selected':''}" data-player-pick="${esc(m.tournament_member_id)}">
           <i style="--tttp-team:${colorVar(m.identity_color)}"></i>
-          <span><small>${selected===m.tournament_member_id?'AUSGEWÄHLT':'SPIELER'}</small><strong>${esc(m.display_name)}</strong></span>
+          <span><small>${selected===m.tournament_member_id?'AUSGEWÄHLT':'SPIELER'}</small><strong style="color:${colorVar(m.identity_color)}">${esc(m.display_name)}</strong></span>
           <b>${selected===m.tournament_member_id?'✓':'→'}</b>
         </button>`).join('')}
       </div>
@@ -146,25 +156,39 @@ function renderPlayerSelection(selection='MATCH'){
 }
 function renderDifficulty(){
   const options=[
-    ['NORMAL','Klassisches Tic Tac Toe. Drei eigene Symbole in einer Reihe gewinnen.'],
+    ['NORMAL','Drei eigene Symbole in einer Reihe gewinnen die Runde.'],
     ['DISAPPEAR','Beim vierten eigenen Symbol verschwindet das älteste. Maximal drei bleiben aktiv.']
   ];
-  root.innerHTML=`${header('SCHWIERIGKEIT','3 / 3')}
+  let selectedVariant=variant()||'NORMAL',seconds=Number(state?.turn_seconds||0);
+  root.innerHTML=`${header('SPIELEINSTELLUNGEN','3 / 3')}
     <main class="tttp-stage tttp-prestart">
-      <section class="tttp-title"><small>SPIELREGEL FESTLEGEN</small><h2>VARIANTE WÄHLEN.</h2></section>
-      <div class="tttp-choice-grid tttp-difficulty-grid" style="--difficulty-count:${options.length}">
-        ${options.map(([key,copy])=>`<button type="button" class="tttp-choice ${variant()===key?'is-selected':''}" data-variant="${key}" ${isAdmin()?'':'disabled'}>
-          <strong>${key}</strong><span>${copy}</span>
-        </button>`).join('')}
+      <section class="tttp-title"><small>4+ RUNDEN PRO DUELL</small><h2>VARIANTE WÄHLEN.</h2></section>
+      <div class="tttp-choice-grid tttp-difficulty-grid" style="--difficulty-count:2">
+        ${options.map(([key,copy])=>`<button type="button" class="tttp-choice ${selectedVariant===key?'is-selected':''}" data-variant="${key}" ${isAdmin()?'':'disabled'}>
+          <strong>${key}</strong><span>${copy}</span></button>`).join('')}
       </div>
+      <div class="tttp-timer-options" aria-label="Zugzeit">
+        ${[0,3,5,7].map(n=>`<button type="button" class="tttp-choice ${n===seconds?'is-selected':''}" data-turn-seconds="${n}" ${isAdmin()?'':'disabled'}><strong>${n?n+' SEK.':'AUS'}</strong></button>`).join('')}
+      </div>
+      ${isAdmin()?'<button type="button" class="tttp-primary" data-save-settings>WEITER →</button>':''}
       <p class="tttp-feedback" data-ttt-feedback>${esc(isAdmin()?message:'WARTET AUF DIE AUSWAHL DES ADMINS.')}</p>
     </main>`;
-  root.querySelectorAll('[data-variant]').forEach(btn=>btn.addEventListener('click',async()=>{
-    root.querySelectorAll('[data-variant]').forEach(x=>{x.disabled=true;x.classList.toggle('is-selected',x===btn)});
-    setMessage('SCHWIERIGKEIT WIRD GESPEICHERT …');
-    try{await rpc('set_tic_tac_toe_variant',{p_session_id:session.session_id,p_variant:btn.dataset.variant});message='';await refresh(true)}
-    catch(err){root.querySelectorAll('[data-variant]').forEach(x=>x.disabled=false);setMessage('FEHLER · '+String(err?.message||err))}
+  root.querySelectorAll('[data-variant]').forEach(btn=>btn.addEventListener('click',()=>{
+    selectedVariant=btn.dataset.variant;
+    root.querySelectorAll('[data-variant]').forEach(x=>x.classList.toggle('is-selected',x===btn));
   }));
+  root.querySelectorAll('[data-turn-seconds]').forEach(btn=>btn.addEventListener('click',()=>{
+    seconds=Number(btn.dataset.turnSeconds);
+    root.querySelectorAll('[data-turn-seconds]').forEach(x=>x.classList.toggle('is-selected',x===btn));
+  }));
+  root.querySelector('[data-save-settings]')?.addEventListener('click',async()=>{
+    root.querySelectorAll('button').forEach(x=>x.disabled=true);
+    try{
+      await rpc('set_tic_tac_toe_timer',{p_session_id:session.session_id,p_turn_seconds:seconds});
+      await rpc('set_tic_tac_toe_variant',{p_session_id:session.session_id,p_variant:selectedVariant});
+      message='';await refresh(true);
+    }catch(err){setMessage('FEHLER · '+String(err?.message||err));await refresh(true)}
+  });
 }
 function readyStatus(row){
   return String(row?.status||'').toUpperCase()==='READY';
@@ -197,13 +221,16 @@ function readyRules(){
   const modeRule=TEAM_MODE_COPY[teamMode()]?.copy
     || 'Die beiden Teilnehmer spielen direkt gegeneinander.';
   const selectedRule=selected.length
-    ? `Gewählte Spieler: ${selected.map(x=>x.display_name).join(' · ')}.`
+    ? `Gewählte Spieler: ${selected.map(x=>`<b style="color:${colorVar(participantInfo(x.participant_id).color)}">${esc(x.display_name)}</b>`).join(' · ')}.`
     : '';
   return [
     ['ZIEL','Drei eigene Symbole horizontal, vertikal oder diagonal in eine Reihe bringen.'],
+    ['4+ RUNDEN','Starter wechseln. Sieg als Starter: 1 Matchpunkt, sonst 2. Uneinholbarer Vorsprung beendet das Duell früher.'],
+    ['OVERTIME','Gleichstand nach Runde 4: immer zwei weitere Runden. Ein Sieg plus TIE oder zwei Siege entscheiden; geteilte Siege und zwei TIEs verlängern.'],
+    ['TIMER '+(Number(state?.turn_seconds)||'AUS'),'Erster Zug jeder Runde ohne Timer. Danach gilt die gewählte Zugzeit. Timeout setzt einen schwachen legalen Zug.'],
     [variant()||'MODUS',variantRule],
     [teamMode()||'SOLO',modeRule],
-    ...(selectedRule?[['AUFSTELLUNG',selectedRule]]:[])
+    ...(selectedRule?[['AUFSTELLUNG',selectedRule,true]]:[])
   ];
 }
 function renderReady(){
@@ -226,7 +253,7 @@ function renderReady(){
         <div class="tttp-ready-rule-list">
           ${rules.map((r,i)=>`<div class="tttp-ready-rule">
             <b>${String(i+1).padStart(2,'0')}</b>
-            <span><strong>${esc(r[0])}</strong><small>${esc(r[1])}</small></span>
+            <span><strong>${esc(r[0])}</strong><small>${r[2]?r[1]:esc(r[1])}</small></span>
           </div>`).join('')}
         </div>
       </section>
@@ -286,45 +313,82 @@ function boardForViewer(){
   return null;
 }
 function symbolFor(board,pid){return board?.symbols?.[pid]||'—'}
+function markSvg(symbol){
+  return symbol==='X'
+    ? '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 8 50 40 82 8 92 18 60 50 92 82 82 92 50 60 18 92 8 82 40 50 8 18Z"/></svg>'
+    : '<svg viewBox="0 0 100 100" aria-hidden="true"><path fill-rule="evenodd" d="M50 5a45 45 0 1 0 0 90 45 45 0 0 0 0-90m0 16a29 29 0 1 1 0 58 29 29 0 0 1 0-58"/></svg>';
+}
+function boardName(board,pid){
+  const member=state?.players?.find(p=>p.tournament_member_id===board.actors?.[pid]);
+  return teamMode()==='ALTERNATING'?participantInfo(pid).name:member?.display_name||participantInfo(pid).name;
+}
+function boardOverlay(board){
+  const t=board.transition;
+  if(!t)return '';
+  const pid=t.participant_id;
+  const label=t.kind==='START'?'BEGINNT':t.kind==='WIN'?'GEWINNT':t.kind;
+  return `<div class="tttp-board-overlay" role="status"><div class="tttp-overlay-card">
+    ${['START','WIN'].includes(t.kind)?`<strong style="color:${colorVar(participantInfo(pid).color)}">${esc(boardName(board,pid))}</strong>`:''}
+    <span>${esc(label)}</span></div></div>`;
+}
 function renderBoard(){
   const board=boardForViewer();
   if(!board){
-    root.innerHTML=`${header('MATCH LIVE',variant())}<main class="tttp-stage"><div class="tttp-wait">SPIELSTATUS WIRD SYNCHRONISIERT …</div></main>`;
+    root.innerHTML=`${header('MATCH LIVE',variant())}<main class="tttp-stage"><div class="tttp-wait">MATCH LIVE · DIE ZUGEWIESENEN SPIELER SPIELEN.</div></main>`;
     return;
   }
-  const ids=participantIds(),myPid=viewerParticipant(),turnPid=board.current_turn_participant_id,actor=board.current_actor_member_id;
-  const myTurn=viewerMember()&&viewerMember()===actor;
-  const turnP=participantInfo(turnPid);
-  const winning=new Set(board.winning_cells||[]);
+  const ids=participantIds(),turnPid=board.current_turn_participant_id;
+  const myTurn=viewerMember()===board.current_actor_member_id;
   const cells=Array.isArray(board.board)?board.board:Array(9).fill(null);
-  const mySymbol=symbolFor(board,myPid);
-  const turnSymbol=symbolFor(board,turnPid);
-  const decider=phase()==='DECIDER_PLAYING';
-  const parallel=phase()==='PARALLEL_PLAYING';
-  const nextOut=new Set();
-  if(variant()==='DISAPPEAR'&&myPid){
-    const q=board.active_mark_order?.[myPid];
-    if(Array.isArray(q)&&q.length===3)nextOut.add(Number(q[0]));
-  }
-  root.innerHTML=`${header(decider?'DECIDER':(parallel?'SIMULTANEOUS':'MATCH LIVE'),variant())}
-    <main class="tttp-game">
-      <section class="tttp-statusbar">
-        <div><small>DU</small><strong>${esc(mySymbol)}</strong></div>
-        <div><small>AM ZUG</small><strong>${esc(turnP.name)}</strong></div>
-        <div><small>BOARD</small><strong>${esc(board.board_index||1)}</strong></div>
-        ${decider?'<div class="tttp-countdown"><small>ZEIT</small><strong data-ttt-countdown>5.0</strong></div>':''}
-      </section>
-      <section class="tttp-versus">${ids.map(participantBadge).join('<b>VS</b>')}</section>
-      <section class="tttp-board" role="grid" aria-label="Tic Tac Toe Spielfeld">
-        ${cells.map((pid,i)=>`<button type="button" class="tttp-cell ${winning.has(i)?'is-winning':''} ${nextOut.has(i)?'is-next-out':''}" data-cell="${i}" ${(!myTurn||pid||board.status!=='PLAYING')?'disabled':''}>
-          ${pid?`<span style="--tttp-mark:${colorVar(participantInfo(pid).color)}">${esc(symbolFor(board,pid))}</span>`:''}
-        </button>`).join('')}
-      </section>
-      <div class="tttp-turn-note ${myTurn?'is-mine':''}"><i style="--tttp-team:${colorVar(turnP.color)}"></i><strong>${myTurn?'DU BIST DRAN':esc(turnP.name)+' IST DRAN'}</strong><span>${esc(turnSymbol)}</span></div>
-      <p class="tttp-feedback" data-ttt-feedback>${esc(message)}</p>
-    </main>`;
+  const winning=board.winning_cells||[];
+  const round=Number(board.round_number||1),target=round<=4?4:round+(round%2);
+  const seconds=Number(board.turn_seconds||0);
+  const finished=board.status==='COMPLETE';
+  const turnColor=colorVar(participantInfo(turnPid).color);
+  const line=winning.length===3?(()=>{
+    const start=winning.includes(board.last_move)?board.last_move:winning[0];
+    const pos=i=>[(i%3+.5)*100/3,(Math.floor(i/3)+.5)*100/3];
+    return `<svg class="tttp-win-line" viewBox="0 0 100 100" aria-hidden="true" style="color:${turnColor}">${winning.filter(i=>i!==start).map(i=>{
+      const a=pos(start),b=pos(i);return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+    }).join('')}</svg>`;
+  })():'';
+  root.innerHTML=`<main class="tttp-game tttp-game-v3">
+    <section class="tttp-config-bar" aria-label="Matchkonfiguration">
+      <strong>4+ RUNDEN</strong><strong>${esc(variant())}</strong><strong>TIMER ${seconds||'AUS'}</strong>
+    </section>
+    <div class="tttp-round-display">RUNDE ${round}/${target}</div>
+    <div class="tttp-match-score" aria-label="Matchpunkte">
+      ${ids.map(pid=>`<strong style="color:${colorVar(participantInfo(pid).color)}" title="${esc(boardName(board,pid))}">${Number(board.match_points?.[pid]||0)}</strong>`).join('<span>:</span>')}
+    </div>
+    <div class="tttp-board-area">
+      <div class="tttp-board-stack">
+        <div class="tttp-timer-bar is-passive" role="progressbar" aria-label="Verbleibende Zugzeit" aria-valuemin="0" aria-valuemax="${seconds}"><i></i></div>
+        <div class="tttp-board-shell" style="--tttp-turn:${turnColor}">
+          <section class="tttp-board" role="grid" aria-label="Tic Tac Toe Spielfeld">
+          ${cells.map((pid,i)=>{
+            const q=board.active_mark_order?.[pid]||[],age=q.indexOf(i);
+            const ageClass=variant()==='DISAPPEAR'&&pid?age===q.length-1?'is-newest':age===q.length-2?'is-middle':'is-oldest':'';
+            return `<button type="button" class="tttp-cell ${ageClass}" data-cell="${i}" aria-label="${esc('Feld '+(i+1)+(pid?', '+boardName(board,pid)+', '+symbolFor(board,pid):', leer'))}"
+              ${(!myTurn||pid||finished||board.transition)?'disabled':''}>
+              ${pid?`<span style="--tttp-mark:${colorVar(participantInfo(pid).color)}">${markSvg(symbolFor(board,pid))}</span>`:''}</button>`;
+          }).join('')}
+          </section>${line}${boardOverlay(board)}
+        </div>
+        <p class="tttp-live-name" style="color:${turnColor}">${esc(boardName(board,turnPid))}${finished?' · DUELL BEENDET':' · AM ZUG'}</p>
+        ${finished?'<p class="tttp-live-wait">WARTET AUF DAS ANDERE DUELL</p>':''}
+        <p class="tttp-feedback" data-ttt-feedback>${esc(message)}</p>
+      </div>
+    </div>
+  </main>`;
   root.querySelectorAll('[data-cell]').forEach(btn=>btn.addEventListener('click',()=>submitMove(Number(btn.dataset.cell),btn)));
+  measureGameViewport();
   updateCountdown();
+}
+function measureGameViewport(){
+  if(!root?.querySelector('.tttp-game-v3'))return;
+  const viewport=window.visualViewport;
+  const bottom=(viewport?.height||window.innerHeight)+(viewport?.offsetTop||0);
+  root.style.setProperty('--tttp-available-height',Math.max(240,bottom-Math.max(root.getBoundingClientRect().top,viewport?.offsetTop||0)-12)+'px');
 }
 async function submitMove(index,btn){
   if(!Number.isInteger(index)||btn.disabled)return;
@@ -333,7 +397,9 @@ async function submitMove(index,btn){
     await rpc('submit_tic_tac_toe_move',{
       p_session_id:session.session_id,
       p_cell_index:index,
-      p_client_action_id:uuid()
+      p_client_action_id:uuid(),
+      p_expected_round:Number(boardForViewer()?.round_number),
+      p_expected_move:Number(boardForViewer()?.board_move_no)
     });
     await refresh(true);
   }catch(err){
@@ -364,7 +430,7 @@ function renderFinalRanking(result){
         <div class="tttp-standard-columns"><span>POSITION</span><span>NAME</span><span>PUNKTE</span><span>ERGEBNIS</span></div>
         ${rows.map((r,i)=>`<div class="tttp-result-row tttp-standard-row" style="--tttp-row-delay:${i*120}ms">
           <b>${Number(r.game_placement||i+1)}.</b>
-          <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b>${esc(r.display_name||'TEILNEHMER')}</b></span>
+          <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b style="color:${colorVar(r.identity_color)}">${esc(r.display_name||'TEILNEHMER')}</b></span>
           <strong class="tttp-added-points">+${Number(r.added_points||0)}</strong>
           <strong>${Number(r.game_placement)===1?'SIEG':'PLATZ '+Number(r.game_placement||i+1)}</strong>
         </div>`).join('')}
@@ -383,7 +449,7 @@ function renderFinalJoker(result,reveal){
         <small>${esc(String(j.category||'SECRET').toUpperCase())} JOKER</small>
         <h2>${esc(j.title||j.type||'JOKER')}</h2>
         <p>${esc(j.description||'Der Joker wurde auf die finale Wertung angewendet.')}</p>
-        <div class="tttp-joker-owner"><i></i><span><small>JOKER GESETZT VON</small><strong>${esc(o.display_name||'TEILNEHMER')}</strong></span></div>
+        <div class="tttp-joker-owner"><i></i><span><small>JOKER GESETZT VON</small><strong style="color:var(--tttp-joker-owner)">${esc(o.display_name||'TEILNEHMER')}</strong></span></div>
         <div class="tttp-joker-value"><span>${esc(before)}</span><b>→</b><strong>${esc(after)}</strong></div>
       </section>
       <button type="button" class="tttp-primary" data-ttt-postgame-next>WEITER ZUM TURNIERSTAND →</button>
@@ -400,7 +466,7 @@ function renderFinalMerge(result){
         <div class="tttp-merge-rows">
           ${rows.map((r,i)=>`<div class="tttp-result-row tttp-merge-row" data-ttt-merge-row data-old-rank="${Number(r.old_rank||i+1)}" data-new-rank="${Number(r.new_rank||i+1)}">
             <b><span class="tttp-rank-value">${Number(r.old_rank||i+1)}.</span><small class="tttp-rank-move"></small></b>
-            <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b>${esc(r.display_name||'TEILNEHMER')}</b></span>
+            <span class="tttp-participant"><i style="--tttp-team:${colorVar(r.identity_color)}"></i><b style="color:${colorVar(r.identity_color)}">${esc(r.display_name||'TEILNEHMER')}</b></span>
             <strong class="tttp-merge-points"><span class="tttp-award-value">+${Number(r.added_points||0)}</span><span class="tttp-points-equation"><b class="tttp-base-points">${Number(r.old_points||0)}</b><em>+</em><strong class="tttp-award-points">${Number(r.added_points||0)}</strong></span><span class="tttp-total-points">${Number(r.new_points||0)}</span></strong>
             <strong>${Number(r.game_placement)===1?'SIEG':'PLATZ '+Number(r.game_placement||i+1)}</strong>
           </div>`).join('')}
@@ -487,13 +553,17 @@ function render(){
   else renderWaiting();
 }
 function updateCountdown(){
-  const el=root?.querySelector('[data-ttt-countdown]');
+  const el=root?.querySelector('.tttp-timer-bar');
   if(!el)return;
-  const deadline=state?.state?.decider?.turn_deadline_at;
-  if(!deadline){el.textContent='5.0';return}
-  const ms=Math.max(0,new Date(deadline).getTime()-Date.now());
-  el.textContent=(ms/1000).toFixed(1);
-  el.classList.toggle('is-low',ms<=2000);
+  const board=boardForViewer(),seconds=Number(board?.turn_seconds||0);
+  const deadline=Date.parse(board?.turn_deadline_at);
+  const active=seconds>0&&Number.isFinite(deadline)&&!board?.transition&&board?.status==='PLAYING';
+  el.classList.toggle('is-passive',!active);
+  const left=active?Math.max(0,deadline-serverNow())/1000:seconds;
+  el.querySelector('i').style.transform='scaleX('+(seconds?Math.min(1,left/seconds):1)+')';
+  el.setAttribute('aria-valuenow',left.toFixed(1));
+  el.classList.toggle('tttp-timer-warning',active&&left<=Math.min(2.5,seconds*.4)&&left>1);
+  el.classList.toggle('tttp-timer-danger',active&&left<=1);
 }
 
 function localOther(pid){
@@ -726,9 +796,17 @@ function mount(nextRoot,nextSession,nextDb){
   void refresh(true);
   pollTimer=setInterval(()=>void refresh(false),POLL_MS);
   countdownTimer=setInterval(updateCountdown,COUNTDOWN_MS);
+  document.addEventListener('visibilitychange',refreshOnVisible);
+  window.addEventListener('resize',measureGameViewport);
+  window.visualViewport?.addEventListener('resize',measureGameViewport);
 }
+function refreshOnVisible(){if(!document.hidden)void refresh(true)}
 function updateSession(next){session=next||session}
 function unmount(){
+  mountGeneration++;serverClock=null;clockSamples=[];
+  document.removeEventListener('visibilitychange',refreshOnVisible);
+  window.removeEventListener('resize',measureGameViewport);
+  window.visualViewport?.removeEventListener('resize',measureGameViewport);
   clearTimers();
   if(root){root.classList.remove('tttp-root');root.innerHTML=''}
   root=null;session=null;db=null;state=null;localTest=null;pollBusy=false;lastSignature='';message='';postgamePhase='RANKING';postgameBusy=false;finalResultIngested=false;
