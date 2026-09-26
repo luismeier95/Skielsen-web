@@ -267,8 +267,8 @@ function updateTurnTimer(){
   const left=Math.max(0,turnDeadline-performance.now());
   setTimerBarProgress(left/total);
   if(turnTimerTrack){
-    turnTimerTrack.classList.toggle('danger',left<=1000);
-    turnTimerTrack.classList.toggle('warning',left>1000&&left<=Math.min(2500,total*.4));
+    turnTimerTrack.classList.toggle('tttx-timer-danger',left<=1000);
+    turnTimerTrack.classList.toggle('tttx-timer-warning',left>1000&&left<=Math.min(2500,total*.4));
   }
 }
 function startTurnTimer(){
