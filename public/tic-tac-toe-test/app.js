@@ -216,8 +216,18 @@ function showRoundIntroOverlay(title,done){
 }
 function startRoundCountdown(done){
   clearTimeout(transitionTimer);
+
+  const winnerSymbol=game.current;
+  const winHost=document.createElement('div');
+  winHost.className='tttx-round-win-overlay';
+  winHost.setAttribute('aria-live','polite');
+  winHost.innerHTML='<strong style="color:'+PLAYERS[winnerSymbol].color+'">'+playerName(winnerSymbol)+'</strong><span>GEWINNT</span>';
+  board.appendChild(winHost);
+
   transitionTimer=setTimeout(()=>{
     if(!game)return;
+    winHost.remove();
+
     let value=3;
     const host=document.createElement('div');
     host.className='tttx-round-countdown';
