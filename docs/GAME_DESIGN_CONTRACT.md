@@ -47,6 +47,19 @@ Ausnahmen müssen ausdrücklich im Game Contract dokumentiert sein.
 - Action-Layout darf auf Mobile nicht ohne Mechanik-Grund seine Reihenfolge oder Position ändern
 - Keyboard-/Viewport-Sonderfälle müssen explizit als Mechanik-Anforderung dokumentiert sein
 
+## 4.1 Standalone Mobile Chrome Ownership
+
+Standalone game pages own the full mobile viewport. When a game is developed mobile-first, it must not reserve vertical space for tournament-page chrome, banners, navigation or legacy host headers that are not actually rendered inside the standalone.
+
+Rules:
+- standalone game chrome begins at the top of the document (top: 0);
+- no inherited padding-top, margin-top, spacer or placeholder may be kept for an absent tournament banner;
+- the standalone's own header/progress chrome is the only top chrome unless the game contract explicitly adds another visible layer;
+- legacy tournament spacing may be explicitly overridden in the standalone scope;
+- safe-area handling may add only the device's real safe-area inset, never an artificial tournament-header reserve.
+
+This rule takes precedence over legacy host-page spacing for standalone test surfaces and future mobile-first standalone games.
+
 ## 5. Theme Authority
 
 Keine Theme-Farben im Game hardcoden.
