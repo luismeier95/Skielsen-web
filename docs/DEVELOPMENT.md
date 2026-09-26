@@ -37,6 +37,7 @@ Windows-Firewall-Rueckfrage nur den Zugriff fuer private Netzwerke erlauben.
 | Wortkette | http://127.0.0.1:8000/word-chain-test/ |
 | Tic-Tac-Toe | http://127.0.0.1:8000/tic-tac-toe-test/ |
 | Reaction | http://127.0.0.1:8000/reaction-test/ |
+| Minority | http://127.0.0.1:8000/minority-test/ |
 | Ranking Ceremony | http://127.0.0.1:8000/ranking-ceremony-test/ |
 | Design A | http://127.0.0.1:8000/TEST_DESIGN_A/ |
 | Globaler Design-Contract | http://127.0.0.1:8000/game-design-contract.html |
