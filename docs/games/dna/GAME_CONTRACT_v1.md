@@ -532,6 +532,10 @@ Players confirm with:
 
 `ICH BIN BEREIT`
 
+### Quick Games start rule
+
+In Quick Games, `ICH BIN BEREIT` is the only pre-game confirmation action for normal players. There is no second per-player `SPIEL STARTEN` step. The authoritative shared game starts automatically as soon as all human lobby players are ready. Bots count as already ready. Until then, every ready client remains on the Ready page and shows the shared ready state.
+
 ### Blocking-action glow
 
 Buttons that intentionally block game progression until a human decision is made use the pulsing accent glow language.
