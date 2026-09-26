@@ -287,7 +287,7 @@ begin
     for update;
   if not found then raise exception 'HOST_LIVE_LOBBY_REQUIRED'; end if;
 
-  select * into qid,opts from private.quick_minority_pick_question(p_lobby_id,diff,1);
+  select * into qid,opts from private.quick_minority_pick_question(p_lobby_id,diff,1::smallint);
   delete from private.quick_minority_choices where lobby_id=p_lobby_id;
   delete from private.quick_minority_ready where lobby_id=p_lobby_id;
   insert into private.quick_minority_games(lobby_id,difficulty,round_count,round_no,round_value,stage,question_id,question_options,scores,reveal,revision)
@@ -364,7 +364,7 @@ begin
     return public.get_quick_minority_game(p_lobby_id);
   end if;
   next_value:=coalesce((g.reveal->>'nextRoundValue')::int,1);
-  select * into qid,opts from private.quick_minority_pick_question(p_lobby_id,g.difficulty,g.round_no+1);
+  select * into qid,opts from private.quick_minority_pick_question(p_lobby_id,g.difficulty,(g.round_no+1)::smallint);
   update private.quick_minority_games set round_no=g.round_no+1,round_value=next_value,stage='PLAYING',
     question_id=qid,question_options=opts,reveal=null,revision=revision+1,updated_at=now()
   where lobby_id=p_lobby_id;
