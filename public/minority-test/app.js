@@ -53,33 +53,65 @@ function renderWaitSetup(){
  stage.innerHTML=`<p class="m-kicker">MINORITY · QUICK GAME</p><h1 class="m-title">WARTEN.</h1><p class="m-copy">Der Host legt Schwierigkeit und QA-Rundenzahl fest. Danach erscheint automatisch der Ready Screen.</p><div class="m-wait" style="margin-top:22px">WARTET AUF DEN HOST …</div>`;
 }
 function renderSetup(){
- stage.innerHTML=`
-   <p class="m-kicker">MOBILE-FIRST PLAYTEST</p>
-   <h1 class="m-title">MINORITY.</h1>
-   <p class="m-copy">Wähle nicht, was du am liebsten magst. Wähle, was die anderen wahrscheinlich nicht wählen.</p>
-   <div class="m-stack">
-     <div class="m-card">
-       <div class="m-grid2">
-         <label class="m-label">SCHWIERIGKEIT
-           <select class="m-select" id="mDifficulty">
-             <option>EASY</option><option selected>NORMAL</option><option>HARDCORE</option>
-           </select>
-         </label>
-         <label class="m-label">QA-RUNDEN
-           <select class="m-select" id="mRounds">
-             <option>5</option><option selected>10</option><option>15</option>
-           </select>
-         </label>
-       </div>
-       <span class="m-mode-pill">${state.mode==='remote'?'SUPABASE QUICK GAME':'LOKALER QA-MODUS'}</span>
+ const difficultyCopy={
+   EASY:'2 Antworten · Minderheit +1 · kein Pot · keine Chaos Round.',
+   NORMAL:'Pot startet bei 1 und wächst ohne Minderheit. Jede 5. Frage hat 3 Antworten.',
+   HARDCORE:'Wie Normal. Jede 5. Frage hat 3 oder 4 Antworten. Bei 4:0 verliert die Führung −1.'
+ };
+ stage.innerHTML=\`
+   <div class="m-hero">
+     <small class="m-kicker">SCHWIERIGKEIT</small>
+     <h1 class="m-title">MINORITY.</h1>
+     <p class="m-copy">Wähle die Regeln für dieses Match.</p>
+   </div>
+
+   <section class="m-card m-setup-card">
+     <div class="m-card-head">
+       <strong>SCHWIERIGKEIT</strong>
+       <span>1 AUSWÄHLEN</span>
      </div>
-     <button class="m-primary" id="mSetupNext" type="button">WEITER →</button>
-   </div>`;
- document.querySelector('#mDifficulty').value=state.difficulty;
- document.querySelector('#mRounds').value=String(state.roundCount);
+     <div class="m-choice-grid" role="group" aria-label="Schwierigkeitsgrad">
+       \${[
+         ['EASY','Direkt. Minderheit = +1.'],
+         ['NORMAL','Pot-System + 3er Chaos Round.'],
+         ['HARDCORE','Pot + 3/4er Chaos + 4:0 Strafe.']
+       ].map(([key,copy])=>\`<button type="button" class="m-choice \${state.difficulty===key?'active':''}" data-difficulty="\${key}"><strong>\${key}</strong><span>\${copy}</span></button>\`).join('')}
+     </div>
+   </section>
+
+   <section class="m-card m-setup-card">
+     <div class="m-card-head">
+       <strong>QA-RUNDEN</strong>
+       <span>1 AUSWÄHLEN</span>
+     </div>
+     <div class="m-round-options" role="group" aria-label="QA-Runden">
+       \${[5,10,15].map(count=>\`<button type="button" class="m-choice m-round-choice \${state.roundCount===count?'active':''}" data-rounds="\${count}"><strong>\${count}</strong></button>\`).join('')}
+     </div>
+   </section>
+
+   <section class="m-rule-note">
+     <small>AKTIVE REGEL</small>
+     <strong id="mRuleTitle">\${esc(state.difficulty)}</strong>
+     <span id="mRuleText">\${esc(difficultyCopy[state.difficulty])}</span>
+   </section>
+
+   <button class="m-primary m-blocking" id="mSetupNext" type="button">WEITER →</button>\`;
+
+ const updateDifficulty=()=>{
+   stage.querySelectorAll('[data-difficulty]').forEach(btn=>btn.classList.toggle('active',btn.dataset.difficulty===state.difficulty));
+   document.querySelector('#mRuleTitle').textContent=state.difficulty;
+   document.querySelector('#mRuleText').textContent=difficultyCopy[state.difficulty];
+ };
+ stage.querySelectorAll('[data-difficulty]').forEach(btn=>btn.addEventListener('click',()=>{
+   state.difficulty=btn.dataset.difficulty;
+   updateDifficulty();
+ }));
+ stage.querySelectorAll('[data-rounds]').forEach(btn=>btn.addEventListener('click',()=>{
+   state.roundCount=Number(btn.dataset.rounds);
+   stage.querySelectorAll('[data-rounds]').forEach(item=>item.classList.toggle('active',Number(item.dataset.rounds)===state.roundCount));
+ }));
+
  document.querySelector('#mSetupNext').addEventListener('click',async e=>{
-   state.difficulty=document.querySelector('#mDifficulty').value;
-   state.roundCount=Number(document.querySelector('#mRounds').value);
    if(state.mode==='remote'){
      e.currentTarget.disabled=true;setFeedback('');
      try{
@@ -95,18 +127,45 @@ function renderSetup(){
  });
 }
 function renderReady(){
- stage.innerHTML=`
-   <p class="m-kicker">${esc(state.difficulty)} · ${state.roundCount} QA-RUNDEN</p>
-   <h1 class="m-title">BEREIT?</h1>
-   <div class="m-rule-list m-card">
-     <div class="m-rule"><b>1</b><span>Alle wählen gleichzeitig und verdeckt.</span></div>
-     <div class="m-rule"><b>2</b><span>Die am seltensten gewählte Antwort gewinnt, wenn eine echte Minderheit entsteht.</span></div>
-     <div class="m-rule"><b>5</b><span>Jede fünfte Frage wird zur Chaos Round.</span></div>
+ stage.innerHTML=\`
+   <div class="m-hero">
+     <small class="m-kicker">READY</small>
+     <h1 class="m-title">MINORITY.</h1>
+     <p class="m-copy">Kurzer Check der aktiven Regeln vor dem Start.</p>
    </div>
-   <div class="m-roster">${[1,2,3,4].map(seat=>`<div class="m-player" style="--identity:${identity(seat)}"><i></i><strong>${esc(playerName(seat))}</strong><span>${isMe(seat)?'DU':(state.players.find(p=>Number(p.seat)===seat)?.is_bot?'BOT':'BEREIT')}</span></div>`).join('')}</div>
-   <button class="m-primary" id="mReady" type="button" style="margin-top:16px">ICH BIN BEREIT</button>`;
- const me=state.players.find(p=>p.is_me); const readyButton=document.querySelector('#mReady');
+
+   <section class="m-card m-ready-summary">
+     <div><small>MODUS</small><strong>SOLO</strong></div>
+     <div><small>SCHWIERIGKEIT</small><strong>\${esc(state.difficulty)}</strong></div>
+     <div><small>RUNDEN</small><strong>\${state.roundCount}</strong></div>
+   </section>
+
+   <section class="m-card m-ready-rules">
+     <div><b>01</b><span><strong>VERDECKTE WAHL</strong><small>Alle wählen gleichzeitig. Ein Tap auf eine Kachel ist final.</small></span></div>
+     <div><b>02</b><span><strong>MINDERHEIT</strong><small>Die am seltensten gewählte echte Minderheit gewinnt den aktuellen Rundenwert.</small></span></div>
+     <div><b>03</b><span><strong>POT</strong><small>\${state.difficulty==='EASY'?'Easy spielt ohne Pot.':'Ohne Minderheit steigt der Wert der nächsten Runde um +1.'}</small></span></div>
+     <div><b>05</b><span><strong>CHAOS ROUND</strong><small>\${state.difficulty==='EASY'?'In Easy gibt es keine Chaos Round.':state.difficulty==='NORMAL'?'Jede 5. Frage hat 3 Antworten.':'Jede 5. Frage hat 3 oder 4 Antworten.'}</small></span></div>
+   </section>
+
+   <section class="m-card m-ready-roster">
+     \${[1,2,3,4].map(seat=>{
+       const p=state.players.find(item=>Number(item.seat)===seat);
+       const status=isMe(seat)?(p?.ready?'BEREIT':'DU'):(p?.is_bot?'BOT':(p?.ready?'BEREIT':'WARTET'));
+       return \`<div class="m-ready-player" style="--identity:\${identity(seat)}"><i></i><strong>\${esc(playerName(seat))}</strong><span>\${status}</span></div>\`;
+     }).join('')}
+   </section>
+
+   <div class="m-ready-actions">
+     <button class="m-secondary" id="mReadyBack" type="button">← ZURÜCK</button>
+     <button class="m-primary m-blocking" id="mReady" type="button">ICH BIN BEREIT →</button>
+   </div>\`;
+ const me=state.players.find(p=>p.is_me);
+ const readyButton=document.querySelector('#mReady');
  if(me?.ready){readyButton.disabled=true;readyButton.textContent='WARTET AUF DIE ANDEREN …'}
+ document.querySelector('#mReadyBack').addEventListener('click',()=>{
+   if(state.mode==='local')setScreen('setup');
+   else history.back();
+ });
  readyButton.addEventListener('click',async e=>{
    if(state.mode==='remote'){
      e.currentTarget.disabled=true;
@@ -131,7 +190,8 @@ function renderGame(){
      const count=revealed?Number(res.counts?.[i]||0):null;
      const isWin=revealed&&res.winningOptions?.includes(i+1);
      const cls=[myChoice===i+1?'is-selected':'',isWin?'is-winner':'',revealed&&!isWin?'is-majority':''].filter(Boolean).join(' ');
-     return `<button class="m-option ${cls}" type="button" data-choice="${i+1}" ${revealed||myChoice?'disabled':''}>${esc(label)}${revealed?`<span class="m-option-count">${count} × gewählt</span>`:''}</button>`;
+     const lengthClass=String(label).length>=13?'is-xlong':String(label).length>=10?'is-long':'';
+     return `<button class="m-option ${cls} ${lengthClass}" type="button" data-choice="${i+1}" ${revealed||myChoice?'disabled':''}><span class="m-option-label">${esc(label)}</span>${revealed?`<span class="m-option-count">${count} × gewählt</span>`:''}</button>`;
    }).join('')}</div>
    ${revealed?revealHtml(res):myChoice?`<div class="m-wait">AUSWAHL GELOCKT · WARTET AUF DIE ANDEREN …</div>`:`<div class="m-wait">TIPPE AUF EINE ANTWORT</div>`}
    <div class="m-scorebar">${[1,2,3,4].map((seat,i)=>`<div class="m-score" style="--identity:${identity(seat)}"><strong>${Number(state.scores[i])||0}</strong><span>${esc(playerName(seat))}</span></div>`).join('')}</div>`;
