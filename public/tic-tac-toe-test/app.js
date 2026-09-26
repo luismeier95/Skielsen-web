@@ -420,7 +420,7 @@ function renderReadySummary(){
   if(readyMode)readyMode.textContent=selectedMode;
   if(readyTimer)readyTimer.textContent=selectedTurnSeconds?selectedTurnSeconds+' SEK':'AUS';
   if(readyTimeout)readyTimeout.textContent=selectedTurnSeconds
-    ? 'ZEIT ABGELAUFEN → SCHLECHTESTER LEGALER ZUG WIRD AUTOMATISCH GESETZT'
+    ? 'ERSTES SYMBOL OHNE TIMER · DANACH ZEITLIMIT PRO ZUG · BEI ABLAUF AUTO-ZUG'
     : 'KEIN ZUGTIMER · KEIN AUTO-ZUG';
   if(readyOpponent){
     readyOpponent.textContent=selectedOpponent==='BOT'?'BOT':'PLAYER 2';
