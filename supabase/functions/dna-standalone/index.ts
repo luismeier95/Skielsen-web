@@ -220,6 +220,110 @@ async function answerCandidates(termId,db=sql){
   );
   return rows.map(r=>String(r.value||"")).filter(Boolean);
 }
+async function loadQuickTermData(termId,db=sql){
+  const rows=await db.unsafe(
+    "select t.term_id::text as term_id,t.category_id,c.name_de as category_name,t.canonical_answer,"+
+    "coalesce((select json_agg(a.alias_text order by a.alias_text) from private.dna_answer_aliases a where a.term_id=t.term_id),'[]'::json) as aliases,"+
+    "coalesce((select json_agg(json_build_object('hintNo',h.hint_no,'hintText',h.hint_text,'points',h.points_value) order by h.hint_no) from private.dna_hints h where h.term_id=t.term_id),'[]'::json) as hints "+
+    "from private.dna_terms t join public.dna_categories c on c.category_id=t.category_id where t.term_id=$1::uuid limit 1",
+    [termId]
+  );
+  if(!rows.length)throw new Error("DNA term not found");
+  const row=rows[0],aliases=Array.isArray(row.aliases)?row.aliases.map(String).filter(Boolean):[];
+  const hints=Array.isArray(row.hints)?row.hints.map(h=>({hintNo:Number(h.hintNo),hintText:String(h.hintText||''),points:Number(h.points||0)})):[];
+  if(hints.length!==3)throw new Error("DNA term requires exactly three hints");
+  return {
+    termId:String(row.term_id),
+    categoryId:String(row.category_id),
+    categoryName:String(row.category_name||row.category_id),
+    answer:String(row.canonical_answer||''),
+    answers:[String(row.canonical_answer||''),...aliases].filter(Boolean),
+    hints
+  };
+}
+async function hydrateQuickTerm(g,db=sql){
+  const termId=String(g.terms[g.term-1]||'');
+  if(!termId)throw new Error("DNA term unavailable");
+  if(String(g.termData?.termId||'')===termId)return false;
+  const data=await loadQuickTermData(termId,db);
+  g.termData=data;
+  // Keep only the current term's tiny bot-decoy list in the persisted state.
+  g.decoys={[termId]:DECOYS[data.categoryId]||[]};
+  return true;
+}
+function quickPerspective(g,userId){
+  const own=g.players.find(p=>p.id===userId)?.team;
+  if(!own)throw new Error('LOBBY_FORBIDDEN');
+  const others=ORDER.filter(k=>k!==own);
+  return {own,map:{RED:own,BLUE:others[0],GREEN:others[1],YELLOW:others[2]}};
+}
+function quickPerspectiveScores(g,userId,keyName){
+  const {map}=quickPerspective(g,userId);
+  return Object.fromEntries(ORDER.map(local=>[local,Number(g.teams[map[local]]?.[keyName]||0)]));
+}
+function quickContent(g,userId){
+  if(g.stage==='READY')return null;
+  if(g.stage==='COMPLETE')return {phase:'COMPLETE',termNo:g.terms.length,termCount:g.terms.length,gameScores:quickPerspectiveScores(g,userId,'score')};
+  const data=g.termData;
+  if(!data||String(data.termId)!==String(g.terms[g.term-1]))throw new Error('Shared DNA term cache unavailable');
+  if(g.stage==='REVEAL'){
+    return {phase:'REVEAL',termNo:g.term,termCount:g.terms.length,categoryId:data.categoryId,categoryName:data.categoryName,answer:data.answer,termScores:quickPerspectiveScores(g,userId,'termScore'),gameScores:quickPerspectiveScores(g,userId,'score')};
+  }
+  if(g.stage==='COUNTDOWN')return {termNo:g.term,termCount:g.terms.length,categoryName:data.categoryName};
+  const hint=data.hints[g.hint-1];
+  if(!hint)throw new Error('Shared DNA hint unavailable');
+  const {own}=quickPerspective(g,userId);
+  return {
+    phase:'HINT',termNo:g.term,termCount:g.terms.length,categoryId:data.categoryId,categoryName:data.categoryName,
+    hintNo:hint.hintNo,hintText:hint.hintText,points:hint.points,
+    previousHints:data.hints.slice(0,Math.max(0,g.hint-1)).map(h=>h.hintText),
+    redSolved:Boolean(g.teams[own].solved),redGameScore:Number(g.teams[own].score||0),redTermScore:Number(g.teams[own].termScore||0)
+  };
+}
+function quickPollAfter(stage){
+  return stage==='VOTE'?300:stage==='READY'||stage==='IDEA'?500:1000;
+}
+function quickSnapshot(g,userId,serverReceived,serverNow,actionError=null,knownRevision=null,kind='poll'){
+  const {own}=quickPerspective(g,userId);
+  const base={
+    revision:Number(g.revision||0),phaseKey:phaseKey(g),stage:g.stage,startedAt:g.startedAt,deadline:g.deadline,
+    serverNow,serverReceived,pollAfterMs:quickPollAfter(g.stage)
+  };
+  if(kind==='poll'&&Number(knownRevision)===Number(g.revision))return {...base,unchanged:true};
+  return {
+    ...base,actionError,content:quickContent(g,userId),team:teamView(g,userId),
+    solves:ORDER.filter(k=>k!==own&&g.teams[k].solved).map(team=>({team,points:g.teams[team].last?.points||0})),
+    gameScores:g.stage==='COMPLETE'?scores(g,'score'):undefined
+  };
+}
+async function initializeQuickGame(lobby,userId,now){
+  const roster=await sql.unsafe(
+    "select l.setup_status,l.setup_json,json_agg(json_build_object('id',p.user_id::text,'seat',p.seat) order by p.seat) as players "+
+    "from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id "+
+    "where l.lobby_id=$1::uuid and l.status='LIVE' group by l.setup_status,l.setup_json",
+    [lobby]
+  );
+  if(!roster.length)throw new Error('Quick lobby unavailable');
+  const players=(Array.isArray(roster[0].players)?roster[0].players:[]).map(p=>({id:String(p.id),seat:Number(p.seat),team:ORDER[Math.floor((Number(p.seat)-1)/2)]}));
+  if(!players.some(p=>p.id===userId)||String(roster[0].setup_status)!=='READY')throw new Error('Quick lobby membership/setup required');
+  const setup=roster[0].setup_json||{};
+  const categories=Array.isArray(setup.categories)&&setup.categories.length?setup.categories.map(String).filter(Boolean):['countries'];
+  const count=[5,10,15].includes(Number(setup.termCount))?Number(setup.termCount):5;
+  const pool=['CASUAL','BALANCED','EXPERT'].includes(String(setup.pool||'').toUpperCase())?String(setup.pool).toUpperCase():'BALANCED';
+  const q="with ranked as (select t.term_id::text as term_id,t.category_id,row_number() over (partition by t.category_id order by case when $1='CASUAL' then case when t.familiarity_tier='MAINSTREAM' then 0 else 1 end when $1='EXPERT' then case when t.familiarity_tier in ('KNOWN','NICHE') then 0 else 1 end else 0 end,case when $1='EXPERT' then case when t.term_difficulty='HARD' then 0 when t.term_difficulty='NORMAL' then 1 else 2 end else 0 end,md5(t.term_id::text||$4::text)) as rn from private.dna_terms t where t.content_status='ACTIVE' and t.category_id=any($2::text[])) select term_id from ranked order by rn,md5(term_id||$4::text) limit $3";
+  const terms=await sql.unsafe(q,[pool,categories,count,lobby]);
+  if(terms.length<count)throw new Error('Not enough active DNA content for this setup');
+  const g=createGame(terms.map(r=>String(r.term_id)),players,now);
+  await hydrateQuickTerm(g);
+  const inserted=await sql.unsafe(
+    'insert into private.quick_dna_games(lobby_id,state) values($1::uuid,$2::text::jsonb) on conflict do nothing returning state',
+    [lobby,JSON.stringify(g)]
+  );
+  if(inserted.length)return inserted[0].state;
+  const rows=await sql.unsafe('select state from private.quick_dna_games where lobby_id=$1::uuid',[lobby]);
+  if(!rows.length)throw new Error('Shared DNA state unavailable');
+  return rows[0].state;
+}
 async function answerMatches(termId,answer){
   return answerMatchesCandidates(answer,await answerCandidates(termId));
 }
@@ -374,56 +478,66 @@ async function advance(body,userId){
 }
 async function quickSync(body,userId){
   const lobby=String(body.quickLobby||'');
-  const receipt=await sql.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
-  const members=await sql.unsafe("select p.user_id::text as id,p.seat,l.setup_status from public.quick_game_lobbies l join public.quick_game_lobby_players p on p.lobby_id=l.lobby_id where l.lobby_id=$1::uuid and l.status='LIVE' order by p.seat",[lobby]);
-  const member=members.find(p=>p.id===userId);
-  if(!member||member.setup_status!=='READY')throw new Error('Quick lobby membership/setup required');
-  const players=members.map(p=>({id:p.id,seat:Number(p.seat),team:ORDER[Math.floor((Number(p.seat)-1)/2)]}));
-  const existing=await sql.unsafe('select lobby_id from private.quick_dna_games where lobby_id=$1::uuid',[lobby]);
-  let initial=null;
-  if(!existing.length){
-    const seed=await start({quickLobby:lobby},userId);initial=await open(seed.state);
-    const categories=await sql.unsafe('select term_id::text,category_id from private.dna_terms where term_id=any($1::uuid[])',[initial.terms]);
-    initial.decoys=Object.fromEntries(categories.map(t=>[t.term_id,DECOYS[t.category_id]||[]]));
+  const command=body.command||{kind:'poll'};
+  const kind=String(command.kind||'poll');
+  const serverReceived=Date.now();
+
+  let rows=await sql.unsafe('select state from private.quick_dna_games where lobby_id=$1::uuid',[lobby]);
+  let g=rows.length?rows[0].state:null;
+  if(!g)g=await initializeQuickGame(lobby,userId,serverReceived);
+  quickPerspective(g,userId);
+
+  const now=Date.now();
+  const needsHydrate=String(g.termData?.termId||'')!==String(g.terms[g.term-1]||'');
+  const deadlineExpired=Boolean(g.deadline&&now>=Number(g.deadline));
+
+  // Hot path: one indexed JSONB read, no row lock, no write, no answer/content
+  // queries. Equal revisions return a compact clock-only heartbeat.
+  if(kind==='poll'&&!needsHydrate&&!deadlineExpired){
+    return quickSnapshot(g,userId,serverReceived,Date.now(),null,command.knownRevision,kind);
   }
+
   const result=await sql.begin(async tx=>{
-    if(initial)await tx.unsafe('insert into private.quick_dna_games(lobby_id,state) values($1::uuid,$2::text::jsonb) on conflict do nothing',[lobby,JSON.stringify(createGame(initial.terms,players,Number(receipt[0].ms),initial.decoys))]);
-    const rows=await tx.unsafe('select state from private.quick_dna_games where lobby_id=$1::uuid for update',[lobby]);
-    if(!rows.length)throw new Error('Shared DNA state unavailable');
-    const g=rows[0].state;
-    const wasComplete=g.stage==='COMPLETE';
-    const answers=await answerCandidates(g.terms[g.term-1],tx);
-    const clock=await tx.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
-    const now=Number(clock[0].ms);
-    const actionError=act(g,userId,body.command||{},now,answer=>answerMatchesCandidates(answer,answers),Math.random,idea=>ideaResolution(idea,answers));
-    await tx.unsafe('update private.quick_dna_games set state=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(g)]);
-    if(g.stage==='COMPLETE'&&!wasComplete){
-      for(const p of g.players)await tx.unsafe('insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score',[lobby,p.id,g.teams[p.team].score]);
-      await tx.unsafe('update public.quick_game_lobbies set bot_scores=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(scores(g,'score'))]);
+    const locked=await tx.unsafe('select state from private.quick_dna_games where lobby_id=$1::uuid for update',[lobby]);
+    if(!locked.length)throw new Error('Shared DNA state unavailable');
+    const current=locked[0].state;
+    quickPerspective(current,userId);
+
+    const beforeRevision=Number(current.revision||0);
+    const beforeTerm=String(current.terms[current.term-1]||'');
+    let hydrated=await hydrateQuickTerm(current,tx);
+    const answers=Array.isArray(current.termData?.answers)?current.termData.answers:[];
+    const grade=answer=>answerMatchesCandidates(answer,answers);
+    const resolveIdea=idea=>ideaResolution(idea,answers);
+    const at=Date.now();
+    let actionError=null;
+
+    if(kind==='poll'){
+      // Another device may already have advanced while we waited for the lock.
+      if(current.deadline&&at>=Number(current.deadline))actionError=act(current,userId,{kind:'poll'},at,grade,Math.random,resolveIdea);
+    }else{
+      actionError=act(current,userId,command,at,grade,Math.random,resolveIdea);
     }
-    return {g,actionError,serverNow:now};
+
+    if(String(current.terms[current.term-1]||'')!==beforeTerm)hydrated=(await hydrateQuickTerm(current,tx))||hydrated;
+    if(hydrated&&Number(current.revision||0)===beforeRevision)current.revision=beforeRevision+1;
+    const changed=Number(current.revision||0)!==beforeRevision||hydrated;
+
+    if(changed){
+      await tx.unsafe('update private.quick_dna_games set state=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(current)]);
+    }
+    if(current.stage==='COMPLETE'&&g.stage!=='COMPLETE'){
+      for(const p of current.players)await tx.unsafe(
+        'insert into public.quick_game_results(lobby_id,user_id,score) values($1::uuid,$2::uuid,$3::integer) on conflict(lobby_id,user_id) do update set score=excluded.score',
+        [lobby,p.id,current.teams[p.team].score]
+      );
+      await tx.unsafe('update public.quick_game_lobbies set bot_scores=$2::text::jsonb where lobby_id=$1::uuid',[lobby,JSON.stringify(scores(current,'score'))]);
+    }
+    return {g:current,actionError};
   });
-  const {g,actionError}=result;
-  const own=g.players.find(p=>p.id===userId).team,others=ORDER.filter(k=>k!==own);
-  const map={RED:own,BLUE:others[0],GREEN:others[1],YELLOW:others[2]};
-  const projected={...g,v:2,phase:g.stage==='COMPLETE'?'COMPLETE':g.stage==='REVEAL'?'REVEAL':'HINT',teams:Object.fromEntries(ORDER.map(k=>[k,g.teams[map[k]]]))};
-  let content=null;
-  if(g.stage!=='READY'){
-    content=await contentFor(projected);
-    // Rejoining clients recover released hints; never disclose future hints.
-    if(!['REVEAL','COMPLETE','COUNTDOWN'].includes(g.stage)){
-      const hints=await sql.unsafe('select hint_text from private.dna_hints where term_id=$1::uuid and hint_no<$2 order by hint_no',[g.terms[g.term-1],g.hint]);
-      content.previousHints=hints.map(h=>h.hint_text);
-    }
-    if(g.stage==='COUNTDOWN')content={termNo:content.termNo,termCount:content.termCount,categoryName:content.categoryName};
-  }
-  // Timestamp sampled after payload construction, so slow content queries do not
-  // make the browser's server clock artificially late.
-  const clock=await sql.unsafe('select extract(epoch from clock_timestamp())*1000 as ms');
-  return {revision:g.revision,phaseKey:phaseKey(g),stage:g.stage,startedAt:g.startedAt,deadline:g.deadline,
-    serverNow:Number(clock[0].ms),serverReceived:Number(receipt[0].ms),actionError,content,team:teamView(g,userId),
-    solves:ORDER.filter(k=>k!==own&&g.teams[k].solved).map(team=>({team,points:g.teams[team].last?.points||0})),
-    gameScores:g.stage==='COMPLETE'?scores(g,'score'):undefined};
+
+  g=result.g;
+  return quickSnapshot(g,userId,serverReceived,Date.now(),result.actionError,command.knownRevision,kind);
 }
 Deno.serve(async req=>{
   if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders});

@@ -123,12 +123,38 @@ test('hint fitter detects clipped text inside a fitting card and may shrink belo
  assert.ok(css.includes('padding:4px 10px 6px!important'));
  assert.ok(css.includes('gap:2px!important'));
 });
+test('Quick Games hot poll path is read-only and cached',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
+ assert.ok(edge.includes("if(kind==='poll'&&!needsHydrate&&!deadlineExpired)"));
+ assert.ok(edge.includes("return quickSnapshot(g,userId,serverReceived,Date.now(),null,command.knownRevision,kind)"));
+ assert.ok(edge.includes("if(kind==='poll'&&Number(knownRevision)===Number(g.revision))return {...base,unchanged:true}"));
+ assert.ok(edge.includes("g.termData=data"));
+ assert.ok(edge.includes("previousHints:data.hints.slice"));
+});
+test('Quick sync avoids redundant UI work for unchanged revisions and adapts polling by phase',async()=>{
+ let applyCount=0,scheduledDelay=null,call=0;
+ const sync=new Sync({
+  now:()=>0,cancel:()=>{},schedule:(fn,ms)=>{scheduledDelay=ms;return 1},error:()=>{},apply:()=>applyCount++,
+  send:async command=>{
+   call++;
+   assert.equal(command.knownRevision,call===1?-1:5);
+   return {revision:5,serverReceived:1000,serverNow:1000,deadline:0,pollAfterMs:300};
+  }
+ });
+ sync.request();await flush();assert.equal(applyCount,1);assert.equal(scheduledDelay,300);
+ sync.request();await flush();assert.equal(applyCount,1);sync.stop();
+});
+test('hidden-tab pause cancels polling and resume restarts without recreating sync',async()=>{
+ let scheduled=0,cancelled=0;
+ const sync=new Sync({now:()=>0,schedule:()=>{scheduled++;return 1},cancel:()=>{cancelled++},error:()=>{},apply:()=>{},send:async()=>({revision:1,serverNow:0,serverReceived:0,pollAfterMs:500})});
+ sync.request();await flush();sync.pause();assert.equal(sync.paused,true);const before=scheduled;sync.request();assert.equal(scheduled,before);sync.resume();await flush();assert.equal(sync.paused,false);assert.ok(cancelled>0);sync.stop();
+});
 test('Quick Games releases Edge Postgres connections and does not poll at 500 ms',()=>{
  const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
  const sync=readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8');
  assert.ok(edge.includes('idle_timeout:1'));
  assert.ok(edge.includes('max_lifetime:5'));
- assert.ok(sync.includes('this.queue.length?100:1000'));
+ assert.ok(sync.includes('this.queue.length?0:this.pollAfter'));
 });
 test('shared countdown is driven only by server timestamps, not local setTimeout steps',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');

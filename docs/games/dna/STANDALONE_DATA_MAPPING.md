@@ -52,15 +52,19 @@ uses `dna-standalone` action `quick_sync` and `private.quick_dna_games.state`:
 |---|---|---|
 | `revision`, `phaseKey`, `stage` | integer, string, enum | Server; stale responses/commands cannot rewind a phase |
 | `startedAt`, `deadline` | epoch milliseconds / null in Ready and Complete | One server deadline for all devices; no local transition fallback |
-| `serverReceived`, `serverNow` | epoch milliseconds | Clock sample; browser uses monotonic elapsed time and estimated network transit |
+| `serverReceived`, `serverNow` | epoch milliseconds | Edge-runtime clock sample; browser uses monotonic elapsed time and estimated network transit |
+| `pollAfterMs`, `unchanged` | integer / boolean | Adaptive transport hint; equal revisions may use compact clock-only heartbeats |
 | `team.ideas`, `team.votes`, `team.submission` | arrays / object or null | Team-scoped; teammate ideas withheld until VOTE; writes acknowledged before UI confirms |
 | `team.players` | readiness / last-seen array | Authenticated lobby roster; polled heartbeat, not a guarantee of physical connectivity |
 | `content.previousHints` | string array | Only previously released hints for reconnect recovery |
 | `gameScores` | team-score object, Complete only | Shared authoritative final result, never a client score submission |
 
-Private state includes selected terms, actions and scoring. It is inaccessible
-through the public Data API. Every Edge request validates lobby membership;
-database row locks serialize writes. The Edge Function must retain JWT verification.
+Private state includes selected terms, actions, scoring and a cache for the current
+term only (answer/aliases, category and three hints). It is inaccessible through
+the public Data API and never sent wholesale to the browser. Existing sessions
+validate membership from the locked roster embedded in that private state.
+Unchanged polls use a single read-only state fetch; database row locks serialize
+writes and deadline transitions. The Edge Function must retain JWT verification.
 Apply `20260926115628_quick_dna_authoritative_state.sql`, deploy the Edge Function
 including its `.mjs` imports, and then publish the v2.30.0 frontend together.
 Legacy Quick Game calls are rejected with `DNA_UPDATE_REQUIRED` after the backend

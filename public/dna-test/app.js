@@ -365,7 +365,7 @@ async function startGame(){if(s.quickLobby)return startSharedQuickGame();clearTi
 let quickSync=null,quickSnapshot=null,quickViewKey='',quickUiState='',quickSolvesKey='',quickIdeaPending=false;
 async function sendQuickCommand(command){
  const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');
- const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),6000);
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),command?.kind==='poll'?2500:6000);
  try{
   const response=await fetch(FUNCTION_URL,{method:'POST',signal:controller.signal,headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({action:'quick_sync',quickLobby:QUICK_LOBBY_ID,command})});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'DNA_SYNC_FAILED');return data;
@@ -381,10 +381,10 @@ function startSharedQuickGame(markReady=true){
  }});
  quickSync.request({kind:markReady?'ready':'poll'});
 }
-window.addEventListener('online',()=>quickSync?.request());
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)quickSync?.request()});
+window.addEventListener('online',()=>quickSync?.resume());
+document.addEventListener('visibilitychange',()=>{if(!quickSync)return;document.hidden?quickSync.pause():quickSync.resume()});
 window.addEventListener('pagehide',()=>{quickSync?.stop()});
-window.addEventListener('pageshow',e=>{if(e.persisted&&quickSync&&quickSnapshot?.stage!=='COMPLETE'){quickSync.stopped=false;quickSync.request()}});
+window.addEventListener('pageshow',e=>{if(e.persisted&&quickSync&&quickSnapshot?.stage!=='COMPLETE'){quickSync.stopped=false;quickSync.resume()}});
 function paintSharedTimer(){
  if(!quickSnapshot||!quickSync)return;
  const {deadline,startedAt,stage}=quickSnapshot,left=Math.max(0,(deadline||0)-quickSync.serverNow());
