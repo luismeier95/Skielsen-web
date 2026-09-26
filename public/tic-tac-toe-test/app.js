@@ -32,6 +32,7 @@ let turnTickTimer=0;
 
 const q=s=>document.querySelector(s);
 const setup=q('#tttxSetup');
+const ready=q('#tttxReady');
 const play=q('#tttxPlay');
 const result=q('#tttxResult');
 const progress=q('#tttxProgress');
@@ -51,14 +52,19 @@ const roundEl=q('#tttxRound');
 const turnTimerEl=q('#tttxTurnTimer');
 const turnTimerBar=q('#tttxTurnTimerBar');
 const turnTimerTrack=q('#tttxTurnTimerTrack');
+const readyMode=q('#tttxReadyMode');
+const readyTimer=q('#tttxReadyTimer');
+const readyTimeout=q('#tttxReadyTimeout');
+const readyOpponent=q('#tttxReadyOpponent');
 const themeSelect=q('#tttxThemeSelect');
 
 function show(page){
   setup.hidden=page!=='SETUP';
+  ready.hidden=page!=='READY';
   play.hidden=page!=='PLAY';
   result.hidden=page!=='RESULT';
-  progress.style.width=page==='SETUP'?'0%':(page==='PLAY'?'50%':'100%');
-  if(headerState) headerState.textContent=page==='PLAY'?'SPIEL':(page==='RESULT'?'ERGEBNIS':'SETUP');
+  progress.style.width=page==='SETUP'?'0%':(page==='READY'?'33%':(page==='PLAY'?'66%':'100%'));
+  if(headerState) headerState.textContent=page==='READY'?'READY':(page==='PLAY'?'SPIEL':(page==='RESULT'?'ERGEBNIS':'SETUP'));
   document.body.classList.toggle('tttx-game-active',page==='PLAY');
 }
 function other(symbol){return symbol==='X'?'O':'X'}
@@ -299,9 +305,38 @@ function worstMoveChoice(symbol){
 function roundPointsFor(winner){
   return winner===game.starter?1:2;
 }
+function futureRoundPointsFor(symbol,roundNo){
+  const offset=roundNo-game.roundNumber;
+  let starter=game.starter;
+  for(let i=0;i<offset;i++)starter=other(starter);
+  return symbol===starter?1:2;
+}
+function decisionBlockEndRound(){
+  if(game.roundNumber<4)return 4;
+  return game.roundNumber%2===0?game.roundNumber:game.roundNumber+1;
+}
+function maxFuturePointsUntilDecision(symbol){
+  const end=decisionBlockEndRound();
+  let total=0;
+  for(let r=game.roundNumber+1;r<=end;r++)total+=futureRoundPointsFor(symbol,r);
+  return total;
+}
+function clinchedWinner(){
+  const px=game.points.X,po=game.points.O;
+  if(px===po)return null;
+  const leader=px>po?'X':'O';
+  const trailer=other(leader);
+  return game.points[leader] > game.points[trailer] + maxFuturePointsUntilDecision(trailer)
+    ? leader
+    : null;
+}
 function shouldFinishMatch(){
-  if(game.roundNumber<4||game.roundNumber%2!==0)return false;
-  return game.points.X!==game.points.O;
+  const clinched=clinchedWinner();
+  if(clinched)return clinched;
+  if(game.roundNumber>=4&&game.roundNumber%2===0&&game.points.X!==game.points.O){
+    return game.points.X>game.points.O?'X':'O';
+  }
+  return null;
 }
 function renderBoard(){
   const botTurn=game.opponent==='BOT'&&game.current==='O';
@@ -325,6 +360,18 @@ function renderPlay(){
   updateTurnTimer();
   if(opponentLabel) opponentLabel.textContent=game.opponent==='BOT'?'BOT':'PLAYER 2';
   renderBoard();
+}
+function renderReadySummary(){
+  if(readyMode)readyMode.textContent=selectedMode;
+  if(readyTimer)readyTimer.textContent=selectedTurnSeconds?selectedTurnSeconds+' SEK':'AUS';
+  if(readyTimeout)readyTimeout.textContent=selectedTurnSeconds
+    ? 'ZEIT ABGELAUFEN → SCHLECHTESTER LEGALER ZUG WIRD AUTOMATISCH GESETZT'
+    : 'KEIN ZUGTIMER · KEIN AUTO-ZUG';
+  if(readyOpponent)readyOpponent.textContent=selectedOpponent==='BOT'?'BOT':'PLAYER 2';
+}
+function openReady(){
+  renderReadySummary();
+  show('READY');
 }
 function start(){
   newSession();
@@ -394,8 +441,9 @@ function move(index,source='HUMAN'){
     game.wins[actor]+=1;
     game.points[actor]+=roundPointsFor(actor);
     renderPlay();
-    if(shouldFinishMatch()){
-      game.winner=game.points.X>game.points.O?'X':'O';
+    const finishedWinner=shouldFinishMatch();
+    if(finishedWinner){
+      game.winner=finishedWinner;
       transitionTimer=setTimeout(renderResult,3000);
     }else{
       startRoundCountdown(()=>prepareNextBoard(true));
@@ -488,7 +536,9 @@ function setupPage(){
 document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>selectMode(btn.dataset.mode)));
 document.querySelectorAll('[data-opponent]').forEach(btn=>btn.addEventListener('click',()=>selectOpponent(btn.dataset.opponent)));
 document.querySelectorAll('[data-turn-seconds]').forEach(btn=>btn.addEventListener('click',()=>selectTurnSeconds(btn.dataset.turnSeconds)));
-q('#tttxStart').addEventListener('click',start);
+q('#tttxStart').addEventListener('click',openReady);
+q('#tttxReadyStart').addEventListener('click',start);
+q('#tttxReadyBack').addEventListener('click',()=>show('SETUP'));
 q('#tttxAgain').addEventListener('click',setupPage);
 
 setupThemeQa();
