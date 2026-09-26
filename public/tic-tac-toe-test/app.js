@@ -285,7 +285,7 @@ function move(index,source='HUMAN'){
     renderPlay();
     if(game.wins[actor]>=2){
       game.winner=actor;
-      startRoundCountdown(renderResult);
+      transitionTimer=setTimeout(renderResult,3000);
     }else{
       startRoundCountdown(()=>prepareNextBoard(true));
     }
