@@ -70,6 +70,12 @@ Whenever a concrete player or participant name is displayed in game UI, the name
 
 This applies to status containers, ready screens, overlays, turn announcements, result tables, rankings, countdown/round-transition messages and all future player-name surfaces. Generic role labels that are not a concrete player name may remain neutral.
 
+## 4.4 Overlay Contrast Box
+
+Game-state overlays must render their visible text inside a theme-aware contrast box rather than directly over gameplay content.
+
+Starter announcements, tie states, overtime states, winner announcements and comparable future overlays must share one component style per game. The box must use semantic theme surfaces/borders, preserve team-colored player names, and keep visible text at or above the minimum UI font size.
+
 ## 5. Theme Authority
 
 Keine Theme-Farben im Game hardcoden.
