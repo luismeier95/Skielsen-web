@@ -200,11 +200,26 @@ body.tttx-body{
 .tttx-cell:disabled{cursor:default}
 .tttx-cell.is-winning{background:var(--theme-success-bg);color:var(--theme-on-success)}
 .tttx-mark{
+  width:62%;
+  height:62%;
   color:var(--tttx-mark-color,var(--theme-accent));
-  font-family:var(--display);
-  font-size:clamp(54px,22vw,96px);
-  font-weight:950;
-  line-height:1;
+  display:block;
+  overflow:visible;
+}
+.tttx-mark .tttx-shape{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:12;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+.tttx-cell.age-newest .tttx-mark{opacity:1}
+.tttx-cell.age-middle .tttx-mark{opacity:.5}
+.tttx-cell.age-oldest .tttx-shape{
+  opacity:1;
+  stroke-dasharray:11 9;
+  stroke-linecap:butt;
 }
 @media(min-width:721px){
   body.tttx-body{--tttx-radius-outer:16px;--tttx-radius-card:12px;--tttx-gap:18px}
@@ -227,7 +242,6 @@ body.tttx-body{
   .tttx-status small{font-size:7px}
   .tttx-status strong{font-size:16px}
     .tttx-board-shell{padding:12px;width:min(520px,calc(100dvh - 190px))}
-  .tttx-mark{font-size:clamp(64px,10vw,112px)}
   .tttx-result{padding:24px 20px 30px}
   .tttx-result-columns,.tttx-result-row{grid-template-columns:70px minmax(0,1fr) 120px 78px;padding:0 16px;gap:10px}
   .tttx-result-columns{font-size:6.5px}
