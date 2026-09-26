@@ -77,6 +77,7 @@ Einzelne Pruefungen:
 python tools/validate_static.py
 python tools/verify.py --syntax-only
 node --check public/dna-test/app.js
+node --test tools/test_dna_sync.mjs
 ```
 
 ## Vorhandene Pruefungen und Grenzen
@@ -89,8 +90,10 @@ node --check public/dna-test/app.js
 - `tools/score_word_chain_frequency.py` und der zugehoerige Workflow sind ein
   separater Daten-Audit: benoetigen `wordfreq`, Netzwerk und schreiben
   `data/wortkette-frequency-audit.json`. Nicht Teil des normalen Verify-Laufs.
-- Die vorhandenen Testseiten dienen manueller QA. Es gibt derzeit keine
-  eingerichtete automatische Unit-/Browser-Test-Suite.
+- Die vorhandenen Testseiten dienen manueller QA. `tools/test_dna_sync.mjs`
+  testet zusaetzlich die DNA-Multiplayer-Zustandsmaschine und den Client-Transport
+  mit Node ohne neue Dependencies. Es ersetzt weder Datenbank-Integrationstests
+  noch den Playtest mit zwei Endgeraeten.
 - Syntaxpruefungen pruefen weder Browser-APIs, Imports und dynamisch geladenen
   Code noch Authentifizierung, Backend-Verhalten oder visuelle Korrektheit.
 

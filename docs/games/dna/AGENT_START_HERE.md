@@ -546,6 +546,13 @@ This is now part of the binding geometry contract, not a cosmetic preference.
 
 ## 23. Latest implementation state / regression checklist
 
+Local synchronization patch v2.30.0 (2026-09-26): Quick Games now has a shared
+server state machine (`quick-state.mjs`), private session migration and ordered
+client polling (`quick-sync.js`). The previous per-browser timer/state path is
+retained only for solo standalone simulation. See the Quick Games contract and
+data mapping for deployment order. This note does not establish deployment or a
+successful physical-device playtest; verify both separately.
+
 Latest standalone baseline:
 - `public/dna-test/app.js`
 - `public/dna-test/style.css`

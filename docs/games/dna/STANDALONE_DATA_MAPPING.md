@@ -43,6 +43,33 @@ This document maps the DNA standalone UI to the production data model. It exists
 
 ## Standalone-only simulation
 
+### Quick Games multiplayer (v2.30.0)
+
+The simulation described below applies only without `quick_lobby`. Multiplayer
+uses `dna-standalone` action `quick_sync` and `private.quick_dna_games.state`:
+
+| Field | Type | Authority / visibility |
+|---|---|---|
+| `revision`, `phaseKey`, `stage` | integer, string, enum | Server; stale responses/commands cannot rewind a phase |
+| `startedAt`, `deadline` | epoch milliseconds / null in Ready and Complete | One server deadline for all devices; no local transition fallback |
+| `serverReceived`, `serverNow` | epoch milliseconds | Clock sample; browser uses monotonic elapsed time and estimated network transit |
+| `team.ideas`, `team.votes`, `team.submission` | arrays / object or null | Team-scoped; teammate ideas withheld until VOTE; writes acknowledged before UI confirms |
+| `team.players` | readiness / last-seen array | Authenticated lobby roster; polled heartbeat, not a guarantee of physical connectivity |
+| `content.previousHints` | string array | Only previously released hints for reconnect recovery |
+| `gameScores` | team-score object, Complete only | Shared authoritative final result, never a client score submission |
+
+Private state includes selected terms, actions and scoring. It is inaccessible
+through the public Data API. Every Edge request validates lobby membership;
+database row locks serialize writes. The Edge Function must retain JWT verification.
+Apply `20260926115628_quick_dna_authoritative_state.sql`, deploy the Edge Function
+including its `.mjs` imports, and then publish the v2.30.0 frontend together.
+Legacy Quick Game calls are rejected with `DNA_UPDATE_REQUIRED` after the backend
+update; publish between playtests, with no active legacy game.
+
+Verification: `node --test tools/test_dna_sync.mjs` covers shared deadlines,
+late/duplicate input, privacy, consensus, timeout races and transport recovery.
+Live database locking and two physical devices still require deployment/playtest.
+
 The standalone intentionally simulates the second RED team member and the three opposing teams so the full IDEA → VOTE → SUBMIT → REVEAL → RANKING → MERGE flow can be tested from one browser.
 
 These fixtures are **not production sources**:
