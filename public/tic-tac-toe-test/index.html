@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.0.1">
+<link rel="stylesheet" href="./style.css?v=2.1.0">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -46,6 +46,23 @@
         </div>
       </section>
 
+      <section class="tttx-card tttx-setup-card">
+        <div class="tttx-card-head">
+          <strong>GEGNER</strong>
+          <span>1 AUSWÄHLEN</span>
+        </div>
+        <div class="tttx-difficulty" role="group" aria-label="Gegner">
+          <button type="button" class="tttx-choice active" data-opponent="BOT">
+            <strong>BOT</strong>
+            <span>Spiele lokal gegen einen automatischen Gegner.</span>
+          </button>
+          <button type="button" class="tttx-choice" data-opponent="HUMAN">
+            <strong>MENSCH</strong>
+            <span>Zwei Spieler spielen abwechselnd auf diesem Gerät.</span>
+          </button>
+        </div>
+      </section>
+
       <section class="tttx-rule-note">
         <small>AKTIVE REGEL</small>
         <strong id="tttxRuleTitle">NORMAL</strong>
@@ -63,7 +80,7 @@
         </div>
         <div><small>AM ZUG</small><strong id="tttxTurn">PLAYER 1</strong></div>
         <div class="tttx-player-state">
-          <small>PLAYER 2</small>
+          <small id="tttxOpponentLabel">BOT</small>
           <strong>O</strong>
         </div>
         <div><small>MODUS</small><strong id="tttxMode">NORMAL</strong></div>
@@ -95,6 +112,6 @@
   </main>
 </section>
 
-<script src="./app.js?v=2.0.1"></script>
+<script src="./app.js?v=2.1.0"></script>
 </body>
 </html>
