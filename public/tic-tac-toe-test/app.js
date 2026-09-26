@@ -252,7 +252,8 @@ function setTimerBarProgress(ratio){
 }
 function updateTurnTimer(){
   const seconds=Number(game?.turnSeconds||0);
-  if(!seconds){
+  const waitingForFirstMove=!!game&&game.boardMoves===0;
+  if(!seconds||waitingForFirstMove){
     if(turnTimerTrack)turnTimerTrack.classList.add('is-passive');
     setTimerBarProgress(1);
     return;
@@ -274,7 +275,7 @@ function startTurnTimer(){
   stopTurnTimer();
   const seconds=Number(game?.turnSeconds||0);
   updateTurnTimer();
-  if(!seconds||!game||game.winner||game.locked||game.winning.length)return;
+  if(!seconds||!game||game.boardMoves===0||game.winner||game.locked||game.winning.length)return;
   turnDeadline=performance.now()+seconds*1000;
   updateTurnTimer();
   turnTickTimer=setInterval(()=>{
