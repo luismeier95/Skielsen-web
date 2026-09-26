@@ -221,7 +221,7 @@ function startRoundCountdown(done){
   const winHost=document.createElement('div');
   winHost.className='tttx-round-win-overlay';
   winHost.setAttribute('aria-live','polite');
-  winHost.innerHTML='<strong style="color:'+PLAYERS[winnerSymbol].color+'">'+playerName(winnerSymbol)+'</strong><span>GEWINNT</span>';
+  winHost.innerHTML='<div class="tttx-round-win-badge"><strong style="color:'+PLAYERS[winnerSymbol].color+'">'+playerName(winnerSymbol)+'</strong><span>GEWINNT</span></div>';
   board.appendChild(winHost);
 
   transitionTimer=setTimeout(()=>{
