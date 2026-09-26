@@ -630,7 +630,7 @@ body.tttx-body.v15-tournament-active{
   height:8px;
   margin:0 8px 3px;
   position:relative;
-  top:-6px;
+  top:-14px;
   border-radius:999px;
   background:var(--theme-surface-muted);
   overflow:hidden;
@@ -1053,4 +1053,22 @@ body.tttx-body.v15-tournament-active{
 .tttx-overlay-line>strong{
   font:inherit;
   text-shadow:none;
+}
+
+
+/* TTT_VISIBLE_VERSION_V1 */
+.tttx-version{
+  flex:0 0 auto;
+  margin-left:8px;
+  color:var(--theme-on-header);
+  opacity:.72;
+  font-family:var(--ui);
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+@media(max-width:420px){
+  .tttx-version{margin-left:6px;font-size:12px}
 }
