@@ -69,7 +69,7 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
 test('default browser timers are wrapped so receiver-sensitive host APIs are not rebound',async()=>{
  let scheduled=false,cancelled=false;
  const host={
-  setTimeout(fn){if(this!==host)throw new TypeError('Illegal invocation');scheduled=true;fn();return 1},
+  setTimeout(){if(this!==host)throw new TypeError('Illegal invocation');scheduled=true;return 1},
   clearTimeout(){if(this!==host)throw new TypeError('Illegal invocation');cancelled=true},
   performance:{now(){if(this!==host.performance)throw new TypeError('Illegal invocation');return 0}}
  };
