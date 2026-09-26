@@ -66,6 +66,13 @@ test('bot teammate uses shared candidates, cooperates with correct vote and stil
 const context={};vm.runInNewContext(readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8'),context);
 const Sync=context.DnaQuickSync;
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
+test('Quick Games releases Edge Postgres connections and does not poll at 500 ms',()=>{
+ const edge=readFileSync(new URL('../supabase/functions/dna-standalone/index.ts',import.meta.url),'utf8');
+ const sync=readFileSync(new URL('../public/dna-test/quick-sync.js',import.meta.url),'utf8');
+ assert.ok(edge.includes('idle_timeout:1'));
+ assert.ok(edge.includes('max_lifetime:5'));
+ assert.ok(sync.includes('this.queue.length?100:1000'));
+});
 test('Quick Games sends READY on the first Ready tap instead of requiring a second Spiel starten tap',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
  assert.ok(app.includes("if(s.quickLobby){btn.disabled=true;btn.textContent='BEREIT WIRD GESPEICHERT …';startSharedQuickGame(true);return}"));

@@ -4,7 +4,16 @@ import postgres from "npm:postgres@3.4.3";
 import {createGame,act,teamView,ORDER,phaseKey} from './quick-state.mjs';
 import {DECOYS} from './quick-decoys.mjs';
 
-const sql=postgres(Deno.env.get("SUPABASE_DB_URL")!,{prepare:false,max:1});
+const sql=postgres(Deno.env.get("SUPABASE_DB_URL")!,{
+  prepare:false,
+  max:1,
+  // Edge isolates must not pin a direct Postgres connection for their full
+  // lifetime. Quick Games polls from several devices, so release idle
+  // connections aggressively and cap their lifetime.
+  idle_timeout:1,
+  max_lifetime:5,
+  connect_timeout:5
+});
 const corsHeaders={
   "Access-Control-Allow-Origin":"*",
   "Access-Control-Allow-Headers":"authorization, apikey, content-type",

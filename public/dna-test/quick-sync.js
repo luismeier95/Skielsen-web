@@ -33,7 +33,9 @@ class DnaQuickSync{
    if(!this.stopped)this.error(err);
   }finally{
    this.running=false;
-   if(!this.stopped)this.timer=this.schedule(()=>this.drain(),this.failures?Math.min(4000,500*2**this.failures):this.queue.length?100:500);
+   // Writes stay immediate; idle polling is deliberately slower so two or more
+   // phones do not create unnecessary Edge/DB connection pressure.
+   if(!this.stopped)this.timer=this.schedule(()=>this.drain(),this.failures?Math.min(4000,500*2**this.failures):this.queue.length?100:1000);
   }
  }
 }
