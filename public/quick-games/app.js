@@ -5,6 +5,7 @@ const KEY='sb_publishable_6Cuc1rH2WGua2UT__Ta18w_BJVG4O1b';
 const SESSION_KEY='skielsen.native.supabase.session';
 const COLORS=['#ff1717','#1515ff','#00a65a','#f2b705'];
 const NAMES=['TEAM ROT','TEAM BLAU','TEAM GRÜN','TEAM GELB'];
+const PLAYER_NAMES=['ROT','BLAU','GRÜN','GELB'];
 const $=s=>document.querySelector(s);
 let lobby=null,poll=0,navigating=false;
 function session(){try{const s=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');return s?.access_token?s:null}catch(_){return null}}
@@ -42,18 +43,25 @@ function render(){
  if(!lobby)return;
  $('#qgChoose').hidden=true;$('#qgLobby').hidden=false;$('#qgLobbyCode').textContent=lobby.join_code;
  const players=new Map((lobby.players||[]).map(p=>[Number(p.seat),p]));
- $('#qgSeats').innerHTML=NAMES.map((name,index)=>{const slots=[index*2+1,index*2+2];return `<article class="qg-seat" style="--team:${COLORS[index]}"><small>${name}</small><div class="qg-team-slots">${slots.map((seat,slotIndex)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU · PLATZ '+(slotIndex+1):'PLAYER · PLATZ '+(slotIndex+1)):(filled?'BOT · PLATZ '+(slotIndex+1):'PLATZ '+(slotIndex+1)+' WÄHLEN')}</span></button>`}).join('')}</div></article>`}).join('');
+ const minority=lobby.game_key==='minority';
+ $('#qgLobbyGame').textContent=(minority?'MINORITY':'DNA')+' · QUICK LOBBY';
+ $('#qgLobbyLead').textContent=minority?'Vier Einzelplätze. Freie Plätze werden beim Start mit Bots gefüllt.':'Jedes Team hat zwei Plätze. Wählt freie Plätze, um zusammen im selben Team zu spielen; erst beim Start werden übrige Plätze mit Bots gefüllt.';
+ if(minority){
+   $('#qgSeats').innerHTML=[1,2,3,4].map((seat,index)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<article class="qg-seat qg-seat--solo" style="--team:${COLORS[index]}"><small>PLAYER ${index+1} · ${PLAYER_NAMES[index]}</small><div class="qg-team-slots"><button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU':'PLAYER'):(filled?'BOT':'PLATZ WÄHLEN')}</span></button></div></article>`}).join('');
+ }else{
+   $('#qgSeats').innerHTML=NAMES.map((name,index)=>{const slots=[index*2+1,index*2+2];return `<article class="qg-seat" style="--team:${COLORS[index]}"><small>${name}</small><div class="qg-team-slots">${slots.map((seat,slotIndex)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU · PLATZ '+(slotIndex+1):'PLAYER · PLATZ '+(slotIndex+1)):(filled?'BOT · PLATZ '+(slotIndex+1):'PLATZ '+(slotIndex+1)+' WÄHLEN')}</span></button>`}).join('')}</div></article>`}).join('');
+ }
  document.querySelectorAll('[data-seat]:not(:disabled)').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('set_quick_game_seat',{p_lobby_id:lobby.lobby_id,p_seat:Number(e.currentTarget.dataset.seat)}))));
  $('#qgHostActions').hidden=!lobby.is_host;$('#qgWait').hidden=!!lobby.is_host;
  $('#qgFill').disabled=!!lobby.bots_filled;$('#qgFill').textContent=lobby.bots_filled?'BOTS EINGESETZT ✓':'REST MIT BOTS FÜLLEN';
  $('#qgStart').disabled=!lobby.bots_filled&&(lobby.players||[]).length<8;
- if(lobby.status==='LIVE'&&!navigating){navigating=true;location.assign('../dna-test/?quick_lobby='+encodeURIComponent(lobby.lobby_id))}
+ if(lobby.status==='LIVE'&&!navigating){navigating=true;location.assign(lobby.launch_path||((lobby.game_key==='minority'?'../minority-test/?quick_lobby=':'../dna-test/?quick_lobby=')+encodeURIComponent(lobby.lobby_id)))}
 }
 function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 async function refresh(){if(!lobby?.lobby_id)return;try{lobby=await rpc('get_quick_game_lobby',{p_lobby_id:lobby.lobby_id});render()}catch(err){feedback(message(err));stopPoll()}}
 function startPoll(){stopPoll();poll=setInterval(refresh,1500)}function stopPoll(){if(poll)clearInterval(poll);poll=0}
 async function act(button,fn){button.disabled=true;feedback('');try{lobby=await fn();render();startPoll()}catch(err){feedback(message(err))}finally{if(button.isConnected&&lobby?.status!=='LIVE')button.disabled=false}}
-$('#qgCreate').addEventListener('click',e=>act(e.currentTarget,()=>rpc('create_quick_game_lobby',{p_game_key:'dna'})));
+document.querySelectorAll('.qg-create').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('create_quick_game_lobby',{p_game_key:e.currentTarget.dataset.game}))));
 $('#qgJoin').addEventListener('click',e=>act(e.currentTarget,()=>rpc('join_quick_game_lobby',{p_join_code:$('#qgCode').value.trim().toUpperCase()})));
 $('#qgCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('#qgJoin').click()});
 $('#qgFill').addEventListener('click',e=>act(e.currentTarget,()=>rpc('fill_quick_game_lobby_bots',{p_lobby_id:lobby.lobby_id})));
