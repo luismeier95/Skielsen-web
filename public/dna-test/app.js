@@ -197,19 +197,75 @@ document.addEventListener('focusin',e=>{if(e.target?.classList?.contains('dna-in
 document.addEventListener('focusout',e=>{if(e.target?.classList?.contains('dna-input'))setTimeout(syncViewport,180)});
 syncViewport();
 function getStoredSession(){try{const raw=localStorage.getItem(SESSION_KEY);return raw?JSON.parse(raw):null}catch(_){return null}}
-function validSession(session){if(!session?.access_token)return false;if(!session.expires_at)return true;return Number(session.expires_at)>Math.floor(Date.now()/1000)+15}
-async function authSession(){const session=getStoredSession();return validSession(session)?session:null}
+function saveStoredSession(session){try{if(session)localStorage.setItem(SESSION_KEY,JSON.stringify(session));else localStorage.removeItem(SESSION_KEY)}catch(_){}}
+function jwtExpiry(token){
+ try{
+  const part=String(token||'').split('.')[1];if(!part)return 0;
+  const normalized=part.replace(/-/g,'+').replace(/_/g,'/');
+  const padded=normalized+'='.repeat((4-normalized.length%4)%4);
+  const bytes=Uint8Array.from(atob(padded),c=>c.charCodeAt(0));
+  return Number(JSON.parse(new TextDecoder().decode(bytes))?.exp||0);
+ }catch(_){return 0}
+}
+function sessionExpiry(session){return Number(session?.expires_at||jwtExpiry(session?.access_token)||0)}
+function validSession(session){if(!session?.access_token)return false;const exp=sessionExpiry(session);return !exp||exp>Math.floor(Date.now()/1000)+60}
+let refreshSessionPromise=null;
+async function refreshStoredSession(){
+ if(refreshSessionPromise)return refreshSessionPromise;
+ refreshSessionPromise=(async()=>{
+  const current=getStoredSession();if(!current?.refresh_token)return null;
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const res=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{
+    method:'POST',signal:controller.signal,
+    headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({refresh_token:current.refresh_token})
+   });
+   const data=await res.json().catch(()=>({}));
+   if(!res.ok){
+    if(res.status===400||res.status===401){saveStoredSession(null);return null}
+    throw new Error('AUTH_REFRESH_TEMPORARY');
+   }
+   const refreshed={
+    ...current,
+    access_token:data.access_token,
+    refresh_token:data.refresh_token||current.refresh_token,
+    expires_in:data.expires_in,
+    expires_at:data.expires_at||Math.floor(Date.now()/1000)+(Number(data.expires_in)||3600),
+    token_type:data.token_type||current.token_type||'bearer',
+    user:data.user||current.user
+   };
+   saveStoredSession(refreshed);return refreshed;
+  }catch(err){
+   if(err?.name==='AbortError')throw new Error('AUTH_REFRESH_TEMPORARY');
+   throw err;
+  }finally{clearTimeout(timeout)}
+ })();
+ try{return await refreshSessionPromise}finally{refreshSessionPromise=null}
+}
+async function authSession(forceRefresh=false){
+ const current=getStoredSession();
+ if(!current?.access_token)return null;
+ if(!forceRefresh&&validSession(current))return current;
+ return refreshStoredSession();
+}
+async function fetchWithSession(url,options={},retry=true){
+ const current=await authSession();if(!current)throw new Error('LOGIN_REQUIRED');
+ const headers={...(options.headers||{}),Authorization:'Bearer '+current.access_token};
+ let res=await fetch(url,{...options,headers});
+ if(res.status===401&&retry){
+  const refreshed=await authSession(true);if(!refreshed)throw new Error('LOGIN_REQUIRED');
+  res=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+refreshed.access_token}});
+ }
+ return res;
+}
 async function loadThemeCatalog(){
  const session=await authSession();
  if(!session)return [];
  try{
-  const res=await fetch(SUPABASE_URL+'/rest/v1/rpc/list_theme_pack_contracts',{
+  const res=await fetchWithSession(SUPABASE_URL+'/rest/v1/rpc/list_theme_pack_contracts',{
    method:'POST',
-   headers:{
-    apikey:SUPABASE_KEY,
-    Authorization:'Bearer '+session.access_token,
-    'Content-Type':'application/json'
-   },
+   headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
    body:'{}'
   });
   const data=await res.json().catch(()=>[]);
@@ -269,8 +325,8 @@ function renderThemeQa(){
  applyQaTheme(initial,false);
  themeSelect.addEventListener('change',()=>applyQaTheme(themeSelect.value,true));
 }
-async function api(action,payload={}){const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');const res=await fetch(FUNCTION_URL,{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error||'DNA Serverfehler');return data}
-async function quickRpc(name,payload={}){const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');const res=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+encodeURIComponent(name),{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.message||data?.error||'QUICK_GAME_FAILED');return data}
+async function api(action,payload={}){const res=await fetchWithSession(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error||'DNA Serverfehler');return data}
+async function quickRpc(name,payload={}){const res=await fetchWithSession(SUPABASE_URL+'/rest/v1/rpc/'+encodeURIComponent(name),{method:'POST',headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.message||data?.error||'QUICK_GAME_FAILED');return data}
 function mapQuickScores(scores){if(!s.quickTeamMap)return scores;const mapped={};Object.entries(scores||{}).forEach(([key,value])=>{mapped[s.quickTeamMap[key]||key]=Number(value||0)});return mapped}
 function makeQuickVoters(players,me,ownIndex){
  const own=(players||[]).filter(p=>Math.floor((Number(p.seat||1)-1)/2)===ownIndex).sort((a,b)=>Number(a.seat||0)-Number(b.seat||0));
@@ -364,10 +420,9 @@ async function startGame(){if(s.quickLobby)return startSharedQuickGame();clearTi
 
 let quickSync=null,quickSnapshot=null,quickViewKey='',quickUiState='',quickSolvesKey='',quickIdeaPending=false;
 async function sendQuickCommand(command){
- const session=await authSession();if(!session)throw new Error('LOGIN_REQUIRED');
  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),command?.kind==='poll'?2500:6000);
  try{
-  const response=await fetch(FUNCTION_URL,{method:'POST',signal:controller.signal,headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({action:'quick_sync',quickLobby:QUICK_LOBBY_ID,command})});
+  const response=await fetchWithSession(FUNCTION_URL,{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'quick_sync',quickLobby:QUICK_LOBBY_ID,command})});
   const data=await response.json();if(!response.ok)throw new Error(data.error||'DNA_SYNC_FAILED');return data;
  }finally{clearTimeout(timeout)}
 }

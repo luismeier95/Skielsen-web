@@ -95,6 +95,21 @@ test('bot-only IDEA and VOTE phases collapse inside one request after the human 
  send(g,'a','poll',g.deadline);
  assert.equal(g.stage,'FEEDBACK');assert.equal(g.hint,3);
 });
+test('DNA refreshes an expiring access token instead of ending a live game',()=>{
+ const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
+ assert.ok(app.includes("/auth/v1/token?grant_type=refresh_token"));
+ assert.ok(app.includes("let refreshSessionPromise=null"));
+ assert.ok(app.includes("if(!forceRefresh&&validSession(current))return current"));
+ assert.ok(app.includes("if(res.status===401&&retry)"));
+ assert.ok(app.includes("const refreshed=await authSession(true)"));
+ assert.ok(app.includes("response=await fetchWithSession")||app.includes("const response=await fetchWithSession"));
+});
+test('Quick Games lobby also refreshes sessions and retries a rejected token once',()=>{
+ const app=readFileSync(new URL('../public/quick-games/app.js',import.meta.url),'utf8');
+ assert.ok(app.includes("/auth/v1/token?grant_type=refresh_token"));
+ assert.ok(app.includes("let refreshPromise=null"));
+ assert.ok(app.includes("if(res.status===401){s=await validSession(true)"));
+});
 test('Quick Game timer is hidden outside actionable IDEA/VOTE stages and solved view is stable',()=>{
  const app=readFileSync(new URL('../public/dna-test/app.js',import.meta.url),'utf8');
  assert.ok(app.includes("decisionStage=stage==='IDEA'||stage==='VOTE'"));

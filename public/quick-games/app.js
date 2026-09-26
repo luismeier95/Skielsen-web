@@ -8,11 +8,34 @@ const NAMES=['TEAM ROT','TEAM BLAU','TEAM GRÜN','TEAM GELB'];
 const $=s=>document.querySelector(s);
 let lobby=null,poll=0,navigating=false;
 function session(){try{const s=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');return s?.access_token?s:null}catch(_){return null}}
+function saveSession(s){try{if(s)localStorage.setItem(SESSION_KEY,JSON.stringify(s));else localStorage.removeItem(SESSION_KEY)}catch(_){}}
+function sessionValid(s){if(!s?.access_token)return false;if(!s.expires_at)return true;return Number(s.expires_at)>Math.floor(Date.now()/1000)+60}
+let refreshPromise=null;
+async function validSession(force=false){
+ const current=session();if(!current)return null;
+ if(!force&&sessionValid(current))return current;
+ if(refreshPromise)return refreshPromise;
+ refreshPromise=(async()=>{
+  if(!current.refresh_token)return null;
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  try{
+   const res=await fetch(URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',signal:controller.signal,headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:current.refresh_token})});
+   const data=await res.json().catch(()=>({}));
+   if(!res.ok){if(res.status===400||res.status===401){saveSession(null);return null}throw new Error('AUTH_REFRESH_TEMPORARY')}
+   const next={...current,access_token:data.access_token,refresh_token:data.refresh_token||current.refresh_token,expires_in:data.expires_in,expires_at:data.expires_at||Math.floor(Date.now()/1000)+(Number(data.expires_in)||3600),token_type:data.token_type||current.token_type||'bearer',user:data.user||current.user};
+   saveSession(next);return next;
+  }catch(err){if(err?.name==='AbortError')throw new Error('AUTH_REFRESH_TEMPORARY');throw err}
+  finally{clearTimeout(timeout)}
+ })();
+ try{return await refreshPromise}finally{refreshPromise=null}
+}
 function feedback(message,type=''){const el=$('#qgFeedback');el.textContent=message||'';el.className='qg-feedback'+(type?' '+type:'')}
 function message(error){const m=String(error?.message||error||'');if(m.includes('LOBBY_NOT_FOUND'))return 'Lobbycode nicht gefunden oder Lobby bereits gestartet.';if(m.includes('LOBBY_FULL'))return 'Die Lobby ist bereits voll.';if(m.includes('FILL_REMAINING'))return 'Fülle zuerst die freien Plätze mit Bots.';if(m.includes('AUTH'))return 'Bitte melde dich zuerst auf der Landing Page an.';return m||'Quick Games konnte nicht geladen werden.'}
 async function rpc(name,args={}){
- const s=session();if(!s)throw new Error('AUTH_REQUIRED');
- const res=await fetch(`${URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${s.access_token}`,'Content-Type':'application/json'},body:JSON.stringify(args)});
+ let s=await validSession();if(!s)throw new Error('AUTH_REQUIRED');
+ const request=token=>fetch(`${URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(args)});
+ let res=await request(s.access_token);
+ if(res.status===401){s=await validSession(true);if(!s)throw new Error('AUTH_REQUIRED');res=await request(s.access_token)}
  const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.message||data?.error||name);return data;
 }
 function render(){
