@@ -427,3 +427,34 @@ body.minority-page{
   .m-ready-summary>div{min-height:82px}
   .m-ready-rules>div{min-height:70px;padding:12px 16px}
 }
+
+
+/* MINORITY_MOBILE_FIRST_NO_TOURNAMENT_CHROME_V1
+   Standalone owns the viewport. Never reserve absent tournament header/banner space. */
+html{
+  margin:0!important;
+  padding:0!important;
+  scroll-padding-top:0!important;
+}
+body.minority-page.v15-tournament-active,
+body.minority-page.v15-tournament-active:not(.v15-inapp-fullscreen-open){
+  margin:0!important;
+  padding:0!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  scroll-padding-top:0!important;
+  top:0!important;
+  transform:none!important;
+}
+body.minority-page.v15-tournament-active .minority-shell{
+  position:relative!important;
+  top:0!important;
+  margin-top:0!important;
+  padding-top:0!important;
+  transform:none!important;
+}
+body.minority-page.v15-tournament-active .minority-topbar{
+  position:relative!important;
+  top:0!important;
+  margin-top:0!important;
+}
