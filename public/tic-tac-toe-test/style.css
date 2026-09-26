@@ -536,16 +536,16 @@ body.tttx-body{
   gap:12px;
   text-align:center;
 }
-.tttx-score-bridge strong{
+ .tttx-score-bridge strong{
   font-family:var(--display,var(--ui));
-  font-size:28px;
+  font-size:56px;
   font-weight:950;
   line-height:1;
 }
-.tttx-score-bridge>span{
+ .tttx-score-bridge>span{
   color:var(--theme-on-page);
   font-family:var(--display,var(--ui));
-  font-size:24px;
+  font-size:48px;
   font-weight:950;
   line-height:1;
 }
