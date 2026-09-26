@@ -7,7 +7,7 @@
 <title>SKIELSEN · Tic Tac Toe · Standalone</title>
 <link rel="stylesheet" href="../assets/css/app.css?v=15.1.80">
 <link rel="stylesheet" href="../assets/css/tournament-theme-runtime.css?v=15.1.80">
-<link rel="stylesheet" href="./style.css?v=2.2.10">
+<link rel="stylesheet" href="./style.css?v=2.2.11">
 </head>
 <body class="v15-tournament-active tttx-body" data-theme-pack="theme.skielsen.core">
 <section class="tttx-shell" id="tttxApp">
@@ -96,6 +96,33 @@
       <button class="tttx-primary tttx-blocking" id="tttxStart" type="button">SPIEL STARTEN →</button>
     </section>
 
+    <section class="tttx-page tttx-ready" id="tttxReady" hidden>
+      <div class="tttx-hero">
+        <small class="tttx-kicker">READY</small>
+        <h1>TIC TAC TOE.</h1>
+        <p>Kurzer Check der aktiven Regeln vor dem Start.</p>
+      </div>
+
+      <section class="tttx-card tttx-ready-summary">
+        <div><small>MODUS</small><strong id="tttxReadyMode">NORMAL</strong></div>
+        <div><small>GEGNER</small><strong id="tttxReadyOpponent">BOT</strong></div>
+        <div><small>ZEIT PRO ZUG</small><strong id="tttxReadyTimer">AUS</strong></div>
+      </section>
+
+      <section class="tttx-card tttx-ready-rules">
+        <div><b>01</b><span><strong>PUNKTE</strong><small>Eigener Start gewonnen = +1. Gegnerischen Start gewonnen = +2.</small></span></div>
+        <div><b>02</b><span><strong>RUNDEN</strong><small>Mindestens 4 Runden. Der Startspieler wechselt nach jeder Runde.</small></span></div>
+        <div><b>03</b><span><strong>VORZEITIGES ENDE</strong><small>Ist der Rückstand bis zum nächsten Entscheidungszeitpunkt nicht mehr aufholbar, endet das Match sofort.</small></span></div>
+        <div><b>04</b><span><strong>OVERTIME</strong><small>Bei Gleichstand nach einem vollständigen Block folgen immer 2 weitere Runden.</small></span></div>
+        <div><b>05</b><span><strong>ZEITREGEL</strong><small id="tttxReadyTimeout">KEIN ZUGTIMER · KEIN AUTO-ZUG</small></span></div>
+      </section>
+
+      <div class="tttx-ready-actions">
+        <button class="tttx-secondary" id="tttxReadyBack" type="button">← ZURÜCK</button>
+        <button class="tttx-primary tttx-blocking" id="tttxReadyStart" type="button">ICH BIN BEREIT →</button>
+      </div>
+    </section>
+
     <section class="tttx-page tttx-play" id="tttxPlay" hidden>
       <section class="tttx-status tttx-card" aria-label="Spielstatus">
         <div class="tttx-player-state tttx-player-x">
@@ -148,6 +175,6 @@
   </main>
 </section>
 
-<script src="./app.js?v=2.3.1"></script>
+<script src="./app.js?v=2.3.2"></script>
 </body>
 </html>
