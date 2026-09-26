@@ -566,3 +566,36 @@ body.tttx-body{
   letter-spacing:.08em;
   color:var(--theme-muted);
 }
+
+
+/* TTT_STANDALONE_TOP_OWNERSHIP_V1
+   Standalone mobile app owns the viewport; no legacy tournament header reserve. */
+html[data-theme-pack]{
+  margin:0!important;
+  padding:0!important;
+}
+body.tttx-body.v15-tournament-active{
+  margin:0!important;
+  padding:0!important;
+}
+.tttx-shell,
+.tttx-header{
+  margin-top:0!important;
+}
+@media(max-width:720px){
+  html,
+  body.tttx-body,
+  .tttx-shell{
+    margin-top:0!important;
+    padding-top:0!important;
+  }
+  .tttx-shell{
+    position:relative;
+    top:0!important;
+    transform:none!important;
+  }
+  .tttx-header{
+    position:relative;
+    top:0!important;
+  }
+}
