@@ -279,6 +279,7 @@ Quick Games:
 - the DNA Quick Game result page is the canonical visual target;
 - Quick Games shows the final game ranking plus the standard placement points **+5 / +4 / +2 / +0** in the fourth column;
 - placement points reveal bottom-to-top after the ranking has held for 2 seconds, matching the canonical result animation;
+- once the authoritative game reaches `FINISHED / RANKING`, the visible Result Table is **stable DOM**: background polling must stop or become idempotent and must never re-render/restart the ranking animation;
 - Quick Games does **not** execute the Tournament Merge; the placement points are displayed as the result mapping only;
 - the primary action is **QUICK GAME BEENDEN →**.
 
