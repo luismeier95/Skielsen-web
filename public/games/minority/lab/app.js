@@ -206,6 +206,7 @@ async function collectJackpotDecision(seat,potValue){
  return await new Promise(resolve=>jackpotUI.showDecision({
    name:playerName(seat),
    potValue,
+   participantCount:state.reveal?.winningSeats?.length||1,
    onChoose:resolve
  }));
 }
@@ -331,13 +332,15 @@ function renderGame(){
  const res=state.reveal;
  const options=q.options||[];
  const myChoice=state.choice;
- const potLabel=state.difficulty==='EASY'?'POT AUS':'POT '+state.roundValue+(state.mode==='local'&&state.difficulty==='HARDCORE'&&JACKPOT.isArmed(state.roundValue)?' · ARMED':'');
+ const potLabel=state.difficulty==='EASY'
+   ?'<span class="m-pot-status-text">POT AUS</span>'
+   :'<span class="m-pot-status"><img src="'+LAB_CONFIG.assets.coin+'" alt=""><b>×'+state.roundValue+'</b></span>';
 
  stage.innerHTML=`
    <section class="m-status m-card" aria-label="Spielregeln">
      <div><strong>${state.roundCount} RUNDEN</strong></div>
      <div><strong>${esc(state.difficulty)}</strong></div>
-     <div><strong>${potLabel}</strong></div>
+     <div class="m-status-pot">${potLabel}</div>
    </section>
 
    <div class="m-round-display">RUNDE ${state.round}/${state.roundCount}</div>
