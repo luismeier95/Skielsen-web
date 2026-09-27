@@ -134,7 +134,7 @@ function makeUi(root){
      later(()=>{
       resultNode.classList.remove('is-empty');
       const delta=result.payout-result.base;
-      const deltaSign=delta>0?'+':'';
+      const deltaSign=delta>0?'+':delta===0?'±':'';
       const deltaClass=delta>0?'is-positive':delta<0?'is-negative':'is-neutral';
       resultNode.innerHTML=`<strong>${result.label}</strong><div class="mj-slot-values mj-slot-values--triple"><span><small>EINSATZ</small><b>+${result.base}</b></span><span class="mj-slot-delta ${deltaClass}"><small>SPIN-EFFEKT</small><b>${deltaSign}${delta}</b></span><span><small>AUSZAHLUNG</small><b>+${result.payout}</b></span></div>`;
       button.disabled=false;
