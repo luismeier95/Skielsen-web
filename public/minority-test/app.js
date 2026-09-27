@@ -13,7 +13,7 @@ const feedback=document.querySelector('#minorityFeedback');
 const params=new URLSearchParams(location.search);
 const quickLobby=params.get('quick_lobby');
 let state={mode:quickLobby?'remote':'local',screen:'setup',difficulty:'NORMAL',roundCount:10,players:[],scores:[0,0,0,0],round:1,roundValue:1,schedule:[],choice:null,reveal:null};
-let poll=0;
+let poll=0,revealTimer=0,revealTimerKey='';
 
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function setFeedback(v=''){feedback.textContent=v}
@@ -40,13 +40,17 @@ function standings(){
  .sort((a,b)=>b.score-a.score||a.seat-b.seat);
 }
 function render(){
- topState.textContent=state.screen.toUpperCase();
- const pct=state.screen==='game'||state.screen==='reveal'?Math.min(100,Math.round(((state.round-1)/Math.max(1,state.roundCount))*100)):state.screen==='ranking'?100:0;
+ const activeGame=state.screen==='game'||state.screen==='reveal';
+ document.body.classList.toggle('minority-game-active',activeGame);
+ topState.textContent=activeGame?'SPIEL':state.screen.toUpperCase();
+ const pct=activeGame?Math.min(100,Math.round((state.round/Math.max(1,state.roundCount))*100)):state.screen==='ranking'?100:0;
  progress.style.width=pct+'%';
+ if(!activeGame&&revealTimer){clearTimeout(revealTimer);revealTimer=0;revealTimerKey=''}
+ if(activeGame)window.scrollTo(0,0);
  if(state.screen==='wait_setup')return renderWaitSetup();
  if(state.screen==='setup')return renderSetup();
  if(state.screen==='ready')return renderReady();
- if(state.screen==='game'||state.screen==='reveal')return renderGame();
+ if(activeGame)return renderGame();
  if(state.screen==='ranking')return renderRanking();
 }
 function renderWaitSetup(){
@@ -175,26 +179,61 @@ function renderReady(){
  });
 }
 function currentQuestion(){return state.schedule[Math.max(0,state.round-1)]||state.question||{options:['—','—'],optionCount:2}}
+function scheduleRevealAdvance(){
+ if(state.screen!=='reveal'||!state.reveal)return;
+ const key=state.mode+':'+state.round+':'+JSON.stringify(state.reveal.counts||[]);
+ if(revealTimer&&revealTimerKey===key)return;
+ if(revealTimer)clearTimeout(revealTimer);
+ revealTimerKey=key;
+ revealTimer=setTimeout(async()=>{
+   revealTimer=0;
+   if(state.screen!=='reveal')return;
+   if(state.mode==='remote'){
+     try{applyRemote(await rpc('advance_quick_minority_game',{p_lobby_id:quickLobby}))}
+     catch(err){
+       const msg=String(err?.message||err||'');
+       if(msg.includes('RESOLVED_STAGE_REQUIRED')){await refreshRemote();return}
+       setFeedback(humanError(err));
+     }
+   }else{
+     advanceLocal();
+   }
+ },2000);
+}
 function renderGame(){
  const q=currentQuestion(),revealed=state.screen==='reveal'&&state.reveal;
  const res=state.reveal;
  const options=q.options||[];
  const myChoice=state.choice;
- stage.innerHTML=`
-   <div class="m-game-head">
-     <div><div class="m-round">RUNDE ${state.round} / ${state.roundCount}</div><h1 class="m-title" style="font-size:42px">WÄHLE.</h1></div>
-     <div class="m-pot"><small>${state.difficulty==='EASY'?'WERT':'POT'}</small><strong>${state.roundValue}</strong></div>
+ const potLabel=state.difficulty==='EASY'?'POT AUS':'POT '+state.roundValue;
+
+ stage.innerHTML=\`
+   <section class="m-status m-card" aria-label="Spielregeln">
+     <div><strong>\${state.roundCount} RUNDEN</strong></div>
+     <div><strong>\${esc(state.difficulty)}</strong></div>
+     <div><strong>\${potLabel}</strong></div>
+   </section>
+
+   <div class="m-round-display">RUNDE \${state.round}/\${state.roundCount}</div>
+
+   <div class="m-scorebar" aria-label="Punktestand">
+     \${[1,2,3,4].map((seat,i)=>\`<div class="m-score" style="--identity:\${identity(seat)}"><strong>\${Number(state.scores[i])||0}</strong><span>\${esc(playerName(seat))}</span></div>\`).join('')}
    </div>
-   <div class="m-question"><small>${options.length>2?'CHAOS ROUND':'MINORITY'}</small><h2>Was wählst du?</h2></div>
-   <div class="m-options" data-count="${options.length}">${options.map((label,i)=>{
-     const count=revealed?Number(res.counts?.[i]||0):null;
-     const isWin=revealed&&res.winningOptions?.includes(i+1);
-     const cls=[myChoice===i+1?'is-selected':'',isWin?'is-winner':'',revealed&&!isWin?'is-majority':''].filter(Boolean).join(' ');
-     const lengthClass=String(label).length>=13?'is-xlong':String(label).length>=10?'is-long':'';
-     return `<button class="m-option ${cls} ${lengthClass}" type="button" data-choice="${i+1}" ${revealed||myChoice?'disabled':''}><span class="m-option-label">${esc(label)}</span>${revealed?`<span class="m-option-count">${count} × gewählt</span>`:''}</button>`;
-   }).join('')}</div>
-   ${revealed?revealHtml(res):myChoice?`<div class="m-wait">AUSWAHL GELOCKT · WARTET AUF DIE ANDEREN …</div>`:`<div class="m-wait">TIPPE AUF EINE ANTWORT</div>`}
-   <div class="m-scorebar">${[1,2,3,4].map((seat,i)=>`<div class="m-score" style="--identity:${identity(seat)}"><strong>${Number(state.scores[i])||0}</strong><span>${esc(playerName(seat))}</span></div>`).join('')}</div>`;
+
+   <div class="m-options" data-count="\${options.length}">
+     \${options.map((label,i)=>{
+       const count=revealed?Number(res.counts?.[i]||0):null;
+       const isWin=revealed&&res.winningOptions?.includes(i+1);
+       const cls=[
+         !revealed&&myChoice===i+1?'is-selected':'',
+         isWin?'is-winner':'',
+         revealed&&!isWin?'is-revealed':''
+       ].filter(Boolean).join(' ');
+       const lengthClass=String(label).length>=13?'is-xlong':String(label).length>=10?'is-long':'';
+       return \`<button class="m-option \${cls} \${lengthClass}" type="button" data-choice="\${i+1}" \${revealed||myChoice?'disabled':''}><span class="m-option-label">\${esc(label)}</span>\${revealed?\`<span class="m-option-count">\${count} × gewählt</span>\`:''}</button>\`;
+     }).join('')}
+   </div>\`;
+
  if(!revealed&&!myChoice){
    stage.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',async()=>{
      const choice=Number(btn.dataset.choice);
@@ -209,23 +248,8 @@ function renderGame(){
        resolveLocalRound();
      }
    }));
- }else{
-   document.querySelector('#mNext')?.addEventListener('click',async e=>{
-     e.currentTarget.disabled=true;
-     if(state.mode==='remote'){
-       try{applyRemote(await rpc('advance_quick_minority_game',{p_lobby_id:quickLobby}))}
-       catch(err){setFeedback(humanError(err));e.currentTarget.disabled=false}
-     }else advanceLocal();
-   });
  }
-}
-function revealHtml(res){
- const meSeat=(state.players.find(p=>p.is_me)||{seat:1}).seat;
- const won=(res.winningSeats||[]).includes(Number(meSeat));
- const penalized=(res.penaltySeats||[]).includes(Number(meSeat));
- let text=res.hasMinority?(won?'DU BIST DIE MINDERHEIT.':'MINDERHEIT GEFUNDEN.'):'KEINE MINDERHEIT.';
- if(penalized)text='FÜHRUNGSSTRAFE −1.';
- return `<div class="m-reveal-banner ${won?'win':''} ${penalized?'penalty':''}">${text}</div><button class="m-primary m-lock" id="mNext" type="button">${state.round>=state.roundCount?'ERGEBNIS →':'NÄCHSTE RUNDE →'}</button>`;
+ if(revealed)scheduleRevealAdvance();
 }
 function resolveLocalRound(){
  const q=currentQuestion();
@@ -268,6 +292,7 @@ function applyRemote(snapshot){
  state.question=snapshot.question||state.question;
  state.schedule=[];
  state.reveal=snapshot.reveal||null;
+ state.revision=Number(snapshot.revision||state.revision||0);
  state.screen=String(snapshot.stage||'READY').toLowerCase();
  if(state.screen==='playing')state.screen='game';
  if(state.screen==='resolved')state.screen='reveal';
@@ -294,6 +319,6 @@ async function boot(){
    setFeedback(humanError(err));render();
  }
 }
-window.addEventListener('beforeunload',()=>{if(poll)clearInterval(poll)});
+window.addEventListener('beforeunload',()=>{if(poll)clearInterval(poll);if(revealTimer)clearTimeout(revealTimer)});
 boot();
 })();
