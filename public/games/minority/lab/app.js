@@ -86,7 +86,7 @@ function renderSetup(){
        ${[
          ['EASY','Direkt. Minderheit = +1.'],
          ['NORMAL','Pot-System + 3er Chaos Round.'],
-         ['HARDCORE','Pot + 3/4er Chaos + 4:0 Strafe.']
+         ['HARDCORE','Pot-Stufen + Jackpot + 3/4er Chaos.']
        ].map(([key,copy])=>`<button type="button" class="m-choice ${state.difficulty===key?'active':''}" data-difficulty="${key}"><strong>${key}</strong><span>${copy}</span></button>`).join('')}
      </div>
    </section>
@@ -155,8 +155,9 @@ function renderReady(){
    <section class="m-card m-ready-rules">
      <div><b>01</b><span><strong>VERDECKTE WAHL</strong><small>Alle wählen gleichzeitig. Ein Tap auf eine Kachel ist final.</small></span></div>
      <div><b>02</b><span><strong>MINDERHEIT</strong><small>Die am seltensten gewählte echte Minderheit gewinnt den aktuellen Rundenwert.</small></span></div>
-     <div><b>03</b><span><strong>POT</strong><small>${state.difficulty==='EASY'?'Easy spielt ohne Pot.':'Ohne Minderheit steigt der Wert der nächsten Runde um +1.'}</small></span></div>
-     <div><b>05</b><span><strong>CHAOS ROUND</strong><small>${state.difficulty==='EASY'?'In Easy gibt es keine Chaos Round.':state.difficulty==='NORMAL'?'Jede 5. Frage hat 3 Antworten.':'Jede 5. Frage hat 3 oder 4 Antworten.'}</small></span></div>
+     <div><b>03</b><span><strong>POT</strong><small>${state.difficulty==='EASY'?'Easy spielt ohne Pot.':'LAB-Pot: 1 → 2 → 5 → 8 → 13. Ohne Minority steigt er auf die nächste Stufe.'}</small></span></div>
+     <div><b>04</b><span><strong>JACKPOT</strong><small>${state.difficulty==='HARDCORE'?'Ab Pot 5 wählen die Minority-Gewinner geheim TAKE oder SPIN.':'Jackpot ist ausschließlich ein Hardcore-Feature.'}</small></span></div>
+     <div><b>05</b><span><strong>CHAOS ROUND</strong><small>${state.difficulty==='EASY'?'In Easy gibt es keine Chaos Round.':state.mode==='local'?'Im LAB ist jede 10. Runde eine Chaos Round.':'Remote nutzt weiterhin den Stable-Serververtrag.'}</small></span></div>
    </section>
 
    <section class="m-card m-ready-roster">
