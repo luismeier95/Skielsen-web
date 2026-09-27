@@ -293,6 +293,7 @@ async function runSilentJackpotSpin(row,index=0){
 
 async function startJackpotFlow(){
  if(jackpotBusy||state.mode!=='local'||!state.reveal?.jackpot)return;
+ hideScoreFeedback();
  jackpotBusy=true;
  document.body.classList.add('minority-lab-jackpot-active');
  topState.textContent='JACKPOT';
