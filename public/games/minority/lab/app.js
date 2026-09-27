@@ -242,26 +242,35 @@ async function startJackpotFlow(){
      decisions
    });
 
-   await new Promise(resolve=>jackpotUI.showDecisionReveal({
-     rows:plan.rows,
-     spinCount:plan.spinCount,
-     playerName,
-     onDone:resolve
-   }));
-
    const nextScores=state.scores.slice();
    for(const row of plan.rows){
      if(row.decision==='TAKE')nextScores[row.seat-1]+=row.takePayout;
    }
+   state.scores=nextScores.slice();
+
+   const me=state.players.find(player=>player.is_me);
+   const mySeat=Number(me?.seat)||0;
+   const myRow=plan.rows.find(row=>row.seat===mySeat)||null;
+   const amSpinner=myRow?.decision==='SPIN';
+   const shouldWatchBoard=!amSpinner;
+   const board=shouldWatchBoard
+     ?jackpotUI.showResolutionBoard({rows:plan.rows,playerName})
+     :null;
 
    for(const row of plan.rows.filter(item=>item.decision==='SPIN')){
      const result=await runJackpotSpin(row);
      nextScores[row.seat-1]+=result.payout;
+     state.scores=nextScores.slice();
+     board?.updateSpin(row.seat,result);
    }
 
-   state.scores=nextScores;
    state.reveal.nextRoundValue=1;
    completed=true;
+
+   if(board){
+     await sleep(850);
+     board.hide();
+   }
  }catch(err){
    console.error('[Minority LAB] Jackpot flow failed',err);
    setFeedback('Jackpot konnte nicht abgeschlossen werden. Runde bleibt zum erneuten Testen stehen.');
