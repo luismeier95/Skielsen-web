@@ -124,6 +124,16 @@ function renderSetup(){
      <p class="m-copy">Wähle die Regeln für dieses Match.</p>
    </div>
 
+   ${state.mode==='local'?`<section class="m-card m-setup-card">
+     <div class="m-card-head">
+       <strong>MODUS</strong>
+       <span>1 AUSWÄHLEN</span>
+     </div>
+     <div class="m-choice-grid m-mode-grid" role="group" aria-label="Spielmodus">
+       ${[['SOLO','4 Spieler · individuelle Rangliste'],['TEAM','4 Teams · 8 Spieler · 2 pro Team']].map(([key,copy])=>`<button type="button" class="m-choice ${state.playMode===key?'active':''}" data-play-mode="${key}"><strong>${key}</strong><span>${copy}</span></button>`).join('')}
+     </div>
+   </section>`:''}
+
    <section class="m-card m-setup-card">
      <div class="m-card-head">
        <strong>SCHWIERIGKEIT</strong>
@@ -161,6 +171,10 @@ function renderSetup(){
    document.querySelector('#mRuleTitle').textContent=state.difficulty;
    document.querySelector('#mRuleText').textContent=difficultyCopy[state.difficulty];
  };
+ stage.querySelectorAll('[data-play-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+   state.playMode=btn.dataset.playMode==='TEAM'?'TEAM':'SOLO';
+   stage.querySelectorAll('[data-play-mode]').forEach(item=>item.classList.toggle('active',item.dataset.playMode===state.playMode));
+ }));
  stage.querySelectorAll('[data-difficulty]').forEach(btn=>btn.addEventListener('click',()=>{
    state.difficulty=btn.dataset.difficulty;
    updateDifficulty();
@@ -178,9 +192,10 @@ function renderSetup(){
        applyRemote(snapshot);
      }catch(err){setFeedback(humanError(err));e.currentTarget.disabled=false}
    }else{
-     state.players=[1,2,3,4].map((seat,i)=>({seat,display_name:i===0?'DU':'BOT '+i,is_me:i===0,is_bot:i>0}));
+     const count=activePlayerCount();
+     state.players=Array.from({length:count},(_,i)=>{const seat=i+1;return {seat,display_name:i===0?'DU':'BOT '+seat,is_me:i===0,is_bot:i>0,team_id:state.playMode==='TEAM'?TEAM.teamIdForSeat(seat):null}});
      state.schedule=JACKPOT.buildSchedule({rules:RULES,difficulty:state.difficulty,roundCount:state.roundCount});
-     state.scores=[0,0,0,0];state.round=1;state.roundValue=qaMode==='jackpot'?5:1;state.choice=null;state.reveal=null;state.qaJackpotConsumed=false;
+     state.scores=Array(count).fill(0);state.round=1;state.roundValue=qaMode==='jackpot'?5:1;state.choice=null;state.reveal=null;state.qaJackpotConsumed=false;
      setScreen('ready');
    }
  });
