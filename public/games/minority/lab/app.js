@@ -188,15 +188,99 @@ function renderReady(){
  });
 }
 function currentQuestion(){return state.schedule[Math.max(0,state.round-1)]||state.question||{options:['—','—'],optionCount:2}}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+
+function localRevealLabel(){
+ const counts=state.reveal?.counts||[];
+ if(counts.length===2&&counts[0]===counts[1])return 'TIE · '+counts[0]+':'+counts[1];
+ if(state.reveal?.isFourZero)return '4:0 · KEINE MINORITY';
+ return 'KEINE MINORITY';
+}
+
+async function collectJackpotDecision(seat,potValue){
+ const player=state.players.find(item=>Number(item.seat)===Number(seat));
+ if(player?.is_bot){
+   await sleep(180);
+   return Math.random()<LAB_CONFIG.jackpot.botSpinProbability?'SPIN':'TAKE';
+ }
+ return await new Promise(resolve=>jackpotUI.showDecision({
+   name:playerName(seat),
+   potValue,
+   onChoose:resolve
+ }));
+}
+
+async function runJackpotSpin(row){
+ const player=state.players.find(item=>Number(item.seat)===Number(row.seat));
+ return await new Promise(resolve=>jackpotUI.showSpin({
+   name:playerName(row.seat),
+   base:row.slotBase,
+   autoStart:!!player?.is_bot,
+   onResolved:resolve
+ }));
+}
+
+async function startJackpotFlow(){
+ if(jackpotBusy||state.mode!=='local'||!state.reveal?.jackpot)return;
+ jackpotBusy=true;
+ document.body.classList.add('minority-lab-jackpot-active');
+ topState.textContent='JACKPOT';
+
+ try{
+   const winners=state.reveal.winningSeats.slice();
+   const potValue=Number(state.reveal.jackpotPot)||state.roundValue;
+   const decisions={};
+
+   for(const seat of winners)decisions[seat]=await collectJackpotDecision(seat,potValue);
+
+   const plan=JACKPOT.resolveDecisions({
+     winningSeats:winners,
+     potValue,
+     decisions
+   });
+
+   await new Promise(resolve=>jackpotUI.showDecisionReveal({
+     rows:plan.rows,
+     spinCount:plan.spinCount,
+     playerName,
+     onDone:resolve
+   }));
+
+   for(const row of plan.rows){
+     if(row.decision==='TAKE')state.scores[row.seat-1]+=row.takePayout;
+   }
+
+   for(const row of plan.rows.filter(item=>item.decision==='SPIN')){
+     const result=await runJackpotSpin(row);
+     state.scores[row.seat-1]+=result.payout;
+   }
+
+   state.reveal.nextRoundValue=1;
+ }finally{
+   jackpotUI.hide();
+   jackpotBusy=false;
+   document.body.classList.remove('minority-lab-jackpot-active');
+ }
+ advanceLocal();
+}
+
 function scheduleRevealAdvance(){
  if(state.screen!=='reveal'||!state.reveal)return;
  const key=state.mode+':'+state.round+':'+JSON.stringify(state.reveal.counts||[]);
  if(revealTimer&&revealTimerKey===key)return;
  if(revealTimer)clearTimeout(revealTimer);
  revealTimerKey=key;
+
+ const specialLocal=state.mode==='local'&&(
+   state.reveal.jackpot||
+   (state.difficulty!=='EASY'&&!state.reveal.hasMinority)
+ );
+ const delay=specialLocal?LAB_CONFIG.jackpot.revealLeadMs:2000;
+
  revealTimer=setTimeout(async()=>{
    revealTimer=0;
-   if(state.screen!=='reveal')return;
+   if(state.screen!=='reveal'||jackpotBusy)return;
+
    if(state.mode==='remote'){
      try{applyRemote(await rpc('advance_quick_minority_game',{p_lobby_id:quickLobby}))}
      catch(err){
@@ -204,10 +288,33 @@ function scheduleRevealAdvance(){
        if(msg.includes('RESOLVED_STAGE_REQUIRED')){await refreshRemote();return}
        setFeedback(humanError(err));
      }
-   }else{
-     advanceLocal();
+     return;
    }
- },2000);
+
+   if(state.reveal.jackpot){
+     startJackpotFlow();
+     return;
+   }
+
+   if(state.difficulty!=='EASY'&&!state.reveal.hasMinority){
+     jackpotBusy=true;
+     document.body.classList.add('minority-lab-jackpot-active');
+     topState.textContent='POT';
+     jackpotUI.showPotFill({
+       from:state.reveal.roundValue,
+       to:state.reveal.nextRoundValue,
+       label:localRevealLabel(),
+       onDone:()=>{
+         jackpotBusy=false;
+         document.body.classList.remove('minority-lab-jackpot-active');
+         advanceLocal();
+       }
+     });
+     return;
+   }
+
+   advanceLocal();
+ },delay);
 }
 function renderGame(){
  const q=currentQuestion(),revealed=state.screen==='reveal'&&state.reveal;
@@ -431,6 +538,6 @@ async function boot(){
    setFeedback(humanError(err));render();
  }
 }
-window.addEventListener('beforeunload',()=>{if(poll)clearInterval(poll);if(revealTimer)clearTimeout(revealTimer)});
+window.addEventListener('beforeunload',()=>{if(poll)clearInterval(poll);if(revealTimer)clearTimeout(revealTimer);jackpotUI.hide()});
 boot();
 })();
