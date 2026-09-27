@@ -225,12 +225,14 @@ async function startJackpotFlow(){
  jackpotBusy=true;
  document.body.classList.add('minority-lab-jackpot-active');
  topState.textContent='JACKPOT';
+ let completed=false;
 
  try{
    const winners=state.reveal.winningSeats.slice();
    const potValue=Number(state.reveal.jackpotPot)||state.roundValue;
    const decisions={};
 
+   if(!winners.length)throw new Error('JACKPOT_REQUIRES_WINNERS');
    for(const seat of winners)decisions[seat]=await collectJackpotDecision(seat,potValue);
 
    const plan=JACKPOT.resolveDecisions({
@@ -246,22 +248,30 @@ async function startJackpotFlow(){
      onDone:resolve
    }));
 
+   const nextScores=state.scores.slice();
    for(const row of plan.rows){
-     if(row.decision==='TAKE')state.scores[row.seat-1]+=row.takePayout;
+     if(row.decision==='TAKE')nextScores[row.seat-1]+=row.takePayout;
    }
 
    for(const row of plan.rows.filter(item=>item.decision==='SPIN')){
      const result=await runJackpotSpin(row);
-     state.scores[row.seat-1]+=result.payout;
+     nextScores[row.seat-1]+=result.payout;
    }
 
+   state.scores=nextScores;
    state.reveal.nextRoundValue=1;
+   completed=true;
+ }catch(err){
+   console.error('[Minority LAB] Jackpot flow failed',err);
+   setFeedback('Jackpot konnte nicht abgeschlossen werden. Runde bleibt zum erneuten Testen stehen.');
  }finally{
    jackpotUI.hide();
    jackpotBusy=false;
    document.body.classList.remove('minority-lab-jackpot-active');
  }
- advanceLocal();
+
+ if(completed)advanceLocal();
+ else render();
 }
 
 function scheduleRevealAdvance(){
