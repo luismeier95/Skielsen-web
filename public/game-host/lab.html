@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SKIELSEN · Game Host Lab</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:#e9e9e9}
+.host{height:100%;display:grid;grid-template-rows:auto 1fr}.bar{display:flex;gap:8px;align-items:center;padding:9px;background:#050505;color:#fff}
+.bar strong{margin-right:auto}.bar button,.bar select{min-height:38px;border:0;border-radius:9px;padding:0 11px;font-weight:900}.bar span{font-size:11px;color:#aaa;font-weight:900}
+.wrap{min-height:0;padding:8px}.frame{width:100%;height:100%;border:0;border-radius:15px;background:#fff}
+</style>
+</head>
+<body>
+<div class="host">
+ <div class="bar"><strong>GAME HOST LAB</strong><select id="build"><option value="lab">MINORITY · LAB</option><option value="stable">MINORITY · STABLE</option></select><button id="load">LADEN</button><button id="init">INIT</button><span id="status">—</span></div>
+ <div class="wrap"><iframe class="frame" id="frame" title="Game App"></iframe></div>
+</div>
+<script src="./bridge.js?v=1"></script>
+<script src="./manifest.js?v=1"></script>
+<script>
+(()=>{
+ const frame=document.querySelector('#frame'),build=document.querySelector('#build'),status=document.querySelector('#status');
+ const initPayload={mode:'lab',gameKey:'minority',gameId:'host-lab',theme:{packId:'theme.skielsen.core'},players:[1,2,3,4].map((seat,i)=>({playerId:'p'+seat,displayName:i?'BOT '+(i+1):'DJEEL0I',seat}))};
+ let host;
+ function bind(){
+  host?.destroy();host=SkielsenGameBridge.createHost(frame,{initPayload});
+  host.on(SkielsenGameBridge.TYPES.READY,p=>status.textContent='READY · '+(p.build||'?'));
+  host.on(SkielsenGameBridge.TYPES.FINISHED,()=>status.textContent='FINISHED');
+  host.on(SkielsenGameBridge.TYPES.ERROR,p=>status.textContent='ERROR · '+(p?.message||'?'));
+ }
+ function load(){bind();status.textContent='LOADING';frame.src=SkielsenGameManifest.resolve('minority',build.value)}
+ document.querySelector('#load').onclick=load;document.querySelector('#init').onclick=()=>host?.sendInit(initPayload);load();
+})();
+</script>
+</body>
+</html>

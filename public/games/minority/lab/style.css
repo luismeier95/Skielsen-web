@@ -1231,3 +1231,213 @@ body.minority-page.minority-game-active .m-options[data-count="4"]{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-rows:repeat(2,minmax(0,1fr))!important;
 }
+
+
+/* MINORITY LAB · ROUND SCORE FEEDBACK V1
+   Tic-Tac-Toe-style transient overlay. It never participates in page layout. */
+.minority-score-overlay{
+  position:fixed;
+  inset:45px 0 0;
+  z-index:850;
+  display:none;
+  place-items:center;
+  padding:14px;
+  pointer-events:none;
+}
+.minority-score-overlay.is-open{display:grid}
+.m-score-feedback-card{
+  width:min(330px,calc(100vw - 28px));
+  max-width:100%;
+  border:1px solid color-mix(in srgb,var(--theme-border,#d7d7d7) 75%,transparent);
+  border-radius:16px;
+  background:color-mix(in srgb,var(--theme-surface,#fff) 94%,transparent);
+  color:var(--theme-on-surface,var(--theme-text,#111));
+  box-shadow:0 12px 34px rgba(0,0,0,.16);
+  backdrop-filter:blur(8px);
+  overflow:hidden;
+}
+.m-score-feedback-title{
+  display:block;
+  padding:10px 12px 7px;
+  text-align:center;
+  color:var(--theme-muted,#777);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.14em;
+}
+.m-score-feedback-list{
+  display:grid;
+  gap:0;
+}
+.m-score-feedback-row{
+  min-height:42px;
+  display:grid;
+  grid-template-columns:5px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:8px 12px;
+  border-top:1px solid color-mix(in srgb,var(--theme-border,#d7d7d7) 75%,transparent);
+}
+.m-score-feedback-row>i{
+  width:5px;
+  height:26px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-score-feedback-row strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--identity);
+  font-size:11px;
+  font-weight:950;
+}
+.m-score-feedback-value{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:16px;
+  line-height:1;
+}
+.m-score-feedback-value.is-positive{color:var(--theme-success-bg,#16864b)}
+.m-score-feedback-value.is-negative{color:#ff3b3b}
+.m-score-feedback-value.is-jackpot{color:#f2b705;font-size:11px;letter-spacing:.04em}
+@media(max-width:420px){
+  .m-score-feedback-card{width:min(300px,calc(100vw - 20px))}
+  .m-score-feedback-row{min-height:40px;padding:7px 10px}
+}
+
+
+/* MINORITY LAB · TEAM MODE V1
+   Four teams x two players. Player scores remain individual; team score is an aggregation. */
+.m-mode-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.m-ready-roster.is-team{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:0;
+}
+.m-ready-roster.is-team .m-ready-player{
+  min-width:0;
+}
+.m-ready-player-copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.m-ready-player-copy strong,
+.m-ready-player-copy small{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.m-ready-player-copy small{
+  color:var(--theme-muted,#777);
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+body.minority-page.minority-game-active .m-scorebar.is-team{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+body.minority-page.minority-game-active .m-team-score{
+  min-width:0;
+  padding:6px 3px;
+}
+body.minority-page.minority-game-active .m-team-score strong{
+  font-size:25px;
+}
+body.minority-page.minority-game-active .m-team-score span{
+  margin-top:4px;
+  font-size:9px;
+}
+body.minority-page.minority-game-active .m-team-score small{
+  display:block;
+  width:100%;
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--theme-muted,#777);
+  font-size:6.5px;
+  font-weight:800;
+  line-height:1;
+}
+.m-result-identity.is-team{
+  display:grid!important;
+  align-content:center;
+  gap:3px;
+}
+.m-result-identity.is-team small{
+  display:block;
+}
+@media(max-width:420px){
+  .m-ready-roster.is-team{
+    grid-template-columns:1fr;
+  }
+  body.minority-page.minority-game-active .m-team-score strong{font-size:22px}
+  body.minority-page.minority-game-active .m-team-score span{font-size:8px}
+  body.minority-page.minority-game-active .m-team-score small{font-size:5.8px}
+}
+
+
+/* MINORITY LAB · TEAM READY ROSTER V2
+   Same identity language as the result table: team color + player role + ready state. */
+.m-ready-roster.is-team{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.m-ready-roster.is-team .m-ready-player{
+  min-width:0;
+  grid-template-columns:5px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+}
+.m-ready-roster.is-team .m-ready-player>i{
+  width:5px;
+  height:32px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-ready-roster.is-team .m-ready-player-copy{
+  min-width:0;
+  display:flex;
+  align-items:center;
+}
+.m-ready-roster.is-team .m-ready-player-copy strong{
+  color:var(--theme-on-surface,var(--theme-text,#111));
+  font-size:11px;
+  font-weight:950;
+  line-height:1;
+  white-space:nowrap;
+}
+.m-ready-status{
+  justify-self:end;
+  color:var(--theme-muted,#777);
+  font-size:10px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.m-ready-status.is-ready{
+  color:var(--theme-success-bg,#16864b);
+}
+.m-ready-status.is-waiting{
+  color:var(--theme-muted,#777);
+}
+@media(max-width:420px){
+  .m-ready-roster.is-team{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .m-ready-roster.is-team .m-ready-player{
+    padding:9px 8px;
+    gap:7px;
+  }
+  .m-ready-roster.is-team .m-ready-player-copy strong{
+    font-size:8.5px;
+  }
+  .m-ready-status{
+    font-size:8px;
+  }
+}

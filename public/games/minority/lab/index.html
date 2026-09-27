@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de" data-theme-pack="theme.skielsen.core">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e9e9e9">
+  <title>SKIELSEN · Minority LAB</title>
+  <link rel="stylesheet" href="../../../assets/css/app.css?v=15.1.80">
+  <link rel="stylesheet" href="../../../assets/css/tournament-theme-runtime.css?v=minority2">
+  <link rel="stylesheet" href="./style.css?v=1.5.2">
+  <link rel="stylesheet" href="./jackpot/style.css?v=0.2.5">
+</head>
+<body class="v15-tournament-active minority-page" data-theme-pack="theme.skielsen.core">
+  <main class="minority-shell" id="minorityApp">
+    <header class="minority-topbar">
+      <div class="minority-header-left">
+        <img src="../../../assets/images/skielsen-logo.png" alt="SKIELSEN">
+        <strong>MINORITY LAB</strong>
+      </div>
+      <div class="minority-header-meta"><b id="minorityTopState">SETUP</b></div>
+    </header>
+    <div class="minority-progress" aria-hidden="true"><i id="minorityProgress"></i></div>
+
+    <section class="minority-stage" id="minorityStage" aria-live="polite"></section>
+
+    <p class="minority-feedback" id="minorityFeedback" role="status" aria-live="polite"></p>
+  </main>
+
+  <div class="minority-score-overlay" id="minorityScoreOverlay" aria-live="polite"></div>
+  <div class="minority-jackpot-overlay" id="minorityJackpotOverlay" aria-live="polite"></div>
+
+  <script src="../../../game-host/bridge.js?v=1"></script>
+  <script src="../../../assets/js/14-minority-rules.js?v=1.0.0"></script>
+  <script src="./jackpot/config.js?v=0.2.2"></script>
+  <script src="./jackpot/engine.js?v=0.2.1"></script>
+  <script src="./jackpot/ui.js?v=0.2.6"></script>
+  <script src="./team-engine.js?v=0.1.0"></script>
+  <script src="./app.js?v=1.6.3"></script>
+  <script src="./lab-adapter.js?v=1"></script>
+</body>
+</html>

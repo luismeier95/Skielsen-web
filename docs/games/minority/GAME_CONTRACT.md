@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.5  
+**Version:** 1.6  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -248,6 +248,12 @@ Required mobile order:
 5. Four equal player score containers in stable seat order.
 6. Answer tiles occupying the remaining viewport.
 
+Answer-grid geometry is fixed to the same 2-column / 2-row system:
+- **2 answers:** use only the **upper row** of the canonical 2x2 grid; two equal tiles side by side. Do not stretch them vertically to fill the full answer area.
+- **3 answers:** two equal tiles in the upper row; the third answer is one **full-width horizontal tile** spanning both columns in the lower row.
+- **4 answers:** canonical **2x2** grid with four equal tiles.
+- Tile height is derived from the shared two-row geometry so switching between 2/3/4 answers does not create oversized vertical cards or change the basic visual language.
+
 Active gameplay must fit inside one mobile viewport and **must not scroll**. The Game Header and Progress therefore remain visible for the entire round.
 
 Reveal behavior:
@@ -297,13 +303,19 @@ Tournament integration:
 - Reason: with 2 players and 2 answer options, the only possible distributions are **1:1** or **2:0**. Neither creates a real minority, so the core mechanic cannot produce a winner.
 - SOLO therefore requires **at least 3 active players**.
 - The current standalone / Quick Games baseline is **SOLO with 4 players**.
-- Minority must later support a **team mode with up to 8 human players**.
-- The 4-player SOLO limit must therefore not be treated as a permanent global Minority limit.
-- In team mode, every player earns Minority points individually using the same round rules as SOLO.
-- A team's game result is the **sum of the individual Minority points of all players assigned to that team**.
-- Player scores must therefore remain individually stored and addressable; team score is an aggregation, not a replacement score.
-- The exact future team composition, team decision model and tie behavior are **not yet fixed** and must not be invented during implementation.
-- Shared game logic and data structures should remain extensible so that the later 8-player team mode can be added without replacing the entire Minority implementation.
+- TEAM mode uses exactly **4 teams with 2 players each = 8 active players**.
+- Every one of the 8 players chooses an answer **individually and secretly**. There is no shared team vote.
+- Minority resolution is calculated across **all 8 individual votes** using the same generalized minority rule as SOLO.
+- Example with two answers: **5:3** means the three players on the less-selected answer are the minority and all three win the current individual award.
+- **4:4** and **8:0** contain no real minority.
+- In TEAM mode, every player earns Minority points individually using the same round rules as SOLO.
+- A team's visible game score is the **sum of the two individual Minority scores** of its members.
+- Player scores therefore remain individually stored and addressable; team score is an aggregation, never the source of truth.
+- HARDCORE unanimity applies analogously to TEAM: at **8:0**, the individually leading player(s) lose 1 point; team totals then update from those individual scores.
+- The TEAM end-game ranking contains four rows, one per team. The Team name is the primary identity and both player names are shown below it.
+- Final TEAM ranking ties remain unresolved by this rule set; stable team order is used visually until a dedicated tie-break rule is approved.
+- Round score feedback in TEAM mode is aggregated by team for readability. Internal scoring remains per player; the transient overlay sums the current round deltas of affected players per team and shows at most four team rows.
+- The Jackpot TAKE/SPIN resolution board remains player-based because Jackpot decisions and Slot outcomes are individual.
 
 ## 10. Not yet fixed by this contract
 
@@ -318,3 +330,113 @@ The following implementation details remain open until explicitly decided:
 - final ranking/merge point mapping into the tournament framework.
 
 These open items must not be guessed into permanent game rules without a subsequent explicit decision.
+
+
+## 11. LAB-only Hardcore Jackpot experiment
+
+**Status:** Experimental; applies only to `/games/minority/lab/`.  
+**Stable Minority and the current Quick Games server flow are unchanged.**
+
+This section records the current LAB rules so experimental work remains reproducible and does not silently alter the approved Stable game.
+
+### 11.1 LAB cadence
+
+- Local LAB matches default to **20 rounds**.
+- Local LAB round-count options are **20 / 30 / 40**.
+- In local LAB, non-Easy Chaos Rounds occur every **10th round**.
+- HARDCORE Chaos uses 3 or 4 options.
+- Remote / Quick Games continues to use the current Stable server contract until a later explicit migration.
+
+### 11.2 LAB pot curve
+
+For NORMAL and HARDCORE local LAB, the pot follows fixed stages:
+
+`1 → 2 → 5 → 8 → 13`
+
+- A round without a real minority advances the pot to the next stage.
+- The pot is capped at **13**.
+- A successful non-Jackpot minority resets the pot to **1**.
+- The pot-fill feedback is a short overlay over the existing game screen; it must not create a separate modal flow or materially delay the game.
+
+### 11.3 Jackpot trigger
+
+Jackpot is **HARDCORE only**.
+
+A Jackpot decision is triggered when all of the following are true:
+
+1. the current pot is at least **5**;
+2. the round is a regular **2-option** round;
+3. a real minority exists.
+
+The players who actually won that minority round are the only Jackpot participants.
+
+The normal Minority award is not paid before the Jackpot decision. The Jackpot outcome replaces that round's normal pot payout.
+
+### 11.4 Secret TAKE / SPIN decision
+
+Every Jackpot winner chooses **secretly** between TAKE and SPIN. Decisions are revealed only after every Jackpot winner has chosen.
+
+Rules:
+
+- **All TAKE:** every winner receives the full current pot `P`.
+- **At least one SPIN:** every TAKE player receives `P − 1`.
+- **Exactly one SPINNER:** that player's Slot basis is `P + 1`.
+- **Two or more SPINNERS:** every Spinner uses the normal Slot basis `P`.
+
+The UI must explain the current concrete values instead of requiring the player to calculate them. Example at Pot 8:
+
+- TAKE: `+8 safe`; `+7 if someone spins`.
+- SPIN: `Slot with 8`; `Slot with 9 if only you spin`.
+
+The term “Prisoner's Dilemma” is not required in player-facing UI.
+
+### 11.5 Slot model
+
+The LAB Slot uses three independent reels with four equally likely symbols:
+
+- Watermelon
+- Lemon
+- Cherry
+- 7
+
+Current multipliers:
+
+- Watermelon pair: **0.75×**
+- Lemon pair: **1.00×**
+- Cherry pair: **1.25×**
+- 7 pair: **1.50×**
+- Any non-7 triple: **2.00×**
+- 777: **5.00×**
+- No pair but at least one 7: **0.50×**
+- Otherwise: **0×**
+
+Payout is `round(slotBasis × multiplier)`.
+
+The exact configured expected RTP is **0.9453125 = 94.53125%**. The Jackpot engine contains a deterministic self-test for this value and for the TAKE/SPIN payout rules.
+
+### 11.6 Jackpot UI wording and animation
+
+The LAB Jackpot UI follows these additional presentation rules:
+
+- If **exactly one** player won the triggering Minority round, the TAKE/SPIN screen is reduced. The three multiplayer explanation tiles (`ALLE TAKE`, `JEMAND SPIN`, `NUR 1× SPIN`) are hidden because no strategic interaction with another Jackpot winner exists.
+- Text inside TAKE/SPIN action cards is vertically and horizontally centered.
+- Player-facing Slot copy uses **Einsatz**, never **Basis**.
+- The pre-spin result field contains no `SPIN BEREIT` placeholder; it stays hidden until a result exists.
+- Reel stopping is visibly sequential from **left → middle → right**. A stopped reel may no longer be updated by the spinning ticker.
+- The Slot result shows both the original **Einsatz** and the resulting **Auszahlung** so the player can understand the transformation at a glance.
+- Multiplier copy uses `× EINSATZ`.
+- Pot-fill coins animate **behind** the pot artwork so they visually appear to fall into it.
+- The compact gameplay pot indicator uses the coin asset with a multiplier notation such as `×5` instead of a plain `POT 5` label.
+
+### 11.7 LAB implementation boundary
+
+The Jackpot subsystem is split into:
+
+- `jackpot/config.js` — configuration and asset mapping;
+- `jackpot/engine.js` — pure pot, decision and Slot math;
+- `jackpot/ui.js` — Jackpot overlays and Slot presentation;
+- `jackpot/style.css` — LAB-only visual layer.
+
+The Stable Minority rules module is not modified by this experiment.
+
+For local QA, `?qa=jackpot` starts Hardcore with Pot 5 and forces the first eligible 2-option round to make the local human the minority winner. This is a QA hook only and is not a game rule.
