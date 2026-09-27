@@ -262,11 +262,52 @@ function renderGame(){
 }
 function resolveLocalRound(){
  const q=currentQuestion();
- const choices=[state.choice];
- for(let seat=2;seat<=4;seat++)choices.push(1+Math.floor(Math.random()*q.options.length));
- const res=RULES.resolveRound({difficulty:state.difficulty,choices,optionCount:q.options.length,scores:state.scores,roundValue:state.roundValue});
- const winningOptions=[...new Set(res.winningSeats.map(seat=>choices[seat-1]))];
- state.scores=res.scores;state.reveal={...res,winningOptions};state.screen='reveal';render();
+ let choices=[state.choice];
+
+ if(qaMode==='jackpot'&&!state.qaJackpotConsumed&&state.difficulty==='HARDCORE'&&JACKPOT.isArmed(state.roundValue)&&q.options.length===2){
+   const other=state.choice===1?2:1;
+   choices=[state.choice,other,other,other];
+   state.qaJackpotConsumed=true;
+ }else{
+   for(let seat=2;seat<=4;seat++)choices.push(1+Math.floor(Math.random()*q.options.length));
+ }
+
+ const base=RULES.resolveRound({
+   difficulty:state.difficulty,
+   choices,
+   optionCount:q.options.length,
+   scores:state.scores,
+   roundValue:state.roundValue
+ });
+ const winningOptions=[...new Set(base.winningSeats.map(seat=>choices[seat-1]))];
+ const jackpot=JACKPOT.shouldTriggerJackpot({
+   difficulty:state.difficulty,
+   optionCount:q.options.length,
+   hasMinority:base.hasMinority,
+   potValue:state.roundValue
+ });
+
+ let scores=base.scores.slice();
+ if(jackpot&&base.award){
+   for(const seat of base.winningSeats)scores[seat-1]-=base.award;
+ }
+
+ const nextRoundValue=state.difficulty==='EASY'
+   ?1
+   :(base.hasMinority?1:JACKPOT.nextPotValue(state.roundValue));
+
+ state.scores=scores;
+ state.reveal={
+   ...base,
+   scores:scores.slice(),
+   nextRoundValue,
+   winningOptions,
+   choices,
+   jackpot,
+   jackpotPot:state.roundValue
+ };
+ state.screen='reveal';
+ render();
 }
 function advanceLocal(){
  if(state.round>=state.roundCount){state.screen='ranking';return render()}
