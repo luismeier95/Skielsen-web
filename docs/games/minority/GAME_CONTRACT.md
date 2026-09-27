@@ -324,3 +324,99 @@ The following implementation details remain open until explicitly decided:
 - final ranking/merge point mapping into the tournament framework.
 
 These open items must not be guessed into permanent game rules without a subsequent explicit decision.
+
+
+## 11. LAB-only Hardcore Jackpot experiment
+
+**Status:** Experimental; applies only to `/games/minority/lab/`.  
+**Stable Minority and the current Quick Games server flow are unchanged.**
+
+This section records the current LAB rules so experimental work remains reproducible and does not silently alter the approved Stable game.
+
+### 11.1 LAB cadence
+
+- Local LAB matches default to **20 rounds**.
+- Local LAB round-count options are **20 / 30 / 40**.
+- In local LAB, non-Easy Chaos Rounds occur every **10th round**.
+- HARDCORE Chaos uses 3 or 4 options.
+- Remote / Quick Games continues to use the current Stable server contract until a later explicit migration.
+
+### 11.2 LAB pot curve
+
+For NORMAL and HARDCORE local LAB, the pot follows fixed stages:
+
+`1 → 2 → 5 → 8 → 13`
+
+- A round without a real minority advances the pot to the next stage.
+- The pot is capped at **13**.
+- A successful non-Jackpot minority resets the pot to **1**.
+- The pot-fill feedback is a short overlay over the existing game screen; it must not create a separate modal flow or materially delay the game.
+
+### 11.3 Jackpot trigger
+
+Jackpot is **HARDCORE only**.
+
+A Jackpot decision is triggered when all of the following are true:
+
+1. the current pot is at least **5**;
+2. the round is a regular **2-option** round;
+3. a real minority exists.
+
+The players who actually won that minority round are the only Jackpot participants.
+
+The normal Minority award is not paid before the Jackpot decision. The Jackpot outcome replaces that round's normal pot payout.
+
+### 11.4 Secret TAKE / SPIN decision
+
+Every Jackpot winner chooses **secretly** between TAKE and SPIN. Decisions are revealed only after every Jackpot winner has chosen.
+
+Rules:
+
+- **All TAKE:** every winner receives the full current pot `P`.
+- **At least one SPIN:** every TAKE player receives `P − 1`.
+- **Exactly one SPINNER:** that player's Slot basis is `P + 1`.
+- **Two or more SPINNERS:** every Spinner uses the normal Slot basis `P`.
+
+The UI must explain the current concrete values instead of requiring the player to calculate them. Example at Pot 8:
+
+- TAKE: `+8 safe`; `+7 if someone spins`.
+- SPIN: `Slot with 8`; `Slot with 9 if only you spin`.
+
+The term “Prisoner's Dilemma” is not required in player-facing UI.
+
+### 11.5 Slot model
+
+The LAB Slot uses three independent reels with four equally likely symbols:
+
+- Watermelon
+- Lemon
+- Cherry
+- 7
+
+Current multipliers:
+
+- Watermelon pair: **0.75×**
+- Lemon pair: **1.00×**
+- Cherry pair: **1.25×**
+- 7 pair: **1.50×**
+- Any non-7 triple: **2.00×**
+- 777: **5.00×**
+- No pair but at least one 7: **0.50×**
+- Otherwise: **0×**
+
+Payout is `round(slotBasis × multiplier)`.
+
+The exact configured expected RTP is **0.9453125 = 94.53125%**. The Jackpot engine contains a deterministic self-test for this value and for the TAKE/SPIN payout rules.
+
+### 11.6 LAB implementation boundary
+
+The Jackpot subsystem is split into:
+
+- `jackpot/config.js` — configuration and asset mapping;
+- `jackpot/engine.js` — pure pot, decision and Slot math;
+- `jackpot/ui.js` — Jackpot overlays and Slot presentation;
+- `jackpot/style.css` — LAB-only visual layer.
+
+The Stable Minority rules module is not modified by this experiment.
+
+For local QA, `?qa=jackpot` starts Hardcore with Pot 5 and forces the first eligible 2-option round to make the local human the minority winner. This is a QA hook only and is not a game rule.
