@@ -221,6 +221,13 @@ async function runJackpotSpin(row){
  }));
 }
 
+async function runSilentJackpotSpin(row,index=0){
+ const stopMs=Math.max(...LAB_CONFIG.slot.reelStopMs)+220+(index*120);
+ await sleep(stopMs);
+ const symbols=JACKPOT.spin();
+ return JACKPOT.spinPayout(row.slotBase,symbols);
+}
+
 async function startJackpotFlow(){
  if(jackpotBusy||state.mode!=='local'||!state.reveal?.jackpot)return;
  jackpotBusy=true;
@@ -257,8 +264,17 @@ async function startJackpotFlow(){
      ?jackpotUI.showResolutionBoard({rows:plan.rows,playerName})
      :null;
 
-   for(const row of plan.rows.filter(item=>item.decision==='SPIN')){
-     const result=await runJackpotSpin(row);
+   const spinRows=plan.rows.filter(item=>item.decision==='SPIN');
+   const spinTasks=spinRows.map((row,index)=>{
+     const isOwnSpin=row.seat===mySeat;
+     const task=isOwnSpin&&!shouldWatchBoard
+       ?runJackpotSpin(row)
+       :runSilentJackpotSpin(row,index);
+     return task.then(result=>({row,result}));
+   });
+
+   for(const task of spinTasks){
+     const {row,result}=await task;
      nextScores[row.seat-1]+=result.payout;
      state.scores=nextScores.slice();
      board?.updateSpin(row.seat,result);
