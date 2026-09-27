@@ -43,7 +43,7 @@ Die Vollversion bleibt im bestehenden In-App-/Supabase-/Turnierframework.
 
 ## Deployment
 
-### Quick Games (in Vorbereitung, noch nicht freigeschaltet)
+### Quick Games
 
 - SOLO hat zwei Einzelplätze; TEAM hat zwei Teams mit jeweils zwei Plätzen.
 - Der Host wählt SOLO/TEAM in der offenen Lobby. Belegte Plätze werden bei

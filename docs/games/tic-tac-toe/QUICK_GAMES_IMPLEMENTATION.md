@@ -56,10 +56,10 @@ Joker-, MVP-/LVP-Schritte oder Merge.
   `private.tic_tac_toe_new_board`-Funktion auf.
 - Vier lokale PostgreSQL-Tests bestanden: SOLO, TEAM/Bots/alle Timer,
   bestehende DNA-/Minority-Lobbys und Zugriffsrechte.
-- Migration ist noch nicht live angewendet; der Arbeitsbranch ist noch kein
-  spielbarer Quick-Games-Release.
+- Block 1 war zunächst nur auf dem Arbeitsbranch; Live-Migrationsstand siehe
+  Abschlussprüfung weiter unten.
 - Globale Contracts, TicTacToe-v3-Contract und bestehender Quick-Games-Einstieg gelesen.
-- Quick Games unterstützt aktuell DNA (8 Plätze) und Minority (4 Einzelplätze).
+- Bestehende Quick Games: DNA (8 Plätze) und Minority (4 Einzelplätze).
 - TicTacToe v3 ist bereits live; seine Session-RPCs sind noch turniergebunden.
 - Block 2 implementiert: Migration `20260927090429_quick_tic_tac_toe_play.sql`.
   Host-Konfiguration, eigene Team-Spielerwahl, READY für alle Menschen,
@@ -71,12 +71,10 @@ Joker-, MVP-/LVP-Schritte oder Merge.
   Routing-Tests für Team-Ergebnisse verwenden gezielte Engine-Fixtures.
   Zusätzlich 22 bestehende v3- und 40 DNA-Tests bestanden;
   `python tools/verify.py`: 33 JS-Dateien, 6 Inline-Skripte, keine Fehler.
-- Keine Live-DB-Änderung, kein UI-/Device-Test in diesem Backend-Block.
+- In Block 2 erfolgte keine Live-DB-Änderung und kein UI-/Device-Test.
   PGlite prüft PostgreSQL-Funktionen mit isolierten Tabellen; echte parallele
   Netzwerkclients und Live-Schema-Kompatibilität sind noch in Block 4 zu prüfen.
-- Nächster Schritt (Block 3): Quick-Games-Katalog und Lobby anbinden,
-  Produktionsmodul mit RPC-Adapter verwenden, Quick-Ergebnis separat darstellen.
-  Verfügbare RPCs (jeweils `p_lobby_id`):
+- Frontend-Anbindung aus Block 3 nutzt folgende RPCs (jeweils `p_lobby_id`):
   - `configure_quick_tic_tac_toe(p_team_mode,p_variant,p_turn_seconds)`;
     optionale Parameter erlauben schrittweise Konfiguration.
   - `select_quick_tic_tac_toe_player(p_member_id,p_selection='MATCH'/'DECIDER')`.
@@ -95,11 +93,29 @@ Joker-, MVP-/LVP-Schritte oder Merge.
   Katalog.
 - Frontend-Syntax, `python tools/verify.py` und die bestehenden TicTacToe-
   Browser-Regressionen bestanden: 6 Viewports sowie Overlays, Timer-Remount
-  und Ranking/Joker/Merge/Close der Vollversion. Noch nicht geprüft sind echte
-  Supabase-Requests, zwei physische Geräte und eine live angewendete Migration.
-- Nächster Schritt (Block 4): Migration gezielt gegen das Remote-Schema prüfen,
-  Supabase-Advisors und echte RPC-Requests ausführen, Quick-Lobby auf zwei
-  Geräten testen, abschließende Regression/Cache-Prüfung, danach main und Pages.
+  und Ranking/Joker/Merge/Close der Vollversion. Live-Schema-Prüfung siehe unten;
+  zwei physische Geräte wurden nicht getestet.
+- Abschlussprüfung 27.09.2026: echter Quick-HTML-Einstieg mit Produktionsmodul
+  und PostgreSQL-RPCs in PGlite für SOLO, ALTERNATING, SELECTED_PLAYER und
+  SIMULTANEOUS bestanden (Katalog, Format, Setup, READY, Zug, Refresh,
+  Quick-Ergebnis, Rückkehr, Hosting unter `/Skielsen-web/`). Test:
+  `PGLITE_MODULE=<Pfad> PLAYWRIGHT_MODULE=<Pfad> node tools/test_quick_tic_tac_toe_ui.mjs`.
+- Theme-Tokens auf dem Quick-Host aktiviert; gültige UUIDs auch unter HTTP/LAN.
+  Fehler beim ersten State-Read werden sichtbar ausgegeben.
+- 75 SQL-/DNA-Regressionen bestanden. Aktueller Verify: 42 JS-Dateien und
+  8 Inline-Skripte, keine Fehler. Cache-/App-Version: `15.1.144`.
+- Beide Migrationen gezielt live angewendet, Remote-Versionen:
+  `20260927152731` = `quick_tic_tac_toe_sessions`,
+  `20260927152743` = `quick_tic_tac_toe_play`.
+  Smoke-Test aller vier Modi auf dem echten Schema erfolgreich; die komplette
+  Testtransaktion wurde zurückgerollt, keine Testspiele blieben gespeichert.
+- Security-Advisors geprüft. Erwartete Hinweise: private Tabelle mit RLS ohne
+  Policies (direkter Zugriff absichtlich entzogen), authentifizierte
+  SECURITY-DEFINER-RPCs (Host-/Mitgliedschaftsprüfungen getestet).
+  Vorhandene andere Projektwarnungen wurden nicht verändert.
+- Noch offen: physischer Zwei-Geräte-Playtest. Automatisierte Browser-/SQL-
+  Tests ersetzen keinen Smartphone-/WLAN-Test. Veröffentlichung und Pages-
+  Workflow werden nach dem Abschlusscommit separat geprüft.
 - Testbefehl: `PGLITE_MODULE=<PGlite-Pfad> node --test tools/test_quick_tic_tac_toe.mjs`.
 - Migrationshistorie im Repository ist unvollständig. Kein pauschales
   `migration repair` und kein unkontrolliertes `db push`. Geprüfte Migrationen

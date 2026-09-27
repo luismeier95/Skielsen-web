@@ -25,7 +25,10 @@ const db={rpc(name,args){
      const data=await window.skielsenQuickGames.rpc(route[0],{p_lobby_id:id,...route[1](args)});
      if(data?.move_accepted===false)return {data,error:new Error('Der Spielstand hat sich geändert. Bitte erneut wählen.')};
      return {data,error:null};
-   }catch(error){return {data:null,error};}
+   }catch(error){
+     if(String(error?.message).includes('AUTH'))error=new Error('Bitte zuerst auf der Landing Page anmelden und dieses Spiel erneut öffnen.');
+     return {data:null,error};
+   }
  });
  queue=action.then(()=>{});return action;
 }};

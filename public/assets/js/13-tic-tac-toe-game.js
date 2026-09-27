@@ -87,6 +87,8 @@ async function refresh(force=false){
     if(force||sig!==lastSignature){lastSignature=sig;render()}
     updateCountdown();
   }catch(err){
+    if(generation!==mountGeneration||!root)return;
+    if(!state)renderWaiting();
     console.warn('Tic Tac Toe state',err);
     setMessage('SYNC-FEHLER · '+String(err?.message||err));
   }finally{if(generation===mountGeneration)pollBusy=false}
