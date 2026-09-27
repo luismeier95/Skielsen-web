@@ -55,6 +55,12 @@ Die Vollversion bleibt im bestehenden In-App-/Supabase-/Turnierframework.
 - Quick-Sessions nutzen die existierenden v3-Duellfunktionen. Sie erzeugen
   keine Turniere, Turnierpunkte, Joker oder Merge. Abschluss: gemeinsames
   Ergebnis und Rückkehr zu Quick Games.
+- Für Quick Games ist die freigegebene Standalone unter `public/tic-tac-toe-test/`
+  die verbindliche visuelle Referenz. Quick-spezifische Lobby-, Teammodus- und
+  Spielerwahl-Schritte dürfen davor liegen; das eigentliche Spiel übernimmt deren
+  Header-DNA, Board-Geometrie, X/O-Formen, DISAPPEAR-Fading, Timer, Overlays,
+  Win-Line, Abstände und Ergebnis-DNA. Eine davon abweichende parallele Game-UI
+  ist nicht zulässig.
 - Der Host setzt Team-Modus, Variante und Timer vor Spielbeginn. Wirksame
   Änderungen an Einstellungen oder MATCH-Spielerwahl setzen menschliche
   READY-Bestätigungen zurück. Alle menschlichen Lobbyspieler müssen READY sein,
