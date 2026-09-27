@@ -256,7 +256,7 @@ function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 function localRevealLabel(){
  const counts=state.reveal?.counts||[];
  if(counts.length===2&&counts[0]===counts[1])return 'TIE · '+counts[0]+':'+counts[1];
- if(state.reveal?.isFourZero)return '4:0 · KEINE MINORITY';
+ if(state.reveal?.unanimous||state.reveal?.isFourZero)return activePlayerCount()+':0 · KEINE MINORITY';
  return 'KEINE MINORITY';
 }
 
