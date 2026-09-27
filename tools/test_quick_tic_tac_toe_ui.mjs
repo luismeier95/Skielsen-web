@@ -82,7 +82,7 @@ try{
   const result={standings:ids.map((participant_id,i)=>({participant_id,rank:i+1})),duel_results:{main:g.state_json.board_state,subgames:g.state_json.subgames}};
   await db.query("update private.quick_tic_tac_toe_games set phase='COMPLETE',result_json=$2,revision=revision+1 where lobby_id=$1",[id,result]);
   await page.locator('[data-quick-exit]').waitFor();
-  assert.equal(await page.locator('[aria-label="Spielranking"] .tttp-result-row').count(),2);
+  assert.equal(await page.locator('[aria-label="Spielranking"] .tttx-result-row').count(),2);\n  assert.ok(await page.locator('.tttx-result-card').count()>=1);
   assert.equal(await page.locator('.tttp-joker-card,.tttp-merge-card').count(),0);
   await page.locator('[data-quick-exit]').click();await page.waitForURL(base+'/quick-games/');
   console.log('PASS Quick page + SQL:',mode,'including base path, settings, READY, move, refresh, result and exit');
