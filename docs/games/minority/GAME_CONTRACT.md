@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.4  
+**Version:** 1.5  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -262,7 +262,9 @@ Reveal behavior:
 
 ## 8.2 End Game Ranking
 
-Minority uses the canonical shared Result Table geometry, with **Tic Tac Toe as the visual reference**.
+Minority uses the canonical shared Result Table geometry and **DNA Result Table typography as the authoritative visual reference**.
+
+The global 12px minimum does not apply inside this Result Table. Minority must use the exact canonical DNA table sizes defined in `docs/GAME_DESIGN_CONTRACT.md`; gamespecific enlargement or typography overrides are forbidden.
 
 SOLO ranking:
 - hero is **GAME RANKING / ERGEBNIS.**;
@@ -271,6 +273,8 @@ SOLO ranking:
 - stable tie order remains seat order unless a later explicit tie-break rule is added;
 - columns are **POSITION / PLAYER / MINORITY / placement points**;
 - player identity uses the player's identity accent and name;
+- **SOLO:** only the Player name is shown in the identity cell; no "SOLO" subtitle or second line is rendered. The name uses the canonical TEAM-name font size and is vertically centered;
+- **TEAM:** the Team name uses the canonical primary identity font size and both player names are displayed directly underneath using the canonical secondary/member font size;
 - rows reveal with the canonical shared ranking animation;
 - placement points use **5 / 4 / 2 / 0** for places 1–4;
 - the old standalone layout of four separate large ranking cards is forbidden.
