@@ -318,8 +318,8 @@ function boardForViewer(){
 function symbolFor(board,pid){return board?.symbols?.[pid]||'—'}
 function markSvg(symbol){
   return symbol==='X'
-    ? '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 8 50 40 82 8 92 18 60 50 92 82 82 92 50 60 18 92 8 82 40 50 8 18Z"/></svg>'
-    : '<svg viewBox="0 0 100 100" aria-hidden="true"><path fill-rule="evenodd" d="M50 5a45 45 0 1 0 0 90 45 45 0 0 0 0-90m0 16a29 29 0 1 1 0 58 29 29 0 0 1 0-58"/></svg>';
+    ? '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M14 22 L22 14 L50 42 L78 14 L86 22 L58 50 L86 78 L78 86 L50 58 L22 86 L14 78 L42 50 Z"/></svg>'
+    : '<svg viewBox="0 0 100 100" aria-hidden="true"><path fill-rule="evenodd" d="M50 12a38 38 0 1 1 0 76 38 38 0 0 1 0-76Zm0 14a24 24 0 1 0 0 48 24 24 0 0 0 0-48Z"/></svg>';
 }
 function boardName(board,pid){
   const member=state?.players?.find(p=>p.tournament_member_id===board.actors?.[pid]);
@@ -548,18 +548,19 @@ function renderQuickResult(){
   const result=state?.result||{},rows=[...(result.standings||[])].sort((a,b)=>a.rank-b.rank);
   const duels=result.duel_results||{};
   const boards=[['DUELL',duels.main],['DUELL 1',duels.subgames?.['1']],['DUELL 2',duels.subgames?.['2']],['DECIDER',duels.decider]].filter(([,b])=>b);
-  root.innerHTML=`${header('ERGEBNIS','QUICK GAMES')}<main class="tttp-stage tttp-result">
-    <section class="tttp-result-card" aria-label="Spielranking">
-      <header><strong>RANKING</strong><span>${esc(variant())}</span></header>
-      ${rows.map(r=>`<div class="tttp-result-row"><b>${Number(r.rank)}.</b>${participantBadge(r.participant_id)}<strong>${r.rank===1?'SIEG':'NIEDERLAGE'}</strong></div>`).join('')}
+  const total=pid=>boards.reduce((sum,[,b])=>sum+Number(b.match_points?.[pid]||0),0);
+  root.innerHTML=`<section class="tttx-page tttx-result">
+    <section class="tttx-result-status"><strong>ERGEBNIS</strong></section>
+    <section class="tttx-result-card tttx-card" aria-label="Spielranking">
+      <header><strong>TIC TAC TOE · FINALES ERGEBNIS</strong><span>4+ RUNDEN · ${Number(state?.turn_seconds||0)?Number(state.turn_seconds)+'S':'ZEIT AUS'} · ${esc(variant())}</span></header>
+      <div class="tttx-result-columns"><span>POSITION</span><span>PLAYER</span><span>PUNKTE</span><span>ERGEBNIS</span></div>
+      ${rows.map((r,i)=>{const p=participantInfo(r.participant_id),color=colorVar(p.color);return `<div class="tttx-result-row" style="--delay:${140+i*120}ms"><b>${String(Number(r.rank||i+1)).padStart(2,'0')}</b><span class="tttx-result-player"><i style="--tttx-player:${color}"></i><strong style="color:${color}">${esc(p.name)}</strong></span><strong>${total(r.participant_id)}</strong><span class="quick-tttx-result-label">${Number(r.rank)===1?'SIEG':'NIEDERLAGE'}</span></div>`}).join('')}
     </section>
-    ${boards.map(([name,b])=>`<section class="tttp-result-card" aria-label="${name} Matchpunkte">
-      <header><strong>${name} · MATCHPUNKTE</strong><span>${(b.round_results||[]).length} RUNDEN</span></header>
-      ${participantIds().map(pid=>`<div class="tttp-result-row"><b></b>${participantBadge(pid)}<strong>${Number(b.match_points?.[pid]||0)}</strong></div>`).join('')}
-    </section>`).join('')}
-    <button class="tttp-primary" type="button" data-quick-exit>ZURÜCK ZU QUICK GAMES →</button>
-  </main>`;
-  root.querySelector('[data-quick-exit]').addEventListener('click',()=>session.onQuickExit?.());
+    ${boards.map(([name,b])=>`<section class="tttx-result-card tttx-card quick-tttx-duel-card"><header><strong>${name} · MATCHPUNKTE</strong><span>${(b.round_results||[]).length} RUNDEN</span></header><div class="tttx-result-columns"><span></span><span>PLAYER</span><span>MATCHPUNKTE</span><span></span></div>${participantIds().map((pid,i)=>{const p=participantInfo(pid),color=colorVar(p.color);return `<div class="tttx-result-row" style="--delay:${140+i*100}ms"><b></b><span class="tttx-result-player"><i style="--tttx-player:${color}"></i><strong style="color:${color}">${esc(p.name)}</strong></span><strong>${Number(b.match_points?.[pid]||0)}</strong><span></span></div>`}).join('')}</section>`).join('')}
+    <button class="tttx-primary tttx-result-action" type="button" data-quick-exit>ZURÜCK ZU QUICK GAMES →</button>
+  </section>`;
+  requestAnimationFrame(()=>root.querySelectorAll('.tttx-result-card').forEach(card=>card.classList.add('is-revealing')));
+  root.querySelector('[data-quick-exit]')?.addEventListener('click',()=>session.onQuickExit?.());
   clearInterval(pollTimer);pollTimer=0;
 }
 function render(){
