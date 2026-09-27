@@ -1080,3 +1080,112 @@ body.minority-page:not(.minority-game-active) .minority-stage:has(.m-result-card
   .m-result-columns>span:nth-child(3),
   .m-result-columns>span:nth-child(4){text-align:right}
 }
+
+
+/* MINORITY_RESULT_DNA_TYPOGRAPHY_V3
+   Exact DNA Result Table typography. This surface is the explicit <12px exception. */
+.m-result-card>header{
+  min-height:58px!important;
+  padding:0 18px!important;
+}
+.m-result-card>header strong{
+  font-size:11px!important;
+}
+.m-result-card>header span{
+  font-size:7px!important;
+}
+.m-result-columns,
+.m-result-row{
+  grid-template-columns:70px minmax(0,1fr) 95px 95px!important;
+  gap:10px!important;
+  padding:0 16px!important;
+}
+.m-result-columns{
+  min-height:34px!important;
+  font-size:6.5px!important;
+}
+.m-result-row{
+  min-height:66px!important;
+}
+.m-result-place{
+  font-size:14px!important;
+}
+.m-result-player{
+  grid-template-columns:6px minmax(0,1fr)!important;
+  gap:10px!important;
+}
+.m-result-player>i{
+  width:6px!important;
+  height:34px!important;
+}
+.m-result-identity{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.m-result-identity strong{
+  font-size:10px!important;
+}
+.m-result-identity small{
+  font-size:6px!important;
+}
+.m-result-identity.is-solo{
+  height:100%;
+  display:flex!important;
+  align-items:center!important;
+}
+.m-result-score{
+  font-size:18px!important;
+}
+.m-placement-points b{
+  font-size:17px!important;
+}
+
+@media(max-width:720px){
+  .m-result-card>header{
+    min-height:50px!important;
+    padding:0 11px!important;
+  }
+  .m-result-card>header strong{
+    font-size:11px!important;
+  }
+  .m-result-card>header span{
+    font-size:7px!important;
+  }
+  .m-result-columns,
+  .m-result-row{
+    grid-template-columns:36px minmax(0,1fr) 64px 62px!important;
+    gap:6px!important;
+    padding:0 8px!important;
+  }
+  .m-result-columns{
+    min-height:34px!important;
+    font-size:5.4px!important;
+  }
+  .m-result-row{
+    min-height:58px!important;
+  }
+  .m-result-place{
+    font-size:11px!important;
+  }
+  .m-result-player{
+    grid-template-columns:5px minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+  .m-result-player>i{
+    width:5px!important;
+    height:30px!important;
+  }
+  .m-result-identity strong{
+    font-size:8px!important;
+  }
+  .m-result-identity small{
+    font-size:5.3px!important;
+  }
+  .m-result-score{
+    font-size:14px!important;
+  }
+  .m-placement-points b{
+    font-size:13px!important;
+  }
+}
