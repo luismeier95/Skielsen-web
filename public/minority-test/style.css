@@ -706,3 +706,141 @@ body.minority-page.minority-game-active .m-lock{
   line-height:1;
   letter-spacing:.06em;
 }
+
+
+/* MINORITY_RESULT_CANONICAL_V1
+   Tic Tac Toe result table is the visual target. Quick Games has no tournament
+   placement-points column; only the actual Minority game ranking is shown. */
+body.minority-page:not(.minority-game-active) .minority-stage:has(.m-result-card){
+  display:grid!important;
+  gap:13px!important;
+  padding:16px 12px 22px!important;
+}
+.m-result-status{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:0 2px;
+}
+.m-result-status strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:18px;
+  font-weight:950;
+  line-height:1;
+}
+.m-result-card{
+  width:100%;
+  margin:0;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-outer);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+  overflow:hidden;
+}
+.m-result-card>header{
+  min-height:52px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-result-card>header strong{
+  min-width:0;
+  font-size:12px;
+  font-weight:950;
+  line-height:1.15;
+  letter-spacing:.03em;
+}
+.m-result-card>header span{
+  flex:0 0 auto;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  white-space:nowrap;
+}
+.m-result-columns,
+.m-result-row{
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr) 88px;
+  column-gap:8px;
+  align-items:center;
+  padding:0 10px;
+}
+.m-result-columns{
+  min-height:34px;
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-muted,#777);
+  border-bottom:1px solid var(--theme-border,#ddd);
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:.05em;
+}
+.m-result-columns span:last-child{text-align:right}
+.m-result-row{
+  min-height:64px;
+  border-bottom:1px solid var(--theme-border,#ddd);
+  opacity:0;
+  transform:translateY(8px);
+}
+.m-result-row:last-child{border-bottom:0}
+.m-result-card.is-revealing .m-result-row{
+  animation:minorityResultRow .42s ease forwards;
+  animation-delay:var(--delay,0ms);
+}
+.m-result-row>b{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+  line-height:1;
+}
+.m-result-player{
+  min-width:0;
+  display:grid;
+  grid-template-columns:5px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+}
+.m-result-player i{
+  width:5px;
+  height:32px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-result-player strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--identity);
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+}
+.m-result-score{
+  justify-self:end;
+  text-align:right;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:20px;
+  line-height:1;
+}
+.m-result-action{
+  width:100%;
+  margin:0;
+}
+@keyframes minorityResultRow{to{opacity:1;transform:none}}
+
+@media(min-width:721px){
+  .m-result-columns,.m-result-row{
+    grid-template-columns:90px minmax(0,1fr) 120px;
+    padding:0 16px;
+    gap:10px;
+  }
+  .m-result-row{min-height:70px}
+}
+@media(prefers-reduced-motion:reduce){
+  .m-result-row{animation:none!important;opacity:1!important;transform:none!important}
+}
