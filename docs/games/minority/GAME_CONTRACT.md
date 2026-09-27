@@ -314,6 +314,8 @@ Tournament integration:
 - HARDCORE unanimity applies analogously to TEAM: at **8:0**, the individually leading player(s) lose 1 point; team totals then update from those individual scores.
 - The TEAM end-game ranking contains four rows, one per team. The Team name is the primary identity and both player names are shown below it.
 - Final TEAM ranking ties remain unresolved by this rule set; stable team order is used visually until a dedicated tie-break rule is approved.
+- Round score feedback in TEAM mode is aggregated by team for readability. Internal scoring remains per player; the transient overlay sums the current round deltas of affected players per team and shows at most four team rows.
+- The Jackpot TAKE/SPIN resolution board remains player-based because Jackpot decisions and Slot outcomes are individual.
 
 ## 10. Not yet fixed by this contract
 
