@@ -67,7 +67,29 @@ This rule takes precedence over legacy host-page spacing for standalone test sur
 
 ## 4.2 Minimum UI Font Size
 
-For mobile-first standalone games, visible UI text must never render below **12px**. This includes labels, metadata, helper copy, status text, result-table labels, setup annotations and ready-page instructions. Decorative non-text graphics are excluded.
+For mobile-first standalone games, visible UI text must never render below **12px**. This includes labels, metadata, helper copy, status text, setup annotations and ready-page instructions. Decorative non-text graphics are excluded.
+
+### End Game Result Table exception
+
+The canonical End Game / Result Table is the **only shared UI exception** to the 12px minimum. Its dense table typography intentionally follows the DNA Result Table exactly and may render below 12px.
+
+Canonical DNA typography:
+
+| Element | Desktop >720 px | Mobile <=720 px |
+|---|---:|---:|
+| Result-card header title | 11px | 11px |
+| Result-card header meta | 7px | 7px |
+| Table column headers | 6.5px | 5.4px |
+| Position | 14px | 11px |
+| Team / primary identity name | 10px | 8px |
+| Team member names / secondary identity line | 6px | 5.3px |
+| Game metric | 18px | 14px |
+| Placement points | 17px | 13px |
+
+Identity rules inside the Result Table:
+- **TEAM:** show the Team name in the primary identity size and both player names directly underneath in the secondary identity size.
+- **SOLO:** show only the Player name. There is no secondary line. The Player name uses exactly the same font size as a TEAM name and is vertically centered within the identity cell.
+- These sizes are canonical shared Result Table values. Individual games must not enlarge them back to 12px or invent game-specific table typography.
 
 ## 4.3 Player Names Use Team Colors
 
