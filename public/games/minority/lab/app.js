@@ -4,7 +4,8 @@ const RULES=globalThis.SkielsenMinorityRules;
 const LAB_CONFIG=globalThis.SkielsenMinorityLabConfig;
 const JACKPOT=globalThis.SkielsenMinorityJackpotEngine;
 const JACKPOT_UI=globalThis.SkielsenMinorityJackpotUI;
-if(!RULES||!LAB_CONFIG||!JACKPOT||!JACKPOT_UI)throw new Error('MINORITY_LAB_DEPENDENCY_REQUIRED');
+const TEAM=globalThis.SkielsenMinorityTeamEngine;
+if(!RULES||!LAB_CONFIG||!JACKPOT||!JACKPOT_UI||!TEAM)throw new Error('MINORITY_LAB_DEPENDENCY_REQUIRED');
 const URL='https://rlppuqjolkrwumrrjajq.supabase.co';
 const KEY='sb_publishable_6Cuc1rH2WGua2UT__Ta18w_BJVG4O1b';
 const SESSION_KEY='skielsen.native.supabase.session';
@@ -20,7 +21,7 @@ const jackpotUI=JACKPOT_UI.create(jackpotRoot);
 const params=new URLSearchParams(location.search);
 const quickLobby=params.get('quick_lobby');
 const qaMode=String(params.get('qa')||'').toLowerCase();
-let state={mode:quickLobby?'remote':'local',screen:'setup',difficulty:quickLobby?'NORMAL':'HARDCORE',roundCount:quickLobby?10:LAB_CONFIG.local.defaultRounds,players:[],scores:[0,0,0,0],round:1,roundValue:1,schedule:[],choice:null,reveal:null,qaJackpotConsumed:false};
+let state={mode:quickLobby?'remote':'local',playMode:'SOLO',screen:'setup',difficulty:quickLobby?'NORMAL':'HARDCORE',roundCount:quickLobby?10:LAB_CONFIG.local.defaultRounds,players:[],scores:[0,0,0,0],round:1,roundValue:1,schedule:[],choice:null,reveal:null,qaJackpotConsumed:false};
 let poll=0,revealTimer=0,revealTimerKey='',jackpotBusy=false,scoreFeedbackTimer=0,scoreFeedbackKey='';
 
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
@@ -34,19 +35,21 @@ async function rpc(name,args={}){
  if(!res.ok)throw new Error(data?.message||data?.error||name);
  return data;
 }
-function identity(seat){return COLORS[(seat-1)%COLORS.length]}
+function identity(seat){return state.playMode==='TEAM'?TEAM.teamColorForSeat(seat):COLORS[(seat-1)%COLORS.length]}
 function playerName(seat){
  const p=state.players.find(x=>Number(x.seat)===seat);
- return p?.display_name||DEFAULT_NAMES[seat-1];
+ return p?.display_name||DEFAULT_NAMES[(seat-1)%DEFAULT_NAMES.length]||('PLAYER '+seat);
 }
+function activePlayerCount(){return state.playMode==='TEAM'?8:4}
+function teamRows(){return TEAM.aggregateTeams(state.players,state.scores)}
 function isMe(seat){
  const p=state.players.find(x=>Number(x.seat)===seat);
  return !!p?.is_me;
 }
 function placementPoints(index){return [5,4,2,0][index]??0}
 function standings(){
- return [1,2,3,4].map((seat,i)=>({seat,name:playerName(seat),score:Number(state.scores[i])||0,color:identity(seat)}))
- .sort((a,b)=>b.score-a.score||a.seat-b.seat);
+ if(state.playMode==='TEAM')return TEAM.aggregateTeams(state.players,state.scores).map(team=>({teamIndex:team.teamIndex,name:team.name,score:team.score,color:team.color,members:team.members})).sort((a,b)=>b.score-a.score||a.teamIndex-b.teamIndex);
+ return [1,2,3,4].map((seat,i)=>({seat,name:playerName(seat),score:Number(state.scores[i])||0,color:identity(seat),members:[]})).sort((a,b)=>b.score-a.score||a.seat-b.seat);
 }
 function scoreFeedbackRows(res){
  if(!res)return [];
