@@ -209,7 +209,7 @@ function renderReady(){
    </div>
 
    <section class="m-card m-ready-summary">
-     <div><small>MODUS</small><strong>SOLO</strong></div>
+     <div><small>MODUS</small><strong>${esc(state.playMode)}</strong></div>
      <div><small>SCHWIERIGKEIT</small><strong>${esc(state.difficulty)}</strong></div>
      <div><small>RUNDEN</small><strong>${state.roundCount}</strong></div>
    </section>
@@ -222,11 +222,12 @@ function renderReady(){
      <div><b>05</b><span><strong>CHAOS ROUND</strong><small>${state.difficulty==='EASY'?'In Easy gibt es keine Chaos Round.':state.mode==='local'?'Im LAB ist jede 10. Runde eine Chaos Round.':'Remote nutzt weiterhin den Stable-Serververtrag.'}</small></span></div>
    </section>
 
-   <section class="m-card m-ready-roster">
-     ${[1,2,3,4].map(seat=>{
+   <section class="m-card m-ready-roster ${state.playMode==='TEAM'?'is-team':''}">
+     ${Array.from({length:activePlayerCount()},(_,i)=>i+1).map(seat=>{
        const p=state.players.find(item=>Number(item.seat)===seat);
        const status=isMe(seat)?(p?.ready?'BEREIT':'DU'):(p?.is_bot?'BOT':(p?.ready?'BEREIT':'WARTET'));
-       return `<div class="m-ready-player" style="--identity:${identity(seat)}"><i></i><strong>${esc(playerName(seat))}</strong><span>${status}</span></div>`;
+       const teamLabel=state.playMode==='TEAM'?`<small>${esc(TEAM.teamNameForSeat(seat))}</small>`:'';
+       return `<div class="m-ready-player" style="--identity:${identity(seat)}"><i></i><span class="m-ready-player-copy"><strong>${esc(playerName(seat))}</strong>${teamLabel}</span><span>${status}</span></div>`;
      }).join('')}
    </section>
 
@@ -433,8 +434,8 @@ function renderGame(){
 
    <div class="m-round-display">RUNDE ${state.round}/${state.roundCount}</div>
 
-   <div class="m-scorebar" aria-label="Punktestand">
-     ${[1,2,3,4].map((seat,i)=>`<div class="m-score" style="--identity:${identity(seat)}"><strong>${Number(state.scores[i])||0}</strong><span>${esc(playerName(seat))}</span></div>`).join('')}
+   <div class="m-scorebar ${state.playMode==='TEAM'?'is-team':''}" aria-label="Punktestand">
+     ${state.playMode==='TEAM'?teamRows().map(team=>`<div class="m-score m-team-score" style="--identity:${team.color}"><strong>${team.score}</strong><span>${esc(team.name)}</span><small>${team.members.map(member=>esc(member.name)+' '+member.score).join(' · ')}</small></div>`).join(''):[1,2,3,4].map((seat,i)=>`<div class="m-score" style="--identity:${identity(seat)}"><strong>${Number(state.scores[i])||0}</strong><span>${esc(playerName(seat))}</span></div>`).join('')}
    </div>
 
    <div class="m-options" data-count="${options.length}">
