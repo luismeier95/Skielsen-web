@@ -270,15 +270,16 @@ async function startJackpotFlow(){
      const task=isOwnSpin&&!shouldWatchBoard
        ?runJackpotSpin(row)
        :runSilentJackpotSpin(row,index);
-     return task.then(result=>({row,result}));
+
+     return task.then(result=>{
+       nextScores[row.seat-1]+=result.payout;
+       state.scores=nextScores.slice();
+       board?.updateSpin(row.seat,result);
+       return {row,result};
+     });
    });
 
-   for(const task of spinTasks){
-     const {row,result}=await task;
-     nextScores[row.seat-1]+=result.payout;
-     state.scores=nextScores.slice();
-     board?.updateSpin(row.seat,result);
-   }
+   await Promise.all(spinTasks);
 
    state.reveal.nextRoundValue=1;
    completed=true;
