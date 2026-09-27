@@ -51,23 +51,68 @@ function standings(){
  if(state.playMode==='TEAM')return TEAM.aggregateTeams(state.players,state.scores).map(team=>({teamIndex:team.teamIndex,name:team.name,score:team.score,color:team.color,members:team.members})).sort((a,b)=>b.score-a.score||a.teamIndex-b.teamIndex);
  return [1,2,3,4].map((seat,i)=>({seat,name:playerName(seat),score:Number(state.scores[i])||0,color:identity(seat),members:[]})).sort((a,b)=>b.score-a.score||a.seat-b.seat);
 }
+function aggregateFeedbackRowsByTeam(rows){
+ const grouped=new Map();
+
+ rows.forEach(row=>{
+   const teamIndex=TEAM.teamIndexForSeat(row.seat);
+   const existing=grouped.get(teamIndex)||{
+     teamIndex,
+     name:TEAM.TEAM_NAMES[teamIndex],
+     color:TEAM.TEAM_COLORS[teamIndex],
+     delta:0,
+     jackpot:false
+   };
+
+   if(row.kind==='jackpot')existing.jackpot=true;
+   else existing.delta+=Number(row.delta)||0;
+
+   grouped.set(teamIndex,existing);
+ });
+
+ return [...grouped.values()]
+   .sort((a,b)=>a.teamIndex-b.teamIndex)
+   .map(team=>{
+     if(team.jackpot){
+       return {
+         teamIndex:team.teamIndex,
+         name:team.name,
+         color:team.color,
+         label:'JACKPOT',
+         kind:'jackpot'
+       };
+     }
+
+     return {
+       teamIndex:team.teamIndex,
+       name:team.name,
+       color:team.color,
+       label:(team.delta>0?'+':'')+team.delta,
+       kind:team.delta>0?'positive':team.delta<0?'negative':'neutral'
+     };
+   });
+}
+
 function scoreFeedbackRows(res){
  if(!res)return [];
+ let rows=[];
+
  if(res.jackpot&&Array.isArray(res.winningSeats)&&res.winningSeats.length){
-   return res.winningSeats.map(seat=>({seat,label:'JACKPOT',kind:'jackpot'}));
- }
- if(res.hasMinority&&Array.isArray(res.winningSeats)&&res.winningSeats.length){
+   rows=res.winningSeats.map(seat=>({seat,kind:'jackpot',delta:0}));
+ }else if(res.hasMinority&&Array.isArray(res.winningSeats)&&res.winningSeats.length){
    const award=Number(res.award)||0;
-   return res.winningSeats.map(seat=>({
+   rows=res.winningSeats.map(seat=>({
      seat,
+     delta:award,
      label:(award>=0?'+':'')+award,
      kind:award>0?'positive':award<0?'negative':'neutral'
    }));
+ }else if(Array.isArray(res.penaltySeats)&&res.penaltySeats.length){
+   rows=res.penaltySeats.map(seat=>({seat,delta:-1,label:'−1',kind:'negative'}));
  }
- if(Array.isArray(res.penaltySeats)&&res.penaltySeats.length){
-   return res.penaltySeats.map(seat=>({seat,label:'−1',kind:'negative'}));
- }
- return [];
+
+ if(state.playMode==='TEAM')return aggregateFeedbackRowsByTeam(rows);
+ return rows;
 }
 function hideScoreFeedback(){
  if(scoreFeedbackTimer){clearTimeout(scoreFeedbackTimer);scoreFeedbackTimer=0}
@@ -77,16 +122,20 @@ function hideScoreFeedback(){
 function showScoreFeedback(res){
  const rows=scoreFeedbackRows(res);
  if(!rows.length||!scoreOverlay){hideScoreFeedback();return}
- const key=state.mode+':'+state.round+':'+rows.map(row=>row.seat+row.label).join('|');
+ const key=state.mode+':'+state.playMode+':'+state.round+':'+rows.map(row=>(row.teamIndex??row.seat)+row.label).join('|');
  if(scoreFeedbackKey===key&&scoreOverlay.classList.contains('is-open'))return;
  scoreFeedbackKey=key;
  scoreOverlay.innerHTML=`<div class="m-score-feedback-card">
    <small class="m-score-feedback-title">${rows.length>1?'PUNKTE':'PUNKT'}</small>
    <div class="m-score-feedback-list">
-    ${rows.map(row=>`<div class="m-score-feedback-row" style="--identity:${identity(row.seat)}">
-      <i></i><strong>${esc(playerName(row.seat))}</strong>
-      <b class="m-score-feedback-value is-${row.kind}">${row.label}</b>
-    </div>`).join('')}
+    ${rows.map(row=>{
+      const color=state.playMode==='TEAM'?row.color:identity(row.seat);
+      const name=state.playMode==='TEAM'?row.name:playerName(row.seat);
+      return `<div class="m-score-feedback-row" style="--identity:${color}">
+        <i></i><strong>${esc(name)}</strong>
+        <b class="m-score-feedback-value is-${row.kind}">${row.label}</b>
+      </div>`;
+    }).join('')}
    </div>
   </div>`;
  scoreOverlay.classList.add('is-open');
