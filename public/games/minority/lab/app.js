@@ -538,7 +538,7 @@ function renderRanking(){
 
      <div class="m-result-columns">
        <span>POSITION</span>
-       <span>PLAYER</span>
+       <span>${state.playMode==='TEAM'?'TEAM':'PLAYER'}</span>
        <span>MINORITY</span>
        <span></span>
      </div>
@@ -549,8 +549,9 @@ function renderRanking(){
            <b class="m-result-place">${String(p.place).padStart(2,'0')}</b>
            <span class="m-result-player">
              <i></i>
-             <span class="m-result-identity is-solo">
+             <span class="m-result-identity ${state.playMode==='TEAM'?'is-team':'is-solo'}">
                <strong>${esc(p.name)}</strong>
+               ${state.playMode==='TEAM'?`<small>${p.members.map(member=>esc(member.name)).join(' · ')}</small>`:''}
              </span>
            </span>
            <b class="m-result-score">${p.score}</b>
@@ -574,7 +575,7 @@ function renderRanking(){
 
  document.querySelector('#mAgain').addEventListener('click',()=>{
    if(state.mode==='remote')location.assign('../quick-games/');
-   else{state.screen='setup';state.choice=null;state.reveal=null;render()}
+   else{state.screen='setup';state.choice=null;state.reveal=null;state.players=[];state.scores=Array(activePlayerCount()).fill(0);render()}
  });
 }
 function humanError(err){
