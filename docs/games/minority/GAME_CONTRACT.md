@@ -303,13 +303,17 @@ Tournament integration:
 - Reason: with 2 players and 2 answer options, the only possible distributions are **1:1** or **2:0**. Neither creates a real minority, so the core mechanic cannot produce a winner.
 - SOLO therefore requires **at least 3 active players**.
 - The current standalone / Quick Games baseline is **SOLO with 4 players**.
-- Minority must later support a **team mode with up to 8 human players**.
-- The 4-player SOLO limit must therefore not be treated as a permanent global Minority limit.
-- In team mode, every player earns Minority points individually using the same round rules as SOLO.
-- A team's game result is the **sum of the individual Minority points of all players assigned to that team**.
-- Player scores must therefore remain individually stored and addressable; team score is an aggregation, not a replacement score.
-- The exact future team composition, team decision model and tie behavior are **not yet fixed** and must not be invented during implementation.
-- Shared game logic and data structures should remain extensible so that the later 8-player team mode can be added without replacing the entire Minority implementation.
+- TEAM mode uses exactly **4 teams with 2 players each = 8 active players**.
+- Every one of the 8 players chooses an answer **individually and secretly**. There is no shared team vote.
+- Minority resolution is calculated across **all 8 individual votes** using the same generalized minority rule as SOLO.
+- Example with two answers: **5:3** means the three players on the less-selected answer are the minority and all three win the current individual award.
+- **4:4** and **8:0** contain no real minority.
+- In TEAM mode, every player earns Minority points individually using the same round rules as SOLO.
+- A team's visible game score is the **sum of the two individual Minority scores** of its members.
+- Player scores therefore remain individually stored and addressable; team score is an aggregation, never the source of truth.
+- HARDCORE unanimity applies analogously to TEAM: at **8:0**, the individually leading player(s) lose 1 point; team totals then update from those individual scores.
+- The TEAM end-game ranking contains four rows, one per team. The Team name is the primary identity and both player names are shown below it.
+- Final TEAM ranking ties remain unresolved by this rule set; stable team order is used visually until a dedicated tie-break rule is approved.
 
 ## 10. Not yet fixed by this contract
 
