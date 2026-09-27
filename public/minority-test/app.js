@@ -291,9 +291,8 @@ function renderRanking(){
            <b class="m-result-place">${String(p.place).padStart(2,'0')}</b>
            <span class="m-result-player">
              <i></i>
-             <span class="m-result-identity">
+             <span class="m-result-identity is-solo">
                <strong>${esc(p.name)}</strong>
-               <small>SOLO</small>
              </span>
            </span>
            <b class="m-result-score">${p.score}</b>
