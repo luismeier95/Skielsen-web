@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.3  
+**Version:** 1.4  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -265,16 +265,22 @@ Reveal behavior:
 Minority uses the canonical shared Result Table geometry, with **Tic Tac Toe as the visual reference**.
 
 SOLO ranking:
+- hero is **GAME RANKING / ERGEBNIS.**;
+- result card header is **MINORITY · FINALES ERGEBNIS** with **HÖHER IST BESSER**;
 - rows are ordered by final Minority score, highest first;
 - stable tie order remains seat order unless a later explicit tie-break rule is added;
-- each row shows POSITION, player identity/name and final Minority SCORE;
-- player identity accent/name uses that player's identity color;
+- columns are **POSITION / PLAYER / MINORITY / placement points**;
+- player identity uses the player's identity accent and name;
 - rows reveal with the canonical shared ranking animation;
+- placement points use **5 / 4 / 2 / 0** for places 1–4;
 - the old standalone layout of four separate large ranking cards is forbidden.
 
 Quick Games:
-- Quick Games shows only the game ranking itself;
-- no Tournament placement points, Joker step or Merge column is shown.
+- the DNA Quick Game result page is the canonical visual target;
+- Quick Games shows the final game ranking plus the standard placement points **+5 / +4 / +2 / +0** in the fourth column;
+- placement points reveal bottom-to-top after the ranking has held for 2 seconds, matching the canonical result animation;
+- Quick Games does **not** execute the Tournament Merge; the placement points are displayed as the result mapping only;
+- the primary action is **QUICK GAME BEENDEN →**.
 
 Tournament integration:
 - the same Result Table component is reused;
