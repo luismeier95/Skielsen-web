@@ -52,15 +52,15 @@ function makeUi(root){
   </section>`;
   root.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>{const choice=btn.dataset.choice;hide();onChoose?.(choice)}));
  }
- function showDecisionReveal({rows,playerName,onDone}={}){
+ function showDecisionReveal({rows,spinCount=0,playerName,onDone}={}){
   hide();root.classList.add('is-open','is-blocking');
   root.innerHTML=`<section class="mj-panel mj-reveal">
    <small class="mj-kicker">JACKPOT REVEAL</small><h2>ENTSCHEIDUNGEN.</h2>
-   <div class="mj-reveal-list">${rows.map(row=>`<div class="mj-reveal-row" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small>${row.decision==='SPIN'?(row.loneWolf?'LONE WOLF · SLOT +1':'SLOT MACHINE'):(row.takePayout===row.potValue?'TAKE · VOLLER POT':'TAKE')}</small></span><b>${row.decision==='SPIN'?'SPIN '+row.slotBase:'+'+row.takePayout}</b></div>`).join('')}</div>
+   <div class="mj-reveal-list">${rows.map(row=>`<div class="mj-reveal-row" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small>${row.decision==='SPIN'?(row.loneWolf?'LONE WOLF · SLOT +1':'SLOT MACHINE'):(spinCount===0?'TAKE · VOLLER POT':'TAKE · −1 WEGEN SPINNER')}</small></span><b>${row.decision==='SPIN'?'SPIN '+row.slotBase:'+'+row.takePayout}</b></div>`).join('')}</div>
   </section>`;
   timer=setTimeout(()=>{hide();onDone?.()},CONFIG.jackpot.decisionRevealMs);
  }
- function showSpin({name,base,onResolved}={}){
+ function showSpin({name,base,autoStart=false,onResolved}={}){
   hide();root.classList.add('is-open','is-blocking');
   const symbols=CONFIG.slot.symbols;
   root.innerHTML=`<section class="mj-panel mj-slot">
@@ -71,7 +71,8 @@ function makeUi(root){
    <button class="mj-spin-button" type="button">SPIN →</button>
   </section>`;
   const button=root.querySelector('.mj-spin-button');
-  button.addEventListener('click',()=>{
+  const startSpin=()=>{
+   if(button.disabled)return;
    button.disabled=true;button.textContent='DREHT …';
    const ids=ENGINE.spin();
    const reels=[...root.querySelectorAll('[data-reel]')];
@@ -84,9 +85,12 @@ function makeUi(root){
      const result=ENGINE.spinPayout(base,ids);
      root.querySelector('[data-result]').innerHTML=`<strong>${result.label}</strong><b>+${result.payout}</b><span>${String(result.multiplier).replace('.',',')}× BASIS</span>`;
      button.disabled=false;button.textContent='WEITER →';button.onclick=()=>{hide();onResolved?.(result)};
+     if(autoStart)setTimeout(()=>button.click(),360);
     }
    },ms));
-  },{once:true});
+  };
+  button.addEventListener('click',startSpin,{once:true});
+  if(autoStart)setTimeout(()=>button.click(),360);
  }
  return {hide,showPotFill,showDecision,showDecisionReveal,showSpin};
 }
