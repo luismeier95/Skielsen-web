@@ -1,19 +1,34 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-theme-pack="theme.skielsen.core">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e9e9e9">
   <title>SKIELSEN · Quick Tic Tac Toe</title>
-  <link rel="stylesheet" href="../../assets/css/app.css?v=15.1.144">
-  <link rel="stylesheet" href="../../assets/css/tournament-theme-runtime.css?v=15.1.144">
-  <link rel="stylesheet" href="../../assets/css/tic-tac-toe-game.css?v=15.1.144">
-  <link rel="stylesheet" href="./style.css?v=15.1.144">
+  <link rel="stylesheet" href="../../assets/css/app.css?v=15.1.145">
+  <link rel="stylesheet" href="../../assets/css/tournament-theme-runtime.css?v=15.1.145">
+  <link rel="stylesheet" href="../../assets/css/tic-tac-toe-game.css?v=15.1.145">
+  <link rel="stylesheet" href="../../tic-tac-toe-test/style.css?v=2.3.16-qg1">
+  <link rel="stylesheet" href="./style.css?v=15.1.145">
 </head>
-<body class="quick-ttt v15-tournament-active" data-theme-pack="theme.skielsen.core">
-  <nav class="quick-ttt-nav" aria-label="Quick Games"><a href="../">← QUICK GAMES</a></nav>
-  <div id="quickTicTacToe" aria-label="Tic Tac Toe"><p role="status">SPIEL WIRD GELADEN …</p></div>
-  <script src="../app.js?v=15.1.144"></script>
-  <script src="../../assets/js/13-tic-tac-toe-game.js?v=15.1.144"></script>
-  <script src="./app.js?v=15.1.144"></script>
+<body class="quick-ttt tttx-body v15-tournament-active" data-theme-pack="theme.skielsen.core">
+  <section class="tttx-shell quick-ttt-shell">
+    <header class="tttx-header">
+      <div class="tttx-header-left">
+        <a class="quick-ttt-home" href="../" aria-label="Zurück zu Quick Games">
+          <img class="tttx-header-logo" src="../../assets/images/skielsen-logo.png" alt="SKIELSEN">
+        </a>
+        <strong class="tttx-game-name">TIC TAC TOE</strong><span class="tttx-version">V2.3.16</span>
+      </div>
+      <div class="tttx-header-meta"><b>QUICK GAME</b></div>
+    </header>
+    <div class="tttx-progress" aria-hidden="true"><i></i></div>
+    <div class="tttx-content">
+      <div id="quickTicTacToe" aria-label="Tic Tac Toe"><p role="status">SPIEL WIRD GELADEN …</p></div>
+    </div>
+  </section>
+  <script src="../app.js?v=15.1.145"></script>
+  <script src="../../assets/js/13-tic-tac-toe-game.js?v=15.1.145-qg-approved"></script>
+  <script src="./app.js?v=15.1.145"></script>
 </body>
 </html>
