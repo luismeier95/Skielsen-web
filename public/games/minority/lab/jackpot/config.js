@@ -24,16 +24,18 @@ globalThis.SkielsenMinorityLabConfig=freeze({
  slot:freeze({
   reelCount:3,
   symbols:freeze([
-   freeze({id:'watermelon',label:'MELONE',glyph:'🍉',pairMultiplier:0.75}),
-   freeze({id:'lemon',label:'ZITRONE',glyph:'🍋',pairMultiplier:1.00}),
-   freeze({id:'cherry',label:'KIRSCHE',glyph:'🍒',pairMultiplier:1.25}),
-   freeze({id:'seven',label:'7',glyph:'7',pairMultiplier:1.50})
+   freeze({id:'watermelon',label:'MELONE',asset:'./assets/jackpot/slot-watermelon.webp',pairMultiplier:0.75}),
+   freeze({id:'lemon',label:'ZITRONE',asset:'./assets/jackpot/slot-lemon.webp',pairMultiplier:1.00}),
+   freeze({id:'cherry',label:'KIRSCHE',asset:'./assets/jackpot/slot-cherry.webp',pairMultiplier:1.25}),
+   freeze({id:'seven',label:'7',asset:'./assets/jackpot/slot-seven.webp',pairMultiplier:1.50})
   ]),
   tripleMultiplier:2,
   sevenTripleMultiplier:5,
   singleSevenMultiplier:0.5
  }),
  assets:freeze({
+  jackpotLogo:'./assets/jackpot/jackpot-logo.webp',
+  coin:'./assets/jackpot/coin.webp',
   potStages:freeze([
    '../../../assets/images/minority-extreme/pot_stage_1.webp',
    '../../../assets/images/minority-extreme/pot_stage_2.webp',
