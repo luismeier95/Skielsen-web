@@ -43,6 +43,23 @@ Die Vollversion bleibt im bestehenden In-App-/Supabase-/Turnierframework.
 
 ## Deployment
 
+### Quick Games (in Vorbereitung, noch nicht freigeschaltet)
+
+- SOLO hat zwei Einzelplätze; TEAM hat zwei Teams mit jeweils zwei Plätzen.
+- Der Host wählt SOLO/TEAM in der offenen Lobby. Belegte Plätze werden bei
+  einem Formatwechsel niemals entfernt oder stillschweigend verschoben.
+- Platz 1/2 bilden im TEAM-Modus Rot, Platz 3/4 Blau. Im SOLO-Modus ist
+  Platz 1 Rot und Platz 2 Blau.
+- Der Lobby-Start sperrt die Aufstellung und erzeugt stabile virtuelle
+  Spieler-/Teilnehmer-IDs. Freie Plätze werden nach explizitem Bot-Füllen zu Bots.
+- Quick-Sessions nutzen die existierenden v3-Duellfunktionen. Sie erzeugen
+  keine Turniere, Turnierpunkte, Joker oder Merge. Abschluss: gemeinsames
+  Ergebnis und Rückkehr zu Quick Games.
+- Implementierungsstand und nächste Schritte:
+  `docs/games/tic-tac-toe/QUICK_GAMES_IMPLEMENTATION.md`.
+
+### Vollversion
+
 Migration: `supabase/migrations/20260926213328_tic_tac_toe_rules_v3.sql`.
 Sie verweigert die Ausführung bei aktiven TicTacToe-Sessions. Backend zuerst,
 danach Frontend veröffentlichen. Alte Clients müssen neu laden.

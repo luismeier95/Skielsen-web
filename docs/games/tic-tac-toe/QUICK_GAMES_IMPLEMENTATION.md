@@ -49,12 +49,22 @@ Joker-, MVP-/LVP-Schritte oder Merge.
 
 ## Aktueller Stand
 
-- Planung gesichert; Implementierung der Quick-Games-Anbindung noch ausstehend.
+- Block 1 implementiert: Migration `20260927085749_quick_tic_tac_toe_sessions.sql`.
+- SOLO-/TEAM-Lobby, formatabhängige Platzgrenzen, Host-/Mitgliedschaftsrechte,
+  atomarer Start und unveränderliche virtuelle Spieler-/Teilnehmer-IDs.
+- Private Quick-Session ohne Turniertabellen; Duelladapter ruft die vorhandene
+  `private.tic_tac_toe_new_board`-Funktion auf.
+- Vier lokale PostgreSQL-Tests bestanden: SOLO, TEAM/Bots/alle Timer,
+  bestehende DNA-/Minority-Lobbys und Zugriffsrechte.
+- Migration ist noch nicht live angewendet; der Arbeitsbranch ist noch kein
+  spielbarer Quick-Games-Release.
 - Globale Contracts, TicTacToe-v3-Contract und bestehender Quick-Games-Einstieg gelesen.
 - Quick Games unterstützt aktuell DNA (8 Plätze) und Minority (4 Einzelplätze).
 - TicTacToe v3 ist bereits live; seine Session-RPCs sind noch turniergebunden.
-- Nächster Schritt: gemeinsame Lobby-RPCs und State-/Result-Schnittstellen gezielt
-  prüfen; neue Migration mit dem Supabase-CLI anlegen und Block 1 implementieren.
+- Nächster Schritt (Block 2): Setup/Spielerwahl/READY, serverseitige Botzüge,
+  Zug-RPC und Zustandsfortschritt auf Basis der v3-Duellfunktionen sowie
+  Quick-Ergebnis ohne Turnierübergabe.
+- Testbefehl: `PGLITE_MODULE=<PGlite-Pfad> node --test tools/test_quick_tic_tac_toe.mjs`.
 - Migrationshistorie im Repository ist unvollständig. Kein pauschales
   `migration repair` und kein unkontrolliertes `db push`. Geprüfte Migrationen
   gezielt anwenden und die tatsächlich registrierte Remote-Version dokumentieren.
