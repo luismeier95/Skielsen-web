@@ -15,12 +15,13 @@ const topState=document.querySelector('#minorityTopState');
 const progress=document.querySelector('#minorityProgress');
 const feedback=document.querySelector('#minorityFeedback');
 const jackpotRoot=document.querySelector('#minorityJackpotOverlay');
+const scoreOverlay=document.querySelector('#minorityScoreOverlay');
 const jackpotUI=JACKPOT_UI.create(jackpotRoot);
 const params=new URLSearchParams(location.search);
 const quickLobby=params.get('quick_lobby');
 const qaMode=String(params.get('qa')||'').toLowerCase();
 let state={mode:quickLobby?'remote':'local',screen:'setup',difficulty:quickLobby?'NORMAL':'HARDCORE',roundCount:quickLobby?10:LAB_CONFIG.local.defaultRounds,players:[],scores:[0,0,0,0],round:1,roundValue:1,schedule:[],choice:null,reveal:null,qaJackpotConsumed:false};
-let poll=0,revealTimer=0,revealTimerKey='',jackpotBusy=false;
+let poll=0,revealTimer=0,revealTimerKey='',jackpotBusy=false,scoreFeedbackTimer=0,scoreFeedbackKey='';
 
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function setFeedback(v=''){feedback.textContent=v}
@@ -47,6 +48,48 @@ function standings(){
  return [1,2,3,4].map((seat,i)=>({seat,name:playerName(seat),score:Number(state.scores[i])||0,color:identity(seat)}))
  .sort((a,b)=>b.score-a.score||a.seat-b.seat);
 }
+function scoreFeedbackRows(res){
+ if(!res)return [];
+ if(res.jackpot&&Array.isArray(res.winningSeats)&&res.winningSeats.length){
+   return res.winningSeats.map(seat=>({seat,label:'JACKPOT',kind:'jackpot'}));
+ }
+ if(res.hasMinority&&Array.isArray(res.winningSeats)&&res.winningSeats.length){
+   const award=Number(res.award)||0;
+   return res.winningSeats.map(seat=>({
+     seat,
+     label:(award>=0?'+':'')+award,
+     kind:award>0?'positive':award<0?'negative':'neutral'
+   }));
+ }
+ if(Array.isArray(res.penaltySeats)&&res.penaltySeats.length){
+   return res.penaltySeats.map(seat=>({seat,label:'−1',kind:'negative'}));
+ }
+ return [];
+}
+function hideScoreFeedback(){
+ if(scoreFeedbackTimer){clearTimeout(scoreFeedbackTimer);scoreFeedbackTimer=0}
+ if(scoreOverlay){scoreOverlay.classList.remove('is-open');scoreOverlay.innerHTML=''}
+ scoreFeedbackKey='';
+}
+function showScoreFeedback(res){
+ const rows=scoreFeedbackRows(res);
+ if(!rows.length||!scoreOverlay){hideScoreFeedback();return}
+ const key=state.mode+':'+state.round+':'+rows.map(row=>row.seat+row.label).join('|');
+ if(scoreFeedbackKey===key&&scoreOverlay.classList.contains('is-open'))return;
+ scoreFeedbackKey=key;
+ scoreOverlay.innerHTML=`<div class="m-score-feedback-card">
+   <small class="m-score-feedback-title">${rows.length>1?'PUNKTE':'PUNKT'}</small>
+   <div class="m-score-feedback-list">
+    ${rows.map(row=>`<div class="m-score-feedback-row" style="--identity:${identity(row.seat)}">
+      <i></i><strong>${esc(playerName(row.seat))}</strong>
+      <b class="m-score-feedback-value is-${row.kind}">${row.label}</b>
+    </div>`).join('')}
+   </div>
+  </div>`;
+ scoreOverlay.classList.add('is-open');
+ if(scoreFeedbackTimer)clearTimeout(scoreFeedbackTimer);
+ scoreFeedbackTimer=setTimeout(hideScoreFeedback,1400);
+}
 function render(){
  const activeGame=state.screen==='game'||state.screen==='reveal';
  document.body.classList.toggle('minority-game-active',activeGame);
@@ -54,6 +97,7 @@ function render(){
  const pct=activeGame?Math.min(100,Math.round((state.round/Math.max(1,state.roundCount))*100)):state.screen==='ranking'?100:0;
  progress.style.width=pct+'%';
  if(!activeGame&&revealTimer){clearTimeout(revealTimer);revealTimer=0;revealTimerKey=''}
+ if(!activeGame)hideScoreFeedback();
  if(activeGame)window.scrollTo(0,0);
  if(state.screen==='wait_setup')return renderWaitSetup();
  if(state.screen==='setup')return renderSetup();
@@ -404,7 +448,7 @@ function renderGame(){
      }
    }));
  }
- if(revealed)scheduleRevealAdvance();
+ if(revealed){showScoreFeedback(res);scheduleRevealAdvance();}
 }
 function resolveLocalRound(){
  const q=currentQuestion();
@@ -577,6 +621,6 @@ async function boot(){
    setFeedback(humanError(err));render();
  }
 }
-window.addEventListener('beforeunload',()=>{if(poll)clearInterval(poll);if(revealTimer)clearTimeout(revealTimer);jackpotUI.hide()});
+window.addEventListener('beforeunload',()=>{if(poll)clearInterval(poll);if(revealTimer)clearTimeout(revealTimer);hideScoreFeedback();jackpotUI.hide()});
 boot();
 })();
