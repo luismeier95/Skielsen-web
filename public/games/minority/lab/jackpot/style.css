@@ -348,3 +348,71 @@ body.minority-page .m-pot-status-text{
   font-family:"Arial Black",Arial,Helvetica,sans-serif;
   font-size:12px;
 }
+
+
+/* MINORITY LAB · JACKPOT MOBILE OVERFLOW FIX V3
+   Blocking Jackpot surfaces must never create horizontal scrolling. */
+.minority-jackpot-overlay{
+  width:100%;
+  max-width:100vw;
+  overflow:hidden;
+  contain:inline-size;
+}
+.mj-panel{
+  width:min(430px,100%)!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-x:none;
+}
+.mj-panel,
+.mj-panel *{
+  min-width:0;
+}
+.mj-panel>img,
+.mj-panel>div,
+.mj-panel>p,
+.mj-panel>small,
+.mj-panel>h2,
+.mj-panel>button{
+  max-width:100%;
+}
+.mj-actions{
+  width:100%;
+  max-width:100%;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.mj-actions button{
+  width:100%;
+  max-width:100%;
+  min-width:0!important;
+  overflow:hidden;
+}
+.mj-actions strong,
+.mj-actions b,
+.mj-actions span{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.mj-rule-strip{
+  width:100%;
+  max-width:100%;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.mj-reveal-list,
+.mj-reveal-row,
+.mj-reels,
+.mj-slot-result,
+.mj-slot-values{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+@media(max-width:360px){
+  .minority-jackpot-overlay{padding:8px}
+  .mj-panel{padding:12px}
+  .mj-actions{gap:6px}
+  .mj-actions button{padding:8px 6px}
+}
