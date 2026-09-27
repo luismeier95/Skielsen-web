@@ -416,3 +416,49 @@ body.minority-page .m-pot-status-text{
   .mj-actions{gap:6px}
   .mj-actions button{padding:8px 6px}
 }
+
+
+/* MINORITY LAB · JACKPOT LIVE RESOLUTION BOARD V4 */
+.mj-resolution h2{
+  max-width:100%;
+  font-size:clamp(24px,8vw,36px);
+  overflow-wrap:anywhere;
+}
+.mj-resolution>p{
+  max-width:100%;
+}
+.mj-row-status{
+  min-width:64px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+}
+.mj-payout{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:15px;
+  line-height:1;
+}
+.mj-payout.is-ready{
+  animation:mjPayoutIn .16s ease-out;
+}
+@keyframes mjPayoutIn{
+  from{opacity:0;transform:scale(.92)}
+  to{opacity:1;transform:scale(1)}
+}
+
+/* User-selected waiting animation for unresolved SPIN payouts. */
+.loader{
+  width:60px;
+  aspect-ratio:4;
+  background:radial-gradient(circle closest-side,#000 90%,#0000) 0/calc(100%/3) 100% space;
+  clip-path:inset(0 100% 0 0);
+  animation:l1 1s steps(4) infinite;
+}
+@keyframes l1{to{clip-path:inset(0 -34% 0 0)}}
+.mj-loader{
+  width:42px;
+}
+@media(max-width:360px){
+  .mj-row-status{min-width:48px}
+  .mj-loader{width:34px}
+}
