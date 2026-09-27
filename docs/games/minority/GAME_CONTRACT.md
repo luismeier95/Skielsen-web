@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.1  
+**Version:** 1.2  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -235,6 +235,30 @@ The earlier candidates `Wasser / Saft / Energy` and `Samstag / Sonntag / Feierta
 - A term used in the 4-option pool must not be used in the 3-option pool.
 - The current 2-option pool was specifically cleaned against the 4-option pool.
 - Do not silently add, remove, rename, or rebalance approved categories without updating this contract.
+
+## 8.1 Active mobile gameplay layout and reveal
+
+The active Minority gameplay surface follows the canonical shared game geometry used by Tic Tac Toe.
+
+Required mobile order:
+1. Game Header with visible SKIELSEN logo + game name + state.
+2. Shared Progress directly below the header.
+3. Three equal rule/status containers. They show total configured rounds, selected difficulty, and current pot state/value.
+4. Large centered `RUNDE X/Y`.
+5. Four equal player score containers in stable seat order.
+6. Answer tiles occupying the remaining viewport.
+
+Active gameplay must fit inside one mobile viewport and **must not scroll**. The Game Header and Progress therefore remain visible for the entire round.
+
+Reveal behavior:
+- The legacy `WÄHLE.` hero, question card, result banner and `NÄCHSTE RUNDE` button are not part of active gameplay.
+- Once the authoritative server has received every required answer and resolves the round, the winning minority answer tile(s) use the same success semantics as DNA: `--theme-success-bg` with `--theme-on-success`.
+- Vote counts may be shown directly inside the answer tiles during reveal.
+- There is no separate `DU BIST DIE MINDERHEIT` banner.
+- The resolved answer tiles remain visible for **2 seconds**.
+- After those 2 seconds the client requests the next authoritative round automatically; no player confirmation is required.
+- Local QA follows the same 2-second reveal cadence.
+- A submitted answer stays locked while waiting for the server; no extra waiting card may change the active-play geometry.
 
 ## 9. Player-count and future team mode
 
