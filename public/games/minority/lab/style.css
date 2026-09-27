@@ -1405,7 +1405,7 @@ body.minority-page.minority-game-active .m-team-score small{
   align-items:center;
 }
 .m-ready-roster.is-team .m-ready-player-copy strong{
-  color:var(--identity);
+  color:var(--theme-on-surface,var(--theme-text,#111));
   font-size:11px;
   font-weight:950;
   line-height:1;
