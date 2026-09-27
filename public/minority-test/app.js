@@ -207,21 +207,21 @@ function renderGame(){
  const myChoice=state.choice;
  const potLabel=state.difficulty==='EASY'?'POT AUS':'POT '+state.roundValue;
 
- stage.innerHTML=\`
+ stage.innerHTML=`
    <section class="m-status m-card" aria-label="Spielregeln">
-     <div><strong>\${state.roundCount} RUNDEN</strong></div>
-     <div><strong>\${esc(state.difficulty)}</strong></div>
-     <div><strong>\${potLabel}</strong></div>
+     <div><strong>${state.roundCount} RUNDEN</strong></div>
+     <div><strong>${esc(state.difficulty)}</strong></div>
+     <div><strong>${potLabel}</strong></div>
    </section>
 
-   <div class="m-round-display">RUNDE \${state.round}/\${state.roundCount}</div>
+   <div class="m-round-display">RUNDE ${state.round}/${state.roundCount}</div>
 
    <div class="m-scorebar" aria-label="Punktestand">
-     \${[1,2,3,4].map((seat,i)=>\`<div class="m-score" style="--identity:\${identity(seat)}"><strong>\${Number(state.scores[i])||0}</strong><span>\${esc(playerName(seat))}</span></div>\`).join('')}
+     ${[1,2,3,4].map((seat,i)=>`<div class="m-score" style="--identity:${identity(seat)}"><strong>${Number(state.scores[i])||0}</strong><span>${esc(playerName(seat))}</span></div>`).join('')}
    </div>
 
-   <div class="m-options" data-count="\${options.length}">
-     \${options.map((label,i)=>{
+   <div class="m-options" data-count="${options.length}">
+     ${options.map((label,i)=>{
        const count=revealed?Number(res.counts?.[i]||0):null;
        const isWin=revealed&&res.winningOptions?.includes(i+1);
        const cls=[
@@ -230,9 +230,9 @@ function renderGame(){
          revealed&&!isWin?'is-revealed':''
        ].filter(Boolean).join(' ');
        const lengthClass=String(label).length>=13?'is-xlong':String(label).length>=10?'is-long':'';
-       return \`<button class="m-option \${cls} \${lengthClass}" type="button" data-choice="\${i+1}" \${revealed||myChoice?'disabled':''}><span class="m-option-label">\${esc(label)}</span>\${revealed?\`<span class="m-option-count">\${count} × gewählt</span>\`:''}</button>\`;
+       return `<button class="m-option ${cls} ${lengthClass}" type="button" data-choice="${i+1}" ${revealed||myChoice?'disabled':''}><span class="m-option-label">${esc(label)}</span>${revealed?`<span class="m-option-count">${count} × gewählt</span>`:''}</button>`;
      }).join('')}
-   </div>\`;
+   </div>`;
 
  if(!revealed&&!myChoice){
    stage.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',async()=>{
