@@ -38,21 +38,26 @@ function makeUi(root){
   },260);
   later(()=>{hide();onDone?.()},CONFIG.jackpot.potFillMs);
  }
- function showDecision({name,potValue,onChoose}={}){
+ function showDecision({name,potValue,participantCount=1,onChoose}={}){
   hide();root.classList.add('is-open','is-blocking');
-  root.innerHTML=`<section class="mj-panel mj-decision">
+  const solo=Number(participantCount)===1;
+  const ruleStrip=solo?'':`<div class="mj-rule-strip">
+    <span><b>ALLE TAKE</b> voller Pot</span>
+    <span><b>JEMAND SPIN</b> TAKE −1</span>
+    <span><b>NUR 1× SPIN</b> Einsatz +1</span>
+   </div>`;
+  const takeSub=solo?'Punkte sofort sichern':`+${Math.max(0,potValue-1)}, falls jemand SPIN wählt`;
+  const spinValue=solo?potValue+1:potValue;
+  const spinSub=solo?'Du bist der einzige Spinner':`Einsatz ${potValue+1}, wenn nur du SPIN wählst`;
+  root.innerHTML=`<section class="mj-panel mj-decision ${solo?'is-solo':''}">
    <img class="mj-logo" src="${CONFIG.assets.jackpotLogo}" alt="JACKPOT">
    <small class="mj-kicker">GEHEIME ENTSCHEIDUNG</small>
    <h2>TAKE ODER SPIN?</h2>
    <p>${name||'DU'} hat die Minority getroffen.</p>
-   <div class="mj-rule-strip">
-    <span><b>ALLE TAKE</b> voller Pot</span>
-    <span><b>JEMAND SPIN</b> TAKE −1</span>
-    <span><b>NUR 1× SPIN</b> Slot +1</span>
-   </div>
+   ${ruleStrip}
    <div class="mj-actions">
-    <button type="button" data-choice="TAKE"><strong>TAKE</strong><b>+${potValue} SICHER</b><span>+${Math.max(0,potValue-1)}, falls jemand SPIN wählt</span></button>
-    <button type="button" data-choice="SPIN" class="is-spin"><strong>SPIN</strong><b>SLOT MIT ${potValue}</b><span>Slot mit ${potValue+1}, wenn nur du SPIN wählst</span></button>
+    <button type="button" data-choice="TAKE"><strong>TAKE</strong><b>+${potValue} SICHER</b><span>${takeSub}</span></button>
+    <button type="button" data-choice="SPIN" class="is-spin"><strong>SPIN</strong><b>EINSATZ ${spinValue}</b><span>${spinSub}</span></button>
    </div>
   </section>`;
   root.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>{const choice=btn.dataset.choice;hide();onChoose?.(choice)}));
@@ -61,7 +66,7 @@ function makeUi(root){
   hide();root.classList.add('is-open','is-blocking');
   root.innerHTML=`<section class="mj-panel mj-reveal">
    <small class="mj-kicker">JACKPOT REVEAL</small><h2>ENTSCHEIDUNGEN.</h2>
-   <div class="mj-reveal-list">${rows.map(row=>`<div class="mj-reveal-row" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small>${row.decision==='SPIN'?(row.loneWolf?'LONE WOLF · SLOT +1':'SLOT MACHINE'):(spinCount===0?'TAKE · VOLLER POT':'TAKE · −1 WEGEN SPINNER')}</small></span><b>${row.decision==='SPIN'?'SPIN '+row.slotBase:'+'+row.takePayout}</b></div>`).join('')}</div>
+   <div class="mj-reveal-list">${rows.map(row=>`<div class="mj-reveal-row" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small>${row.decision==='SPIN'?(row.loneWolf?'LONE WOLF · EINSATZ +1':'SLOT MACHINE'):(spinCount===0?'TAKE · VOLLER POT':'TAKE · −1 WEGEN SPINNER')}</small></span><b>${row.decision==='SPIN'?'SPIN '+row.slotBase:'+'+row.takePayout}</b></div>`).join('')}</div>
   </section>`;
   later(()=>{hide();onDone?.()},CONFIG.jackpot.decisionRevealMs);
  }
@@ -70,9 +75,9 @@ function makeUi(root){
   const symbols=CONFIG.slot.symbols;
   root.innerHTML=`<section class="mj-panel mj-slot">
    <div class="mj-logo-text">JACKPOT</div>
-   <small class="mj-kicker">SLOT · ${name}</small><h2>BASIS ${base}</h2>
+   <small class="mj-kicker">SLOT · ${name}</small><h2>EINSATZ ${base}</h2>
    <div class="mj-reels">${[0,1,2].map((_,i)=>`<div class="mj-reel" data-reel="${i}"><img src="${symbols[i].asset}" alt="${symbols[i].label}"></div>`).join('')}</div>
-   <div class="mj-slot-result" data-result>SPIN BEREIT</div>
+   <div class="mj-slot-result is-empty" data-result aria-live="polite"></div>
    <button class="mj-spin-button" type="button">SPIN →</button>
   </section>`;
   const button=root.querySelector('.mj-spin-button');
@@ -82,13 +87,28 @@ function makeUi(root){
    const ids=ENGINE.spin();
    const reels=[...root.querySelectorAll('[data-reel]')];
    let tick=0;
-   const interval=setInterval(()=>{tick++;reels.forEach((reel,i)=>{const symbol=symbols[(tick+i)%symbols.length];const img=reel.querySelector('img');img.src=symbol.asset;img.alt=symbol.label})},60);
-   [700,950,1200].forEach((ms,i)=>later(()=>{
-    const symbol=symbols.find(s=>s.id===ids[i]);const img=reels[i].querySelector('img');img.src=symbol.asset;img.alt=symbol.label;reels[i].classList.add('is-stopped');
-    if(i===2){
+   const interval=setInterval(()=>{
+    tick++;
+    reels.forEach((reel,i)=>{
+     if(reel.classList.contains('is-stopped'))return;
+     const symbol=symbols[(tick+i)%symbols.length];
+     const img=reel.querySelector('img');
+     img.src=symbol.asset;
+     img.alt=symbol.label;
+    });
+   },CONFIG.slot.tickMs);
+   CONFIG.slot.reelStopMs.forEach((ms,i)=>later(()=>{
+    const symbol=symbols.find(s=>s.id===ids[i]);
+    const img=reels[i].querySelector('img');
+    img.src=symbol.asset;
+    img.alt=symbol.label;
+    reels[i].classList.add('is-stopped');
+    if(i===reels.length-1){
      clearInterval(interval);
      const result=ENGINE.spinPayout(base,ids);
-     root.querySelector('[data-result]').innerHTML=`<strong>${result.label}</strong><b>+${result.payout}</b><span>${String(result.multiplier).replace('.',',')}× BASIS</span>`;
+     const resultNode=root.querySelector('[data-result]');
+     resultNode.classList.remove('is-empty');
+     resultNode.innerHTML=`<strong>${result.label}</strong><div class="mj-slot-values"><span><small>EINSATZ</small><b>+${result.base}</b></span><i>→</i><span><small>AUSZAHLUNG</small><b>+${result.payout}</b></span></div><em>${String(result.multiplier).replace('.',',')}× EINSATZ</em>`;
      button.disabled=false;button.textContent='WEITER →';button.onclick=()=>{hide();onResolved?.(result)};
      if(autoStart)later(()=>button.click(),360);
     }
