@@ -1,0 +1,46 @@
+(()=>{
+'use strict';
+const freeze=Object.freeze;
+globalThis.SkielsenMinorityLabConfig=freeze({
+ version:'0.2.0',
+ local:freeze({
+  defaultRounds:20,
+  roundOptions:freeze([20,30,40]),
+  chaosEvery:10
+ }),
+ pot:freeze({
+  steps:freeze([1,2,5,8,13]),
+  max:13,
+  jackpotArmedAt:5
+ }),
+ jackpot:freeze({
+  difficulty:'HARDCORE',
+  optionCount:2,
+  botSpinProbability:0.5,
+  revealLeadMs:650,
+  potFillMs:850,
+  decisionRevealMs:1150
+ }),
+ slot:freeze({
+  reelCount:3,
+  symbols:freeze([
+   freeze({id:'watermelon',label:'MELONE',glyph:'🍉',pairMultiplier:0.75}),
+   freeze({id:'lemon',label:'ZITRONE',glyph:'🍋',pairMultiplier:1.00}),
+   freeze({id:'cherry',label:'KIRSCHE',glyph:'🍒',pairMultiplier:1.25}),
+   freeze({id:'seven',label:'7',glyph:'7',pairMultiplier:1.50})
+  ]),
+  tripleMultiplier:2,
+  sevenTripleMultiplier:5,
+  singleSevenMultiplier:0.5
+ }),
+ assets:freeze({
+  potStages:freeze([
+   '../../../assets/images/minority-extreme/pot_stage_1.webp',
+   '../../../assets/images/minority-extreme/pot_stage_2.webp',
+   '../../../assets/images/minority-extreme/pot_stage_3.webp',
+   '../../../assets/images/minority-extreme/pot_stage_4.webp',
+   '../../../assets/images/minority-extreme/pot_stage_5.webp'
+  ])
+ })
+});
+})();
