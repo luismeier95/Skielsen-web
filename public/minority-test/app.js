@@ -330,6 +330,19 @@ function humanError(err){
 }
 function applyRemote(snapshot){
  if(!snapshot)return;
+ const incomingRevision=Number(snapshot.revision||0);
+ let incomingScreen=String(snapshot.stage||'READY').toLowerCase();
+ if(incomingScreen==='playing')incomingScreen='game';
+ if(incomingScreen==='resolved')incomingScreen='reveal';
+ if(incomingScreen==='finished')incomingScreen='ranking';
+
+ // FINISHED is immutable for this Quick Game. Do not let background polling
+ // rebuild the ranking DOM and restart its reveal animation.
+ if(incomingScreen==='ranking'&&state.screen==='ranking'&&incomingRevision===Number(state.revision||0)){
+   if(poll){clearInterval(poll);poll=0}
+   return;
+ }
+
  state.mode='remote';
  state.difficulty=snapshot.difficulty||state.difficulty;
  state.roundCount=Number(snapshot.roundCount||snapshot.round_count||state.roundCount);
@@ -341,13 +354,15 @@ function applyRemote(snapshot){
  state.question=snapshot.question||state.question;
  state.schedule=[];
  state.reveal=snapshot.reveal||null;
- state.revision=Number(snapshot.revision||state.revision||0);
- state.screen=String(snapshot.stage||'READY').toLowerCase();
- if(state.screen==='playing')state.screen='game';
- if(state.screen==='resolved')state.screen='reveal';
- if(state.screen==='finished')state.screen='ranking';
+ state.revision=incomingRevision||Number(state.revision||0);
+ state.screen=incomingScreen;
  setFeedback('');
  render();
+
+ if(state.screen==='ranking'){
+   if(poll){clearInterval(poll);poll=0}
+   return;
+ }
  if(state.mode==='remote'&&!poll)poll=setInterval(refreshRemote,600);
 }
 async function refreshRemote(){
