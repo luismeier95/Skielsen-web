@@ -266,9 +266,33 @@ function advanceLocal(){
 function renderRanking(){
  const rows=standings();
  stage.innerHTML=`
-   <p class="m-kicker">END GAME RANKING</p><h1 class="m-title">ERGEBNIS.</h1>
-   <div class="m-ranking">${rows.map((p,i)=>`<div class="m-rank-row" style="--identity:${p.color}"><b>#${i+1}</b><i></i><strong>${esc(p.name)}</strong><span>${p.score}</span></div>`).join('')}</div>
-   <button class="m-primary" id="mAgain" type="button" style="margin-top:16px">${state.mode==='remote'?'ZURÜCK ZU QUICK GAMES':'NOCHMAL'}</button>`;
+   <section class="m-result-status"><strong>ERGEBNIS</strong></section>
+
+   <section class="m-result-card" id="mResultCard">
+     <header>
+       <strong>MINORITY · FINALES ERGEBNIS</strong>
+       <span>HÖHER IST BESSER</span>
+     </header>
+     <div class="m-result-columns">
+       <span>POSITION</span>
+       <span>NAME</span>
+       <span>SCORE</span>
+     </div>
+     <div class="m-result-rows">
+       ${rows.map((p,i)=>`
+         <div class="m-result-row" style="--delay:${140+i*120}ms;--identity:${p.color}">
+           <b>${String(i+1).padStart(2,'0')}</b>
+           <span class="m-result-player">
+             <i></i>
+             <strong>${esc(p.name)}</strong>
+           </span>
+           <strong class="m-result-score">${p.score}</strong>
+         </div>`).join('')}
+     </div>
+   </section>
+
+   <button class="m-primary m-result-action" id="mAgain" type="button">${state.mode==='remote'?'ZURÜCK ZU QUICK GAMES':'NOCHMAL'}</button>`;
+ requestAnimationFrame(()=>document.querySelector('#mResultCard')?.classList.add('is-revealing'));
  document.querySelector('#mAgain').addEventListener('click',()=>{if(state.mode==='remote')location.assign('../quick-games/');else{state.screen='setup';state.choice=null;state.reveal=null;render()}});
 }
 function humanError(err){
