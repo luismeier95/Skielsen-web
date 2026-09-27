@@ -1,6 +1,10 @@
 (()=>{
 'use strict';
 const RULES=globalThis.SkielsenMinorityRules;
+const LAB_CONFIG=globalThis.SkielsenMinorityLabConfig;
+const JACKPOT=globalThis.SkielsenMinorityJackpotEngine;
+const JACKPOT_UI=globalThis.SkielsenMinorityJackpotUI;
+if(!RULES||!LAB_CONFIG||!JACKPOT||!JACKPOT_UI)throw new Error('MINORITY_LAB_DEPENDENCY_REQUIRED');
 const URL='https://rlppuqjolkrwumrrjajq.supabase.co';
 const KEY='sb_publishable_6Cuc1rH2WGua2UT__Ta18w_BJVG4O1b';
 const SESSION_KEY='skielsen.native.supabase.session';
@@ -10,10 +14,13 @@ const stage=document.querySelector('#minorityStage');
 const topState=document.querySelector('#minorityTopState');
 const progress=document.querySelector('#minorityProgress');
 const feedback=document.querySelector('#minorityFeedback');
+const jackpotRoot=document.querySelector('#minorityJackpotOverlay');
+const jackpotUI=JACKPOT_UI.create(jackpotRoot);
 const params=new URLSearchParams(location.search);
 const quickLobby=params.get('quick_lobby');
-let state={mode:quickLobby?'remote':'local',screen:'setup',difficulty:'NORMAL',roundCount:10,players:[],scores:[0,0,0,0],round:1,roundValue:1,schedule:[],choice:null,reveal:null};
-let poll=0,revealTimer=0,revealTimerKey='';
+const qaMode=String(params.get('qa')||'').toLowerCase();
+let state={mode:quickLobby?'remote':'local',screen:'setup',difficulty:quickLobby?'NORMAL':'HARDCORE',roundCount:quickLobby?10:LAB_CONFIG.local.defaultRounds,players:[],scores:[0,0,0,0],round:1,roundValue:1,schedule:[],choice:null,reveal:null,qaJackpotConsumed:false};
+let poll=0,revealTimer=0,revealTimerKey='',jackpotBusy=false;
 
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function setFeedback(v=''){feedback.textContent=v}
@@ -61,7 +68,7 @@ function renderSetup(){
  const difficultyCopy={
    EASY:'2 Antworten · Minderheit +1 · kein Pot · keine Chaos Round.',
    NORMAL:'Pot startet bei 1 und wächst ohne Minderheit. Jede 5. Frage hat 3 Antworten.',
-   HARDCORE:'Wie Normal. Jede 5. Frage hat 3 oder 4 Antworten. Bei 4:0 verliert die Führung −1.'
+   HARDCORE:'LAB: Pot 1 → 2 → 5 → 8 → 13 · Chaos jede 10. Runde · Jackpot ab Pot 5 · 4:0 Führungsstrafe.'
  };
  stage.innerHTML=`
    <div class="m-hero">
@@ -90,7 +97,7 @@ function renderSetup(){
        <span>1 AUSWÄHLEN</span>
      </div>
      <div class="m-round-options" role="group" aria-label="QA-Runden">
-       ${[5,10,15].map(count=>`<button type="button" class="m-choice m-round-choice ${state.roundCount===count?'active':''}" data-rounds="${count}"><strong>${count}</strong></button>`).join('')}
+       ${(state.mode==='remote'?[5,10,15]:LAB_CONFIG.local.roundOptions).map(count=>`<button type="button" class="m-choice m-round-choice ${state.roundCount===count?'active':''}" data-rounds="${count}"><strong>${count}</strong></button>`).join('')}
      </div>
    </section>
 
@@ -125,8 +132,8 @@ function renderSetup(){
      }catch(err){setFeedback(humanError(err));e.currentTarget.disabled=false}
    }else{
      state.players=[1,2,3,4].map((seat,i)=>({seat,display_name:i===0?'DU':'BOT '+i,is_me:i===0,is_bot:i>0}));
-     state.schedule=RULES.buildLocalSchedule(state.difficulty,state.roundCount);
-     state.scores=[0,0,0,0];state.round=1;state.roundValue=1;state.choice=null;state.reveal=null;
+     state.schedule=JACKPOT.buildSchedule({rules:RULES,difficulty:state.difficulty,roundCount:state.roundCount});
+     state.scores=[0,0,0,0];state.round=1;state.roundValue=qaMode==='jackpot'?5:1;state.choice=null;state.reveal=null;state.qaJackpotConsumed=false;
      setScreen('ready');
    }
  });
@@ -206,7 +213,7 @@ function renderGame(){
  const res=state.reveal;
  const options=q.options||[];
  const myChoice=state.choice;
- const potLabel=state.difficulty==='EASY'?'POT AUS':'POT '+state.roundValue;
+ const potLabel=state.difficulty==='EASY'?'POT AUS':'POT '+state.roundValue+(state.mode==='local'&&state.difficulty==='HARDCORE'&&JACKPOT.isArmed(state.roundValue)?' · ARMED':'');
 
  stage.innerHTML=`
    <section class="m-status m-card" aria-label="Spielregeln">
