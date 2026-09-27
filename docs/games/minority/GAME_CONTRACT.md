@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.5  
+**Version:** 1.6  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -247,6 +247,12 @@ Required mobile order:
 4. Large centered `RUNDE X/Y`.
 5. Four equal player score containers in stable seat order.
 6. Answer tiles occupying the remaining viewport.
+
+Answer-grid geometry is fixed to the same 2-column / 2-row system:
+- **2 answers:** use only the **upper row** of the canonical 2x2 grid; two equal tiles side by side. Do not stretch them vertically to fill the full answer area.
+- **3 answers:** two equal tiles in the upper row; the third answer is one **full-width horizontal tile** spanning both columns in the lower row.
+- **4 answers:** canonical **2x2** grid with four equal tiles.
+- Tile height is derived from the shared two-row geometry so switching between 2/3/4 answers does not create oversized vertical cards or change the basic visual language.
 
 Active gameplay must fit inside one mobile viewport and **must not scroll**. The Game Header and Progress therefore remain visible for the entire round.
 
