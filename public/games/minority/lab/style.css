@@ -1,0 +1,1233 @@
+:root{
+  --core-blue:#1515ff;--core-red:#ff1717;--core-yellow:#f2b705;--core-green:#00a65a;
+  --minority-radius:20px;--minority-gap:12px;
+  font-family:Arial,Helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--theme-page,#e9e9e9);color:var(--theme-text,#050505)}
+body{min-height:100svh}
+button,select,input{font:inherit}
+button{touch-action:manipulation}
+.minority-page{padding:0!important;margin:0!important}
+.minority-shell{width:min(760px,100%);min-height:100svh;margin:0 auto;display:flex;flex-direction:column;background:var(--theme-page,#e9e9e9)}
+.minority-topbar{min-height:68px;padding:env(safe-area-inset-top) 16px 0;display:grid;grid-template-columns:36px auto 1fr auto;align-items:center;gap:12px;background:var(--theme-header,#050505);color:var(--theme-header-text,#fff)}
+.minority-topbar img{width:110px;height:auto;filter:brightness(0) invert(1)}
+.minority-topbar strong{font:900 14px/1 Arial,sans-serif;letter-spacing:.08em}
+.minority-topbar span{font:900 12px/1 Arial,sans-serif;color:var(--theme-muted,#aaa);letter-spacing:.08em}
+.minority-back{width:36px;height:44px;display:grid;place-items:center;color:inherit;text-decoration:none;font-size:22px;font-weight:900}
+.minority-progress{height:5px;background:var(--theme-surface-muted,#ddd);overflow:hidden}
+.minority-progress i{display:block;width:0;height:100%;background:var(--theme-accent,#7c5cff);transition:width .24s ease}
+.minority-stage{flex:1;display:flex;flex-direction:column;padding:22px 16px calc(20px + env(safe-area-inset-bottom));min-height:0}
+.minority-feedback{min-height:18px;margin:0;padding:0 16px calc(10px + env(safe-area-inset-bottom));font-size:12px;font-weight:800;color:var(--theme-danger,#d62828)}
+.m-kicker{margin:0 0 8px;font-size:12px;font-weight:900;letter-spacing:.12em;color:var(--theme-muted,#777)}
+.m-title{margin:0;font-size:clamp(38px,12vw,72px);line-height:.9;letter-spacing:-.06em;font-weight:1000}
+.m-copy{margin:14px 0 0;max-width:600px;font-size:14px;line-height:1.5;font-weight:700;color:var(--theme-muted,#666)}
+.m-card{background:var(--theme-surface,#fff);border:1px solid var(--theme-border,#ddd);border-radius:var(--minority-radius);padding:18px}
+.m-stack{display:grid;gap:12px;margin-top:22px}
+.m-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-label{display:grid;gap:7px;font-size:12px;font-weight:900;letter-spacing:.05em}
+.m-select{width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--theme-border-strong,#bbb);background:var(--theme-surface,#fff);color:var(--theme-text,#050505);font-size:16px;font-weight:900}
+.m-primary,.m-secondary{min-height:52px;border-radius:14px;padding:0 18px;border:1px solid transparent;font-size:13px;font-weight:1000;letter-spacing:.04em;cursor:pointer}
+.m-primary{background:var(--theme-button,#050505);color:var(--theme-button-text,#fff)}
+.m-secondary{background:var(--theme-surface,#fff);color:var(--theme-text,#050505);border-color:var(--theme-border-strong,#bbb)}
+.m-primary:disabled,.m-secondary:disabled{opacity:.4;cursor:not-allowed}
+.m-rule-list{display:grid;gap:10px;margin-top:18px}
+.m-rule{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--theme-border,#ddd)}
+.m-rule:first-child{border-top:0}
+.m-rule b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--theme-surface-muted,#eee);font-size:12px}
+.m-rule span{font-size:13px;line-height:1.35;font-weight:800}
+.m-roster{display:grid;gap:9px;margin-top:18px}
+.m-player{display:grid;grid-template-columns:7px 1fr auto;gap:12px;align-items:center;min-height:56px;padding:10px 12px;background:var(--theme-surface,#fff);border:1px solid var(--theme-border,#ddd);border-radius:14px}
+.m-player i{width:7px;height:34px;border-radius:999px;background:var(--identity)}
+.m-player strong{font-size:14px;font-weight:1000;color:var(--identity)}
+.m-player span{font-size:12px;font-weight:900;color:var(--theme-muted,#777)}
+.m-game-head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.m-round{font-size:12px;font-weight:1000;letter-spacing:.08em;color:var(--theme-muted,#777)}
+.m-pot{display:grid;justify-items:end}
+.m-pot small{font-size:11px;font-weight:900;color:var(--theme-muted,#777)}
+.m-pot strong{font-size:28px;line-height:1;font-weight:1000}
+.m-question{margin-top:18px;padding:16px 18px;background:var(--theme-surface,#fff);border:1px solid var(--theme-border,#ddd);border-radius:18px}
+.m-question small{display:block;font-size:11px;font-weight:1000;letter-spacing:.1em;color:var(--theme-accent,#7c5cff)}
+.m-question h2{margin:7px 0 0;font-size:26px;line-height:1;font-weight:1000}
+.m-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;flex:1;align-content:stretch}
+.m-options[data-count="3"]{grid-template-columns:1fr}
+.m-options[data-count="4"]{grid-template-columns:1fr 1fr}
+.m-option{position:relative;min-height:128px;border:2px solid var(--theme-border-strong,#bbb);border-radius:20px;background:var(--theme-surface,#fff);color:var(--theme-text,#050505);font-size:clamp(22px,7vw,38px);font-weight:1000;line-height:.95;padding:18px;cursor:pointer;overflow:hidden}
+.m-option.is-selected{border-color:var(--theme-accent,#7c5cff);box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-accent,#7c5cff) 20%,transparent)}
+.m-option.is-winner{border-color:var(--theme-success,#16864b);background:color-mix(in srgb,var(--theme-success,#16864b) 13%,var(--theme-surface,#fff))}
+.m-option.is-majority{opacity:.6}
+.m-option:disabled{cursor:default}
+.m-option-count{position:absolute;right:12px;bottom:10px;font-size:12px;font-weight:1000;color:var(--theme-muted,#777)}
+.m-lock{margin-top:12px;width:100%}
+.m-wait{display:grid;place-items:center;min-height:58px;margin-top:12px;border-radius:14px;background:var(--theme-surface-soft,#f5f5f5);font-size:12px;font-weight:1000;letter-spacing:.04em}
+.m-reveal-banner{margin-top:12px;padding:14px;border-radius:16px;text-align:center;font-size:14px;font-weight:1000;background:var(--theme-surface,#fff);border:1px solid var(--theme-border,#ddd)}
+.m-reveal-banner.win{border-color:var(--theme-success,#16864b)}
+.m-reveal-banner.penalty{border-color:var(--theme-danger,#d62828)}
+.m-scorebar{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}
+.m-score{min-width:0;padding:10px 6px;text-align:center;background:var(--theme-surface,#fff);border:1px solid var(--theme-border,#ddd);border-radius:12px}
+.m-score strong{display:block;font-size:22px;line-height:1;font-weight:1000}
+.m-score span{display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900;color:var(--identity)}
+.m-ranking{display:grid;gap:9px;margin-top:20px}
+.m-rank-row{display:grid;grid-template-columns:34px 7px 1fr auto;gap:10px;align-items:center;padding:13px;background:var(--theme-surface,#fff);border:1px solid var(--theme-border,#ddd);border-radius:14px}
+.m-rank-row>i{width:7px;height:34px;border-radius:999px;background:var(--identity)}
+.m-rank-row b{font-size:16px;font-weight:1000}
+.m-rank-row strong{font-size:15px;color:var(--identity)}
+.m-rank-row span{font-size:22px;font-weight:1000}
+.m-mode-pill{display:inline-flex;align-items:center;min-height:30px;margin-top:14px;padding:0 11px;border-radius:999px;background:var(--theme-surface-muted,#eee);font-size:11px;font-weight:1000}
+@media(max-width:420px){
+  .minority-topbar{grid-template-columns:32px 92px 1fr auto;gap:8px;padding-left:10px;padding-right:10px}
+  .minority-topbar img{width:92px}
+  .minority-topbar strong{font-size:12px}
+  .minority-topbar span{font-size:11px}
+  .minority-stage{padding-left:12px;padding-right:12px}
+  .m-option{min-height:112px;padding:14px;font-size:clamp(20px,7vw,30px)}
+  .m-scorebar{gap:5px}.m-score{padding-left:3px;padding-right:3px}
+}
+@media(min-width:721px){
+  .minority-stage{padding:34px 24px 28px}
+  .m-options{min-height:360px}
+  .m-options[data-count="3"]{grid-template-columns:repeat(3,1fr)}
+  .m-options[data-count="4"]{grid-template-columns:repeat(2,1fr)}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* MINORITY_SHARED_SETUP_V2
+   Tic Tac Toe standalone is the canonical setup/ready visual target. */
+body.minority-page{
+  --minority-radius-outer:14px;
+  --minority-radius-card:11px;
+  --minority-shared-gap:13px;
+  font-family:Arial,Helvetica,sans-serif;
+}
+.minority-shell{width:100%;max-width:none;margin:0;min-height:100dvh}
+.minority-topbar{
+  min-height:42px;
+  height:42px;
+  padding:0 9px;
+  grid-template-columns:28px 68px minmax(0,1fr) auto;
+  gap:8px;
+}
+.minority-topbar img{
+  width:auto;
+  height:36px;
+  max-width:68px;
+  object-fit:contain;
+  object-position:left center;
+}
+.minority-topbar strong{
+  min-width:0;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.minority-topbar span{
+  font-size:12px;
+  line-height:1;
+  letter-spacing:.06em;
+}
+.minority-back{
+  width:28px;
+  height:42px;
+  font-size:18px;
+}
+.minority-progress{height:3px}
+.minority-stage{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  padding:16px 12px 22px;
+  display:grid;
+  align-content:start;
+  gap:var(--minority-shared-gap);
+}
+.minority-feedback{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  padding:0 12px max(10px,env(safe-area-inset-bottom));
+}
+.m-hero{padding:4px 2px}
+.m-kicker{
+  display:block;
+  margin:0;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:var(--theme-muted,#777);
+}
+.m-title{
+  margin:8px 0 0;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:clamp(48px,17vw,76px);
+  line-height:.84;
+  letter-spacing:-.055em;
+  font-weight:950;
+}
+.m-copy{
+  max-width:44ch;
+  margin:13px 0 0;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  line-height:1.45;
+  font-weight:700;
+}
+.m-card{
+  padding:0;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-outer);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+  overflow:hidden;
+}
+.m-setup-card{padding:14px}
+.m-card-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.m-card-head strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:16px;
+}
+.m-card-head span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+.m-choice-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+}
+.m-choice{
+  min-height:76px;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-card);
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-text,#050505);
+  padding:13px 14px;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:6px;
+  cursor:pointer;
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease;
+}
+.m-choice strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:17px;
+}
+.m-choice span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  line-height:1.35;
+  font-weight:800;
+}
+.m-choice.active{
+  border-color:var(--theme-accent,#7c5cff);
+  background:var(--theme-accent,#7c5cff);
+  color:var(--theme-button-text,#fff);
+  box-shadow:0 0 0 2px var(--theme-focus,rgba(124,92,255,.24)),0 0 20px color-mix(in srgb,var(--theme-accent,#7c5cff) 30%,transparent);
+}
+.m-choice.active span{color:inherit}
+.m-round-options{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+.m-round-choice{
+  min-height:58px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.m-round-choice strong{width:100%;text-align:center}
+.m-rule-note{
+  min-height:76px;
+  padding:13px 14px;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-card);
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-text,#050505);
+}
+.m-rule-note small{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+.m-rule-note strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+}
+.m-rule-note span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  line-height:1.4;
+  font-weight:700;
+}
+.m-primary,.m-secondary{
+  min-height:48px;
+  border-radius:var(--minority-radius-card);
+  padding:0 17px;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.07em;
+}
+.m-primary{
+  border:1px solid var(--theme-button,#050505);
+  background:var(--theme-button,#050505);
+  color:var(--theme-button-text,#fff);
+}
+.m-secondary{
+  border:1px solid var(--theme-border-strong,#c7c7c7);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+}
+@keyframes minorityBlockingGlow{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--theme-accent,#7c5cff) 0%,transparent),0 0 12px color-mix(in srgb,var(--theme-accent,#7c5cff) 18%,transparent)}
+  50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--theme-accent,#7c5cff) 22%,transparent),0 0 26px color-mix(in srgb,var(--theme-accent,#7c5cff) 64%,transparent)}
+}
+.m-blocking:not(:disabled){animation:minorityBlockingGlow 1.55s ease-in-out infinite}
+
+/* Ready follows the same shared card language as Tic Tac Toe. */
+.m-ready-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.m-ready-summary>div{
+  min-height:68px;
+  padding:10px 8px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:5px;
+  border-right:1px solid var(--theme-border,#ddd);
+}
+.m-ready-summary>div:last-child{border-right:0}
+.m-ready-summary small{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.m-ready-summary strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+  line-height:1;
+}
+.m-ready-rules>div{
+  min-height:62px;
+  padding:10px 12px;
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-ready-rules>div:last-child{border-bottom:0}
+.m-ready-rules>b{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:var(--theme-surface-soft,#f7f7f7);
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+}
+.m-ready-rules span{min-width:0}
+.m-ready-rules strong{
+  display:block;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.04em;
+}
+.m-ready-rules small{
+  display:block;
+  margin-top:4px;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:750;
+  line-height:1.35;
+}
+.m-ready-roster{display:grid}
+.m-ready-player{
+  min-height:54px;
+  padding:9px 12px;
+  display:grid;
+  grid-template-columns:7px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-ready-player:last-child{border-bottom:0}
+.m-ready-player i{
+  width:7px;
+  height:32px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-ready-player strong{
+  min-width:0;
+  color:var(--identity);
+  font-size:13px;
+  font-weight:950;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.m-ready-player span{
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+}
+.m-ready-actions{
+  display:grid;
+  grid-template-columns:.8fr 1.2fr;
+  gap:8px;
+}
+
+/* Long Minority labels must remain inside their tile. */
+.m-option{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.m-option-label{
+  display:block;
+  min-width:0;
+  max-width:100%;
+  font-size:clamp(20px,6vw,36px);
+  line-height:1.02;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  hyphens:auto;
+  text-wrap:balance;
+}
+.m-option.is-long .m-option-label{font-size:clamp(18px,5vw,30px)}
+.m-option.is-xlong .m-option-label{font-size:clamp(16px,4.3vw,26px)}
+.m-option-count{font-size:12px}
+
+@media(min-width:721px){
+  .minority-stage{padding:22px 20px 28px}
+  .m-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .m-ready-summary>div{min-height:82px}
+  .m-ready-rules>div{min-height:70px;padding:12px 16px}
+}
+
+
+/* MINORITY_MOBILE_FIRST_NO_TOURNAMENT_CHROME_V1
+   Standalone owns the viewport. Never reserve absent tournament header/banner space. */
+html{
+  margin:0!important;
+  padding:0!important;
+  scroll-padding-top:0!important;
+}
+body.minority-page.v15-tournament-active,
+body.minority-page.v15-tournament-active:not(.v15-inapp-fullscreen-open){
+  margin:0!important;
+  padding:0!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+  scroll-padding-top:0!important;
+  top:0!important;
+  transform:none!important;
+}
+body.minority-page.v15-tournament-active .minority-shell{
+  position:relative!important;
+  top:0!important;
+  margin-top:0!important;
+  padding-top:0!important;
+  transform:none!important;
+}
+body.minority-page.v15-tournament-active .minority-topbar{
+  position:relative!important;
+  top:0!important;
+  margin-top:0!important;
+}
+
+
+/* MINORITY_ACTIVE_GAME_V3
+   Canonical active-play geometry follows Tic Tac Toe: Header > Progress >
+   Rule status > Round > four score containers > mechanic. No page scrolling. */
+body.minority-page.minority-game-active{
+  height:100dvh!important;
+  min-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.minority-page.minority-game-active .minority-shell{
+  height:100dvh!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-rows:42px 3px minmax(0,1fr)!important;
+}
+body.minority-page.minority-game-active .minority-topbar{
+  grid-row:1!important;
+  width:100%!important;
+  height:42px!important;
+  min-height:42px!important;
+  position:relative!important;
+  z-index:2!important;
+}
+body.minority-page.minority-game-active .minority-progress{
+  grid-row:2!important;
+  height:3px!important;
+}
+body.minority-page.minority-game-active .minority-stage{
+  grid-row:3!important;
+  width:100%!important;
+  max-width:760px!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  padding:8px 9px max(8px,env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-rows:74px auto 74px minmax(0,1fr)!important;
+  gap:8px!important;
+  align-content:stretch!important;
+  overflow:hidden!important;
+}
+body.minority-page.minority-game-active .minority-feedback{
+  display:none!important;
+}
+
+/* Same three-cell status geometry as Tic Tac Toe. */
+.m-status{
+  min-height:74px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  padding:0!important;
+}
+.m-status>div{
+  min-width:0;
+  padding:10px 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border-right:1px solid var(--theme-border,#ddd);
+}
+.m-status>div:last-child{border-right:0}
+.m-status strong{
+  min-width:0;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+  line-height:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.m-round-display{
+  min-height:62px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:clamp(42px,12vw,68px);
+  font-weight:950;
+  line-height:.9;
+  letter-spacing:-.045em;
+}
+
+body.minority-page.minority-game-active .m-scorebar{
+  min-height:74px;
+  margin:0!important;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+}
+body.minority-page.minority-game-active .m-score{
+  min-width:0;
+  min-height:74px;
+  padding:8px 4px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-card);
+  background:var(--theme-surface,#fff);
+  text-align:center;
+}
+body.minority-page.minority-game-active .m-score strong{
+  display:block;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:28px;
+  line-height:1;
+}
+body.minority-page.minority-game-active .m-score span{
+  display:block;
+  width:100%;
+  margin-top:6px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--identity);
+  font-size:12px;
+  font-weight:950;
+}
+
+/* Mechanic owns exactly the remaining viewport height. */
+body.minority-page.minority-game-active .m-options{
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+  margin:0!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  gap:8px!important;
+  align-content:stretch!important;
+  overflow:hidden!important;
+}
+body.minority-page.minority-game-active .m-options[data-count="3"]{
+  grid-template-columns:1fr!important;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+}
+body.minority-page.minority-game-active .m-options[data-count="4"]{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+}
+body.minority-page.minority-game-active .m-option{
+  width:100%;
+  height:100%;
+  min-width:0!important;
+  min-height:0!important;
+  padding:14px!important;
+  border:2px solid var(--theme-border-strong,#bbb);
+  border-radius:var(--minority-radius-outer);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+  overflow:hidden;
+}
+body.minority-page.minority-game-active .m-option.is-selected{
+  border-color:var(--theme-accent,#7c5cff);
+  box-shadow:0 0 0 3px var(--theme-focus,rgba(124,92,255,.24));
+}
+body.minority-page.minority-game-active .m-option.is-winner{
+  border-color:var(--theme-success-bg,#16864b)!important;
+  background:var(--theme-success-bg,#16864b)!important;
+  color:var(--theme-on-success,#fff)!important;
+  opacity:1!important;
+  box-shadow:none!important;
+}
+body.minority-page.minority-game-active .m-option.is-winner .m-option-count{
+  color:var(--theme-on-success,#fff)!important;
+}
+body.minority-page.minority-game-active .m-option.is-revealed{
+  opacity:.56;
+}
+body.minority-page.minority-game-active .m-option-label{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:clamp(22px,7vw,38px);
+  font-weight:950;
+}
+body.minority-page.minority-game-active .m-option.is-long .m-option-label{font-size:clamp(19px,5.2vw,31px)}
+body.minority-page.minority-game-active .m-option.is-xlong .m-option-label{font-size:clamp(17px,4.5vw,27px)}
+body.minority-page.minority-game-active .m-option-count{
+  right:10px;
+  bottom:9px;
+  font-size:12px;
+}
+
+/* Active game no longer renders these legacy surfaces. */
+body.minority-page.minority-game-active .m-game-head,
+body.minority-page.minority-game-active .m-question,
+body.minority-page.minority-game-active .m-wait,
+body.minority-page.minority-game-active .m-reveal-banner,
+body.minority-page.minority-game-active .m-lock{
+  display:none!important;
+}
+
+@media(max-width:420px){
+  body.minority-page.minority-game-active .m-status strong{font-size:12px}
+  body.minority-page.minority-game-active .m-round-display{font-size:clamp(38px,12vw,58px)}
+  body.minority-page.minority-game-active .m-score strong{font-size:24px}
+}
+
+/* MINORITY_HEADER_CANONICAL_V1 */
+.minority-topbar{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  padding:0 9px!important;
+}
+.minority-header-left{
+  min-width:0;
+  height:100%;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+.minority-header-left img{
+  flex:0 0 auto;
+  width:auto!important;
+  height:calc(100% - 6px)!important;
+  max-width:68px!important;
+  object-fit:contain;
+  object-position:left center;
+  filter:none!important;
+}
+.minority-header-left strong{
+  flex:0 0 auto;
+  margin-left:22px;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.minority-header-meta{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  text-align:right;
+}
+.minority-header-meta b{
+  font-size:12px;
+  line-height:1;
+  letter-spacing:.06em;
+}
+
+
+/* MINORITY_RESULT_CANONICAL_V1
+   Tic Tac Toe result table is the visual target. Quick Games has no tournament
+   placement-points column; only the actual Minority game ranking is shown. */
+body.minority-page:not(.minority-game-active) .minority-stage:has(.m-result-card){
+  display:grid!important;
+  gap:13px!important;
+  padding:16px 12px 22px!important;
+}
+.m-result-status{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:0 2px;
+}
+.m-result-status strong{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:18px;
+  font-weight:950;
+  line-height:1;
+}
+.m-result-card{
+  width:100%;
+  margin:0;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-outer);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-text,#050505);
+  overflow:hidden;
+}
+.m-result-card>header{
+  min-height:52px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-result-card>header strong{
+  min-width:0;
+  font-size:12px;
+  font-weight:950;
+  line-height:1.15;
+  letter-spacing:.03em;
+}
+.m-result-card>header span{
+  flex:0 0 auto;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  white-space:nowrap;
+}
+.m-result-columns,
+.m-result-row{
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr) 88px;
+  column-gap:8px;
+  align-items:center;
+  padding:0 10px;
+}
+.m-result-columns{
+  min-height:34px;
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-muted,#777);
+  border-bottom:1px solid var(--theme-border,#ddd);
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:.05em;
+}
+.m-result-columns span:last-child{text-align:right}
+.m-result-row{
+  min-height:64px;
+  border-bottom:1px solid var(--theme-border,#ddd);
+  opacity:0;
+  transform:translateY(8px);
+}
+.m-result-row:last-child{border-bottom:0}
+.m-result-card.is-revealing .m-result-row{
+  animation:minorityResultRow .42s ease forwards;
+  animation-delay:var(--delay,0ms);
+}
+.m-result-row>b{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:14px;
+  line-height:1;
+}
+.m-result-player{
+  min-width:0;
+  display:grid;
+  grid-template-columns:5px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+}
+.m-result-player i{
+  width:5px;
+  height:32px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-result-player strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--identity);
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+}
+.m-result-score{
+  justify-self:end;
+  text-align:right;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:20px;
+  line-height:1;
+}
+.m-result-action{
+  width:100%;
+  margin:0;
+}
+@keyframes minorityResultRow{to{opacity:1;transform:none}}
+
+@media(min-width:721px){
+  .m-result-columns,.m-result-row{
+    grid-template-columns:90px minmax(0,1fr) 120px;
+    padding:0 16px;
+    gap:10px;
+  }
+  .m-result-row{min-height:70px}
+}
+@media(prefers-reduced-motion:reduce){
+  .m-result-row{animation:none!important;opacity:1!important;transform:none!important}
+}
+
+
+/* MINORITY_RESULT_DNA_TARGET_V2
+   DNA Quick Game ranking is the canonical result target. */
+body.minority-page:not(.minority-game-active) .minority-stage:has(.m-result-card){
+  width:min(760px,100%)!important;
+  margin:0 auto!important;
+  padding:18px 12px 30px!important;
+  display:grid!important;
+  gap:14px!important;
+  align-content:start!important;
+}
+
+.m-result-hero{
+  padding:4px 2px;
+}
+.m-result-kicker{
+  display:block;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.m-result-hero h1{
+  margin:8px 0 0;
+  color:var(--theme-on-page,var(--theme-text,#050505));
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:clamp(58px,18vw,96px);
+  line-height:.82;
+  letter-spacing:-.055em;
+  font-weight:950;
+}
+
+.m-result-card{
+  width:100%;
+  margin:0;
+  border:1px solid var(--theme-border,#ddd);
+  border-radius:var(--minority-radius-outer,14px);
+  background:var(--theme-surface,#fff);
+  color:var(--theme-on-surface,var(--theme-text,#050505));
+  overflow:hidden;
+}
+.m-result-card>header{
+  min-height:52px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--theme-border,#ddd);
+}
+.m-result-card>header strong{
+  min-width:0;
+  color:var(--theme-on-surface,var(--theme-text,#050505));
+  font-size:12px;
+  font-weight:950;
+  line-height:1.15;
+  letter-spacing:.03em;
+}
+.m-result-card>header span{
+  flex:0 0 auto;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.m-result-columns,
+.m-result-row{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) 64px 62px;
+  gap:6px;
+  align-items:center;
+  padding:0 8px;
+}
+.m-result-columns{
+  min-height:34px;
+  background:var(--theme-surface-soft,#f7f7f7);
+  color:var(--theme-muted,#777);
+  border-bottom:1px solid var(--theme-border,#ddd);
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:.05em;
+}
+.m-result-columns span:nth-child(3),
+.m-result-columns span:nth-child(4){
+  text-align:right;
+}
+
+.m-result-rows{
+  position:relative;
+  isolation:isolate;
+}
+.m-result-row{
+  min-height:60px;
+  border-bottom:1px solid var(--theme-border,#ddd);
+  opacity:0;
+  transform:translateY(10px);
+}
+.m-result-row:last-child{border-bottom:0}
+.m-result-card.is-revealing .m-result-row{
+  animation:minorityDnaResultRow .63s ease forwards;
+  animation-delay:var(--delay,0ms);
+}
+
+.m-result-place{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+  line-height:1;
+}
+.m-result-player{
+  min-width:0;
+  display:grid;
+  grid-template-columns:5px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+}
+.m-result-player>i{
+  width:5px;
+  height:30px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-result-identity{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.m-result-identity strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--theme-on-surface,var(--theme-text,#050505));
+  font-size:12px;
+  font-weight:950;
+  line-height:1;
+}
+.m-result-identity small{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--theme-muted,#777);
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+}
+.m-result-score{
+  justify-self:end;
+  text-align:right;
+  color:var(--theme-on-surface,var(--theme-text,#050505));
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:18px;
+  line-height:1;
+}
+.m-placement-points{
+  min-width:0;
+  text-align:right;
+}
+.m-placement-points b{
+  color:var(--theme-accent,#7c5cff);
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:17px;
+  line-height:1;
+  opacity:0;
+  transform:translateY(5px);
+  transition:opacity .42s ease,transform .42s ease;
+}
+.m-result-row.is-plus-visible .m-placement-points b{
+  opacity:1;
+  transform:none;
+}
+.m-result-actions{
+  display:flex;
+  gap:10px;
+}
+.m-result-action{
+  width:100%;
+  min-height:52px;
+  margin:0;
+}
+
+@keyframes minorityDnaResultRow{
+  to{opacity:1;transform:none}
+}
+
+@media(min-width:721px){
+  body.minority-page:not(.minority-game-active) .minority-stage:has(.m-result-card){
+    padding:30px 24px 34px!important;
+    gap:20px!important;
+  }
+  .m-result-columns,.m-result-row{
+    grid-template-columns:70px minmax(0,1fr) 95px 95px;
+    gap:10px;
+    padding:0 16px;
+  }
+  .m-result-row{min-height:66px}
+  .m-result-score{font-size:18px}
+  .m-placement-points b{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .m-result-row{
+    animation:none!important;
+    opacity:1!important;
+    transform:none!important;
+  }
+  .m-placement-points b{
+    opacity:1!important;
+    transform:none!important;
+    transition:none!important;
+  }
+}
+
+
+/* MINORITY_RESULT_STABILITY_V1
+   Keep mobile column labels distinct while preserving DNA result geometry. */
+@media(max-width:720px){
+  .m-result-columns,
+  .m-result-row{
+    grid-template-columns:68px minmax(0,1fr) 64px 56px!important;
+    gap:6px!important;
+    padding:0 9px!important;
+  }
+  .m-result-columns>span{
+    min-width:0;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:clip;
+  }
+  .m-result-columns>span:first-child{text-align:left}
+  .m-result-columns>span:nth-child(2){text-align:left}
+  .m-result-columns>span:nth-child(3),
+  .m-result-columns>span:nth-child(4){text-align:right}
+}
+
+
+/* MINORITY_RESULT_DNA_TYPOGRAPHY_V3
+   Exact DNA Result Table typography. This surface is the explicit <12px exception. */
+.m-result-card>header{
+  min-height:58px!important;
+  padding:0 18px!important;
+}
+.m-result-card>header strong{
+  font-size:11px!important;
+}
+.m-result-card>header span{
+  font-size:7px!important;
+}
+.m-result-columns,
+.m-result-row{
+  grid-template-columns:70px minmax(0,1fr) 95px 95px!important;
+  gap:10px!important;
+  padding:0 16px!important;
+}
+.m-result-columns{
+  min-height:34px!important;
+  font-size:6.5px!important;
+}
+.m-result-row{
+  min-height:66px!important;
+}
+.m-result-place{
+  font-size:14px!important;
+}
+.m-result-player{
+  grid-template-columns:6px minmax(0,1fr)!important;
+  gap:10px!important;
+}
+.m-result-player>i{
+  width:6px!important;
+  height:34px!important;
+}
+.m-result-identity{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.m-result-identity strong{
+  font-size:10px!important;
+}
+.m-result-identity small{
+  font-size:6px!important;
+}
+.m-result-identity.is-solo{
+  height:100%;
+  display:flex!important;
+  align-items:center!important;
+}
+.m-result-score{
+  font-size:18px!important;
+}
+.m-placement-points b{
+  font-size:17px!important;
+}
+
+@media(max-width:720px){
+  .m-result-card>header{
+    min-height:50px!important;
+    padding:0 11px!important;
+  }
+  .m-result-card>header strong{
+    font-size:11px!important;
+  }
+  .m-result-card>header span{
+    font-size:7px!important;
+  }
+  .m-result-columns,
+  .m-result-row{
+    grid-template-columns:36px minmax(0,1fr) 64px 62px!important;
+    gap:6px!important;
+    padding:0 8px!important;
+  }
+  .m-result-columns{
+    min-height:34px!important;
+    font-size:5.4px!important;
+  }
+  .m-result-row{
+    min-height:58px!important;
+  }
+  .m-result-place{
+    font-size:11px!important;
+  }
+  .m-result-player{
+    grid-template-columns:5px minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+  .m-result-player>i{
+    width:5px!important;
+    height:30px!important;
+  }
+  .m-result-identity strong{
+    font-size:8px!important;
+  }
+  .m-result-identity small{
+    font-size:5.3px!important;
+  }
+  .m-result-score{
+    font-size:14px!important;
+  }
+  .m-placement-points b{
+    font-size:13px!important;
+  }
+}
+
+
+/* MINORITY_ANSWER_GRID_V4
+   One stable 2-column / 2-row answer geometry for 2, 3 and 4 choices. */
+body.minority-page.minority-game-active .m-options{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+}
+
+/* 2 answers: use the upper row of the canonical 2x2 grid. */
+body.minority-page.minority-game-active .m-options[data-count="2"] .m-option:nth-child(1){
+  grid-column:1;
+  grid-row:1;
+}
+body.minority-page.minority-game-active .m-options[data-count="2"] .m-option:nth-child(2){
+  grid-column:2;
+  grid-row:1;
+}
+
+/* 3 answers: two regular tiles on top, one full-width tile below. */
+body.minority-page.minority-game-active .m-options[data-count="3"]{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+}
+body.minority-page.minority-game-active .m-options[data-count="3"] .m-option:nth-child(1){
+  grid-column:1;
+  grid-row:1;
+}
+body.minority-page.minority-game-active .m-options[data-count="3"] .m-option:nth-child(2){
+  grid-column:2;
+  grid-row:1;
+}
+body.minority-page.minority-game-active .m-options[data-count="3"] .m-option:nth-child(3){
+  grid-column:1 / -1;
+  grid-row:2;
+}
+
+/* 4 answers: canonical 2x2 grid. */
+body.minority-page.minority-game-active .m-options[data-count="4"]{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+}
