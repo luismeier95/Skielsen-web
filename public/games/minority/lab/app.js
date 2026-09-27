@@ -42,6 +42,16 @@ function playerName(seat){
 }
 function activePlayerCount(){return state.playMode==='TEAM'?8:4}
 function teamRows(){return TEAM.aggregateTeams(state.players,state.scores)}
+function teamReadyOrder(){
+ return state.playMode==='TEAM'?[1,3,2,4,5,7,6,8]:Array.from({length:activePlayerCount()},(_,i)=>i+1);
+}
+function teamReadyLabel(seat){
+ if(state.playMode!=='TEAM')return playerName(seat);
+ const teamIndex=TEAM.teamIndexForSeat(seat);
+ const playerNumber=((Number(seat)-1)%2)+1;
+ const colorName=String(TEAM.TEAM_NAMES[teamIndex]||'TEAM').replace(/^TEAM\s+/,'');
+ return 'PLAYER '+playerNumber+' '+colorName;
+}
 function isMe(seat){
  const p=state.players.find(x=>Number(x.seat)===seat);
  return !!p?.is_me;
@@ -272,11 +282,15 @@ function renderReady(){
    </section>
 
    <section class="m-card m-ready-roster ${state.playMode==='TEAM'?'is-team':''}">
-     ${Array.from({length:activePlayerCount()},(_,i)=>i+1).map(seat=>{
+     ${teamReadyOrder().map(seat=>{
        const p=state.players.find(item=>Number(item.seat)===seat);
-       const status=isMe(seat)?(p?.ready?'BEREIT':'DU'):(p?.is_bot?'BOT':(p?.ready?'BEREIT':'WARTET'));
-       const teamLabel=state.playMode==='TEAM'?`<small>${esc(TEAM.teamNameForSeat(seat))}</small>`:'';
-       return `<div class="m-ready-player" style="--identity:${identity(seat)}"><i></i><span class="m-ready-player-copy"><strong>${esc(playerName(seat))}</strong>${teamLabel}</span><span>${status}</span></div>`;
+       const status=p?.ready?'BEREIT':'WARTET';
+       const primary=state.playMode==='TEAM'?teamReadyLabel(seat):playerName(seat);
+       return `<div class="m-ready-player" style="--identity:${identity(seat)}" data-ready-seat="${seat}">
+         <i></i>
+         <span class="m-ready-player-copy"><strong>${esc(primary)}</strong></span>
+         <span class="m-ready-status ${p?.ready?'is-ready':'is-waiting'}">${status}</span>
+       </div>`;
      }).join('')}
    </section>
 
@@ -296,8 +310,24 @@ function renderReady(){
      e.currentTarget.disabled=true;
      try{applyRemote(await rpc('ready_quick_minority_game',{p_lobby_id:quickLobby}))}
      catch(err){setFeedback(humanError(err));e.currentTarget.disabled=false}
-   }else setScreen('game');
+   }else{
+     const me=state.players.find(p=>p.is_me);
+     if(me)me.ready=true;
+     render();
+     setTimeout(()=>setScreen('game'),450);
+   }
  });
+
+ if(state.mode==='local'&&state.playMode==='TEAM'){
+   const waitingBots=state.players.filter(p=>p.is_bot&&!p.ready);
+   if(waitingBots.length){
+     setTimeout(()=>{
+       let changed=false;
+       state.players.forEach(p=>{if(p.is_bot&&!p.ready){p.ready=true;changed=true}});
+       if(changed&&state.screen==='ready')render();
+     },350);
+   }
+ }
 }
 function currentQuestion(){return state.schedule[Math.max(0,state.round-1)]||state.question||{options:['—','—'],optionCount:2}}
 function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
