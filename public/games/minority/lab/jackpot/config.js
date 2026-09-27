@@ -25,6 +25,7 @@ globalThis.SkielsenMinorityLabConfig=freeze({
   reelCount:3,
   tickMs:60,
   reelStopMs:freeze([700,980,1260]),
+  resultRevealDelayMs:1000,
   symbols:freeze([
    freeze({id:'watermelon',label:'MELONE',asset:'./assets/jackpot/slot-watermelon.webp',pairMultiplier:0.75}),
    freeze({id:'lemon',label:'ZITRONE',asset:'./assets/jackpot/slot-lemon.webp',pairMultiplier:1.00}),
