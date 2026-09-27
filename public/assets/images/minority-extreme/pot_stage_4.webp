@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="de" data-theme-pack="theme.skielsen.core">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e9e9e9">
+<title>SKIELSEN · Minority Extreme</title>
+<style>
+:root{
+  --page:#ececec;--surface:#fff;--soft:#f6f6f6;--text:#050505;--muted:#6f6f6f;
+  --border:#d5d5d5;--accent:#7c5cff;--success:#159447;--gold:#f2b705;
+  --blue:#1515ff;--red:#ff1717;--yellow:#f2b705;--green:#00a65a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#111;font-family:Arial,Helvetica,sans-serif;color:var(--text)}
+button{font:inherit;touch-action:manipulation}
+.app{width:min(760px,100vw);height:100dvh;margin:auto;background:var(--page);display:grid;grid-template-rows:42px 3px minmax(0,1fr);overflow:hidden;position:relative}
+.topbar{height:42px;background:#000;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 9px;gap:10px}
+.brand{display:flex;align-items:center;min-width:0;height:100%}
+.brand img{width:auto;height:36px;max-width:68px;object-fit:contain}
+.brand strong{margin-left:22px;font-family:"Arial Black",Arial,sans-serif;font-size:12px;font-weight:950}
+.state{font-size:12px;font-weight:950;letter-spacing:.06em}
+.progress{background:#d7d7d7;height:3px}.progress i{display:block;height:100%;background:var(--accent);width:5%;transition:width .2s ease}
+.stage{min-height:0;padding:8px 9px max(8px,env(safe-area-inset-bottom));display:grid;grid-template-rows:68px auto 112px minmax(0,1fr);gap:8px;overflow:hidden}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.status>div{display:grid;place-items:center;text-align:center;border-right:1px solid var(--border);min-width:0}
+.status>div:last-child{border-right:0}
+.status strong{font-family:"Arial Black",Arial,sans-serif;font-size:12px;line-height:1.05}
+.status .armed strong{color:#a87300}
+.round{min-height:52px;display:grid;place-items:center;font-family:"Arial Black",Arial,sans-serif;font-size:clamp(38px,10vw,60px);line-height:.9;letter-spacing:-.05em}
+.players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,1fr);gap:6px}
+.player{min-width:0;background:#fff;border:1px solid var(--border);border-radius:11px;display:grid;grid-template-columns:4px minmax(0,1fr) auto;align-items:center;gap:6px;padding:6px}
+.player i{width:4px;height:32px;border-radius:999px;background:var(--team)}
+.player .who{min-width:0}.player strong{display:block;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.player small{display:block;margin-top:2px;font-size:7px;color:var(--muted);font-weight:800}
+.player b{font-family:"Arial Black",Arial,sans-serif;font-size:17px}
+.options{min-height:0;height:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px}
+.option{min-width:0;min-height:0;border:2px solid #c8c8c8;border-radius:16px;background:#fff;color:#050505;display:grid;place-items:center;text-align:center;padding:12px;position:relative;overflow:hidden;cursor:pointer}
+.option:nth-child(1){grid-column:1;grid-row:1}.option:nth-child(2){grid-column:2;grid-row:1}
+.option .label{font-family:"Arial Black",Arial,sans-serif;font-size:clamp(20px,6.5vw,36px);line-height:1.02;overflow-wrap:anywhere}
+.option.long .label{font-size:clamp(16px,4.8vw,28px)}
+.option.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,92,255,.2)}
+.option.reveal{opacity:.58}.option.reveal.tie{opacity:1;border-color:#111}
+.option small{position:absolute;right:10px;bottom:9px;font-size:10px;font-weight:950}
+.qa-note{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:15;background:#111;color:#fff;border-radius:999px;padding:8px 12px;font-size:9px;font-weight:900;white-space:nowrap;opacity:.8}
+.pot-overlay{position:absolute;inset:45px 0 0;z-index:50;background:rgba(236,236,236,.86);backdrop-filter:blur(1px);display:grid;place-items:center;opacity:0;animation:fadeIn .09s ease forwards;pointer-events:none}
+.pot-event{width:min(250px,70vw);display:grid;justify-items:center;gap:4px;text-align:center}
+.pot-event .tie{font-size:10px;font-weight:950;letter-spacing:.14em}
+.pot-event h2{margin:0;font-family:"Arial Black",Arial,sans-serif;font-size:18px;letter-spacing:-.03em}
+.pot-art{position:relative;width:210px;height:210px;display:grid;place-items:center}
+.pot-art img{position:absolute;width:210px;height:210px;object-fit:contain;transition:opacity .16s ease,transform .16s ease}
+.pot-art img.old{opacity:1}.pot-art img.next{opacity:0;transform:scale(.96)}
+.pot-event.fill .pot-art img.old{opacity:0;transform:scale(.97)}
+.pot-event.fill .pot-art img.next{opacity:1;transform:scale(1)}
+.pot-readout{margin-top:-18px;background:#111;color:#fff;border-radius:999px;min-width:82px;padding:6px 12px 7px;position:relative;z-index:2}
+.pot-readout b{font-family:"Arial Black",Arial,sans-serif;font-size:21px;line-height:1}
+.pot-readout small{display:block;margin-top:2px;font-size:8px;font-weight:900;letter-spacing:.08em}
+.pot-meter{width:152px;height:7px;border-radius:999px;background:#d7d7d7;overflow:hidden;margin-top:3px}
+.pot-meter i{display:block;height:100%;width:var(--from);background:#111;transition:width .22s ease}
+.pot-event.fill .pot-meter i{width:var(--to)}
+.pot-message{min-height:28px;margin-top:2px}
+.pot-message strong{display:block;font-size:10px;letter-spacing:.06em}
+.pot-message span{display:block;margin-top:2px;font-size:8px;color:#555;font-weight:850}
+.pot-message .armed{color:#9b6d00}
+.finish{position:absolute;inset:45px 0 0;z-index:45;background:var(--page);display:grid;place-items:center;padding:18px}
+.finish-card{width:min(380px,100%);background:#fff;border:1px solid var(--border);border-radius:18px;padding:18px;text-align:center}
+.finish-card img{width:210px;max-width:80%;height:auto}
+.finish-card small{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.13em}
+.finish-card h1{margin:8px 0 0;font-family:"Arial Black",Arial,sans-serif;font-size:42px;line-height:.9}
+.finish-card p{font-size:12px;color:var(--muted);font-weight:750;line-height:1.4}
+.finish-card button{width:100%;min-height:48px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:950}
+@keyframes fadeIn{to{opacity:1}}
+@media(max-height:720px){
+  .stage{grid-template-rows:60px auto 96px minmax(0,1fr)}
+  .player i{height:26px}.player b{font-size:15px}
+  .pot-art,.pot-art img{width:180px;height:180px}
+}
+</style>
+</head>
+<body>
+<main class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><img src="./assets/images/skielsen-logo.png" alt="SKIELSEN"><strong>MINORITY EXTREME</strong></div>
+    <span class="state" id="topState">TEST</span>
+  </header>
+  <div class="progress"><i id="progress"></i></div>
+  <section class="stage" id="stage"></section>
+  <div class="qa-note" id="qaNote">QA · RUNDE 1–4 RECHTS WÄHLEN</div>
+</main>
+<script>
+(function(){
+  "use strict";
+  var POT_STEPS=[1,2,5,8,13];
+  var POT_STAGE={1:1,2:2,5:3,8:4,13:5};
+  var TEAM_COLORS=["#1515ff","#ff1717","#f2b705","#00a65a"];
+  var PLAYERS=[
+    ["DJEEL0I","TEAM BLAU",0],["SOFYA","TEAM BLAU",0],
+    ["PLAYER 3","TEAM ROT",1],["PLAYER 4","TEAM ROT",1],
+    ["PLAYER 5","TEAM GELB",2],["PLAYER 6","TEAM GELB",2],
+    ["PLAYER 7","TEAM GRÜN",3],["PLAYER 8","TEAM GRÜN",3]
+  ];
+  var QUESTIONS=[
+    ["RECHTS","LINKS"],["HEISS","KALT"],["TAG","NACHT"],["MEHR","WENIGER"]
+  ];
+  var S={round:1,pot:1,locked:false,done:false};
+  var stage=document.getElementById("stage");
+  var progress=document.getElementById("progress");
+  var qaNote=document.getElementById("qaNote");
+  var app=document.getElementById("app");
+
+  for(var p=1;p<=5;p++){
+    var preload=new Image();
+    preload.src="./assets/images/minority-extreme/pot_stage_"+p+".webp";
+  }
+
+  function assetFor(pot){return "./assets/images/minority-extreme/pot_stage_"+POT_STAGE[pot]+".webp";}
+  function nextPot(pot){var i=POT_STEPS.indexOf(pot);return POT_STEPS[Math.min(i+1,POT_STEPS.length-1)];}
+  function pct(pot){return Math.round((pot/13)*100);}
+  function question(){return QUESTIONS[Math.min(S.round-1,QUESTIONS.length-1)];}
+
+  function render(){
+    var q=question();
+    progress.style.width=Math.round((S.round/20)*100)+"%";
+    var armed=S.pot>=5;
+    var players="";
+    for(var i=0;i<PLAYERS.length;i++){
+      players+='<div class="player" style="--team:'+TEAM_COLORS[PLAYERS[i][2]]+'"><i></i><div class="who"><strong>'+PLAYERS[i][0]+'</strong><small>'+PLAYERS[i][1]+'</small></div><b>0</b></div>';
+    }
+    stage.innerHTML=
+      '<section class="card status">'+
+        '<div><strong>20 RUNDEN</strong></div>'+
+        '<div><strong>HARDCORE</strong></div>'+
+        '<div class="'+(armed?'armed':'')+'"><strong>POT '+S.pot+' / 13'+(armed?' · ARMED':'')+'</strong></div>'+
+      '</section>'+
+      '<div class="round">RUNDE '+S.round+'/20</div>'+
+      '<div class="players">'+players+'</div>'+
+      '<div class="options">'+
+        '<button class="option" data-choice="left"><span class="label '+(q[0].length>11?'long':'')+'">'+q[0]+'</span></button>'+
+        '<button class="option" data-choice="right"><span class="label '+(q[1].length>11?'long':'')+'">'+q[1]+'</span></button>'+
+      '</div>';
+    var buttons=stage.querySelectorAll(".option");
+    for(var j=0;j<buttons.length;j++)buttons[j].addEventListener("click",choose);
+  }
+
+  function choose(ev){
+    if(S.locked||S.done)return;
+    var right=ev.currentTarget.getAttribute("data-choice")==="right";
+    var buttons=stage.querySelectorAll(".option");
+    for(var i=0;i<buttons.length;i++)buttons[i].disabled=true;
+    ev.currentTarget.classList.add("selected");
+    S.locked=true;
+
+    if(S.round<=4 && right){
+      setTimeout(function(){showTie(buttons);},120);
+    }else{
+      qaNote.textContent="FÜR DEN POT-TEST BITTE RECHTS WÄHLEN";
+      setTimeout(function(){S.locked=false;render();},650);
+    }
+  }
+
+  function showTie(buttons){
+    buttons[0].classList.add("reveal","tie");
+    buttons[1].classList.add("reveal","tie");
+    buttons[0].insertAdjacentHTML("beforeend","<small>4 × gewählt</small>");
+    buttons[1].insertAdjacentHTML("beforeend","<small>4 × gewählt</small>");
+    var oldPot=S.pot;
+    var newPot=nextPot(oldPot);
+    setTimeout(function(){showPotOverlay(oldPot,newPot);},330);
+  }
+
+  function showPotOverlay(oldPot,newPot){
+    var overlay=document.createElement("div");
+    overlay.className="pot-overlay";
+    overlay.innerHTML=
+      '<div class="pot-event" id="potEvent" style="--from:'+pct(oldPot)+'%;--to:'+pct(newPot)+'%">'+
+        '<span class="tie">TIE · 4:4</span>'+
+        '<h2>POT '+oldPot+' → '+newPot+'</h2>'+
+        '<div class="pot-art">'+
+          '<img class="old" src="'+assetFor(oldPot)+'" alt="">'+
+          '<img class="next" src="'+assetFor(newPot)+'" alt="">'+
+        '</div>'+
+        '<div class="pot-readout"><b>'+newPot+'</b><small>'+newPot+' / 13</small></div>'+
+        '<div class="pot-meter"><i></i></div>'+
+        '<div class="pot-message"><strong>'+(newPot>=5?'JACKPOT ARMED':'POT STEIGT')+'</strong><span class="'+(newPot>=5?'armed':'')+'">'+(newPot>=5?'Jackpot ist aktiv':'Nächste Runde ist mehr wert')+'</span></div>'+
+      '</div>';
+    app.appendChild(overlay);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){document.getElementById("potEvent").classList.add("fill");});});
+    setTimeout(function(){
+      S.pot=newPot;
+      overlay.style.transition="opacity .09s ease";
+      overlay.style.opacity="0";
+      setTimeout(function(){
+        overlay.remove();
+        if(S.round>=4){finish();return;}
+        S.round++;
+        S.locked=false;
+        render();
+      },95);
+    },720);
+  }
+
+  function finish(){
+    S.done=true;
+    qaNote.style.display="none";
+    var panel=document.createElement("div");
+    panel.className="finish";
+    panel.innerHTML=
+      '<div class="finish-card">'+
+        '<small>QA TEST ABGESCHLOSSEN</small>'+
+        '<h1>POT MAX.</h1>'+
+        '<img src="'+assetFor(13)+'" alt="Pot voll">'+
+        '<p>Vier 4:4-Ties hintereinander: <strong>1 → 2 → 5 → 8 → 13</strong>.<br>Der Pot ist bei <strong>13 / 13</strong>.</p>'+
+        '<button id="reset">NOCHMAL TESTEN →</button>'+
+      '</div>';
+    app.appendChild(panel);
+    document.getElementById("reset").addEventListener("click",function(){
+      panel.remove();S={round:1,pot:1,locked:false,done:false};qaNote.style.display="block";qaNote.textContent="QA · RUNDE 1–4 RECHTS WÄHLEN";render();
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>
