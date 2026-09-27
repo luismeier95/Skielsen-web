@@ -475,13 +475,13 @@ function resolveLocalRound(){
 
  if(qaMode==='jackpot'&&!state.qaJackpotConsumed&&state.difficulty==='HARDCORE'&&JACKPOT.isArmed(state.roundValue)&&q.options.length===2){
    const other=state.choice===1?2:1;
-   choices=[state.choice,other,other,other];
+   choices=[state.choice,...Array(activePlayerCount()-1).fill(other)];
    state.qaJackpotConsumed=true;
  }else{
-   for(let seat=2;seat<=4;seat++)choices.push(1+Math.floor(Math.random()*q.options.length));
+   for(let seat=2;seat<=activePlayerCount();seat++)choices.push(1+Math.floor(Math.random()*q.options.length));
  }
 
- const base=RULES.resolveRound({
+ const base=(state.playMode==='TEAM'?TEAM:RULES).resolveRound({
    difficulty:state.difficulty,
    choices,
    optionCount:q.options.length,
@@ -601,6 +601,7 @@ function applyRemote(snapshot){
  }
 
  state.mode='remote';
+ state.playMode='SOLO';
  state.difficulty=snapshot.difficulty||state.difficulty;
  state.roundCount=Number(snapshot.roundCount||snapshot.round_count||state.roundCount);
  state.players=Array.isArray(snapshot.players)?snapshot.players:state.players;
