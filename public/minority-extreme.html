@@ -25,14 +25,14 @@
 <section class="card status"><div><strong>20 RUNDEN</strong></div><div><strong>CHAOS 10 / 20</strong></div><div id="statusPot"><strong>POT 1 / 13</strong></div></section>
 <section class="hero"><small>EXPERIMENTAL HARDCORE</small><h1>POT STAGES.</h1><p>Die fünf normalisierten Assets testen die geplante Pot-Kurve 1 → 2 → 5 → 8 → 13. Ein Tie füllt den Pot kurz im laufenden Screen, ohne eigenen Zwischenscreen.</p></section>
 <div class="players" id="players"></div>
-<section class="card pot-card"><div class="pot-head"><div><small>AKTUELLER POT</small><b id="stageName">STAGE 1 · EMPTY</b></div><div class="read"><strong id="potBig">1</strong><span id="potFrac">1 / 13</span></div></div><div class="pot-visual"><img class="pot-img" id="potImg" src="./assets/images/minority-extreme/pot_stage_1.webp" alt="Minority pot"></div><div class="meter"><i id="meterFill"></i></div><div class="steps" id="steps"></div><div class="actions"><button class="btn primary" id="tieBtn">TIE SIMULIEREN →</button><button class="btn secondary" id="resetBtn">RESET</button></div><div class="note">Mapping: 1 = leer · 2 = klein · 5 = sichtbar · 8 = deutlich · 13 = maximal. Jackpot ARMED ab 5.</div></section>
+<section class="card pot-card"><div class="pot-head"><div><small>AKTUELLER POT</small><b id="stageName">STAGE 1 · EMPTY</b></div><div class="read"><strong id="potBig">1</strong><span id="potFrac">1 / 13</span></div></div><div class="pot-visual"><img class="pot-img" id="potImg" src="./assets/images/minority-extreme/pot_stage_1.webp?v=3" alt="Minority pot"></div><div class="meter"><i id="meterFill"></i></div><div class="steps" id="steps"></div><div class="actions"><button class="btn primary" id="tieBtn">TIE SIMULIEREN →</button><button class="btn secondary" id="resetBtn">RESET</button></div><div class="note">Mapping: 1 = leer · 2 = klein · 5 = sichtbar · 8 = deutlich · 13 = maximal. Jackpot ARMED ab 5.</div></section>
 </main>
 <div class="pot-overlay" id="overlay"><div class="pot-event"><small id="eventLabel">TIE · 4:4</small><strong id="eventGain">POT +1</strong><div class="event-pot" id="eventPot"><img id="eventImg" alt="Pot stage"><div class="fraction"><b id="eventBig">2</b><span id="eventFrac">2 / 13</span></div></div></div></div>
 </div>
 <script>
 const POTS=[1,2,5,8,13];
 const STAGES={1:{stage:1,name:'STAGE 1 · EMPTY'},2:{stage:2,name:'STAGE 2 · LOW'},5:{stage:3,name:'STAGE 3 · MID'},8:{stage:4,name:'STAGE 4 · HIGH'},13:{stage:5,name:'STAGE 5 · MAX'}};
-const path=p=>`./assets/images/minority-extreme/pot_stage_${STAGES[p].stage}.webp`;
+const path=p=>`./assets/images/minority-extreme/pot_stage_${STAGES[p].stage}.webp?v=3`;
 let pot=1,busy=false;
 const colors=['#1515ff','#1515ff','#ff1717','#ff1717','#f2b705','#f2b705','#00a65a','#00a65a'];
 const team=['TEAM BLAU','TEAM BLAU','TEAM ROT','TEAM ROT','TEAM GELB','TEAM GELB','TEAM GRÜN','TEAM GRÜN'];
