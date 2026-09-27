@@ -20,7 +20,7 @@ function makeUi(root){
   const offsets=[[-28,-8], [18,10], [-8,0], [32,7], [-18,-5]];
   return Array.from({length:Math.min(5,Math.max(1,count))},(_,i)=>{
    const [x,end]=offsets[i%offsets.length];
-   return `<i class="mj-coin" style="--x:${x}px;--end:${end}px;--delay:${i*60}ms"></i>`;
+   return `<i class="mj-coin" style="--x:${x}px;--end:${end}px;--delay:${i*60}ms"><img src="${CONFIG.assets.coin}" alt=""></i>`;
   }).join('');
  }
  function showPotFill({from,to,label='KEINE MINDERHEIT',onDone}={}){
@@ -41,7 +41,7 @@ function makeUi(root){
  function showDecision({name,potValue,onChoose}={}){
   hide();root.classList.add('is-open','is-blocking');
   root.innerHTML=`<section class="mj-panel mj-decision">
-   <div class="mj-logo-text">JACKPOT</div>
+   <img class="mj-logo" src="${CONFIG.assets.jackpotLogo}" alt="JACKPOT">
    <small class="mj-kicker">GEHEIME ENTSCHEIDUNG</small>
    <h2>TAKE ODER SPIN?</h2>
    <p>${name||'DU'} hat die Minority getroffen.</p>
@@ -71,7 +71,7 @@ function makeUi(root){
   root.innerHTML=`<section class="mj-panel mj-slot">
    <div class="mj-logo-text">JACKPOT</div>
    <small class="mj-kicker">SLOT · ${name}</small><h2>BASIS ${base}</h2>
-   <div class="mj-reels">${[0,1,2].map((_,i)=>`<div class="mj-reel" data-reel="${i}"><span>${symbols[i].glyph}</span></div>`).join('')}</div>
+   <div class="mj-reels">${[0,1,2].map((_,i)=>`<div class="mj-reel" data-reel="${i}"><img src="${symbols[i].asset}" alt="${symbols[i].label}"></div>`).join('')}</div>
    <div class="mj-slot-result" data-result>SPIN BEREIT</div>
    <button class="mj-spin-button" type="button">SPIN →</button>
   </section>`;
@@ -82,9 +82,9 @@ function makeUi(root){
    const ids=ENGINE.spin();
    const reels=[...root.querySelectorAll('[data-reel]')];
    let tick=0;
-   const interval=setInterval(()=>{tick++;reels.forEach((reel,i)=>{reel.querySelector('span').textContent=symbols[(tick+i)%symbols.length].glyph})},60);
+   const interval=setInterval(()=>{tick++;reels.forEach((reel,i)=>{const symbol=symbols[(tick+i)%symbols.length];const img=reel.querySelector('img');img.src=symbol.asset;img.alt=symbol.label})},60);
    [700,950,1200].forEach((ms,i)=>later(()=>{
-    const symbol=symbols.find(s=>s.id===ids[i]);reels[i].querySelector('span').textContent=symbol.glyph;reels[i].classList.add('is-stopped');
+    const symbol=symbols.find(s=>s.id===ids[i]);const img=reels[i].querySelector('img');img.src=symbol.asset;img.alt=symbol.label;reels[i].classList.add('is-stopped');
     if(i===2){
      clearInterval(interval);
      const result=ENGINE.spinPayout(base,ids);
