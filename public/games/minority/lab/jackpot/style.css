@@ -476,3 +476,43 @@ body.minority-page .m-pot-status-text{
 .mj-slot-result{
   flex:0 0 76px;
 }
+
+
+/* MINORITY LAB · SLOT SPIN EFFECT V6 */
+.mj-slot-values--triple{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  align-items:center;
+  width:100%;
+  margin-top:6px;
+}
+.mj-slot-values--triple>span{
+  min-width:0;
+  display:grid;
+  gap:2px;
+  justify-items:center;
+  text-align:center;
+}
+.mj-slot-values--triple small{
+  color:#8f7f89;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+.mj-slot-values--triple b{
+  margin:0!important;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:20px!important;
+  line-height:1;
+  color:#f3eaf0;
+}
+.mj-slot-delta.is-positive b{color:#27c266}
+.mj-slot-delta.is-negative b{color:#ff3b3b}
+.mj-slot-delta.is-neutral b{color:#cfc3ca}
+@media(max-width:380px){
+  .mj-slot-values--triple{gap:6px}
+  .mj-slot-values--triple b{font-size:18px!important}
+  .mj-slot-values--triple small{font-size:6px}
+}
