@@ -261,3 +261,90 @@ body.minority-lab-jackpot-active .minority-feedback{display:none}
   .mj-coin{animation-duration:.01ms}
   .mj-reel.is-stopped{animation:none}
 }
+
+/* MINORITY LAB · JACKPOT UX REFINEMENT V2 */
+.mj-decision.is-solo .mj-actions{margin-top:16px}
+.mj-actions button{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.mj-actions strong,.mj-actions b,.mj-actions span{text-align:center}
+.mj-rule-strip span{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.mj-pot{position:relative;z-index:3}
+.mj-coin{z-index:2}
+.mj-slot-result.is-empty{
+  display:none;
+  margin:0;
+  padding:0;
+  min-height:0;
+  border:0;
+}
+.mj-slot-values{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:10px;
+  align-items:center;
+  width:100%;
+  margin-top:6px;
+}
+.mj-slot-values>span{display:grid;gap:2px}
+.mj-slot-values small{
+  color:#d9c6d0;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.mj-slot-values b{
+  margin:0!important;
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:20px!important;
+}
+.mj-slot-values i{
+  font-style:normal;
+  color:#d9c6d0;
+  font-size:15px;
+  font-weight:900;
+}
+.mj-slot-result em{
+  display:block;
+  margin-top:4px;
+  color:#d9c6d0;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+}
+body.minority-page .m-status-pot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+body.minority-page .m-pot-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  line-height:1;
+}
+body.minority-page .m-pot-status img{
+  width:22px;
+  height:22px;
+  object-fit:contain;
+  display:block;
+}
+body.minority-page .m-pot-status b{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:13px;
+}
+body.minority-page .m-pot-status-text{
+  font-family:"Arial Black",Arial,Helvetica,sans-serif;
+  font-size:12px;
+}
