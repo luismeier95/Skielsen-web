@@ -6,9 +6,14 @@ if(!CONFIG||!ENGINE)throw new Error('MINORITY_JACKPOT_DEPENDENCY_REQUIRED');
 
 function makeUi(root){
  if(!root)throw new Error('MINORITY_JACKPOT_ROOT_REQUIRED');
- let timer=0;
- function clearTimer(){if(timer){clearTimeout(timer);timer=0}}
- function hide(){clearTimer();root.classList.remove('is-open');root.innerHTML=''}
+ const timers=new Set();
+ function later(fn,ms){
+  const handle=setTimeout(()=>{timers.delete(handle);fn()},ms);
+  timers.add(handle);
+  return handle;
+ }
+ function clearTimers(){for(const handle of timers)clearTimeout(handle);timers.clear()}
+ function hide(){clearTimers();root.classList.remove('is-open','is-blocking');root.innerHTML=''}
  function potAsset(value){return CONFIG.assets.potStages[Math.max(0,ENGINE.potStage(value)-1)]}
  function playerColor(seat){return ['#1515ff','#ff1717','#f2b705','#00a65a'][(Number(seat)-1)%4]}
  function coinMarkup(count){
@@ -26,12 +31,12 @@ function makeUi(root){
    <div class="mj-pot-wrap">${coinMarkup(diff)}<img class="mj-pot" src="${potAsset(from)}" alt="Pot"></div>
    <div class="mj-counter"><b data-value>${from}</b><span data-fraction>${from} / ${CONFIG.pot.max} POT</span></div>
   </div>`;
-  timer=setTimeout(()=>{
+  later(()=>{
    root.querySelector('.mj-pot').src=potAsset(to);
    root.querySelector('[data-value]').textContent=to;
    root.querySelector('[data-fraction]').textContent=`${to} / ${CONFIG.pot.max} POT`;
   },260);
-  timer=setTimeout(()=>{hide();onDone?.()},CONFIG.jackpot.potFillMs);
+  later(()=>{hide();onDone?.()},CONFIG.jackpot.potFillMs);
  }
  function showDecision({name,potValue,onChoose}={}){
   hide();root.classList.add('is-open','is-blocking');
@@ -58,7 +63,7 @@ function makeUi(root){
    <small class="mj-kicker">JACKPOT REVEAL</small><h2>ENTSCHEIDUNGEN.</h2>
    <div class="mj-reveal-list">${rows.map(row=>`<div class="mj-reveal-row" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small>${row.decision==='SPIN'?(row.loneWolf?'LONE WOLF · SLOT +1':'SLOT MACHINE'):(spinCount===0?'TAKE · VOLLER POT':'TAKE · −1 WEGEN SPINNER')}</small></span><b>${row.decision==='SPIN'?'SPIN '+row.slotBase:'+'+row.takePayout}</b></div>`).join('')}</div>
   </section>`;
-  timer=setTimeout(()=>{hide();onDone?.()},CONFIG.jackpot.decisionRevealMs);
+  later(()=>{hide();onDone?.()},CONFIG.jackpot.decisionRevealMs);
  }
  function showSpin({name,base,autoStart=false,onResolved}={}){
   hide();root.classList.add('is-open','is-blocking');
@@ -78,19 +83,19 @@ function makeUi(root){
    const reels=[...root.querySelectorAll('[data-reel]')];
    let tick=0;
    const interval=setInterval(()=>{tick++;reels.forEach((reel,i)=>{reel.querySelector('span').textContent=symbols[(tick+i)%symbols.length].glyph})},60);
-   [700,950,1200].forEach((ms,i)=>setTimeout(()=>{
+   [700,950,1200].forEach((ms,i)=>later(()=>{
     const symbol=symbols.find(s=>s.id===ids[i]);reels[i].querySelector('span').textContent=symbol.glyph;reels[i].classList.add('is-stopped');
     if(i===2){
      clearInterval(interval);
      const result=ENGINE.spinPayout(base,ids);
      root.querySelector('[data-result]').innerHTML=`<strong>${result.label}</strong><b>+${result.payout}</b><span>${String(result.multiplier).replace('.',',')}× BASIS</span>`;
      button.disabled=false;button.textContent='WEITER →';button.onclick=()=>{hide();onResolved?.(result)};
-     if(autoStart)setTimeout(()=>button.click(),360);
+     if(autoStart)later(()=>button.click(),360);
     }
    },ms));
   };
   button.addEventListener('click',startSpin,{once:true});
-  if(autoStart)setTimeout(()=>button.click(),360);
+  if(autoStart)later(()=>button.click(),360);
  }
  return {hide,showPotFill,showDecision,showDecisionReveal,showSpin};
 }
