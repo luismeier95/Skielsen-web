@@ -408,7 +408,21 @@ Payout is `round(slotBasis × multiplier)`.
 
 The exact configured expected RTP is **0.9453125 = 94.53125%**. The Jackpot engine contains a deterministic self-test for this value and for the TAKE/SPIN payout rules.
 
-### 11.6 LAB implementation boundary
+### 11.6 Jackpot UI wording and animation
+
+The LAB Jackpot UI follows these additional presentation rules:
+
+- If **exactly one** player won the triggering Minority round, the TAKE/SPIN screen is reduced. The three multiplayer explanation tiles (`ALLE TAKE`, `JEMAND SPIN`, `NUR 1× SPIN`) are hidden because no strategic interaction with another Jackpot winner exists.
+- Text inside TAKE/SPIN action cards is vertically and horizontally centered.
+- Player-facing Slot copy uses **Einsatz**, never **Basis**.
+- The pre-spin result field contains no `SPIN BEREIT` placeholder; it stays hidden until a result exists.
+- Reel stopping is visibly sequential from **left → middle → right**. A stopped reel may no longer be updated by the spinning ticker.
+- The Slot result shows both the original **Einsatz** and the resulting **Auszahlung** so the player can understand the transformation at a glance.
+- Multiplier copy uses `× EINSATZ`.
+- Pot-fill coins animate **behind** the pot artwork so they visually appear to fall into it.
+- The compact gameplay pot indicator uses the coin asset with a multiplier notation such as `×5` instead of a plain `POT 5` label.
+
+### 11.7 LAB implementation boundary
 
 The Jackpot subsystem is split into:
 
