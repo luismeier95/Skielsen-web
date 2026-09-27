@@ -1305,3 +1305,78 @@ body.minority-page.minority-game-active .m-options[data-count="4"]{
   .m-score-feedback-card{width:min(300px,calc(100vw - 20px))}
   .m-score-feedback-row{min-height:40px;padding:7px 10px}
 }
+
+
+/* MINORITY LAB · TEAM MODE V1
+   Four teams x two players. Player scores remain individual; team score is an aggregation. */
+.m-mode-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.m-ready-roster.is-team{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:0;
+}
+.m-ready-roster.is-team .m-ready-player{
+  min-width:0;
+}
+.m-ready-player-copy{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.m-ready-player-copy strong,
+.m-ready-player-copy small{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.m-ready-player-copy small{
+  color:var(--theme-muted,#777);
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+body.minority-page.minority-game-active .m-scorebar.is-team{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+body.minority-page.minority-game-active .m-team-score{
+  min-width:0;
+  padding:6px 3px;
+}
+body.minority-page.minority-game-active .m-team-score strong{
+  font-size:25px;
+}
+body.minority-page.minority-game-active .m-team-score span{
+  margin-top:4px;
+  font-size:9px;
+}
+body.minority-page.minority-game-active .m-team-score small{
+  display:block;
+  width:100%;
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--theme-muted,#777);
+  font-size:6.5px;
+  font-weight:800;
+  line-height:1;
+}
+.m-result-identity.is-team{
+  display:grid!important;
+  align-content:center;
+  gap:3px;
+}
+.m-result-identity.is-team small{
+  display:block;
+}
+@media(max-width:420px){
+  .m-ready-roster.is-team{
+    grid-template-columns:1fr;
+  }
+  body.minority-page.minority-game-active .m-team-score strong{font-size:22px}
+  body.minority-page.minority-game-active .m-team-score span{font-size:8px}
+  body.minority-page.minority-game-active .m-team-score small{font-size:5.8px}
+}
