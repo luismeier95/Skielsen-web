@@ -20,6 +20,10 @@
       <h1>QUICK GAMES.</h1>
       <p class="qg-lead">Ein fertiges Spiel wählen, Lobby teilen und freie Teams mit Bots auffüllen.</p>
       <div class="qg-game-grid">
+        <article class="qg-game-card qg-ttt-card">
+          <div><small>SOLO / TEAM · 2–4 PLÄTZE</small><h2>TIC TAC TOE</h2><p>Vier oder mehr Runden, wechselnder Start und gemeinsame Team-Modi.</p></div>
+          <button class="qg-create" data-game="tic_tac_toe" type="button">LOBBY ERSTELLEN →</button>
+        </article>
         <article class="qg-game-card">
           <div><small>TEAM · 2–8 PLAYER</small><h2>DNA</h2><p>Hinweise kombinieren, im Team abstimmen und Begriffe früh lösen.</p></div>
           <button class="qg-create" data-game="dna" type="button">LOBBY ERSTELLEN →</button>
@@ -37,7 +41,11 @@
 
     <section id="qgLobby" hidden>
       <span class="qg-kicker" id="qgLobbyGame">QUICK LOBBY</span>
-      <h1>TEAMPLÄTZE.</h1>
+      <h1 id="qgLobbyTitle">TEAMPLÄTZE.</h1>
+      <div class="qg-format" id="qgFormat" role="group" aria-label="Spielformat" hidden>
+        <button type="button" data-format="SOLO" aria-pressed="true">SOLO · 2 PLÄTZE</button>
+        <button type="button" data-format="TEAM" aria-pressed="false">TEAM · 4 PLÄTZE</button>
+      </div>
       <div class="qg-code"><small>LOBBYCODE</small><strong id="qgLobbyCode">—</strong><button id="qgCopy" type="button">CODE KOPIEREN</button></div>
       <p class="qg-lead" id="qgLobbyLead">Wählt freie Plätze; erst beim Start werden übrige Plätze mit Bots gefüllt.</p>
       <div class="qg-seats" id="qgSeats"></div>

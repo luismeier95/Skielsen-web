@@ -31,7 +31,7 @@ async function validSession(force=false){
  try{return await refreshPromise}finally{refreshPromise=null}
 }
 function feedback(message,type=''){const el=$('#qgFeedback');el.textContent=message||'';el.className='qg-feedback'+(type?' '+type:'')}
-function message(error){const m=String(error?.message||error||'');if(m.includes('LOBBY_NOT_FOUND'))return 'Lobbycode nicht gefunden oder Lobby bereits gestartet.';if(m.includes('LOBBY_FULL'))return 'Die Lobby ist bereits voll.';if(m.includes('FILL_REMAINING'))return 'Fülle zuerst die freien Plätze mit Bots.';if(m.includes('AUTH'))return 'Bitte melde dich zuerst auf der Landing Page an.';return m||'Quick Games konnte nicht geladen werden.'}
+function message(error){const m=String(error?.message||error||'');if(m.includes('LOBBY_NOT_FOUND'))return 'Lobbycode nicht gefunden oder Lobby bereits gestartet.';if(m.includes('LOBBY_FULL'))return 'Die Lobby ist bereits voll.';if(m.includes('FILL_REMAINING'))return 'Fülle zuerst die freien Plätze mit Bots.';if(m.includes('HOST_OPEN_TIC_TAC_TOE'))return 'Nur der Host kann das Spielformat ändern.';if(m.includes('OCCUPIED_SEATS'))return 'Belegte Plätze verhindern diesen Formatwechsel.';if(m.includes('AUTH'))return 'Bitte melde dich zuerst auf der Landing Page an.';return m||'Quick Games konnte nicht geladen werden.'}
 async function rpc(name,args={}){
  let s=await validSession();if(!s)throw new Error('AUTH_REQUIRED');
  const request=token=>fetch(`${URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:KEY,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(args)});
@@ -44,12 +44,17 @@ function render(){
  $('#qgChoose').hidden=true;$('#qgLobby').hidden=false;$('#qgLobbyCode').textContent=lobby.join_code;
  const players=new Map((lobby.players||[]).map(p=>[Number(p.seat),p]));
  const minority=lobby.game_key==='minority';
- $('#qgLobbyGame').textContent=(minority?'MINORITY':'DNA')+' · QUICK LOBBY';
- $('#qgLobbyLead').textContent=minority?'Vier Einzelplätze. Freie Plätze werden beim Start mit Bots gefüllt.':'Jedes Team hat zwei Plätze. Wählt freie Plätze, um zusammen im selben Team zu spielen; erst beim Start werden übrige Plätze mit Bots gefüllt.';
- if(minority){
-   $('#qgSeats').innerHTML=[1,2,3,4].map((seat,index)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<article class="qg-seat qg-seat--solo" style="--team:${COLORS[index]}"><small>PLAYER ${index+1} · ${PLAYER_NAMES[index]}</small><div class="qg-team-slots"><button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU':'PLAYER'):(filled?'BOT':'PLATZ WÄHLEN')}</span></button></div></article>`}).join('');
+ const ttt=lobby.game_key==='tic_tac_toe',solo=minority||(ttt&&lobby.participant_mode!=='TEAM');
+ $('#qgLobby').classList.toggle('qg-ttt-lobby',ttt);
+ $('#qgLobbyGame').textContent=(ttt?'TIC TAC TOE':minority?'MINORITY':'DNA')+' · QUICK LOBBY';
+ $('#qgLobbyTitle').textContent=solo?'EINZELPLÄTZE.':'TEAMPLÄTZE.';
+ $('#qgFormat').hidden=!ttt;
+ $('#qgFormat').querySelectorAll('button').forEach(b=>{b.disabled=!lobby.is_host;b.setAttribute('aria-pressed',String(b.dataset.format===lobby.participant_mode))});
+ $('#qgLobbyLead').textContent=solo?(ttt?'Zwei Einzelplätze. Variante und Timer wählt ihr nach dem Laden.':'Vier Einzelplätze. Freie Plätze werden beim Start mit Bots gefüllt.'):'Jedes Team hat zwei Plätze. Wählt freie Plätze, um zusammen im selben Team zu spielen; erst beim Start werden übrige Plätze mit Bots gefüllt.';
+ if(solo){
+   $('#qgSeats').innerHTML=(ttt?[1,2]:[1,2,3,4]).map((seat,index)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<article class="qg-seat qg-seat--solo" style="--team:${COLORS[index]}"><small>PLAYER ${index+1} · ${PLAYER_NAMES[index]}</small><div class="qg-team-slots"><button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU':'PLAYER'):(filled?'BOT':'PLATZ WÄHLEN')}</span></button></div></article>`}).join('');
  }else{
-   $('#qgSeats').innerHTML=NAMES.map((name,index)=>{const slots=[index*2+1,index*2+2];return `<article class="qg-seat" style="--team:${COLORS[index]}"><small>${name}</small><div class="qg-team-slots">${slots.map((seat,slotIndex)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU · PLATZ '+(slotIndex+1):'PLAYER · PLATZ '+(slotIndex+1)):(filled?'BOT · PLATZ '+(slotIndex+1):'PLATZ '+(slotIndex+1)+' WÄHLEN')}</span></button>`}).join('')}</div></article>`}).join('');
+   $('#qgSeats').innerHTML=(ttt?NAMES.slice(0,2):NAMES).map((name,index)=>{const slots=[index*2+1,index*2+2];return `<article class="qg-seat" style="--team:${COLORS[index]}"><small>${name}</small><div class="qg-team-slots">${slots.map((seat,slotIndex)=>{const p=players.get(seat),filled=!p&&lobby.bots_filled;return `<button class="qg-player-slot ${p?.is_me?'is-me':''}" type="button" data-seat="${seat}" ${p||filled?'disabled':''}><strong>${p?escapeHtml(p.display_name):(filled?'BOT':'FREIER PLATZ')}</strong><span>${p?(p.is_me?'DU · PLATZ '+(slotIndex+1):'PLAYER · PLATZ '+(slotIndex+1)):(filled?'BOT · PLATZ '+(slotIndex+1):'PLATZ '+(slotIndex+1)+' WÄHLEN')}</span></button>`}).join('')}</div></article>`}).join('');
  }
  document.querySelectorAll('[data-seat]:not(:disabled)').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('set_quick_game_seat',{p_lobby_id:lobby.lobby_id,p_seat:Number(e.currentTarget.dataset.seat)}))));
  $('#qgHostActions').hidden=!lobby.is_host;$('#qgWait').hidden=!!lobby.is_host;
@@ -57,14 +62,18 @@ function render(){
  $('#qgStart').disabled=!lobby.bots_filled&&(lobby.players||[]).length<Number(lobby.max_human_players||8);
  if(lobby.status==='LIVE'&&!navigating){
    navigating=true;
-   const gamePath=lobby.game_key==='minority'?'../minority-test/?quick_lobby=':'../dna-test/?quick_lobby=';
+   const gamePath=ttt?'./tic-tac-toe/?quick_lobby=':minority?'../minority-test/?quick_lobby=':'../dna-test/?quick_lobby=';
    location.assign(gamePath+encodeURIComponent(lobby.lobby_id));
  }
 }
 function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 async function refresh(){if(!lobby?.lobby_id)return;try{lobby=await rpc('get_quick_game_lobby',{p_lobby_id:lobby.lobby_id});render()}catch(err){feedback(message(err));stopPoll()}}
 function startPoll(){stopPoll();poll=setInterval(refresh,1500)}function stopPoll(){if(poll)clearInterval(poll);poll=0}
-async function act(button,fn){button.disabled=true;feedback('');try{lobby=await fn();render();startPoll()}catch(err){feedback(message(err))}finally{if(button.isConnected&&lobby?.status!=='LIVE')button.disabled=false}}
+async function act(button,fn){button.disabled=true;feedback('');try{lobby=await fn();render();startPoll()}catch(err){feedback(message(err))}finally{if(lobby)render();else if(button.isConnected)button.disabled=false}}
+// Shared authenticated transport for Quick Games; no second session implementation.
+window.skielsenQuickGames={rpc};
+if(!$('#qgChoose'))return;
+$('#qgFormat').querySelectorAll('button').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('set_quick_tic_tac_toe_format',{p_lobby_id:lobby.lobby_id,p_mode:e.currentTarget.dataset.format}))));
 document.querySelectorAll('.qg-create').forEach(button=>button.addEventListener('click',e=>act(e.currentTarget,()=>rpc('create_quick_game_lobby',{p_game_key:e.currentTarget.dataset.game}))));
 $('#qgJoin').addEventListener('click',e=>act(e.currentTarget,()=>rpc('join_quick_game_lobby',{p_join_code:$('#qgCode').value.trim().toUpperCase()})));
 $('#qgCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('#qgJoin').click()});

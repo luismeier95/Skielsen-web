@@ -1,0 +1,8 @@
+/* Quick host chrome only; setup, board and results use the production styles. */
+body.quick-ttt{margin:0;padding:0;min-height:100dvh;background:var(--theme-page);color:var(--theme-on-page)}
+.quick-ttt-nav{min-height:44px;padding:12px max(12px,env(safe-area-inset-left));padding-top:max(12px,env(safe-area-inset-top));background:var(--theme-header);color:var(--theme-on-header)}
+.quick-ttt-nav a{color:inherit;font:900 12px/1.4 Arial,sans-serif;text-decoration:none}
+#quickTicTacToe{min-height:calc(100dvh - 44px);padding-bottom:env(safe-area-inset-bottom)}
+#quickTicTacToe>p{padding:20px;font-size:14px}
+.quick-ttt .tttp-result-row{grid-template-columns:24px minmax(0,1fr) auto}
+.quick-ttt .tttp-result-card>header{flex-wrap:wrap;padding:12px;gap:8px}

@@ -15,7 +15,8 @@ const TEAM_MODE_COPY={
 let root=null,session=null,db=null,state=null,pollTimer=0,countdownTimer=0,pollBusy=false,lastSignature='',message='',localTest=null,localBotTimer=0,postgamePhase='RANKING',postgameBusy=false,postgameTimers=[],postgameRun=0,finalResultIngested=false;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const colorVar=c=>({BLUE:'var(--core-blue)',RED:'var(--core-red)',YELLOW:'var(--core-yellow)',GREEN:'var(--core-green)'})[String(c||'').toUpperCase()]||'var(--theme-accent)';
-const uuid=()=>crypto?.randomUUID?.()||('ttt-'+Date.now()+'-'+Math.random().toString(16).slice(2));
+// randomUUID requires HTTPS; LAN play also needs a valid PostgreSQL UUID.
+const uuid=()=>crypto.randomUUID?.()||'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(Number(c)^crypto.getRandomValues(new Uint8Array(1))[0]&15>>Number(c)/4).toString(16));
 
 function clearTimers(){
   clearInterval(pollTimer);pollTimer=0;
@@ -289,7 +290,7 @@ function renderReady(){
     if(!allReady)return;
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='MATCH WIRD GESTARTET …';setMessage('');
     try{
-      const ok=await window.skielsenV15?.startMatch?.();
+      const ok=session?.quick_game?true:await window.skielsenV15?.startMatch?.();
       if(!ok){
         btn.disabled=false;btn.textContent='MATCH STARTEN →';setMessage('MATCH KANN NOCH NICHT GESTARTET WERDEN.');
         return;
@@ -397,6 +398,7 @@ async function submitMove(index,btn){
     await rpc('submit_tic_tac_toe_move',{
       p_session_id:session.session_id,
       p_cell_index:index,
+      ...(session?.quick_game?{p_duel:phase()==='DECIDER_PLAYING'?'decider':phase()==='PARALLEL_PLAYING'?state.viewer?.my_subgame:'main'}:{}),
       p_client_action_id:uuid(),
       p_expected_round:Number(boardForViewer()?.round_number),
       p_expected_move:Number(boardForViewer()?.board_move_no)
@@ -520,6 +522,7 @@ function advanceTttPostgame(){
   postgamePhase='MERGE';renderComplete();
 }
 function renderComplete(){
+  if(session?.quick_game){renderQuickResult();return}
   const result=state?.result||{},handoff=result?.tournament_handoff||{},finalized=!!handoff.finalized;
   if(!finalized){
     const rows=Array.isArray(result.standings)?[...result.standings].sort((a,b)=>Number(a.placement)-Number(b.placement)):[];
@@ -538,6 +541,24 @@ function renderComplete(){
   if(postgamePhase==='JOKER'&&tttJokerAllowed(reveal)){renderFinalJoker(result,reveal);return}
   if(postgamePhase==='MERGE'||postgamePhase==='MERGE_COMPLETE'){renderFinalMerge(result);return}
   renderFinalRanking(result);
+}
+function renderQuickResult(){
+  const result=state?.result||{},rows=[...(result.standings||[])].sort((a,b)=>a.rank-b.rank);
+  const duels=result.duel_results||{};
+  const boards=[['DUELL',duels.main],['DUELL 1',duels.subgames?.['1']],['DUELL 2',duels.subgames?.['2']],['DECIDER',duels.decider]].filter(([,b])=>b);
+  root.innerHTML=`${header('ERGEBNIS','QUICK GAMES')}<main class="tttp-stage tttp-result">
+    <section class="tttp-result-card" aria-label="Spielranking">
+      <header><strong>RANKING</strong><span>${esc(variant())}</span></header>
+      ${rows.map(r=>`<div class="tttp-result-row"><b>${Number(r.rank)}.</b>${participantBadge(r.participant_id)}<strong>${r.rank===1?'SIEG':'NIEDERLAGE'}</strong></div>`).join('')}
+    </section>
+    ${boards.map(([name,b])=>`<section class="tttp-result-card" aria-label="${name} Matchpunkte">
+      <header><strong>${name} · MATCHPUNKTE</strong><span>${(b.round_results||[]).length} RUNDEN</span></header>
+      ${participantIds().map(pid=>`<div class="tttp-result-row"><b></b>${participantBadge(pid)}<strong>${Number(b.match_points?.[pid]||0)}</strong></div>`).join('')}
+    </section>`).join('')}
+    <button class="tttp-primary" type="button" data-quick-exit>ZURÜCK ZU QUICK GAMES →</button>
+  </main>`;
+  root.querySelector('[data-quick-exit]').addEventListener('click',()=>session.onQuickExit?.());
+  clearInterval(pollTimer);pollTimer=0;
 }
 function render(){
   if(!root||!state)return;

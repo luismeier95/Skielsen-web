@@ -87,6 +87,19 @@ Joker-, MVP-/LVP-Schritte oder Merge.
     `move_accepted=false` enthält trotzdem den aktuellen verbindlichen State.
   - Ergebnis direkt aus `result.standings` und `result.duel_results` nutzen;
     keine Client-Score-Submission und kein Turnier-Start-/Postgame-Aufruf.
+- Block 3 implementiert: `/quick-games/` enthält TicTacToe mit SOLO-/TEAM-
+  Formatwahl, Sitzplätzen, gemeinsamer Lobby und dem bestehenden Produktions-
+  TicTacToe-Modul. Der Quick-Adapter mappt Setup, READY, Spielerwahl, Moves,
+  Parallelboards und Decider auf die Quick-RPCs. Das Quick-Ergebnis zeigt
+  Ranking und Matchpunkte getrennt und beendet ohne Joker/Merge zurück zum
+  Katalog.
+- Frontend-Syntax, `python tools/verify.py` und die bestehenden TicTacToe-
+  Browser-Regressionen bestanden: 6 Viewports sowie Overlays, Timer-Remount
+  und Ranking/Joker/Merge/Close der Vollversion. Noch nicht geprüft sind echte
+  Supabase-Requests, zwei physische Geräte und eine live angewendete Migration.
+- Nächster Schritt (Block 4): Migration gezielt gegen das Remote-Schema prüfen,
+  Supabase-Advisors und echte RPC-Requests ausführen, Quick-Lobby auf zwei
+  Geräten testen, abschließende Regression/Cache-Prüfung, danach main und Pages.
 - Testbefehl: `PGLITE_MODULE=<PGlite-Pfad> node --test tools/test_quick_tic_tac_toe.mjs`.
 - Migrationshistorie im Repository ist unvollständig. Kein pauschales
   `migration repair` und kein unkontrolliertes `db push`. Geprüfte Migrationen
