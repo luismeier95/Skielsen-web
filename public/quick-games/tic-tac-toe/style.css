@@ -1,8 +1,157 @@
-/* Quick host chrome only; setup, board and results use the production styles. */
-body.quick-ttt{margin:0;padding:0;min-height:100dvh;background:var(--theme-page);color:var(--theme-on-page)}
-.quick-ttt-nav{min-height:44px;padding:12px max(12px,env(safe-area-inset-left));padding-top:max(12px,env(safe-area-inset-top));background:var(--theme-header);color:var(--theme-on-header)}
-.quick-ttt-nav a{color:inherit;font:900 12px/1.4 Arial,sans-serif;text-decoration:none}
-#quickTicTacToe{min-height:calc(100dvh - 44px);padding-bottom:env(safe-area-inset-bottom)}
+/* Quick Tic Tac Toe uses the approved /tic-tac-toe-test/ visual contract.
+   Quick-specific lobby/team screens remain production components; gameplay is bridged to the approved geometry. */
+body.quick-ttt{margin:0!important;padding:0!important;min-height:100dvh;background:var(--theme-page);color:var(--theme-on-page)}
+.quick-ttt-shell{min-height:100dvh}
+.quick-ttt-home{height:100%;display:flex;align-items:center;flex:0 0 auto;text-decoration:none;color:inherit}
+#quickTicTacToe{min-height:calc(100dvh - 45px)}
 #quickTicTacToe>p{padding:20px;font-size:14px}
-.quick-ttt .tttp-result-row{grid-template-columns:24px minmax(0,1fr) auto}
-.quick-ttt .tttp-result-card>header{flex-wrap:wrap;padding:12px;gap:8px}
+.quick-ttt #quickTicTacToe>.tttp-head{display:none!important}
+
+/* Quick-only pre-game screens: same rounded DNA and spacing as the approved standalone. */
+.quick-ttt #quickTicTacToe .tttp-stage{width:min(760px,100%);margin:0 auto;padding:16px 12px 22px}
+.quick-ttt #quickTicTacToe .tttp-prestart{gap:13px}
+.quick-ttt #quickTicTacToe .tttp-title{padding:4px 2px}
+.quick-ttt #quickTicTacToe .tttp-title small{font-size:12px!important}
+.quick-ttt #quickTicTacToe .tttp-title h2{font-size:clamp(48px,17vw,76px);line-height:.84;letter-spacing:-.055em}
+.quick-ttt #quickTicTacToe .tttp-choice,
+.quick-ttt #quickTicTacToe .tttp-player-pick,
+.quick-ttt #quickTicTacToe .tttp-team-ready>div,
+.quick-ttt #quickTicTacToe .tttp-ready-rules,
+.quick-ttt #quickTicTacToe .tttp-ready-roster,
+.quick-ttt #quickTicTacToe .tttp-primary,
+.quick-ttt #quickTicTacToe .tttp-wait{border-radius:var(--tttx-radius-card)}
+.quick-ttt #quickTicTacToe .tttp-choice{
+  min-height:76px;padding:13px 14px;border:1px solid var(--theme-border);
+  background:var(--theme-surface-soft);color:var(--theme-on-surface-soft);
+  justify-content:flex-end;gap:6px;box-shadow:none
+}
+.quick-ttt #quickTicTacToe .tttp-choice strong{font-family:var(--display,var(--ui));font-size:17px}
+.quick-ttt #quickTicTacToe .tttp-choice span{font-size:12px!important;line-height:1.35;font-weight:800}
+.quick-ttt #quickTicTacToe .tttp-choice.is-selected{
+  border-color:var(--theme-accent);background:var(--theme-accent);color:var(--theme-on-accent);
+  box-shadow:0 0 0 2px var(--theme-focus),0 0 20px color-mix(in srgb,var(--theme-accent) 30%,transparent)
+}
+.quick-ttt #quickTicTacToe .tttp-choice.is-selected span{color:inherit}
+.quick-ttt #quickTicTacToe .tttp-difficulty-grid{grid-template-columns:1fr;gap:9px}
+.quick-ttt #quickTicTacToe .tttp-timer-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.quick-ttt #quickTicTacToe .tttp-timer-options .tttp-choice{min-height:58px}
+.quick-ttt #quickTicTacToe .tttp-primary{
+  min-height:48px;border:1px solid var(--theme-primary-action);background:var(--theme-primary-action);
+  color:var(--theme-on-primary-action);font-size:12px!important;letter-spacing:.07em
+}
+.quick-ttt #quickTicTacToe[data-phase="DIFFICULTY"] .tttp-title small{font-size:0!important}
+.quick-ttt #quickTicTacToe[data-phase="DIFFICULTY"] .tttp-title small::after{content:"SPIELMODUS";font-size:12px}
+.quick-ttt #quickTicTacToe[data-phase="DIFFICULTY"] .tttp-title h2{font-size:0}
+.quick-ttt #quickTicTacToe[data-phase="DIFFICULTY"] .tttp-title h2::after{content:"TIC TAC TOE.";font-size:clamp(48px,17vw,76px)}
+.quick-ttt #quickTicTacToe[data-phase="READY_TO_START"] .tttp-title h2{font-size:0}
+.quick-ttt #quickTicTacToe[data-phase="READY_TO_START"] .tttp-title h2::after{content:"TIC TAC TOE.";font-size:clamp(48px,17vw,76px)}
+
+/* Approved standalone gameplay geometry. */
+.quick-ttt #quickTicTacToe .tttp-game-v3{
+  --tttp-rhythm:clamp(16px,2.6dvh,28px);
+  width:100%;height:calc(100dvh - 45px);margin:0;padding:8px 9px max(8px,env(safe-area-inset-bottom));
+  display:grid;grid-template-rows:auto auto auto minmax(0,1fr);row-gap:var(--tttp-rhythm);overflow:hidden
+}
+.quick-ttt #quickTicTacToe .tttp-config-bar{
+  min-height:74px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  border:1px solid var(--theme-border);border-radius:var(--tttx-radius-outer);
+  background:var(--theme-surface);overflow:hidden
+}
+.quick-ttt #quickTicTacToe .tttp-config-bar>strong{
+  min-width:0;min-height:74px;padding:10px 8px;display:flex;align-items:center;justify-content:center;
+  text-align:center;border-right:1px solid var(--theme-border);font-family:var(--display,var(--ui));
+  font-size:16px!important;font-weight:950;line-height:1;color:var(--theme-on-surface)
+}
+.quick-ttt #quickTicTacToe .tttp-config-bar>strong:last-child{border-right:0}
+.quick-ttt #quickTicTacToe .tttp-round-display{
+  min-height:56px;font-family:var(--display,var(--ui));font-size:56px!important;font-weight:950;line-height:1
+}
+.quick-ttt #quickTicTacToe .tttp-match-score{
+  min-height:56px;gap:12px;font-family:var(--display,var(--ui));font-size:56px!important;font-weight:950;line-height:1
+}
+.quick-ttt #quickTicTacToe .tttp-match-score>span{font-size:48px!important;color:var(--theme-on-page)}
+.quick-ttt #quickTicTacToe .tttp-board-area{min-height:0;display:grid;place-items:start center}
+.quick-ttt #quickTicTacToe .tttp-board-stack{
+  position:relative;width:min(100%,calc(100dvh - 154px),520px);display:flex;flex-direction:column;align-items:center
+}
+.quick-ttt #quickTicTacToe .tttp-board-shell{
+  width:100%;aspect-ratio:1;padding:8px;display:grid;place-items:center;
+  border:1px solid var(--theme-border);border-radius:var(--tttx-radius-outer);
+  outline:4px solid var(--tttp-turn,var(--theme-accent))!important;outline-offset:2px;
+  background:var(--theme-surface);color:var(--theme-on-surface)
+}
+.quick-ttt #quickTicTacToe .tttp-game-v3 .tttp-board{
+  position:relative;width:100%;height:100%;aspect-ratio:1;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));
+  gap:4px;border:0;border-radius:calc(var(--tttx-radius-outer) - 4px);overflow:hidden;
+  background:var(--theme-border-strong);box-shadow:none
+}
+.quick-ttt #quickTicTacToe .tttp-game-v3 .tttp-cell{
+  position:relative;z-index:1;min-width:0;min-height:0;padding:0;border:0;aspect-ratio:auto;
+  display:flex;align-items:center;justify-content:center;background:var(--theme-surface-soft);
+  color:var(--theme-on-surface-soft);box-shadow:none
+}
+.quick-ttt #quickTicTacToe .tttp-game-v3 .tttp-cell span{display:block;width:62%;height:62%}
+.quick-ttt #quickTicTacToe .tttp-game-v3 .tttp-cell svg{display:block;width:100%;height:100%;fill:currentColor}
+.quick-ttt #quickTicTacToe .tttp-game-v3 .tttp-cell.is-middle span{opacity:.66}
+.quick-ttt #quickTicTacToe .tttp-game-v3 .tttp-cell.is-oldest span{opacity:.33}
+.quick-ttt #quickTicTacToe .tttp-win-line{
+  position:absolute;inset:0;z-index:4;width:100%;height:100%;pointer-events:none;overflow:visible
+}
+.quick-ttt #quickTicTacToe .tttp-win-line line{
+  stroke:currentColor;stroke-width:7;stroke-linecap:round;vector-effect:non-scaling-stroke;filter:none;
+  stroke-dasharray:150;stroke-dashoffset:150;animation:quickTttWinDraw .32s cubic-bezier(.2,.8,.2,1) forwards
+}
+@keyframes quickTttWinDraw{to{stroke-dashoffset:0}}
+.quick-ttt #quickTicTacToe .tttp-board-overlay{
+  position:absolute;inset:0;z-index:7;display:grid;place-items:center;pointer-events:none;text-align:center
+}
+.quick-ttt #quickTicTacToe .tttp-overlay-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  max-width:calc(100% - 24px);padding:14px 20px;border:1px solid var(--theme-border-strong);
+  border-radius:16px;background:color-mix(in srgb,var(--theme-surface) 92%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--theme-on-page) 12%,transparent);text-shadow:none
+}
+.quick-ttt #quickTicTacToe .tttp-overlay-card strong,
+.quick-ttt #quickTicTacToe .tttp-overlay-card span{
+  font-family:var(--display,var(--ui));font-size:clamp(24px,7vw,48px)!important;font-weight:950;line-height:1;text-transform:uppercase;text-shadow:none
+}
+.quick-ttt #quickTicTacToe .tttp-overlay-card span:only-child{font-size:clamp(42px,13vw,86px)!important;line-height:.9}
+.quick-ttt #quickTicTacToe .tttp-timer-bar{
+  width:calc(100% - 16px);height:8px;left:8px;right:8px;top:-14px;margin:0 8px 3px;
+  border-radius:999px;background:var(--theme-surface-muted);overflow:hidden
+}
+.quick-ttt #quickTicTacToe .tttp-live-name,
+.quick-ttt #quickTicTacToe .tttp-live-wait{display:none!important}
+.quick-ttt #quickTicTacToe .tttp-game-v3>.tttp-feedback{display:none!important}
+
+/* Approved standalone result components are rendered directly for Quick results. */
+.quick-ttt .quick-tttx-duel-card .tttx-result-columns,
+.quick-ttt .quick-tttx-duel-card .tttx-result-row{grid-template-columns:42px minmax(0,1fr) 92px 1px}
+.quick-ttt .quick-tttx-result-label{font-size:12px;font-weight:950;text-align:right}
+.quick-ttt .tttx-result-row{opacity:1;transform:none}
+.quick-ttt .tttx-result-card.is-revealing .tttx-result-row{
+  opacity:0;transform:translateY(8px);animation:tttxResultRow .42s ease forwards;animation-delay:var(--delay,0ms)
+}
+@media(min-width:721px){
+  #quickTicTacToe{min-height:calc(100dvh - 68px)}
+  .quick-ttt #quickTicTacToe .tttp-stage{padding:30px 24px 34px}
+  .quick-ttt #quickTicTacToe .tttp-title h2,
+  .quick-ttt #quickTicTacToe[data-phase="DIFFICULTY"] .tttp-title h2::after,
+  .quick-ttt #quickTicTacToe[data-phase="READY_TO_START"] .tttp-title h2::after{font-size:clamp(64px,8vw,96px)}
+  .quick-ttt #quickTicTacToe .tttp-difficulty-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .quick-ttt #quickTicTacToe .tttp-timer-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .quick-ttt #quickTicTacToe .tttp-choice{min-height:104px;padding:15px}
+  .quick-ttt #quickTicTacToe .tttp-game-v3{height:calc(100dvh - 68px);padding:14px 20px 20px}
+  .quick-ttt #quickTicTacToe .tttp-config-bar,
+  .quick-ttt #quickTicTacToe .tttp-config-bar>strong{min-height:82px}
+  .quick-ttt #quickTicTacToe .tttp-board-stack{width:min(520px,calc(100dvh - 190px))}
+  .quick-ttt #quickTicTacToe .tttp-board-shell{padding:12px}
+  .quick-ttt .quick-tttx-duel-card .tttx-result-columns,
+  .quick-ttt .quick-tttx-duel-card .tttx-result-row{grid-template-columns:70px minmax(0,1fr) 120px 1px}
+}
+@media(max-width:420px){
+  .quick-ttt #quickTicTacToe .tttp-game-v3{--tttp-rhythm:clamp(12px,2.1dvh,20px)}
+  .quick-ttt #quickTicTacToe .tttp-round-display{font-size:56px!important}
+}
