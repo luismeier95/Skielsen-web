@@ -62,13 +62,35 @@ function makeUi(root){
   </section>`;
   root.querySelectorAll('[data-choice]').forEach(btn=>btn.addEventListener('click',()=>{const choice=btn.dataset.choice;hide();onChoose?.(choice)}));
  }
- function showDecisionReveal({rows,spinCount=0,playerName,onDone}={}){
+ function showResolutionBoard({rows,playerName}={}){
   hide();root.classList.add('is-open','is-blocking');
-  root.innerHTML=`<section class="mj-panel mj-reveal">
-   <small class="mj-kicker">JACKPOT REVEAL</small><h2>ENTSCHEIDUNGEN.</h2>
-   <div class="mj-reveal-list">${rows.map(row=>`<div class="mj-reveal-row" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small>${row.decision==='SPIN'?(row.loneWolf?'LONE WOLF · EINSATZ +1':'SLOT MACHINE'):(spinCount===0?'TAKE · VOLLER POT':'TAKE · −1 WEGEN SPINNER')}</small></span><b>${row.decision==='SPIN'?'SPIN '+row.slotBase:'+'+row.takePayout}</b></div>`).join('')}</div>
+  root.innerHTML=`<section class="mj-panel mj-resolution">
+   <small class="mj-kicker">JACKPOT</small>
+   <h2>ERGEBNIS.</h2>
+   <p>Diese Spieler durften über den Pot entscheiden.</p>
+   <div class="mj-reveal-list">${rows.map(row=>{
+    const isSpin=row.decision==='SPIN';
+    const detail=isSpin
+      ?'SPIN · EINSATZ '+row.slotBase
+      :'TAKE';
+    const status=isSpin
+      ?'<div class="loader mj-loader" aria-label="Spin läuft"></div>'
+      :'<b class="mj-payout is-ready">+'+row.takePayout+'</b>';
+    return `<div class="mj-reveal-row" data-seat="${row.seat}" style="--identity:${playerColor(row.seat)}"><i></i><span><strong>${playerName(row.seat)}</strong><small data-detail>${detail}</small></span><div class="mj-row-status" data-status>${status}</div></div>`;
+   }).join('')}</div>
   </section>`;
-  later(()=>{hide();onDone?.()},CONFIG.jackpot.decisionRevealMs);
+
+  return {
+   updateSpin(seat,result){
+    const row=root.querySelector('[data-seat="'+Number(seat)+'"]');
+    if(!row)return;
+    const detail=row.querySelector('[data-detail]');
+    const status=row.querySelector('[data-status]');
+    detail.textContent='SPIN · EINSATZ '+result.base;
+    status.innerHTML='<b class="mj-payout is-ready">+'+result.payout+'</b>';
+   },
+   hide
+  };
  }
  function showSpin({name,base,autoStart=false,onResolved}={}){
   hide();root.classList.add('is-open','is-blocking');
@@ -117,7 +139,7 @@ function makeUi(root){
   button.addEventListener('click',startSpin,{once:true});
   if(autoStart)later(()=>button.click(),360);
  }
- return {hide,showPotFill,showDecision,showDecisionReveal,showSpin};
+ return {hide,showPotFill,showDecision,showResolutionBoard,showSpin};
 }
 globalThis.SkielsenMinorityJackpotUI=Object.freeze({create:makeUi});
 })();
