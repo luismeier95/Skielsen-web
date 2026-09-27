@@ -86,11 +86,14 @@ Joker-, MVP-/LVP-Schritte oder Merge.
   - Ergebnis direkt aus `result.standings` und `result.duel_results` nutzen;
     keine Client-Score-Submission und kein Turnier-Start-/Postgame-Aufruf.
 - Block 3 implementiert: `/quick-games/` enthält TicTacToe mit SOLO-/TEAM-
-  Formatwahl, Sitzplätzen, gemeinsamer Lobby und dem bestehenden Produktions-
-  TicTacToe-Modul. Der Quick-Adapter mappt Setup, READY, Spielerwahl, Moves,
-  Parallelboards und Decider auf die Quick-RPCs. Das Quick-Ergebnis zeigt
-  Ranking und Matchpunkte getrennt und beendet ohne Joker/Merge zurück zum
-  Katalog.
+  Formatwahl, Sitzplätzen und gemeinsamer Lobby. Lobby, Teammodus und Server-
+  Synchronisierung bleiben Quick-spezifisch. Die sichtbare TicTacToe-UI folgt
+  verbindlich der freigegebenen Standalone unter `public/tic-tac-toe-test/`:
+  gleicher Header-/Board-Look, gleiche X/O-Formen, DISAPPEAR-Opacity, Timer,
+  Overlays, Win-Line, Abstände und Ergebnis-DNA. Der Quick-Adapter mappt READY,
+  Spielerwahl, Moves, Parallelboards und Decider auf die Quick-RPCs. Das Quick-
+  Ergebnis zeigt Ranking und Matchpunkte getrennt und beendet ohne Joker/Merge
+  zurück zum Katalog.
 - Frontend-Syntax, `python tools/verify.py` und die bestehenden TicTacToe-
   Browser-Regressionen bestanden: 6 Viewports sowie Overlays, Timer-Remount
   und Ranking/Joker/Merge/Close der Vollversion. Live-Schema-Prüfung siehe unten;
