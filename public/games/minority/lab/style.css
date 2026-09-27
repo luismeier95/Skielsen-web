@@ -1380,3 +1380,64 @@ body.minority-page.minority-game-active .m-team-score small{
   body.minority-page.minority-game-active .m-team-score span{font-size:8px}
   body.minority-page.minority-game-active .m-team-score small{font-size:5.8px}
 }
+
+
+/* MINORITY LAB · TEAM READY ROSTER V2
+   Same identity language as the result table: team color + player role + ready state. */
+.m-ready-roster.is-team{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.m-ready-roster.is-team .m-ready-player{
+  min-width:0;
+  grid-template-columns:5px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+}
+.m-ready-roster.is-team .m-ready-player>i{
+  width:5px;
+  height:32px;
+  border-radius:999px;
+  background:var(--identity);
+}
+.m-ready-roster.is-team .m-ready-player-copy{
+  min-width:0;
+  display:flex;
+  align-items:center;
+}
+.m-ready-roster.is-team .m-ready-player-copy strong{
+  color:var(--identity);
+  font-size:11px;
+  font-weight:950;
+  line-height:1;
+  white-space:nowrap;
+}
+.m-ready-status{
+  justify-self:end;
+  color:var(--theme-muted,#777);
+  font-size:10px;
+  font-weight:950;
+  line-height:1;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.m-ready-status.is-ready{
+  color:var(--theme-success-bg,#16864b);
+}
+.m-ready-status.is-waiting{
+  color:var(--theme-muted,#777);
+}
+@media(max-width:420px){
+  .m-ready-roster.is-team{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .m-ready-roster.is-team .m-ready-player{
+    padding:9px 8px;
+    gap:7px;
+  }
+  .m-ready-roster.is-team .m-ready-player-copy strong{
+    font-size:8.5px;
+  }
+  .m-ready-status{
+    font-size:8px;
+  }
+}
