@@ -266,7 +266,7 @@ function advanceLocal(){
 }
 function renderRanking(){
  const rows=standings().map((p,i)=>({...p,place:i+1,placementPoints:placementPoints(i)}));
- stage.innerHTML=\`
+ stage.innerHTML=`
    <section class="m-result-hero">
      <span class="m-result-kicker">GAME RANKING</span>
      <h1>ERGEBNIS.</h1>
@@ -286,25 +286,25 @@ function renderRanking(){
      </div>
 
      <div class="m-result-rows">
-       \${rows.map((p,i)=>\`
-         <div class="m-result-row" style="--delay:\${160+i*130}ms;--identity:\${p.color}">
-           <b class="m-result-place">\${String(p.place).padStart(2,'0')}</b>
+       ${rows.map((p,i)=>`
+         <div class="m-result-row" style="--delay:${160+i*130}ms;--identity:${p.color}">
+           <b class="m-result-place">${String(p.place).padStart(2,'0')}</b>
            <span class="m-result-player">
              <i></i>
              <span class="m-result-identity">
-               <strong>\${esc(p.name)}</strong>
+               <strong>${esc(p.name)}</strong>
                <small>SOLO</small>
              </span>
            </span>
-           <b class="m-result-score">\${p.score}</b>
-           <span class="m-placement-points"><b>+\${p.placementPoints}</b></span>
-         </div>\`).join('')}
+           <b class="m-result-score">${p.score}</b>
+           <span class="m-placement-points"><b>+${p.placementPoints}</b></span>
+         </div>`).join('')}
      </div>
    </section>
 
    <div class="m-result-actions">
-     <button class="m-primary m-blocking m-result-action" id="mAgain" type="button">\${state.mode==='remote'?'QUICK GAME BEENDEN →':'NOCHMAL'}</button>
-   </div>\`;
+     <button class="m-primary m-blocking m-result-action" id="mAgain" type="button">${state.mode==='remote'?'QUICK GAME BEENDEN →':'NOCHMAL'}</button>
+   </div>`;
 
  const card=document.querySelector('#mResultCard');
  requestAnimationFrame(()=>{
