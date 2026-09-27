@@ -129,10 +129,16 @@ function makeUi(root){
      clearInterval(interval);
      const result=ENGINE.spinPayout(base,ids);
      const resultNode=root.querySelector('[data-result]');
-     resultNode.classList.remove('is-empty');
-     resultNode.innerHTML=`<strong>${result.label}</strong><div class="mj-slot-values"><span><small>EINSATZ</small><b>+${result.base}</b></span><i>→</i><span><small>AUSZAHLUNG</small><b>+${result.payout}</b></span></div><em>${String(result.multiplier).replace('.',',')}× EINSATZ</em>`;
-     button.disabled=false;button.textContent='WEITER →';button.onclick=()=>{hide();onResolved?.(result)};
-     if(autoStart)later(()=>button.click(),360);
+     button.textContent='AUSWERTUNG …';
+
+     later(()=>{
+      resultNode.classList.remove('is-empty');
+      resultNode.innerHTML=`<strong>${result.label}</strong><div class="mj-slot-values"><span><small>EINSATZ</small><b>+${result.base}</b></span><i>→</i><span><small>AUSZAHLUNG</small><b>+${result.payout}</b></span></div><em>${String(result.multiplier).replace('.',',')}× EINSATZ</em>`;
+      button.disabled=false;
+      button.textContent='WEITER →';
+      button.onclick=()=>{hide();onResolved?.(result)};
+      if(autoStart)later(()=>button.click(),360);
+     },CONFIG.slot.resultRevealDelayMs);
     }
    },ms));
   };
