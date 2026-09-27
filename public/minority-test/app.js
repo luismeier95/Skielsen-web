@@ -35,6 +35,7 @@ function isMe(seat){
  const p=state.players.find(x=>Number(x.seat)===seat);
  return !!p?.is_me;
 }
+function placementPoints(index){return [5,4,2,0][index]??0}
 function standings(){
  return [1,2,3,4].map((seat,i)=>({seat,name:playerName(seat),score:Number(state.scores[i])||0,color:identity(seat)}))
  .sort((a,b)=>b.score-a.score||a.seat-b.seat);
@@ -264,36 +265,60 @@ function advanceLocal(){
  state.round+=1;state.roundValue=state.reveal?.nextRoundValue||1;state.choice=null;state.reveal=null;state.screen='game';render();
 }
 function renderRanking(){
- const rows=standings();
- stage.innerHTML=`
-   <section class="m-result-status"><strong>ERGEBNIS</strong></section>
+ const rows=standings().map((p,i)=>({...p,place:i+1,placementPoints:placementPoints(i)}));
+ stage.innerHTML=\`
+   <section class="m-result-hero">
+     <span class="m-result-kicker">GAME RANKING</span>
+     <h1>ERGEBNIS.</h1>
+   </section>
 
    <section class="m-result-card" id="mResultCard">
      <header>
        <strong>MINORITY · FINALES ERGEBNIS</strong>
        <span>HÖHER IST BESSER</span>
      </header>
+
      <div class="m-result-columns">
        <span>POSITION</span>
-       <span>NAME</span>
-       <span>SCORE</span>
+       <span>PLAYER</span>
+       <span>MINORITY</span>
+       <span></span>
      </div>
+
      <div class="m-result-rows">
-       ${rows.map((p,i)=>`
-         <div class="m-result-row" style="--delay:${140+i*120}ms;--identity:${p.color}">
-           <b>${String(i+1).padStart(2,'0')}</b>
+       \${rows.map((p,i)=>\`
+         <div class="m-result-row" style="--delay:\${160+i*130}ms;--identity:\${p.color}">
+           <b class="m-result-place">\${String(p.place).padStart(2,'0')}</b>
            <span class="m-result-player">
              <i></i>
-             <strong>${esc(p.name)}</strong>
+             <span class="m-result-identity">
+               <strong>\${esc(p.name)}</strong>
+               <small>SOLO</small>
+             </span>
            </span>
-           <strong class="m-result-score">${p.score}</strong>
-         </div>`).join('')}
+           <b class="m-result-score">\${p.score}</b>
+           <span class="m-placement-points"><b>+\${p.placementPoints}</b></span>
+         </div>\`).join('')}
      </div>
    </section>
 
-   <button class="m-primary m-result-action" id="mAgain" type="button">${state.mode==='remote'?'ZURÜCK ZU QUICK GAMES':'NOCHMAL'}</button>`;
- requestAnimationFrame(()=>document.querySelector('#mResultCard')?.classList.add('is-revealing'));
- document.querySelector('#mAgain').addEventListener('click',()=>{if(state.mode==='remote')location.assign('../quick-games/');else{state.screen='setup';state.choice=null;state.reveal=null;render()}});
+   <div class="m-result-actions">
+     <button class="m-primary m-blocking m-result-action" id="mAgain" type="button">\${state.mode==='remote'?'QUICK GAME BEENDEN →':'NOCHMAL'}</button>
+   </div>\`;
+
+ const card=document.querySelector('#mResultCard');
+ requestAnimationFrame(()=>{
+   card?.classList.add('is-revealing');
+   const resultRows=[...stage.querySelectorAll('.m-result-row')];
+   [...resultRows].reverse().forEach((row,i)=>{
+     setTimeout(()=>row.classList.add('is-plus-visible'),2000+i*260);
+   });
+ });
+
+ document.querySelector('#mAgain').addEventListener('click',()=>{
+   if(state.mode==='remote')location.assign('../quick-games/');
+   else{state.screen='setup';state.choice=null;state.reveal=null;render()}
+ });
 }
 function humanError(err){
  const m=String(err?.message||err||'');
