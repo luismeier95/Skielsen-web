@@ -61,9 +61,32 @@ Joker-, MVP-/LVP-Schritte oder Merge.
 - Globale Contracts, TicTacToe-v3-Contract und bestehender Quick-Games-Einstieg gelesen.
 - Quick Games unterstützt aktuell DNA (8 Plätze) und Minority (4 Einzelplätze).
 - TicTacToe v3 ist bereits live; seine Session-RPCs sind noch turniergebunden.
-- Nächster Schritt (Block 2): Setup/Spielerwahl/READY, serverseitige Botzüge,
-  Zug-RPC und Zustandsfortschritt auf Basis der v3-Duellfunktionen sowie
-  Quick-Ergebnis ohne Turnierübergabe.
+- Block 2 implementiert: Migration `20260927090429_quick_tic_tac_toe_play.sql`.
+  Host-Konfiguration, eigene Team-Spielerwahl, READY für alle Menschen,
+  Start, serverseitige Bots/Timeouts, serialisierte Moves und persistiertes
+  Ergebnis. Alle Modi inklusive SIMULTANEOUS 1:1 mit vollständigem v3-Decider.
+- 13 Quick-PostgreSQL-Tests bestanden, darunter ein komplettes SOLO-Duell
+  über legale RPC-Züge, alle Timer, Refresh, doppelte/veraltete Aktionen,
+  Bot-Taktung, Teamwahl, Decider und tatsächlicher `authenticated`-Rollenzugriff.
+  Routing-Tests für Team-Ergebnisse verwenden gezielte Engine-Fixtures.
+  Zusätzlich 22 bestehende v3- und 40 DNA-Tests bestanden;
+  `python tools/verify.py`: 33 JS-Dateien, 6 Inline-Skripte, keine Fehler.
+- Keine Live-DB-Änderung, kein UI-/Device-Test in diesem Backend-Block.
+  PGlite prüft PostgreSQL-Funktionen mit isolierten Tabellen; echte parallele
+  Netzwerkclients und Live-Schema-Kompatibilität sind noch in Block 4 zu prüfen.
+- Nächster Schritt (Block 3): Quick-Games-Katalog und Lobby anbinden,
+  Produktionsmodul mit RPC-Adapter verwenden, Quick-Ergebnis separat darstellen.
+  Verfügbare RPCs (jeweils `p_lobby_id`):
+  - `configure_quick_tic_tac_toe(p_team_mode,p_variant,p_turn_seconds)`;
+    optionale Parameter erlauben schrittweise Konfiguration.
+  - `select_quick_tic_tac_toe_player(p_member_id,p_selection='MATCH'/'DECIDER')`.
+  - `ready_quick_tic_tac_toe(p_ready)`, `start_quick_tic_tac_toe()`.
+  - `get_quick_tic_tac_toe_state()` liefert Produktionsfelder plus `quick_game`.
+  - `submit_quick_tic_tac_toe_move(p_cell_index,p_duel,p_expected_round,
+    p_expected_move,p_client_action_id)`; Duellschlüssel main/1/2/decider.
+    `move_accepted=false` enthält trotzdem den aktuellen verbindlichen State.
+  - Ergebnis direkt aus `result.standings` und `result.duel_results` nutzen;
+    keine Client-Score-Submission und kein Turnier-Start-/Postgame-Aufruf.
 - Testbefehl: `PGLITE_MODULE=<PGlite-Pfad> node --test tools/test_quick_tic_tac_toe.mjs`.
 - Migrationshistorie im Repository ist unvollständig. Kein pauschales
   `migration repair` und kein unkontrolliertes `db push`. Geprüfte Migrationen

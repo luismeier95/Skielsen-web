@@ -55,6 +55,23 @@ Die Vollversion bleibt im bestehenden In-App-/Supabase-/Turnierframework.
 - Quick-Sessions nutzen die existierenden v3-Duellfunktionen. Sie erzeugen
   keine Turniere, Turnierpunkte, Joker oder Merge. Abschluss: gemeinsames
   Ergebnis und Rückkehr zu Quick Games.
+- Der Host setzt Team-Modus, Variante und Timer vor Spielbeginn. Wirksame
+  Änderungen an Einstellungen oder MATCH-Spielerwahl setzen menschliche
+  READY-Bestätigungen zurück. Alle menschlichen Lobbyspieler müssen READY sein,
+  auch Zuschauer im SELECTED_PLAYER-Modus; Bots sind automatisch READY.
+- Menschen wählen MATCH-/DECIDER-Spieler ausschließlich im eigenen Team.
+  Ein Team ohne Menschen wählt serverseitig seinen ersten Bot.
+- Reguläre Botzüge verwenden dieselbe Engine und bevorzugen unmittelbare Siege,
+  danach das Vermeiden eines unmittelbaren Gegensieges. Die nächste Botaktion
+  ist nach einem Zug frühestens nach 700 ms fällig. Requests serialisieren
+  Zustandsfortschritt und führen höchstens einen automatischen Zug je Board aus.
+  Timeout-Züge verwenden weiterhin die v3-Strafregel statt der regulären Botwahl.
+- Spielzüge referenzieren Duell (main/1/2/decider), Runde und Zugnummer.
+  Wiederholungen derselben Clientaktion ändern den Zug nicht erneut;
+  veraltete Aktionen rollen bereits verarbeitete Timeouts nicht zurück.
+- Das unveränderliche Quick-Ergebnis liegt in der privaten Session:
+  Teilnehmer-Ranking, Gewinner, vollständige Duelle und getrennte Matchpunkte
+  je Duell. Es übernimmt keine vom Client gemeldeten Scores.
 - Implementierungsstand und nächste Schritte:
   `docs/games/tic-tac-toe/QUICK_GAMES_IMPLEMENTATION.md`.
 
