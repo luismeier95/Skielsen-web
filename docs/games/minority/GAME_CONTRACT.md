@@ -1,7 +1,7 @@
 # SKIELSEN Minority — Game Contract v1
 
 **Status:** Approved working rule set  
-**Version:** 1.2  
+**Version:** 1.3  
 **Date:** 2026-09-27  
 **Game key:** `minority`  
 **Platform:** Mobile-first, individual devices
@@ -259,6 +259,26 @@ Reveal behavior:
 - After those 2 seconds the client requests the next authoritative round automatically; no player confirmation is required.
 - Local QA follows the same 2-second reveal cadence.
 - A submitted answer stays locked while waiting for the server; no extra waiting card may change the active-play geometry.
+
+## 8.2 End Game Ranking
+
+Minority uses the canonical shared Result Table geometry, with **Tic Tac Toe as the visual reference**.
+
+SOLO ranking:
+- rows are ordered by final Minority score, highest first;
+- stable tie order remains seat order unless a later explicit tie-break rule is added;
+- each row shows POSITION, player identity/name and final Minority SCORE;
+- player identity accent/name uses that player's identity color;
+- rows reveal with the canonical shared ranking animation;
+- the old standalone layout of four separate large ranking cards is forbidden.
+
+Quick Games:
+- Quick Games shows only the game ranking itself;
+- no Tournament placement points, Joker step or Merge column is shown.
+
+Tournament integration:
+- the same Result Table component is reused;
+- tournament placement points may be added as the fourth canonical column only in the in-app tournament lifecycle before the later Merge step.
 
 ## 9. Player-count and future team mode
 
